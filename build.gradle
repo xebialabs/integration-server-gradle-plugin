@@ -49,4 +49,5 @@ dependencies {
     implementation gradleApi()
     implementation localGroovy()
     compile "org.ajoberstar:gradle-git:1.5.1"
+    compile "com.jcraft:jsch:0.1.55"
 }
