@@ -1,0 +1,44 @@
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'xebialabs.artifact'
+apply plugin: 'xebialabs.root.opinions'
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        mavenLocal()
+        ["public", "thirdparty", "releases"].each { r ->
+            maven {
+                credentials {
+                    username nexusUserName
+                    password nexusPassword
+                }
+                url "${nexusBaseUrl}/repositories/${r}"
+            }
+        }
+    }
+
+    dependencies {
+        classpath "com.xebialabs.gradle.plugins:gradle-xl-plugins-plugin:$xlPluginsPluginVersion"
+
+    }
+}
+
+group = 'com.xebialabs.gradle.plugins'
+defaultTasks 'build'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+}
