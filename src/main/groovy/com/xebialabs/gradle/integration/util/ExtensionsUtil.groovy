@@ -3,6 +3,8 @@ package com.xebialabs.gradle.integration.util
 import com.xebialabs.gradle.integration.IntegrationServerExtension
 import org.gradle.api.Project
 
+import java.nio.file.Paths
+
 class ExtensionsUtil {
     static def EXTENSION_NAME = "integrationServer"
 
@@ -37,6 +39,16 @@ class ExtensionsUtil {
             def propertyValue = extension[propertyName]
             propertyValue ? propertyValue : defaultValue
         }
+    }
+
+    static IntegrationServerExtension getExtension(Project project) {
+        project.extensions.getByType(IntegrationServerExtension)
+    }
+
+    static def getServerWorkingDir(Project project) {
+        def serverVersion = getExtension(project).serverVersion
+        def targetDir = project.buildDir.toPath().resolve(PluginUtils.DIST_DESTINATION_NAME).toAbsolutePath().toString()
+        Paths.get(targetDir, "xl-deploy-${serverVersion}-server").toAbsolutePath().toString()
     }
 
     static IntegrationServerExtension createAndInitialize(Project project) {

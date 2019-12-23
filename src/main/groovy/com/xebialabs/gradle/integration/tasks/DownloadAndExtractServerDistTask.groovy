@@ -1,15 +1,18 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.xebialabs.gradle.integration.IntegrationServerExtension
+import com.xebialabs.gradle.integration.util.ExtensionsUtil
+
 import static com.xebialabs.gradle.integration.util.ConfigurationsUtil.SERVER_DIST_CONFIG
 import static com.xebialabs.gradle.integration.util.PluginUtils.*
 import org.gradle.api.tasks.Copy
 
-class DownloadAndExtractServerDist extends Copy {
-    DownloadAndExtractServerDist() {
+class DownloadAndExtractServerDistTask extends Copy {
+    static NAME = "downloadAndExtractServer"
+
+    DownloadAndExtractServerDistTask() {
         this.configure {
             group = PLUGIN_GROUP
-            def serverVersion = project.extensions.getByType(IntegrationServerExtension).serverVersion
+            def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
             project.buildscript.dependencies.add(
                     SERVER_DIST_CONFIG,
                     "com.xebialabs.deployit:xl-deploy-base:${serverVersion}:server@zip"

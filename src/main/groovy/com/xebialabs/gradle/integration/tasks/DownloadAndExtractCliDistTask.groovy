@@ -1,16 +1,18 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.xebialabs.gradle.integration.IntegrationServerExtension
+import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import org.gradle.api.tasks.Copy
 
 import static com.xebialabs.gradle.integration.util.PluginUtils.*
 import static com.xebialabs.gradle.integration.util.ConfigurationsUtil.SERVER_CLI_DIST_CONFIG
 
-class DownloadAndExtractCliDist extends Copy {
-    DownloadAndExtractCliDist() {
+class DownloadAndExtractCliDistTask extends Copy {
+    static NAME = "downloadAndExtractCli"
+
+    DownloadAndExtractCliDistTask() {
         this.configure {
             group = PLUGIN_GROUP
-            def serverVersion = project.extensions.getByType(IntegrationServerExtension).serverVersion
+            def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
             project.buildscript.dependencies.add(
                     SERVER_CLI_DIST_CONFIG,
                     "com.xebialabs.deployit:xl-deploy-base:${serverVersion}:cli@zip"
