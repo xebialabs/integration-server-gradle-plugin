@@ -11,8 +11,7 @@ class CopyLicenseTask extends Copy {
         this.configure {
             group = PLUGIN_GROUP
             dependsOn project.tasks.getByName(DownloadAndExtractServerDistTask.NAME)
-            def licenseFile = ExtensionsUtil.getExtension(project).serverLicense
-            from { licenseFile }
+            from { ExtensionsUtil.getExtension(project).serverLicense }
             into { "${ExtensionsUtil.getServerWorkingDir(project)}/conf" }
         }
     }
