@@ -15,9 +15,7 @@ class IntegrationServerExtension {
 
     String serverContextRoot
 
-    File serverLicense
-
     Map<String, String> logLevels
 
-    List<Map<String, Object>> importArtifacts
+    Map<String, List<Object>> overlays
 }

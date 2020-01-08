@@ -61,9 +61,8 @@ class ExtensionsUtil {
         extension.akkaRemotingPort = resolveValue(project, extension, "akkaRemotingPort", findFreePort())
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
-        extension.serverLicense = resolveValue(project, extension, "serverLicense", null)
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())
-        extension.importArtifacts = resolveValue(project, extension, "importArtifacts", new ArrayList<Map<String, Object>>())
+        extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())
         extension
     }
 }
