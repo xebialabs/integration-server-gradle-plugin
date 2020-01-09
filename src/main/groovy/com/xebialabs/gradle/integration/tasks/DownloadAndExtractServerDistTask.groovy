@@ -3,7 +3,7 @@ package com.xebialabs.gradle.integration.tasks
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 
 import static com.xebialabs.gradle.integration.util.ConfigurationsUtil.SERVER_DIST_CONFIG
-import static com.xebialabs.gradle.integration.util.PluginUtils.*
+import static com.xebialabs.gradle.integration.util.PluginUtil.*
 import org.gradle.api.tasks.Copy
 
 class DownloadAndExtractServerDistTask extends Copy {

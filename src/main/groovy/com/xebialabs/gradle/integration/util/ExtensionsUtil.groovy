@@ -41,24 +41,29 @@ class ExtensionsUtil {
         }
     }
 
+    private static def resolveIntValue(Project project, IntegrationServerExtension extension, String propertyName, int defaultValue) {
+        Integer.parseInt(resolveValue(project, extension, propertyName, defaultValue) as String)
+    }
+
     static IntegrationServerExtension getExtension(Project project) {
         project.extensions.getByType(IntegrationServerExtension)
     }
 
     static def getServerWorkingDir(Project project) {
         def serverVersion = getExtension(project).serverVersion
-        def targetDir = project.buildDir.toPath().resolve(PluginUtils.DIST_DESTINATION_NAME).toAbsolutePath().toString()
+        def targetDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
         Paths.get(targetDir, "xl-deploy-${serverVersion}-server").toAbsolutePath().toString()
     }
 
     static IntegrationServerExtension createAndInitialize(Project project) {
         def extension = project.extensions.create(EXTENSION_NAME, IntegrationServerExtension)
 
-        extension.serverHttpPort = resolveValue(project, extension, "serverHttpPort", findFreePort())
-        extension.serverPingTotalTries = resolveValue(project, extension, "serverPingTotalTries", 60)
-        extension.serverPingRetrySleepTime = resolveValue(project, extension, "serverPingRetrySleepTime", 10)
-        extension.provisionSocketTimeout = resolveValue(project, extension, "provisionSocketTimeout", 6000)
-        extension.akkaRemotingPort = resolveValue(project, extension, "akkaRemotingPort", findFreePort())
+        extension.serverHttpPort = resolveIntValue(project, extension, "serverHttpPort", findFreePort())
+        extension.serverPingTotalTries = resolveIntValue(project, extension, "serverPingTotalTries", 60)
+        extension.serverPingRetrySleepTime = resolveIntValue(project, extension, "serverPingRetrySleepTime", 10)
+        extension.provisionSocketTimeout = resolveIntValue(project, extension, "provisionSocketTimeout", 6000)
+        extension.akkaRemotingPort = resolveIntValue(project, extension, "akkaRemotingPort", findFreePort())
+        extension.derbyPort = resolveIntValue(project, extension, "derbyPort", findFreePort())
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())

@@ -11,6 +11,8 @@ class IntegrationServerExtension {
 
     int akkaRemotingPort
 
+    int derbyPort
+
     String serverVersion
 
     String serverContextRoot

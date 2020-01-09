@@ -5,7 +5,7 @@ import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
 
-import static com.xebialabs.gradle.integration.util.PluginUtils.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class CopyOverlays extends DefaultTask {
     static NAME = "copyOverlays"
@@ -17,7 +17,7 @@ class CopyOverlays extends DefaultTask {
     CopyOverlays() {
         this.configure { ->
             group = PLUGIN_GROUP
-            dependsOn project.tasks.getByName(DownloadAndExtractServerDistTask.NAME)
+            mustRunAfter DownloadAndExtractServerDistTask.NAME
             project.afterEvaluate {
                 ExtensionsUtil.getExtension(project).overlays.each { definition ->
                     def configurationName = "integrationServer${definition.key.capitalize().replace("/", "")}"

@@ -3,7 +3,7 @@ package com.xebialabs.gradle.integration.tasks
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import org.gradle.api.tasks.Copy
 
-import static com.xebialabs.gradle.integration.util.PluginUtils.*
+import static com.xebialabs.gradle.integration.util.PluginUtil.*
 import static com.xebialabs.gradle.integration.util.ConfigurationsUtil.SERVER_CLI_DIST_CONFIG
 
 class DownloadAndExtractCliDistTask extends Copy {
