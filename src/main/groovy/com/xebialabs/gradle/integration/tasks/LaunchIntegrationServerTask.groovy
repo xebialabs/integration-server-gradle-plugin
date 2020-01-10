@@ -5,6 +5,7 @@ import com.typesafe.config.ConfigRenderOptions
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.HTTPUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
+import static com.xebialabs.gradle.integration.util.ShutdownUtil.shutdownServer
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
@@ -16,7 +17,6 @@ import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class LaunchIntegrationServerTask extends DefaultTask {
     static NAME = "launchIntegrationServer"
-    private static ENV = ["DEPLOYIT_SERVER_OPTS": "-Xmx1024m -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n"]
 
     LaunchIntegrationServerTask() {
         this.configure {
@@ -28,6 +28,15 @@ class LaunchIntegrationServerTask extends DefaultTask {
                     "derbyStart"
             )
         }
+    }
+
+    private def getEnv() {
+        def extension = ExtensionsUtil.getExtension(project)
+        def opts = "-Xmx1024m"
+        if (extension.serverDebugPort) {
+            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${extension.serverDebugPort}"
+        }
+        ["DEPLOYIT_SERVER_OPTS": opts]
     }
 
     private def getBinDir() {
@@ -85,7 +94,7 @@ class LaunchIntegrationServerTask extends DefaultTask {
         ProcessUtil.exec([
                 command    : "run",
                 params     : ["-setup", "-reinitialize", "-force", "-setup-defaults", "conf/deployit.conf"],
-                environment: ENV,
+                environment: getEnv(),
                 workDir    : getBinDir(),
                 wait       : true
         ])
@@ -95,7 +104,6 @@ class LaunchIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("Launching server")
         ProcessUtil.exec([
                 command    : "run",
-                environment: ENV,
                 workDir    : getBinDir()
         ])
     }
@@ -127,6 +135,7 @@ class LaunchIntegrationServerTask extends DefaultTask {
 
     @TaskAction
     void launch() {
+        shutdownServer(project)
         writeConfFile()
         writeXlDeployConf()
         initialize()

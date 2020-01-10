@@ -16,16 +16,15 @@ class ExtensionsUtil {
             int port = socket.getLocalPort()
             try {
                 socket.close()
-            } catch (IOException e) {
-                // Ignore IOException on close()
+            } catch (ignore) {
             }
             return port
-        } catch (IOException e) {
+        } catch (ignore) {
         } finally {
             if (socket != null) {
                 try {
                     socket.close()
-                } catch (IOException e) {
+                } catch (ignore) {
                 }
             }
         }
@@ -41,8 +40,11 @@ class ExtensionsUtil {
         }
     }
 
-    private static def resolveIntValue(Project project, IntegrationServerExtension extension, String propertyName, int defaultValue) {
-        Integer.parseInt(resolveValue(project, extension, propertyName, defaultValue) as String)
+    private static def resolveIntValue(Project project, IntegrationServerExtension extension, String propertyName, def defaultValue) {
+        def value = resolveValue(project, extension, propertyName, defaultValue)
+        if (value == null) {
+            null as Integer
+        } else Integer.parseInt(value as String)
     }
 
     static IntegrationServerExtension getExtension(Project project) {
@@ -57,17 +59,16 @@ class ExtensionsUtil {
 
     static IntegrationServerExtension createAndInitialize(Project project) {
         def extension = project.extensions.create(EXTENSION_NAME, IntegrationServerExtension)
-
         extension.serverHttpPort = resolveIntValue(project, extension, "serverHttpPort", findFreePort())
         extension.serverPingTotalTries = resolveIntValue(project, extension, "serverPingTotalTries", 60)
         extension.serverPingRetrySleepTime = resolveIntValue(project, extension, "serverPingRetrySleepTime", 10)
         extension.provisionSocketTimeout = resolveIntValue(project, extension, "provisionSocketTimeout", 6000)
         extension.akkaRemotingPort = resolveIntValue(project, extension, "akkaRemotingPort", findFreePort())
         extension.derbyPort = resolveIntValue(project, extension, "derbyPort", findFreePort())
+        extension.serverDebugPort = resolveIntValue(project, extension, "serverDebugPort", null)
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())
         extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())
-        extension
     }
 }

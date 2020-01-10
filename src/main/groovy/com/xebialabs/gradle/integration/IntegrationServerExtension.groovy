@@ -1,17 +1,19 @@
 package com.xebialabs.gradle.integration
 
 class IntegrationServerExtension {
-    int serverHttpPort
+    Integer serverHttpPort
 
-    int serverPingTotalTries
+    Integer serverPingTotalTries
 
-    int serverPingRetrySleepTime
+    Integer serverPingRetrySleepTime
 
-    int provisionSocketTimeout
+    Integer provisionSocketTimeout
 
-    int akkaRemotingPort
+    Integer akkaRemotingPort
 
-    int derbyPort
+    Integer derbyPort
+
+    Integer serverDebugPort
 
     String serverVersion
 
