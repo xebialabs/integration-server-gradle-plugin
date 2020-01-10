@@ -41,9 +41,10 @@ class IntegrationServerPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         ConfigurationsUtil.registerConfigurations(project)
-        ExtensionsUtil.createAndInitialize(project)
+        ExtensionsUtil.create(project)
 
         project.afterEvaluate {
+            ExtensionsUtil.initialize(project)
             createTasks(project)
             applyPlugins(project)
         }

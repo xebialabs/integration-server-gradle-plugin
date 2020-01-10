@@ -57,8 +57,12 @@ class ExtensionsUtil {
         Paths.get(targetDir, "xl-deploy-${serverVersion}-server").toAbsolutePath().toString()
     }
 
-    static IntegrationServerExtension createAndInitialize(Project project) {
-        def extension = project.extensions.create(EXTENSION_NAME, IntegrationServerExtension)
+    static create(Project project) {
+        project.extensions.create(EXTENSION_NAME, IntegrationServerExtension)
+    }
+
+    static initialize(Project project) {
+        def extension = getExtension(project)
         extension.serverHttpPort = resolveIntValue(project, extension, "serverHttpPort", findFreePort())
         extension.serverPingTotalTries = resolveIntValue(project, extension, "serverPingTotalTries", 60)
         extension.serverPingRetrySleepTime = resolveIntValue(project, extension, "serverPingRetrySleepTime", 10)
