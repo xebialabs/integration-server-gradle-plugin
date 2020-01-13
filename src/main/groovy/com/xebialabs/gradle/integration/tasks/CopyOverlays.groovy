@@ -26,7 +26,7 @@ class CopyOverlays extends DefaultTask {
                         project.buildscript.dependencies.add(configurationName, dependencyNotation)
                     }
 
-                    this.dependsOn project.getTasks().register("copy${configurationName.capitalize()}", Copy.class, new Action<Copy>() {
+                    def task = project.getTasks().register("copy${configurationName.capitalize()}", Copy.class, new Action<Copy>() {
                         @Override
                         void execute(Copy copy) {
                             config.files.each { file ->
@@ -35,6 +35,8 @@ class CopyOverlays extends DefaultTask {
                             copy.into { "${ExtensionsUtil.getServerWorkingDir(project)}/${definition.key}" }
                         }
                     })
+                    project.tasks.getByName(task.name).dependsOn DownloadAndExtractServerDistTask.NAME
+                    this.dependsOn task
                 }
             }
         }
