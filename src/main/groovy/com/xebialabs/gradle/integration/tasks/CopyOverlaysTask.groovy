@@ -7,14 +7,14 @@ import org.gradle.api.tasks.Copy
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
-class CopyOverlays extends DefaultTask {
+class CopyOverlaysTask extends DefaultTask {
     static NAME = "copyOverlays"
 
     static boolean shouldUnzip(File file) {
         file.name.endsWith(".zip")
     }
 
-    CopyOverlays() {
+    CopyOverlaysTask() {
         this.configure { ->
             group = PLUGIN_GROUP
             mustRunAfter DownloadAndExtractServerDistTask.NAME

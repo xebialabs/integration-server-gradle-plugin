@@ -1,10 +1,11 @@
 package com.xebialabs.gradle.integration
 
-import com.xebialabs.gradle.integration.tasks.CopyOverlays
+import com.xebialabs.gradle.integration.tasks.CopyOverlaysTask
 import com.xebialabs.gradle.integration.tasks.DownloadAndExtractCliDistTask
 import com.xebialabs.gradle.integration.tasks.DownloadAndExtractServerDistTask
 import com.xebialabs.gradle.integration.tasks.LaunchIntegrationServerTask
 import com.xebialabs.gradle.integration.tasks.PrepareDatabaseTask
+import com.xebialabs.gradle.integration.tasks.SetLogbackLevelsTask
 import com.xebialabs.gradle.integration.tasks.ShutdownIntegrationServerTask
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
@@ -16,10 +17,11 @@ class IntegrationServerPlugin implements Plugin<Project> {
     private static void createTasks(Project project) {
         project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
         project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
-        project.tasks.create(CopyOverlays.NAME, CopyOverlays)
+        project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(LaunchIntegrationServerTask.NAME, LaunchIntegrationServerTask)
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
+        project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
     }
 
     private static applyDerbyPlugin(Project project) {
@@ -33,7 +35,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         def stopDerbyTask = project.tasks.getByName("derbyStop")
         startDerbyTask.dependsOn(stopDerbyTask.name)
         TaskUtil.dontFailOnException(stopDerbyTask)
-        startDerbyTask.mustRunAfter(CopyOverlays.NAME)
+        startDerbyTask.mustRunAfter(CopyOverlaysTask.NAME)
     }
 
     private static void applyPlugins(Project project) {

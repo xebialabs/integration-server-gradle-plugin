@@ -24,7 +24,8 @@ class LaunchIntegrationServerTask extends DefaultTask {
 
             dependsOn(
                     DownloadAndExtractServerDistTask.NAME,
-                    CopyOverlays.NAME,
+                    CopyOverlaysTask.NAME,
+                    SetLogbackLevelsTask.NAME,
                     "derbyStart"
             )
         }
