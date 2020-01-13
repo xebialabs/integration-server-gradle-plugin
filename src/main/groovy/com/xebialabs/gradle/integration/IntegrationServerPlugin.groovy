@@ -4,6 +4,7 @@ import com.xebialabs.gradle.integration.tasks.CopyOverlays
 import com.xebialabs.gradle.integration.tasks.DownloadAndExtractCliDistTask
 import com.xebialabs.gradle.integration.tasks.DownloadAndExtractServerDistTask
 import com.xebialabs.gradle.integration.tasks.LaunchIntegrationServerTask
+import com.xebialabs.gradle.integration.tasks.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.ShutdownIntegrationServerTask
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
@@ -18,6 +19,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(CopyOverlays.NAME, CopyOverlays)
         project.tasks.create(LaunchIntegrationServerTask.NAME, LaunchIntegrationServerTask)
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
+        project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
     }
 
     private static applyDerbyPlugin(Project project) {

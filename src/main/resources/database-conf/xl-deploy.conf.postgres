@@ -1,0 +1,12 @@
+xl {
+    repository {
+        database {
+            db-driver-classname="org.postgresql.Driver"
+            db-password="demo"
+            db-url="jdbc:postgresql://localhost/postgres"
+            db-username=postgres
+            max-pool-size=10
+        }
+    }
+}
+xl.repository.artifacts.root = "build/artifacts"

@@ -1,0 +1,12 @@
+xl {
+    repository {
+        database {
+            db-driver-classname="com.mysql.jdbc.Driver"
+            db-password="xldrepo"
+            db-url="jdbc:mysql://localhost:3316/xld?autoReconnect=true&useLegacyDatetimeCode=false"
+            db-username='xldrepo'
+            max-pool-size=10
+        }
+    }
+}
+xl.repository.artifacts.root = "build/artifacts"

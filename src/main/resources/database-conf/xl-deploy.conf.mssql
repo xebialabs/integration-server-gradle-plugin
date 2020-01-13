@@ -1,0 +1,11 @@
+xl {
+    repository {
+        database {
+            db-driver-classname="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+            db-url="jdbc:sqlserver://localhost:1433"
+            db-username=xldrepo
+            db-password="xldrepo"
+            max-pool-size=10
+        }
+    }
+}
