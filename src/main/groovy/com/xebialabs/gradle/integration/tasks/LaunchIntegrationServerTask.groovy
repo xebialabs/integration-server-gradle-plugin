@@ -104,8 +104,8 @@ class LaunchIntegrationServerTask extends DefaultTask {
     private void startServer() {
         project.logger.lifecycle("Launching server")
         ProcessUtil.exec([
-                command    : "run",
-                workDir    : getBinDir()
+                command: "run",
+                workDir: getBinDir()
         ])
     }
 
