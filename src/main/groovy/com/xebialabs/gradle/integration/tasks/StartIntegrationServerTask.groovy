@@ -37,7 +37,7 @@ class StartIntegrationServerTask extends DefaultTask {
         if (extension.serverDebugPort) {
             opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${extension.serverDebugPort}"
         }
-        ["DEPLOYIT_SERVER_OPTS": opts]
+        ["DEPLOYIT_SERVER_OPTS": opts.toString()]
     }
 
     private def getBinDir() {
@@ -95,7 +95,6 @@ class StartIntegrationServerTask extends DefaultTask {
         ProcessUtil.exec([
                 command    : "run",
                 params     : ["-setup", "-reinitialize", "-force", "-setup-defaults", "conf/deployit.conf"],
-                environment: getEnv(),
                 workDir    : getBinDir(),
                 wait       : true
         ])
@@ -105,6 +104,7 @@ class StartIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("Launching server")
         ProcessUtil.exec([
                 command: "run",
+                environment: getEnv(),
                 workDir: getBinDir()
         ])
     }
