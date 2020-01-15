@@ -4,7 +4,7 @@ import com.xebialabs.gradle.integration.tasks.CheckUILibVersionsTask
 import com.xebialabs.gradle.integration.tasks.CopyOverlaysTask
 import com.xebialabs.gradle.integration.tasks.DownloadAndExtractCliDistTask
 import com.xebialabs.gradle.integration.tasks.DownloadAndExtractServerDistTask
-import com.xebialabs.gradle.integration.tasks.LaunchIntegrationServerTask
+import com.xebialabs.gradle.integration.tasks.StartIntegrationServerTask
 import com.xebialabs.gradle.integration.tasks.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.SetLogbackLevelsTask
 import com.xebialabs.gradle.integration.tasks.ShutdownIntegrationServerTask
@@ -19,7 +19,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
         project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
-        project.tasks.create(LaunchIntegrationServerTask.NAME, LaunchIntegrationServerTask)
+        project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask)
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)

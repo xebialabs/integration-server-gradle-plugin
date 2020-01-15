@@ -15,10 +15,10 @@ import java.util.concurrent.TimeUnit
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
-class LaunchIntegrationServerTask extends DefaultTask {
-    static NAME = "launchIntegrationServer"
+class StartIntegrationServerTask extends DefaultTask {
+    static NAME = "startIntegrationServer"
 
-    LaunchIntegrationServerTask() {
+    StartIntegrationServerTask() {
         this.configure {
             group = PLUGIN_GROUP
 
