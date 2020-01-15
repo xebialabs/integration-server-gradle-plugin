@@ -3,6 +3,7 @@ apply plugin: 'idea'
 apply plugin: 'xebialabs.artifact'
 apply plugin: 'xebialabs.root.opinions'
 apply plugin: 'com.xebialabs.dependency'
+apply plugin: 'xebialabs.opinions'
 
 buildscript {
     repositories {
@@ -25,11 +26,6 @@ buildscript {
     }
 }
 
-repositories {
-    jcenter()
-    mavenCentral()
-}
-
 group = 'com.xebialabs.gradle.plugins'
 defaultTasks 'build'
 
@@ -46,10 +42,12 @@ idea {
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
-    implementation('org.codehaus.groovy.modules.http-builder:http-builder:0.7.1') {
+    implementation("org.codehaus.groovy.modules.http-builder:http-builder:$httpBuilderVersion") {
         exclude group: 'org.codehaus.groovy', module: 'groovy'
     }
-    implementation('com.typesafe:config:1.4.0')
+    implementation "com.typesafe:config:$typesafeConfigVersion"
+    implementation "de.vandermeer:asciitable:$asciitableVersion"
+    implementation "commons-io:commons-io:$commonsIOVersion"
 }
 
 tasks.release.dependsOn(build, uploadArchives)

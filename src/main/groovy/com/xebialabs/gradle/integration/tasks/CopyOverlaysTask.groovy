@@ -18,6 +18,7 @@ class CopyOverlaysTask extends DefaultTask {
         this.configure { ->
             group = PLUGIN_GROUP
             mustRunAfter DownloadAndExtractServerDistTask.NAME
+            finalizedBy CheckUILibVersionsTask.NAME
             project.afterEvaluate {
                 ExtensionsUtil.getExtension(project).overlays.each { definition ->
                     def configurationName = "integrationServer${definition.key.capitalize().replace("/", "")}"

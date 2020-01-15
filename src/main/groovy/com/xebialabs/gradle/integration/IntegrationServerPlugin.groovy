@@ -1,5 +1,6 @@
 package com.xebialabs.gradle.integration
 
+import com.xebialabs.gradle.integration.tasks.CheckUILibVersionsTask
 import com.xebialabs.gradle.integration.tasks.CopyOverlaysTask
 import com.xebialabs.gradle.integration.tasks.DownloadAndExtractCliDistTask
 import com.xebialabs.gradle.integration.tasks.DownloadAndExtractServerDistTask
@@ -22,6 +23,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
+        project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
     }
 
     private static applyDerbyPlugin(Project project) {
