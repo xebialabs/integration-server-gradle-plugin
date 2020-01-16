@@ -47,6 +47,16 @@ class ExtensionsUtil {
         } else Integer.parseInt(value as String)
     }
 
+    private static def resolveBooleanValue(Project project, IntegrationServerExtension extension, String propertyName) {
+        if (project.hasProperty(propertyName)) {
+            def value = project.property(propertyName)
+            !value || Boolean.parseBoolean(value as String)
+        } else {
+            def valueFromExtension = extension[propertyName]
+            valueFromExtension != null ? valueFromExtension : false
+        }
+    }
+
     static IntegrationServerExtension getExtension(Project project) {
         project.extensions.getByType(IntegrationServerExtension)
     }
@@ -70,6 +80,7 @@ class ExtensionsUtil {
         extension.akkaRemotingPort = resolveIntValue(project, extension, "akkaRemotingPort", findFreePort())
         extension.derbyPort = resolveIntValue(project, extension, "derbyPort", findFreePort())
         extension.serverDebugPort = resolveIntValue(project, extension, "serverDebugPort", null)
+        extension.serverDebugSuspend = resolveBooleanValue(project, extension, "serverDebugSuspend")
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())

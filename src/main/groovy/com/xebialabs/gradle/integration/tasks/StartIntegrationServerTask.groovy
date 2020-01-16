@@ -34,8 +34,9 @@ class StartIntegrationServerTask extends DefaultTask {
     private def getEnv() {
         def extension = ExtensionsUtil.getExtension(project)
         def opts = "-Xmx1024m"
+        def suspend = extension.serverDebugSuspend ? 'y' : 'n'
         if (extension.serverDebugPort) {
-            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${extension.serverDebugPort}"
+            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.serverDebugPort}"
         }
         ["DEPLOYIT_SERVER_OPTS": opts.toString()]
     }

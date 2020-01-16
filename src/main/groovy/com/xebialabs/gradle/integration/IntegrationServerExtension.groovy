@@ -15,6 +15,8 @@ class IntegrationServerExtension {
 
     Integer serverDebugPort
 
+    Boolean serverDebugSuspend
+
     String serverVersion
 
     String serverContextRoot
