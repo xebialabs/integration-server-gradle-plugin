@@ -4,6 +4,8 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
+import java.nio.file.Files
+
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class PrepareDatabaseTask extends DefaultTask {
@@ -28,12 +30,14 @@ class PrepareDatabaseTask extends DefaultTask {
 
     private void copyDatabaseConf() {
         def from = PrepareDatabaseTask.class.classLoader.getResourceAsStream("database-conf/xl-deploy.conf.${databaseName()}")
-        def into = project.buildDir.toPath().resolve("resources").resolve("test").resolve("xl-deploy.conf").toFile()
-        into.mkdirs()
-        into.delete()
-        into.createNewFile()
-        into << from
-        from.close()
+        def intoDir = project.rootDir.toPath().resolve("src").resolve("test").resolve("resources")
+        if (Files.exists(intoDir)) {
+            def into = intoDir.resolve("xl-deploy.conf").toFile()
+            into.delete()
+            into.createNewFile()
+            into << from
+            from.close()
+        }
     }
 
     private static void injectDbDependency(Project project, def dbName) {
