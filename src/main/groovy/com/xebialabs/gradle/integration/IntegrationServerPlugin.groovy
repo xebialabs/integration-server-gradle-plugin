@@ -35,8 +35,8 @@ class IntegrationServerPlugin implements Plugin<Project> {
         derbyExtension.port = extension.derbyPort
         def startDerbyTask = project.tasks.getByName("derbyStart")
         def stopDerbyTask = project.tasks.getByName("derbyStop")
-        startDerbyTask.dependsOn(stopDerbyTask.name)
         TaskUtil.dontFailOnException(stopDerbyTask)
+        stopDerbyTask.actions.each {startDerbyTask.doFirst {it}}
         startDerbyTask.mustRunAfter(CopyOverlaysTask.NAME)
     }
 
