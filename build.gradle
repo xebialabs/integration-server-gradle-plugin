@@ -48,6 +48,8 @@ dependencies {
     implementation "com.typesafe:config:$typesafeConfigVersion"
     implementation "de.vandermeer:asciitable:$asciitableVersion"
     implementation "commons-io:commons-io:$commonsIOVersion"
+    implementation "org.postgresql:postgresql:42.2.9"
+    compile "org.dbunit:dbunit:2.4.9"
 }
 
 tasks.release.dependsOn(build, uploadArchives)
