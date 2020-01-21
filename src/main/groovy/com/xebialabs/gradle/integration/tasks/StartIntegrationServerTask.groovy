@@ -6,6 +6,10 @@ import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.HTTPUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
+import org.apache.commons.io.IOUtils
+
+import java.nio.charset.StandardCharsets
+
 import static com.xebialabs.gradle.integration.util.ShutdownUtil.shutdownServer
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -66,38 +70,23 @@ class StartIntegrationServerTask extends DefaultTask {
         def extension = ExtensionsUtil.getExtension(project)
         def defaultConf = new File("${ExtensionsUtil.getServerWorkingDir(project)}/conf/xl-deploy.conf")
 
-        def dbConfig = """
-                database {
-                  db-url = "jdbc:derby://localhost:${extension.derbyPort}/xldrepo;create=true;user=admin;password=admin"
-                }
-              """;
+        def dbname = DbUtil.databaseName(project)
+        def from =  StartIntegrationServerTask.class.classLoader.getResourceAsStream("database-conf/xl-deploy.conf.${dbname}")
+        def configFileStr = IOUtils.toString(from, StandardCharsets.UTF_8.name())
+        def dbConfig = ConfigFactory.parseString(configFileStr).getObject("xl.repository.database").render()
 
-        if (DbUtil.databaseName(project) == "postgres") {
-            dbConfig = """
-            database {
-                db-driver-classname="org.postgresql.Driver"
-                db-password="demo"
-                db-url="jdbc:postgresql://localhost/xldrepo"
-                db-username=postgres
-                max-pool-size=10
-            }
-            """
-        }
-
-        def config = ConfigFactory.parseString(
-                """xl {
+        def cfgStr = """xl {
               server.hostname=localhost
               server.port = ${extension.akkaRemotingPort}
 
-              repository {
-                 $dbConfig
-              }
+              repository.database $dbConfig
               
-              reporting {
-                 $dbConfig
-              }
+              reporting.database $dbConfig
             }
-        """)
+        """
+
+        project.logger.info(cfgStr)
+        def config = ConfigFactory.parseString(cfgStr)
 
         def newConfig = config.withFallback(ConfigFactory.parseFile(defaultConf))
         defaultConf.text = newConfig.resolve().root().render(ConfigRenderOptions.concise())
