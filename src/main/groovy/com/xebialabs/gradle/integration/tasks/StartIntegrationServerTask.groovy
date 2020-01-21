@@ -2,6 +2,7 @@ package com.xebialabs.gradle.integration.tasks
 
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigRenderOptions
+import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.HTTPUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
@@ -26,7 +27,7 @@ class StartIntegrationServerTask extends DefaultTask {
                     DownloadAndExtractServerDistTask.NAME,
                     CopyOverlaysTask.NAME,
                     SetLogbackLevelsTask.NAME,
-                    "derbyStart"
+                    PrepareDatabaseTask.NAME
             )
         }
     }
@@ -70,6 +71,18 @@ class StartIntegrationServerTask extends DefaultTask {
                   db-url = "jdbc:derby://localhost:${extension.derbyPort}/xldrepo;create=true;user=admin;password=admin"
                 }
               """;
+
+        if (DbUtil.databaseName(project) == "postgres") {
+            dbConfig = """
+            database {
+                db-driver-classname="org.postgresql.Driver"
+                db-password="demo"
+                db-url="jdbc:postgresql://localhost/xldrepo"
+                db-username=postgres
+                max-pool-size=10
+            }
+            """
+        }
 
         def config = ConfigFactory.parseString(
                 """xl {

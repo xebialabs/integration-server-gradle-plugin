@@ -16,6 +16,7 @@ class PrepareDatabaseTask extends DefaultTask {
         def dbname = DbUtil.databaseName(project)
         def from = PrepareDatabaseTask.class.classLoader.getResourceAsStream("database-conf/xl-deploy.conf.${dbname}")
         def intoDir = project.rootDir.toPath().resolve("src").resolve("test").resolve("resources")
+        project.logger.lifecycle("Using configuration for DB: ${dbname} from ${from.toString()} in the directory ${intoDir}")
         if (Files.exists(intoDir)) {
             def into = intoDir.resolve("xl-deploy.conf").toFile()
             into.delete()

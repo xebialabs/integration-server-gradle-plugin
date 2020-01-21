@@ -16,6 +16,7 @@ import java.sql.Connection
 import java.sql.Driver
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
 
 class ImportDataTask extends DefaultTask {
     static NAME = "importData"
@@ -23,7 +24,8 @@ class ImportDataTask extends DefaultTask {
     ImportDataTask() {
         this.configure {
             group = PLUGIN_GROUP
-            dependsOn(DownloadAndExtractDataDistTask.NAME, StartIntegrationServerTask.NAME)
+//            dependsOn(DownloadAndExtractDataDistTask.NAME, StartIntegrationServerTask.NAME)
+            dependsOn(DownloadAndExtractDataDistTask.NAME)
         }
     }
 
@@ -35,8 +37,8 @@ class ImportDataTask extends DefaultTask {
         def dbDependency = DbUtil.detectDbDependency(dbname)
 
         Properties properties = new Properties()
-        properties.put("user", "admin")
-        properties.put("password", "admin")
+        properties.put("user", "postgres")
+        properties.put("password", "demo")
 
         Driver driver = (Driver) Class.forName(dbDependency.getDriverClass()).newInstance()
         Connection driverConnection = driver.connect("jdbc:postgresql://localhost:5432/xldrepo", properties)
@@ -60,7 +62,8 @@ class ImportDataTask extends DefaultTask {
         FlatXmlDataSetBuilder provider = new FlatXmlDataSetBuilder()
         provider.setColumnSensing(true)
         provider.setCaseSensitiveTableNames(true)
-        IDataSet dataSet = provider.build(new FileInputStream("${project.buildDir}/db/xld-ci-explorer-${project.xldCiExplorerDataVersion}-repository/data.xml"))
+//        IDataSet dataSet = provider.build(new FileInputStream("${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/xld-ci-explorer-${project.xldCiExplorerDataVersion}-repository/data.xml"))
+        IDataSet dataSet = provider.build(new FileInputStream("${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/xld-ci-explorer-${'9.6.1-SNAPSHOT'}-repository/data.xml"))
         DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet)
     }
 
