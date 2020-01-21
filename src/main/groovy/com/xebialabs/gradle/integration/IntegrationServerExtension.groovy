@@ -17,6 +17,8 @@ class IntegrationServerExtension {
 
     Boolean serverDebugSuspend
 
+    Boolean logSql
+
     String serverVersion
 
     String serverContextRoot
