@@ -13,6 +13,10 @@ class DbUtil {
         return DbUtil.class.classLoader.getResourceAsStream("database-conf/xl-deploy.conf.${dbname}")
     }
 
+    static def isDerby(name) {
+        return name == 'derby-network' || name == 'derby-inmemory'
+    }
+
     static final DbParameters postgresParams = new DbParameters(
         'org.postgresql:postgresql',
         'org.postgresql.Driver',

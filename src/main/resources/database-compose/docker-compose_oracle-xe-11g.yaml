@@ -1,0 +1,19 @@
+version: "3.3"
+
+services:
+  oracle-xe-11g:
+    build: ./oracle-xe-11g-docker
+    container_name: db-oracle-xe-11g
+    image: oracle-xe-11g
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_ALLOW_REMOTE=true
+      - ORACLE_PASSWORD_VERIFY=false
+      - ORACLE_DISABLE_ASYNCH_IO=true
+      - WEB_CONSOLE=false
+      - IMPORT_FROM_VOLUME=true
+    healthcheck:
+      test: echo "exit" | sqlplus -L xldrepo/xldrepo@localhost/xe
+    volumes:
+      - ./oracle-xe-11g:/docker-entrypoint-initdb.d

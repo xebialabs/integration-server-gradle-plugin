@@ -19,6 +19,8 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
         project.tasks.create(ImportDataTask.NAME, ImportDataTask)
         project.tasks.create(DownloadAndExtractDataDistTask.NAME, DownloadAndExtractDataDistTask)
+        project.tasks.create(DockerComposeStartTask.NAME, DockerComposeStartTask)
+        project.tasks.create(DockerComposeStopTask.NAME, DockerComposeStopTask)
     }
 
     private static applyDerbyPlugin(Project project) {

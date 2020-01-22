@@ -49,7 +49,8 @@ dependencies {
     implementation "de.vandermeer:asciitable:$asciitableVersion"
     implementation "commons-io:commons-io:$commonsIOVersion"
     implementation "org.postgresql:postgresql:42.2.9"
-    compile "org.dbunit:dbunit:2.4.9"
+    implementation "org.dbunit:dbunit:$dbUnitVersion"
+    implementation "gradle.plugin.com.palantir.gradle.docker:gradle-docker:$dockerPluginVersion"
 }
 
 tasks.release.dependsOn(build, uploadArchives)

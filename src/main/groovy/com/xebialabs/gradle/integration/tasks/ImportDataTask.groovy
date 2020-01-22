@@ -31,7 +31,7 @@ class ImportDataTask extends DefaultTask {
 
     private def runImport() {
         def dbname = DbUtil.databaseName(project)
-        if (dbname == 'derby-network' || dbname == 'derby-inmemory') {
+        if (DbUtil.isDerby(dbname)) {
             throw new GradleException('import job cannot be executed with Derby in network or in-memory configuration.')
         }
         def dbDependency = DbUtil.detectDbDependency(dbname)

@@ -68,10 +68,9 @@ class StartIntegrationServerTask extends DefaultTask {
     private void writeXlDeployConf() {
         project.logger.lifecycle("Writing xl-deploy.conf file")
         def extension = ExtensionsUtil.getExtension(project)
-        def defaultConf = new File("${ExtensionsUtil.getServerWorkingDir(project)}/conf/xl-deploy.conf")
+        def defaultConf = project.file("${ExtensionsUtil.getServerWorkingDir(project)}/conf/xl-deploy.conf")
 
-        def dbname = DbUtil.databaseName(project)
-        def from =  StartIntegrationServerTask.class.classLoader.getResourceAsStream("database-conf/xl-deploy.conf.${dbname}")
+        def from =  DbUtil.dbConfigFile(project)
         def configFileStr = IOUtils.toString(from, StandardCharsets.UTF_8.name())
         def dbConfig = ConfigFactory.parseString(configFileStr).getObject("xl.repository.database").render()
 
