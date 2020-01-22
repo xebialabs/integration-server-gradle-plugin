@@ -22,7 +22,7 @@ class SetLogbackLevelsTask extends DefaultTask {
         ExtensionsUtil.getExtension(project).logSql ? [
                 "org.hibernate.SQL" : "trace",
                 "org.hibernate.type": "all"
-        ] : []
+        ] : [:]
     }
 
     @TaskAction
