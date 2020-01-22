@@ -1,5 +1,7 @@
 package com.xebialabs.gradle.integration.util
 
+import org.gradle.api.Project
+
 class DbUtil {
 
     private DbUtil() {}
@@ -13,7 +15,12 @@ class DbUtil {
         return DbUtil.class.classLoader.getResourceAsStream("database-conf/xl-deploy.conf.${dbname}")
     }
 
-    static def isDerby(name) {
+    static def isDerby(Project project) {
+        def dbname = DbUtil.databaseName(project)
+        return isDerby(dbname)
+    }
+
+    static def isDerby(String name) {
         return name == 'derby-network' || name == 'derby-inmemory'
     }
 

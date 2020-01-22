@@ -24,15 +24,22 @@ class StartIntegrationServerTask extends DefaultTask {
     static NAME = "startIntegrationServer"
 
     StartIntegrationServerTask() {
+        def dependencies = [
+            DownloadAndExtractServerDistTask.NAME,
+            CopyOverlaysTask.NAME,
+            SetLogbackLevelsTask.NAME,
+            PrepareDatabaseTask.NAME
+        ]
+
+        if (DbUtil.isDerby(project)) {
+            dependencies.add("derbyStart")
+        } else {
+            dependencies.add(DockerComposeStartTask.NAME)
+        }
+
         this.configure {
             group = PLUGIN_GROUP
-
-            dependsOn(
-                    DownloadAndExtractServerDistTask.NAME,
-                    CopyOverlaysTask.NAME,
-                    SetLogbackLevelsTask.NAME,
-                    PrepareDatabaseTask.NAME
-            )
+            dependsOn(dependencies)
         }
     }
 

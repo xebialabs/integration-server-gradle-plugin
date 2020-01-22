@@ -22,8 +22,14 @@ class DockerComposeStartTask extends DockerComposeUp {
 
         def composeFile = "docker-compose_${dbName}.yaml"
         def dockerComposeStream = DockerComposeStartTask.class.classLoader.getResourceAsStream("database-compose/${composeFile}")
+
+
         def resultComposeFilePath = "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${composeFile}"
-        new File(resultComposeFilePath).createNewFile()
+        def resultComposeFile = new File(resultComposeFilePath)
+        if (!resultComposeFile.getParentFile().exists()) {
+            resultComposeFile.getParentFile().mkdirs()
+        }
+        resultComposeFile.createNewFile()
         def os = new FileOutputStream(resultComposeFilePath)
         IOUtils.copy(dockerComposeStream, os)
         return project.file(resultComposeFilePath)
