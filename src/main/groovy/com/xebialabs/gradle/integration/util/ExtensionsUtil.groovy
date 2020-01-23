@@ -81,6 +81,7 @@ class ExtensionsUtil {
         extension.derbyPort = resolveIntValue(project, extension, "derbyPort", findFreePort())
         extension.serverDebugPort = resolveIntValue(project, extension, "serverDebugPort", null)
         extension.serverDebugSuspend = resolveBooleanValue(project, extension, "serverDebugSuspend")
+        extension.logSql = resolveBooleanValue(project, extension, "logSql")
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())

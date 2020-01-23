@@ -18,9 +18,16 @@ class SetLogbackLevelsTask extends DefaultTask {
         }
     }
 
+    private def getHardCodedLevels() {
+        ExtensionsUtil.getExtension(project).logSql ? [
+                "org.hibernate.SQL" : "trace",
+                "org.hibernate.type": "all"
+        ] : [:]
+    }
+
     @TaskAction
     def setLevels() {
-        def logLevels = ExtensionsUtil.getExtension(project).logLevels
+        def logLevels = getHardCodedLevels() + ExtensionsUtil.getExtension(project).logLevels
         if (logLevels && logLevels.size() > 0) {
             def logbackConfig = "${ExtensionsUtil.getServerWorkingDir(project)}/conf/logback.xml"
             def xml = new XmlParser().parse(project.file(logbackConfig))
