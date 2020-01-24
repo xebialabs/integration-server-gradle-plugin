@@ -74,8 +74,7 @@ class ImportDataTask extends DefaultTask {
         FlatXmlDataSetBuilder provider = new FlatXmlDataSetBuilder()
         provider.setColumnSensing(true)
         provider.setCaseSensitiveTableNames(true)
-        def dataFile = "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/xld-ci-explorer-${'9.6.1-SNAPSHOT'}-repository/data.xml"
-        //${project.xldCiExplorerDataVersion}
+        def dataFile = "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/xld-is-data-${project.xldIsDataVersion}-repository/data.xml"
         IDataSet dataSet = provider.build(new FileInputStream(dataFile))
         DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet)
     }

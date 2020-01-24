@@ -16,7 +16,7 @@ class DownloadAndExtractDataDistTask extends Copy {
             def serverVersion = '9.6.1-SNAPSHOT' //ExtensionsUtil.getExtension(project).serverVersion
             project.buildscript.dependencies.add(
                 SERVER_DATA_DIST,
-                "com.xebialabs.deployit.plugins:xld-ci-explorer-data:${serverVersion}:repository@zip"
+                "com.xebialabs.deployit.plugins:xld-is-data:${serverVersion}:repository@zip"
             )
             from { project.zipTree(project.buildscript.configurations.getByName(SERVER_DATA_DIST).singleFile) }
             into { project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString() }

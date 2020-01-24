@@ -53,7 +53,7 @@ integrationServer {
         'derbydb/xldrepo': ["${ciExplorerDataDependency}:repository@zip"], // Derby data files, if Derby is used
         'build/artifacts': ["${ciExplorerDataDependency}:artifacts@zip"], // List of artifacts to import
         integrationServerData: [
-            "com.xebialabs.deployit.plugins:xld-ci-explorer-data:${xldCiExplorerDataVersion}:repository@zip"
+            "com.xebialabs.deployit.plugins:xld-is-data:${xldIsDataVersion}:repository@zip"
         ] // Database data snapshot for databases other than Derby
     ]
     logLevels = ["com.xebialabs.deployit.plugin.stitch": "debug"] // Log level overwrites
