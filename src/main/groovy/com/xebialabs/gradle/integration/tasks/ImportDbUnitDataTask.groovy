@@ -1,8 +1,7 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.typesafe.config.ConfigFactory
+
 import com.xebialabs.gradle.integration.util.DbUtil
-import org.apache.commons.io.IOUtils
 import org.dbunit.database.DatabaseConfig
 import org.dbunit.database.DatabaseConnection
 import org.dbunit.database.IMetadataHandler
@@ -11,10 +10,8 @@ import org.dbunit.dataset.datatype.IDataTypeFactory
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import org.dbunit.operation.DatabaseOperation
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 
-import java.nio.charset.StandardCharsets
 import java.sql.Connection
 import java.sql.Driver
 
@@ -32,32 +29,29 @@ class ImportDbUnitDataTask extends DefaultTask {
     }
 
     private def getConfiguration() {
-        def from = DbUtil.dbConfigFile(project)
-        def configFileStr = IOUtils.toString(from, StandardCharsets.UTF_8.name())
-        def dbConfig = ConfigFactory.parseString(configFileStr)
-        def username = dbConfig.getString("xl.repository.database.db-username")
-        def password = dbConfig.getString("xl.repository.database.db-password")
-        def url = dbConfig.getString("xl.repository.database.db-url")
+        def dbConfig = DbUtil.dbConfig(project)
+        def username = dbConfig.getString('xl.repository.database.db-username')
+        def password = dbConfig.getString('xl.repository.database.db-password')
+        def url = dbConfig.getString('xl.repository.database.db-url')
         return new Tuple3(username, password, url)
     }
 
-    @TaskAction
-    def runImport() {
-        def dbname = DbUtil.databaseName(project)
-        if (DbUtil.isDerby(dbname)) {
-            throw new GradleException('import job cannot be executed with Derby in network or in-memory configuration.')
-        }
-        def dbDependency = DbUtil.detectDbDependency(dbname)
-        def dbConfig = getConfiguration()
+    private def connectionProperties(username, password) {
         Properties properties = new Properties()
-        properties.put("user", dbConfig.get(0))
-        properties.put("password", dbConfig.get(1))
+        properties.put('user', username)
+        properties.put('password', password)
+        return properties
+    }
 
-        Driver driver = (Driver) Class.forName(dbDependency.getDriverClass()).newInstance()
-        Connection driverConnection = driver.connect(dbConfig.get(2), properties)
+    private def createDriverConnection(driverClass, url, properties) {
+        Driver driver = (Driver) Class.forName(driverClass).newInstance()
+        Connection driverConnection = driver.connect(url, properties)
         driverConnection.setAutoCommit(true)
+        return driverConnection
+    }
 
-        DatabaseConnection connection = new DatabaseConnection(driverConnection, "public")
+    private def configureConnection(driverConnection, dbDependency) {
+        DatabaseConnection connection = new DatabaseConnection(driverConnection, 'public')
         DatabaseConfig config = connection.getConfig()
         config.setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true)
         config.setProperty(DatabaseConfig.FEATURE_QUALIFIED_TABLE_NAMES, true)
@@ -72,11 +66,29 @@ class ImportDbUnitDataTask extends DefaultTask {
             config.setProperty(DatabaseConfig.PROPERTY_METADATA_HANDLER, metadataHandler)
         }
 
+        return connection
+    }
+
+    private def configureDataSet() {
         FlatXmlDataSetBuilder provider = new FlatXmlDataSetBuilder()
         provider.setColumnSensing(true)
         provider.setCaseSensitiveTableNames(true)
-        def dataFile = "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/xld-is-data-${project.xldIsDataVersion}-repository/data.xml"
-        IDataSet dataSet = provider.build(new FileInputStream(dataFile))
+        def destinationDir = project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()
+        def dataFile = "${destinationDir}/xld-is-data-${project.xldIsDataVersion}-repository/data.xml"
+        return provider.build(new FileInputStream(dataFile))
+    }
+
+    @TaskAction
+    def runImport() {
+        DbUtil.assertNotDerby(project, 'import job cannot be executed with Derby in network or in-memory configuration.')
+
+        def dbname = DbUtil.databaseName(project)
+        def dbDependency = DbUtil.detectDbDependency(dbname)
+        def dbConfig = getConfiguration()
+        def properties = connectionProperties(dbConfig.get(0), dbConfig.get(1))
+        def driverConnection = createDriverConnection(dbDependency.getDriverClass(), dbConfig.get(2), properties)
+        def connection = configureConnection(driverConnection, dbDependency)
+        def dataSet = configureDataSet()
         DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet)
         connection.close()
     }

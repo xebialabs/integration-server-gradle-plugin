@@ -23,6 +23,8 @@ class IntegrationServerExtension {
 
     String serverContextRoot
 
+    String xldIsDataVersion
+
     Map<String, String> logLevels
 
     Map<String, List<Object>> overlays

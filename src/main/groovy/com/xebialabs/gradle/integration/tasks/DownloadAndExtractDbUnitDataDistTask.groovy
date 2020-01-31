@@ -13,10 +13,10 @@ class DownloadAndExtractDbUnitDataDistTask extends Copy {
     DownloadAndExtractDbUnitDataDistTask() {
         this.configure {
             group = PLUGIN_GROUP
-            def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
+            def version = ExtensionsUtil.getExtension(project).xldIsDataVersion
             project.buildscript.dependencies.add(
                 SERVER_DATA_DIST,
-                "com.xebialabs.deployit.plugins:xld-is-data:${serverVersion}:repository@zip"
+                "com.xebialabs.deployit.plugins:xld-is-data:${version}:repository@zip"
             )
             from { project.zipTree(project.buildscript.configurations.getByName(SERVER_DATA_DIST).singleFile) }
             into { project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString() }

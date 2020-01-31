@@ -48,8 +48,8 @@ dependencies {
     implementation "com.typesafe:config:$typesafeConfigVersion"
     implementation "de.vandermeer:asciitable:$asciitableVersion"
     implementation "commons-io:commons-io:$commonsIOVersion"
-    implementation "org.postgresql:postgresql:42.2.9"
-    implementation "mysql:mysql-connector-java:5.1.6"
+    implementation "org.postgresql:postgresql:$postgresDriverVersion"
+    implementation "mysql:mysql-connector-java:$mysqlDriverVersion"
     implementation "org.dbunit:dbunit:$dbUnitVersion"
     implementation "gradle.plugin.com.palantir.gradle.docker:gradle-docker:$dockerPluginVersion"
 }

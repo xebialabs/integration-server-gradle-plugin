@@ -3,7 +3,6 @@ package com.xebialabs.gradle.integration.tasks
 import com.palantir.gradle.docker.DockerComposeUp
 import com.xebialabs.gradle.integration.util.DbUtil
 import org.apache.commons.io.IOUtils
-import org.gradle.api.GradleException
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 
@@ -14,12 +13,9 @@ class DockerComposeDatabaseStartTask extends DockerComposeUp {
 
     @InputFiles
     File getDockerComposeFile() {
+        DbUtil.assertNotDerby(project, 'Docker compose tasks do not support Derby database.')
+
         def dbName = DbUtil.databaseName(project)
-
-        if (DbUtil.isDerby(dbName)) {
-            throw new GradleException('Docker compose tasks do not support Derby database.')
-        }
-
         def composeFile = "docker-compose_${dbName}.yaml"
         def dockerComposeStream = DockerComposeDatabaseStartTask.class.classLoader
             .getResourceAsStream("database-compose/${composeFile}")

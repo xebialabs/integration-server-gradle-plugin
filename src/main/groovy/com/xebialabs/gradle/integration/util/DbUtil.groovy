@@ -1,6 +1,11 @@
 package com.xebialabs.gradle.integration.util
 
+import com.typesafe.config.ConfigFactory
+import org.apache.commons.io.IOUtils
+import org.gradle.api.GradleException
 import org.gradle.api.Project
+
+import java.nio.charset.StandardCharsets
 
 class DbUtil {
 
@@ -22,6 +27,19 @@ class DbUtil {
 
     static def isDerby(String name) {
         return name == 'derby-network' || name == 'derby-inmemory'
+    }
+
+    static def assertNotDerby(project, message) {
+        def dbname = DbUtil.databaseName(project)
+        if (DbUtil.isDerby(dbname)) {
+            throw new GradleException(message)
+        }
+    }
+
+    static def dbConfig(project) {
+        def from = DbUtil.dbConfigFile(project)
+        def configFileStr = IOUtils.toString(from, StandardCharsets.UTF_8.name())
+        return ConfigFactory.parseString(configFileStr)
     }
 
     static final DbParameters postgresParams = new DbParameters(
