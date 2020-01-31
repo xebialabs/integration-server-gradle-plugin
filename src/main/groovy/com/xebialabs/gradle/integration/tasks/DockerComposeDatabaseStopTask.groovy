@@ -8,10 +8,10 @@ import org.gradle.api.tasks.TaskAction
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
 
-class DockerComposeStopTask extends DefaultTask {
-    static NAME = "dockerComposeStop"
+class DockerComposeDatabaseStopTask extends DefaultTask {
+    static NAME = 'dockerComposeDatabaseStop'
 
-    DockerComposeStopTask() {
+    DockerComposeDatabaseStopTask() {
         this.group = 'Docker'
     }
 
@@ -24,15 +24,16 @@ class DockerComposeStopTask extends DefaultTask {
         }
 
         def composeFile = "docker-compose_${dbName}.yaml"
-        def composeFilePath = "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${composeFile}"
+        def composeFilePath =
+            "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${composeFile}"
         return project.file(composeFilePath)
     }
 
     @TaskAction
     void run() {
         project.exec {
-            it.executable "docker-compose"
-            it.args "-f", getDockerComposeFile(), "down"
+            it.executable 'docker-compose'
+            it.args '-f', getDockerComposeFile(), 'down'
         }
     }
 }

@@ -28,14 +28,9 @@ class StartIntegrationServerTask extends DefaultTask {
             DownloadAndExtractServerDistTask.NAME,
             CopyOverlaysTask.NAME,
             SetLogbackLevelsTask.NAME,
-            PrepareDatabaseTask.NAME
+            PrepareDatabaseTask.NAME,
+            DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME
         ]
-
-        if (DbUtil.isDerby(project)) {
-            dependencies.add("derbyStart")
-        } else {
-            dependencies.add(DockerComposeStartTask.NAME)
-        }
 
         this.configure {
             group = PLUGIN_GROUP
@@ -91,9 +86,7 @@ class StartIntegrationServerTask extends DefaultTask {
             }
         """
 
-        project.logger.info(cfgStr)
         def config = ConfigFactory.parseString(cfgStr)
-
         def newConfig = config.withFallback(ConfigFactory.parseFile(defaultConf))
         defaultConf.text = newConfig.resolve().root().render(ConfigRenderOptions.concise())
     }

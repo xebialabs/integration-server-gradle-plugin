@@ -21,13 +21,13 @@ import java.sql.Driver
 import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
-class ImportDataTask extends DefaultTask {
-    static NAME = "importData"
+class ImportDbUnitDataTask extends DefaultTask {
+    static NAME = "importDbUnitData"
 
-    ImportDataTask() {
+    ImportDbUnitDataTask() {
         this.configure {
             group = PLUGIN_GROUP
-            dependsOn(DownloadAndExtractDataDistTask.NAME)
+            dependsOn(DownloadAndExtractDbUnitDataDistTask.NAME)
         }
     }
 
@@ -41,7 +41,8 @@ class ImportDataTask extends DefaultTask {
         return new Tuple3(username, password, url)
     }
 
-    private def runImport() {
+    @TaskAction
+    def runImport() {
         def dbname = DbUtil.databaseName(project)
         if (DbUtil.isDerby(dbname)) {
             throw new GradleException('import job cannot be executed with Derby in network or in-memory configuration.')
@@ -77,10 +78,6 @@ class ImportDataTask extends DefaultTask {
         def dataFile = "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/xld-is-data-${project.xldIsDataVersion}-repository/data.xml"
         IDataSet dataSet = provider.build(new FileInputStream(dataFile))
         DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet)
-    }
-
-    @TaskAction
-    def importData() {
-        runImport()
+        connection.close()
     }
 }

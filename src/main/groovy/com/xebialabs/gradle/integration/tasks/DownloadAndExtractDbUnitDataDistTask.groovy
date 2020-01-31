@@ -7,13 +7,13 @@ import static com.xebialabs.gradle.integration.util.ConfigurationsUtil.SERVER_DA
 import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
-class DownloadAndExtractDataDistTask extends Copy {
-    static NAME = "downloadAndExtractData"
+class DownloadAndExtractDbUnitDataDistTask extends Copy {
+    static NAME = "downloadAndExtractDbUnitData"
 
-    DownloadAndExtractDataDistTask() {
+    DownloadAndExtractDbUnitDataDistTask() {
         this.configure {
             group = PLUGIN_GROUP
-            def serverVersion = '9.6.1-SNAPSHOT' //ExtensionsUtil.getExtension(project).serverVersion
+            def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
             project.buildscript.dependencies.add(
                 SERVER_DATA_DIST,
                 "com.xebialabs.deployit.plugins:xld-is-data:${serverVersion}:repository@zip"

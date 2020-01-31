@@ -11,15 +11,11 @@ class ShutdownIntegrationServerTask extends DefaultTask {
     static NAME = "shutdownIntegrationServer"
 
     ShutdownIntegrationServerTask() {
-        String finalizer
+        group = PLUGIN_GROUP
         if (DbUtil.isDerby(project)) {
-            finalizer = "derbyStop"
+            finalizedBy("derbyStop")
         } else {
-            finalizer = DockerComposeStopTask.NAME
-        }
-        this.configure {
-            group = PLUGIN_GROUP
-            finalizedBy(finalizer)
+            finalizedBy(DockerComposeDatabaseStopTask.NAME)
         }
     }
 

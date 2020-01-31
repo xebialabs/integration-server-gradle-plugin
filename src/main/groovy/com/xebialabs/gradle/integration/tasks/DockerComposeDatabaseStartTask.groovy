@@ -9,8 +9,8 @@ import org.gradle.api.tasks.TaskAction
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
 
-class DockerComposeStartTask extends DockerComposeUp {
-    static NAME = "dockerComposeStart"
+class DockerComposeDatabaseStartTask extends DockerComposeUp {
+    static NAME = "dockerComposeDatabaseStart"
 
     @InputFiles
     File getDockerComposeFile() {
@@ -21,10 +21,11 @@ class DockerComposeStartTask extends DockerComposeUp {
         }
 
         def composeFile = "docker-compose_${dbName}.yaml"
-        def dockerComposeStream = DockerComposeStartTask.class.classLoader.getResourceAsStream("database-compose/${composeFile}")
+        def dockerComposeStream = DockerComposeDatabaseStartTask.class.classLoader
+            .getResourceAsStream("database-compose/${composeFile}")
 
-
-        def resultComposeFilePath = "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${composeFile}"
+        def resultComposeFilePath =
+            "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${composeFile}"
         def resultComposeFile = new File(resultComposeFilePath)
         if (!resultComposeFile.getParentFile().exists()) {
             resultComposeFile.getParentFile().mkdirs()

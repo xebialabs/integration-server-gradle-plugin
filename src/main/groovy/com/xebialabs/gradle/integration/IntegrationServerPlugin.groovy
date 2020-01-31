@@ -17,10 +17,10 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
-        project.tasks.create(ImportDataTask.NAME, ImportDataTask)
-        project.tasks.create(DownloadAndExtractDataDistTask.NAME, DownloadAndExtractDataDistTask)
-        project.tasks.create(DockerComposeStartTask.NAME, DockerComposeStartTask)
-        project.tasks.create(DockerComposeStopTask.NAME, DockerComposeStopTask)
+        project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
+        project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
+        project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
+        project.tasks.create(DockerComposeDatabaseStopTask.NAME, DockerComposeDatabaseStopTask)
     }
 
     private static applyDerbyPlugin(Project project) {

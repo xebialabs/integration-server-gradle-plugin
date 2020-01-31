@@ -64,9 +64,9 @@ Tasks:
 
 * `startIntegrationServer` - starts integration server with provided configuration and database
 * `shutdownIntegrationServer` - stops database server, also stops the database
-* `importData` - imports data files into the database
-* `dockerComposeStart` - starts containers required by the server
-* `dockerComposeStop` - stops containers required by the server
+* `ImportDbUnitDataTask` - imports data files into the database
+* `dockerComposeDatabaseStart` - starts containers required by the server
+* `dockerComposeDatabaseStop` - stops containers required by the server
 * `prepareDatabase` - copies configuration files for selected database the project
 
 Flags:
