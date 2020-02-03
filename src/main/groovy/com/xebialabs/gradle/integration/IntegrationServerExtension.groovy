@@ -28,4 +28,6 @@ class IntegrationServerExtension {
     Map<String, String> logLevels
 
     Map<String, List<Object>> overlays
+
+    Map<String, String> driverVersions
 }

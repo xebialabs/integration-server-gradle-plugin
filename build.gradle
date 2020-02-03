@@ -29,8 +29,8 @@ buildscript {
 group = 'com.xebialabs.gradle.plugins'
 defaultTasks 'build'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = languageLevel
+targetCompatibility = languageLevel
 
 idea {
     module {
@@ -48,8 +48,8 @@ dependencies {
     implementation "com.typesafe:config:$typesafeConfigVersion"
     implementation "de.vandermeer:asciitable:$asciitableVersion"
     implementation "commons-io:commons-io:$commonsIOVersion"
-    implementation "org.postgresql:postgresql:$postgresDriverVersion"
-    implementation "mysql:mysql-connector-java:$mysqlDriverVersion"
+    implementation "org.postgresql:postgresql:${project.properties['driverVersions.postgres']}"
+    implementation "mysql:mysql-connector-java:${project.properties['driverVersions.mysql']}"
     implementation "org.dbunit:dbunit:$dbUnitVersion"
     implementation "gradle.plugin.com.palantir.gradle.docker:gradle-docker:$dockerPluginVersion"
 }
