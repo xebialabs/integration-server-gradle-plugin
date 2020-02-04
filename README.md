@@ -4,9 +4,9 @@ Gradle plugin designed to provide XL Deploy integration server functionality.
 
 ## Usage
 
-To add plugin:
+### In order to add the plugin
 
-Inside of your **build.gradle** define plugin dependency like this:
+In the root file **build.gradle** of your project define a plugin dependency like this:
 
 ```groovy
 buildscript {
@@ -26,14 +26,14 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.xebialabs.gradle.plugins:integration-server-gradle-plugin:0.0.1-SNAPSHOT"
+        classpath "com.xebialabs.gradle.plugins:integration-server-gradle-plugin:0.0.1-alpha.13"
     }
 }
 
 apply plugin: 'integration.server'
 ```
 
-Example integration server configuration:
+### Example integration server configuration
 
 ```groovy
 integrationServer {
@@ -43,7 +43,7 @@ integrationServer {
         plugins          : [
             "com.xebialabs.deployit.plugins:xld-ci-explorer:${xldCiExplorerVersion}@xldp", 
         ], // List of plugins to install 
-        stitch           : ["${ciExplorerDataDependency}:stitch@zip"], // Stitch core library
+        stitch           : ["${ciExplorerDataDependency}:stitch@zip"], // Creates a folder "stitch" with copied content of zip archive 
         conf             : [
             "${ciExplorerDataDependency}:configuration@zip",
             files("src/test/xld/deployit-license.lic")
@@ -57,29 +57,35 @@ integrationServer {
 }
 ```
 
-Tasks:
+#### Tasks
 
-* `startIntegrationServer` - starts integration server with provided configuration and database
-* `shutdownIntegrationServer` - stops database server, also stops the database
-* `ImportDbUnitDataTask` - imports data files into the database
+* `startIntegrationServer` - starts an integration server with a provided configuration and a database
+* `shutdownIntegrationServer` - stops a database server and also stop a database
+* `ImportDbUnitDataTask` - imports data files into a database
 * `dockerComposeDatabaseStart` - starts containers required by the server
 * `dockerComposeDatabaseStop` - stops containers required by the server
-* `prepareDatabase` - copies configuration files for selected database the project
+* `prepareDatabase` - copies configuration files for the selected database 
 
-Flags:
+#### Flags
 
 * `-Pdatabase` - sets a database to launch, options: `db2`, `derby-inmemory`, `derby-network`, `mssql`, `mysql`, `mysql-8`, `oracle-xe-11g`, `postgres`
-* `-PserverHttpPort` - provides an http port, overrides configuration option
+* `-PserverHttpPort` - provides an http port, overrides a configuration option
 * `-PderbyPort` - provides Derby port if Derby database is used
-* `-PserverDebugPort` - provides server debug port for remote debugging
-* `-PlogSql` - enables printing of SQL queries, executed by the server
+* `-PserverDebugPort` - provides a server debug port for remote debugging
+* `-PlogSql` - enables printing of SQL queries executed by the server
 
 ## Limitations
 
 * `db2`, `mssql`, `mysql`, `mysql-8`, `oracle-xe-11g`, `postgres` are started in a docker container
-* `derby-inmemory`, `derby-network` are started as a java process on host machine
+* `derby-inmemory`, `derby-network` are started as a Java process on a host machine
 * Only  `mysql`, `mysql-8`, `postgres` can be started at the moment with the integration server
-* `db2`, `mssql`, `oracle-xe-11g` require building an image at the moment and cannot be started by integration server (TODO)
-* `postgres` database is the only database that fully supports data import (TODO)
+* `db2`, `mssql`, `oracle-xe-11g` require building an image at the moment and cannot be started by the integration server
+* `postgres` is the only database which fully support data import
 * `derby-inmemory`, `derby-network` do not support DbUnit data import, as these databases are not supported, use old data export format
+
+## Development
+
+Jenkins Job to run the build: https://jenkins-ng.xebialabs.com/jenkinsng/job/Gradle%20Plugins/job/integration-server-gradle-plugin/
+
+Jenkins Job to release a new version: https://jenkins-ng.xebialabs.com/jenkinsng/job/Gradle%20Plugins/job/Release/job/Release%20integration-server-gradle-plugin/
 
