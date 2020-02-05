@@ -1,13 +1,11 @@
 package com.xebialabs.gradle.integration.tasks
 
 import com.xebialabs.gradle.integration.util.DbUtil
+import com.xebialabs.gradle.integration.util.DockerComposeUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 
-import java.nio.file.Paths
-
-import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class DockerComposeDatabaseStopTask extends DefaultTask {
@@ -21,10 +19,7 @@ class DockerComposeDatabaseStopTask extends DefaultTask {
     File getDockerComposeFile() {
         DbUtil.assertNotDerby(project, 'Docker compose tasks do not support Derby database.')
 
-        def dbName = DbUtil.databaseName(project)
-        def composeFile = "docker-compose_${dbName}.yaml"
-        def composeFilePath =
-            Paths.get("${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${composeFile}")
+        def composeFilePath = DockerComposeUtil.dockerComposeFileDestination(project)
         return composeFilePath.toFile()
     }
 
