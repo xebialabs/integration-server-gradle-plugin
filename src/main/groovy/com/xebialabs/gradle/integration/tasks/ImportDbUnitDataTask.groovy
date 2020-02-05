@@ -1,17 +1,16 @@
 package com.xebialabs.gradle.integration.tasks
 
-
 import com.xebialabs.gradle.integration.util.DbUtil
 import org.dbunit.database.DatabaseConfig
 import org.dbunit.database.DatabaseConnection
 import org.dbunit.database.IMetadataHandler
-import org.dbunit.dataset.IDataSet
 import org.dbunit.dataset.datatype.IDataTypeFactory
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import org.dbunit.operation.DatabaseOperation
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
+import java.nio.file.Paths
 import java.sql.Connection
 import java.sql.Driver
 
@@ -74,8 +73,8 @@ class ImportDbUnitDataTask extends DefaultTask {
         provider.setColumnSensing(true)
         provider.setCaseSensitiveTableNames(true)
         def destinationDir = project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()
-        def dataFile = "${destinationDir}/xld-is-data-${project.xldIsDataVersion}-repository/data.xml"
-        return provider.build(new FileInputStream(dataFile))
+        def dataFile = Paths.get("${destinationDir}/xld-is-data-${project.xldIsDataVersion}-repository/data.xml")
+        return provider.build(new FileInputStream(dataFile.toFile()))
     }
 
     @TaskAction
@@ -89,7 +88,11 @@ class ImportDbUnitDataTask extends DefaultTask {
         def driverConnection = createDriverConnection(dbDependency.getDriverClass(), dbConfig.get(2), properties)
         def connection = configureConnection(driverConnection, dbDependency)
         def dataSet = configureDataSet()
-        DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet)
-        connection.close()
+        try {
+            DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet)
+        } finally {
+            connection.close()
+            driverConnection.close()
+        }
     }
 }
