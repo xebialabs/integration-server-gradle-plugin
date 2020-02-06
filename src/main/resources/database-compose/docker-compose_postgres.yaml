@@ -1,0 +1,14 @@
+version: "3.3"
+
+services:
+  postgres:
+    container_name: is-postgres
+    image: postgres:10.5
+    working_dir: /
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=demo
+      - POSTGRES_DB=xldrepo
+    command: postgres

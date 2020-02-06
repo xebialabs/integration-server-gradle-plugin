@@ -84,7 +84,15 @@ class ExtensionsUtil {
         extension.logSql = resolveBooleanValue(project, extension, "logSql")
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
+        extension.xldIsDataVersion = resolveValue(project, extension, "xldIsDataVersion", project.property("xldIsDataVersion"))
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())
         extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())
+        extension.driverVersions = resolveValue(project, extension, "driverVersions", [
+            'postgres': '42.2.9',
+            'mysql': '5.1.6',
+            'oracle-xe-11g': '10.2.0.4.0',
+            'mssql': '8.2.0.jre8',
+            'db2': '11.5.0.0'
+        ])
     }
 }

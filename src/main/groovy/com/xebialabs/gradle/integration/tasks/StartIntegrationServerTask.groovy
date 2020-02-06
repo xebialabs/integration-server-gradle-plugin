@@ -2,10 +2,10 @@ package com.xebialabs.gradle.integration.tasks
 
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigRenderOptions
+import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.HTTPUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
-import static com.xebialabs.gradle.integration.util.ShutdownUtil.shutdownServer
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
@@ -14,20 +14,23 @@ import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.util.ShutdownUtil.shutdownServer
 
 class StartIntegrationServerTask extends DefaultTask {
     static NAME = "startIntegrationServer"
 
     StartIntegrationServerTask() {
+        def dependencies = [
+            DownloadAndExtractServerDistTask.NAME,
+            CopyOverlaysTask.NAME,
+            SetLogbackLevelsTask.NAME,
+            PrepareDatabaseTask.NAME,
+            DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME
+        ]
+
         this.configure {
             group = PLUGIN_GROUP
-
-            dependsOn(
-                    DownloadAndExtractServerDistTask.NAME,
-                    CopyOverlaysTask.NAME,
-                    SetLogbackLevelsTask.NAME,
-                    "derbyStart"
-            )
+            dependsOn(dependencies)
         }
     }
 
@@ -63,29 +66,20 @@ class StartIntegrationServerTask extends DefaultTask {
     private void writeXlDeployConf() {
         project.logger.lifecycle("Writing xl-deploy.conf file")
         def extension = ExtensionsUtil.getExtension(project)
-        def defaultConf = new File("${ExtensionsUtil.getServerWorkingDir(project)}/conf/xl-deploy.conf")
+        def defaultConf = project.file("${ExtensionsUtil.getServerWorkingDir(project)}/conf/xl-deploy.conf")
+        def dbConfig = DbUtil.dbConfig(project).getObject("xl.repository.database").render()
 
-        def dbConfig = """
-                database {
-                  db-url = "jdbc:derby://localhost:${extension.derbyPort}/xldrepo;create=true;user=admin;password=admin"
-                }
-              """;
-
-        def config = ConfigFactory.parseString(
-                """xl {
+        def cfgStr = """xl {
               server.hostname=localhost
               server.port = ${extension.akkaRemotingPort}
 
-              repository {
-                 $dbConfig
-              }
+              repository.database $dbConfig
               
-              reporting {
-                 $dbConfig
-              }
+              reporting.database $dbConfig
             }
-        """)
+        """
 
+        def config = ConfigFactory.parseString(cfgStr)
         def newConfig = config.withFallback(ConfigFactory.parseFile(defaultConf))
         defaultConf.text = newConfig.resolve().root().render(ConfigRenderOptions.concise())
     }
@@ -94,19 +88,19 @@ class StartIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("Initializing XLD")
 
         ProcessUtil.exec([
-                command    : "run",
-                params     : ["-setup", "-reinitialize", "-force", "-setup-defaults", "conf/deployit.conf"],
-                workDir    : getBinDir(),
-                wait       : true
+            command: "run",
+            params : ["-setup", "-reinitialize", "-force", "-setup-defaults", "conf/deployit.conf"],
+            workDir: getBinDir(),
+            wait   : true
         ])
     }
 
     private void startServer() {
         project.logger.lifecycle("Launching server")
         ProcessUtil.exec([
-                command: "run",
-                environment: getEnv(),
-                workDir: getBinDir()
+            command    : "run",
+            environment: getEnv(),
+            workDir    : getBinDir()
         ])
     }
 

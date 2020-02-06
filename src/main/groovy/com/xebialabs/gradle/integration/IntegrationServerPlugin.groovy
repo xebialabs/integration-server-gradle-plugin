@@ -1,13 +1,6 @@
 package com.xebialabs.gradle.integration
 
-import com.xebialabs.gradle.integration.tasks.CheckUILibVersionsTask
-import com.xebialabs.gradle.integration.tasks.CopyOverlaysTask
-import com.xebialabs.gradle.integration.tasks.DownloadAndExtractCliDistTask
-import com.xebialabs.gradle.integration.tasks.DownloadAndExtractServerDistTask
-import com.xebialabs.gradle.integration.tasks.StartIntegrationServerTask
-import com.xebialabs.gradle.integration.tasks.PrepareDatabaseTask
-import com.xebialabs.gradle.integration.tasks.SetLogbackLevelsTask
-import com.xebialabs.gradle.integration.tasks.ShutdownIntegrationServerTask
+import com.xebialabs.gradle.integration.tasks.*
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.TaskUtil
@@ -24,6 +17,10 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
+        project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
+        project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
+        project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
+        project.tasks.create(DockerComposeDatabaseStopTask.NAME, DockerComposeDatabaseStopTask)
     }
 
     private static applyDerbyPlugin(Project project) {

@@ -1,0 +1,13 @@
+version: "3.3"
+
+services:
+  db_mssql:
+    container_name: is-mssql
+    build: mssql
+    ports:
+      - 1433:1433
+    networks:
+      - front-tier
+networks:
+  front-tier:
+    driver: bridge

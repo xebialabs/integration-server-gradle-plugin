@@ -1,5 +1,6 @@
 package com.xebialabs.gradle.integration.tasks
 
+import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
@@ -14,12 +15,23 @@ class CopyOverlaysTask extends DefaultTask {
         file.name.endsWith(".zip")
     }
 
+    private static def addDatabaseDependency(project) {
+        def dbname = DbUtil.databaseName(project)
+        def dbDependency = DbUtil.detectDbDependency(dbname)
+        def ext = ExtensionsUtil.getExtension(project)
+        def libOverlay = ext.overlays.find { it.key == 'lib' }
+        def version = ext.driverVersions[dbname]
+        libOverlay.value.add("${dbDependency.driverDependency}:${version}")
+    }
+
     CopyOverlaysTask() {
         this.configure { ->
             group = PLUGIN_GROUP
             mustRunAfter DownloadAndExtractServerDistTask.NAME
             finalizedBy CheckUILibVersionsTask.NAME
             project.afterEvaluate {
+                addDatabaseDependency(project)
+
                 ExtensionsUtil.getExtension(project).overlays.each { definition ->
                     def configurationName = "integrationServer${definition.key.capitalize().replace("/", "")}"
                     def config = project.buildscript.configurations.create(configurationName)
