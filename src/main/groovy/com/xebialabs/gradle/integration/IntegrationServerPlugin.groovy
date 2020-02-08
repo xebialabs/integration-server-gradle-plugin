@@ -1,6 +1,10 @@
 package com.xebialabs.gradle.integration
 
 import com.xebialabs.gradle.integration.tasks.*
+import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
+import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStopTask
+import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
+import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.TaskUtil

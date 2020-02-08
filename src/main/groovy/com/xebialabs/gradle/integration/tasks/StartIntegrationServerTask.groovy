@@ -2,6 +2,8 @@ package com.xebialabs.gradle.integration.tasks
 
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigRenderOptions
+import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
+import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.HTTPUtil
@@ -21,11 +23,11 @@ class StartIntegrationServerTask extends DefaultTask {
 
     StartIntegrationServerTask() {
         def dependencies = [
-            DownloadAndExtractServerDistTask.NAME,
-            CopyOverlaysTask.NAME,
-            SetLogbackLevelsTask.NAME,
-            PrepareDatabaseTask.NAME,
-            DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME
+                DownloadAndExtractServerDistTask.NAME,
+                CopyOverlaysTask.NAME,
+                SetLogbackLevelsTask.NAME,
+                PrepareDatabaseTask.NAME,
+                DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME
         ]
 
         this.configure {

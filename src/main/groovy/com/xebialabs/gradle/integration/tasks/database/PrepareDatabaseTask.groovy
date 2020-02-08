@@ -1,4 +1,4 @@
-package com.xebialabs.gradle.integration.tasks
+package com.xebialabs.gradle.integration.tasks.database
 
 import com.xebialabs.gradle.integration.util.DbUtil
 import org.gradle.api.DefaultTask
@@ -7,7 +7,7 @@ import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Files
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.util.PluginUtil.*
 
 class PrepareDatabaseTask extends DefaultTask {
     static NAME = "prepareDatabase"
