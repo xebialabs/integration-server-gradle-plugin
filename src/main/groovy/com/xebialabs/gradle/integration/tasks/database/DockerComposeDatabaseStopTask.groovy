@@ -1,4 +1,4 @@
-package com.xebialabs.gradle.integration.tasks
+package com.xebialabs.gradle.integration.tasks.database
 
 import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.DockerComposeUtil

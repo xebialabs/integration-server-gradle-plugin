@@ -9,10 +9,19 @@ import java.nio.charset.StandardCharsets
 
 class DbUtil {
 
+    static def POSTGRES = 'postgres'
+    static def ORACLE = 'oracle-xe-11g'
+    static def DB2 = 'db2'
+    static def MYSQL = 'mysql'
+    static def MYSQL8 = 'mysql-8'
+    static def MSSQL = 'mssql'
+    static def DERBY_NETWORK = 'derby-network'
+    static def DERBY_INMEMORY = 'derby-inmemory'
+
     private DbUtil() {}
 
     static def databaseName(project) {
-        project.hasProperty("database") ? project.property("database").toString() : "derby-inmemory"
+        project.hasProperty("database") ? project.property("database").toString() : DERBY_INMEMORY
     }
 
     static def dbConfigFile(project) {
@@ -26,7 +35,7 @@ class DbUtil {
     }
 
     static def isDerby(String name) {
-        return name == 'derby-network' || name == 'derby-inmemory'
+        return name == DERBY_NETWORK || name == DERBY_INMEMORY
     }
 
     static def assertNotDerby(project, message) {
@@ -94,13 +103,13 @@ class DbUtil {
 
     static def detectDbDependency(db) {
         switch (db) {
-            case 'postgres': return postgresParams
-            case 'oracle-xe-11g': return oraclePararms
-            case 'db2': return db2Pararms
-            case ['mysql', 'mysql-8']: return mysqlPararms
-            case 'mssql': return mssqlPararms
-            case 'derby-network': return derbyNetworkPararms
-            case 'derby-inmemory': return derbyPararms
+            case POSTGRES: return postgresParams
+            case ORACLE: return oraclePararms
+            case DB2: return db2Pararms
+            case [MYSQL, MYSQL8]: return mysqlPararms
+            case MSSQL: return mssqlPararms
+            case DERBY_NETWORK: return derbyNetworkPararms
+            case DERBY_INMEMORY: return derbyPararms
             default: return null
         }
     }
