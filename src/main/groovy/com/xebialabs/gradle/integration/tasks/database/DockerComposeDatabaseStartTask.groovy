@@ -6,9 +6,19 @@ import com.xebialabs.gradle.integration.util.DockerComposeUtil
 import org.apache.commons.io.IOUtils
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
+import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class DockerComposeDatabaseStartTask extends DockerComposeUp {
     static NAME = "dockerComposeDatabaseStart"
+
+    DockerComposeDatabaseStartTask() {
+        this.group = PLUGIN_GROUP
+    }
+
+    @Override
+    String getDescription() {
+        return "Starts database instance using `docker-compose` and ${DockerComposeUtil.dockerComposeFileName(project).toString()} file."
+    }
 
     @InputFiles
     File getDockerComposeFile() {

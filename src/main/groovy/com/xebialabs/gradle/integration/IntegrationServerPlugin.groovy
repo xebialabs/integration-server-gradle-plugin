@@ -37,7 +37,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         def startDerbyTask = project.tasks.getByName("derbyStart")
         def stopDerbyTask = project.tasks.getByName("derbyStop")
         TaskUtil.dontFailOnException(stopDerbyTask)
-        stopDerbyTask.actions.each {startDerbyTask.doFirst {it}}
+        stopDerbyTask.actions.each { startDerbyTask.doFirst { it } }
         startDerbyTask.mustRunAfter(CopyOverlaysTask.NAME)
     }
 
