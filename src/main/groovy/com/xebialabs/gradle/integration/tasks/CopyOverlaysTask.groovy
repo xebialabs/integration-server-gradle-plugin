@@ -16,13 +16,15 @@ class CopyOverlaysTask extends DefaultTask {
     }
 
     private static def addDatabaseDependency(project) {
+        def libKey = 'lib'
         def dbname = DbUtil.databaseName(project)
         def dbDependency = DbUtil.detectDbDependency(dbname)
         def ext = ExtensionsUtil.getExtension(project)
-        def libOverlay = ext.overlays.find { it.key == 'lib' }
+        def libOverlay = ext.overlays.getOrDefault(libKey, new ArrayList<Object>())
         def version = ext.driverVersions[dbname]
         if (version != null && !version.isEmpty()) {
             libOverlay.value.add("${dbDependency.driverDependency}:${version}")
+            ext.overlays.put(libKey, libOverlay)
         }
     }
 
