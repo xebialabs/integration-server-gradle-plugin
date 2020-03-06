@@ -15,7 +15,11 @@ class IntegrationServerExtension {
 
     Integer serverDebugPort
 
+    Integer satelliteDebugPort
+
     Boolean serverDebugSuspend
+
+    Boolean satelliteDebugSuspend
 
     Boolean logSql
 

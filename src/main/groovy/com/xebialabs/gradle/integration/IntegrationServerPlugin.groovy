@@ -5,6 +5,8 @@ import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStar
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStopTask
 import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
+import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
+import com.xebialabs.gradle.integration.tasks.satellite.StopSatelliteTask
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.TaskUtil
@@ -18,9 +20,9 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask)
-        project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask)
+        project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
-        project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
+        project.tasks.create(StopSatelliteTask.NAME, StopSatelliteTask)
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)

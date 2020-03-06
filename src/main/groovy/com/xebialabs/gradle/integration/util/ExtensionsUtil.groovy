@@ -67,6 +67,12 @@ class ExtensionsUtil {
         Paths.get(targetDir, "xl-deploy-${serverVersion}-server").toAbsolutePath().toString()
     }
 
+    static def getSatelliteWorkingDir(Project project) {
+        def satelliteVersion = getExtension(project).xlSatelliteVersion
+        def targetDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
+        Paths.get(targetDir, "xl-deploy-${satelliteVersion}-server").toAbsolutePath().toString()
+    }
+
     static create(Project project) {
         project.extensions.create(EXTENSION_NAME, IntegrationServerExtension)
     }
@@ -80,7 +86,9 @@ class ExtensionsUtil {
         extension.akkaRemotingPort = resolveIntValue(project, extension, "akkaRemotingPort", findFreePort())
         extension.derbyPort = resolveIntValue(project, extension, "derbyPort", findFreePort())
         extension.serverDebugPort = resolveIntValue(project, extension, "serverDebugPort", null)
+        extension.satelliteDebugPort = resolveIntValue(project, extension, "satelliteDebugPort", null)
         extension.serverDebugSuspend = resolveBooleanValue(project, extension, "serverDebugSuspend")
+        extension.satelliteDebugSuspend = resolveBooleanValue(project, extension, "satelliteDebugSuspend")
         extension.logSql = resolveBooleanValue(project, extension, "logSql")
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
