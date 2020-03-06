@@ -1,6 +1,8 @@
 package com.xebialabs.gradle.integration.tasks.satellite
 
+import com.xebialabs.gradle.integration.tasks.CopyOverlaysTask
 import com.xebialabs.gradle.integration.tasks.DownloadAndExtractSatelliteDistTask
+import com.xebialabs.gradle.integration.tasks.SetLogbackLevelsTask
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.FileUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
@@ -9,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.getPLUGIN_GROUP
+import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class StartSatelliteTask extends DefaultTask {
     static NAME = "startSatellite"
@@ -17,7 +19,7 @@ class StartSatelliteTask extends DefaultTask {
     StartSatelliteTask() {
 
         def dependencies = [
-                DownloadAndExtractSatelliteDistTask.NAME,
+                DownloadAndExtractSatelliteDistTask.NAME
         ]
         this.configure {
             group = PLUGIN_GROUP

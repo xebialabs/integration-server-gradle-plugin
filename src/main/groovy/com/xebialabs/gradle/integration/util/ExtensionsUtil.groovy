@@ -70,7 +70,7 @@ class ExtensionsUtil {
     static def getSatelliteWorkingDir(Project project) {
         def satelliteVersion = getExtension(project).xlSatelliteVersion
         def targetDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
-        Paths.get(targetDir, "xl-deploy-${satelliteVersion}-server").toAbsolutePath().toString()
+        Paths.get(targetDir, "xl-satellite-server-${satelliteVersion}").toAbsolutePath().toString()
     }
 
     static create(Project project) {
