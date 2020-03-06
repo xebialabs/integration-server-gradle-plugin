@@ -85,6 +85,7 @@ class ExtensionsUtil {
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
         extension.xldIsDataVersion = resolveValue(project, extension, "xldIsDataVersion", project.property("xldIsDataVersion"))
+        extension.xlSatelliteVersion = resolveValue(project, extension, "xlSatelliteVersion", project.property("xlSatelliteVersion"))
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())
         extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())
         extension.driverVersions = resolveValue(project, extension, "driverVersions", [

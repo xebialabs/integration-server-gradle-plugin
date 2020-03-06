@@ -25,6 +25,8 @@ class IntegrationServerExtension {
 
     String xldIsDataVersion
 
+    String xlSatelliteVersion
+
     Map<String, String> logLevels
 
     Map<String, List<Object>> overlays
