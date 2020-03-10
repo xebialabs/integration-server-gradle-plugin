@@ -30,6 +30,9 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
         project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
         project.tasks.create(DockerComposeDatabaseStopTask.NAME, DockerComposeDatabaseStopTask)
+        project.tasks.create(StartRabbitMq.NAME, StartRabbitMq)
+        project.tasks.create(StopRabbitMq.NAME, StopRabbitMq)
+        project.tasks.create(StartWorker.NAME, StartWorker)
     }
 
     private static applyDerbyPlugin(Project project) {

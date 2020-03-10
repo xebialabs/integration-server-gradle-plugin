@@ -36,4 +36,10 @@ class IntegrationServerExtension {
     Map<String, List<Object>> overlays
 
     Map<String, String> driverVersions
+
+    String workerName
+
+    Integer workerRemotingPort
+
+    Boolean workerDebugSuspend
 }

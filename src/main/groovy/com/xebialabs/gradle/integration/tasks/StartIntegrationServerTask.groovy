@@ -4,10 +4,7 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigRenderOptions
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
-import com.xebialabs.gradle.integration.util.DbUtil
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
-import com.xebialabs.gradle.integration.util.HTTPUtil
-import com.xebialabs.gradle.integration.util.ProcessUtil
+import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
@@ -33,6 +30,10 @@ class StartIntegrationServerTask extends DefaultTask {
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
+        }
+
+        if (WorkerUtil.isWorkerEnabled(project)) {
+            finalizedBy(StartWorker.NAME)
         }
     }
 
@@ -80,6 +81,21 @@ class StartIntegrationServerTask extends DefaultTask {
               reporting.database $dbConfig
             }
         """
+
+        if (WorkerUtil.isWorkerEnabled(project)) {
+            project.logger.lifecycle("Writing worker config to xl-deploy.conf file")
+            cfgStr += """xl {
+              task.in-process-worker=no
+              task.queue.external {
+                jms-driver-classname="com.rabbitmq.jms.admin.RMQConnectionFactory"
+                jms-password="guest"
+                jms-url="amqp://localhost:5672"
+                jms-username=guest
+              }
+            }
+            akka.io.dns.resolver = "inet-address"
+        """
+        }
 
         def config = ConfigFactory.parseString(cfgStr)
         def newConfig = config.withFallback(ConfigFactory.parseFile(defaultConf))

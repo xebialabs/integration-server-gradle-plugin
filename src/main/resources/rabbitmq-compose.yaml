@@ -1,0 +1,10 @@
+version: "2.2"
+services:
+  rabbitmq:
+    image: xldevdocker/xld-ci-explorer-rabbitmq-dev
+    container_name: xld-ci-explorer-rabbitmq-dev
+    ports:
+      - 4369:4369
+      - 5672:5672
+      - 15672:15672
+      - 25672:25672
