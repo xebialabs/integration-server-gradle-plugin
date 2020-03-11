@@ -42,4 +42,6 @@ class IntegrationServerExtension {
     Integer workerRemotingPort
 
     Boolean workerDebugSuspend
+
+    Integer workerDebugPort
 }

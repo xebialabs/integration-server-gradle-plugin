@@ -1,5 +1,6 @@
 package com.xebialabs.gradle.integration.tasks
 
+import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
 import com.xebialabs.gradle.integration.util.WorkerUtil
@@ -22,7 +23,7 @@ class StartWorker extends DefaultTask {
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
-            mustRunAfter(StartIntegrationServerTask.NAME)
+            shouldRunAfter(StartIntegrationServerTask.NAME, ImportDbUnitDataTask.NAME)
             onlyIf {
                 WorkerUtil.isWorkerEnabled(project)
             }
@@ -33,8 +34,8 @@ class StartWorker extends DefaultTask {
         def extension = ExtensionsUtil.getExtension(project)
         def opts = "-Xmx1024m"
         def suspend = extension.workerDebugSuspend ? 'y' : 'n'
-        if (extension.serverDebugPort) {
-            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.serverDebugPort}"
+        if (extension.workerDebugPort) {
+            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.workerDebugPort}"
         }
         ["DEPLOYIT_SERVER_OPTS": opts.toString()]
     }
@@ -47,7 +48,7 @@ class StartWorker extends DefaultTask {
         project.logger.lifecycle("Launching worker")
         def extension = ExtensionsUtil.getExtension(project)
         ProcessUtil.exec([
-                command    : 'run',
+                command    : "run",
                 params     : [
                         "worker",
                         "-master",
