@@ -58,9 +58,9 @@ class StartSatelliteTask extends DefaultTask {
 
         FileUtil.copyFile(configStream, confDest)
     }
+
     @TaskAction
     void launch() {
-//        shutdownSatellite(project)
         writeSatelliteConf()
         startServer()
     }
