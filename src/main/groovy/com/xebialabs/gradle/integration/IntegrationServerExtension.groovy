@@ -21,6 +21,10 @@ class IntegrationServerExtension {
 
     String serverVersion
 
+    String stitchCoreVersion
+
+    String hasStitchCoreVersion
+
     String serverContextRoot
 
     String xldIsDataVersion
