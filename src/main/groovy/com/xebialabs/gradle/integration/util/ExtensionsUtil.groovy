@@ -83,8 +83,6 @@ class ExtensionsUtil {
         extension.serverDebugSuspend = resolveBooleanValue(project, extension, "serverDebugSuspend")
         extension.logSql = resolveBooleanValue(project, extension, "logSql")
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
-        extension.stitchCoreVersion = resolveValue(project, extension, "stitchCoreVersion", project.properties.get("xldStitchCoreVersion"))
-        extension.hasStitchCoreVersion = resolveValue(project, extension, "hasStitchCoreVersion", project.hasProperty("xldStitchCoreVersion"))
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
         extension.xldIsDataVersion = resolveValue(project, extension, "xldIsDataVersion", project.property("xldIsDataVersion"))
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())

@@ -24,7 +24,6 @@ class StartIntegrationServerTask extends DefaultTask {
     StartIntegrationServerTask() {
         def dependencies = [
                 DownloadAndExtractServerDistTask.NAME,
-                DeleteDuplicatedJarsTask.NAME,
                 CopyOverlaysTask.NAME,
                 SetLogbackLevelsTask.NAME,
                 PrepareDatabaseTask.NAME,
