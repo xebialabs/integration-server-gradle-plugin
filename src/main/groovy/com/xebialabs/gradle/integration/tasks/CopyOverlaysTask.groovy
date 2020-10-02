@@ -32,6 +32,7 @@ class CopyOverlaysTask extends DefaultTask {
         this.configure { ->
             group = PLUGIN_GROUP
             mustRunAfter DownloadAndExtractServerDistTask.NAME
+            mustRunAfter DeletePrepackagedXldStitchCoreTask.NAME
             finalizedBy CheckUILibVersionsTask.NAME
             project.afterEvaluate {
                 addDatabaseDependency(project)
