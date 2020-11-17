@@ -6,6 +6,7 @@ xl {
             db-url="jdbc:postgresql://127.0.0.1:5432/xldrepo"
             db-username=postgres
             max-pool-size=10
+            leak-detection-threshold = 2 minutes
         }
     }
 }
