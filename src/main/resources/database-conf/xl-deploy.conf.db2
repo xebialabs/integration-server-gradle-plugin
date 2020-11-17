@@ -5,6 +5,7 @@ xl {
             db-password="xldrepo"
             db-url="jdbc:db2://localhost:50000/xldrepo"
             db-username=xldrepo
+            leak-detection-threshold = 2 minutes
         }
     }
 }

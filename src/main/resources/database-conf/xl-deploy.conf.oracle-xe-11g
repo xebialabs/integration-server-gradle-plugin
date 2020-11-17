@@ -6,6 +6,7 @@ xl {
             db-url="jdbc:oracle:thin:@//localhost:1521/xe"
             db-username=xldrepo
             max-pool-size=10
+            leak-detection-threshold = 2 minutes
         }
     }
 }

@@ -6,6 +6,7 @@ xl {
             db-username=xldrepo
             db-password="xldrepo"
             max-pool-size=10
+            leak-detection-threshold = 2 minutes
         }
     }
 }

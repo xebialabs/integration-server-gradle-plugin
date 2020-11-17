@@ -5,5 +5,6 @@ xl.repository {
     db-url = "jdbc:derby:memory:db;create=true"
     db-username = ""
     db-password = ""
+    leak-detection-threshold = 2 minutes
   }
 }
