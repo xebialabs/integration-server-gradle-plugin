@@ -14,7 +14,7 @@ class PrepareDatabaseTask extends DefaultTask {
 
     private void copyDatabaseConf() {
         def from = DbUtil.dbConfigFile(project)
-        def intoDir = project.rootDir.toPath().resolve("src").resolve("test").resolve("resources")
+        def intoDir = project.projectDir.toPath().resolve("src").resolve("test").resolve("resources")
         if (Files.exists(intoDir)) {
             def into = intoDir.resolve("xl-deploy.conf").toFile()
             into.delete()
