@@ -6,6 +6,9 @@ import com.xebialabs.gradle.integration.util.DockerComposeUtil
 import org.apache.commons.io.IOUtils
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
+
+import java.util.zip.ZipInputStream
+
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class DockerComposeDatabaseStartTask extends DockerComposeUp {
@@ -26,24 +29,46 @@ class DockerComposeDatabaseStartTask extends DockerComposeUp {
 
         def composeFile = DockerComposeUtil.dockerComposeFileName(project)
         def dockerComposeStream = DockerComposeDatabaseStartTask.class.classLoader
-            .getResourceAsStream("database-compose/${composeFile}")
+                .getResourceAsStream("database-compose/${composeFile}")
 
         def resultComposeFilePath = DockerComposeUtil.dockerComposeFileDestination(project)
         def parentDir = resultComposeFilePath.getParent().toFile()
-        if (!parentDir.exists()) {
-            parentDir.mkdirs()
-        }
-        def resultComposeFile = resultComposeFilePath.toFile()
-        resultComposeFile.createNewFile()
-        def os = new FileOutputStream(resultComposeFile)
+        parentDir.mkdirs()
+        copyFile(dockerComposeStream, resultComposeFilePath)
 
+        def src = DockerComposeDatabaseStartTask.class.getProtectionDomain().getCodeSource()
+        if (src != null) {
+            def dbName = DbUtil.databaseName(project)
+            def folderName = "database-compose/$dbName/"
+            def dockerfileDir = new File(dbName, parentDir)
+            dockerfileDir.mkdirs()
+            URL jar = src.getLocation()
+            def zip = new ZipInputStream(jar.openStream())
+            while (true) {
+                def e = zip.getNextEntry()
+                if (e == null)
+                    break;
+                String name = e.getName()
+                if (name.startsWith(folderName) && name != folderName) {
+                    copyFile(zip, DockerComposeUtil.dockerfileDestination(project, name.substring(name.indexOf('/') + 1)))
+                }
+            }
+        }
+        return project.file(resultComposeFilePath)
+    }
+
+    private static def copyFile(inputStream, path) {
+        def file = path.toFile()
+        def os = new FileOutputStream(file)
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs()
+        }
+        file.createNewFile()
         try {
-            IOUtils.copy(dockerComposeStream, os)
+            IOUtils.copy(inputStream, os)
         } finally {
             os.close()
         }
-
-        return project.file(resultComposeFilePath)
     }
 
     @TaskAction

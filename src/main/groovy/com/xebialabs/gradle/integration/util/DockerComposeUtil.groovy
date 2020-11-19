@@ -17,4 +17,10 @@ class DockerComposeUtil {
             "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${composeFile}")
     }
 
+    static def dockerfileDestination(project, filename) {
+        return Paths.get(
+                "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${filename}")
+
+    }
+
 }
