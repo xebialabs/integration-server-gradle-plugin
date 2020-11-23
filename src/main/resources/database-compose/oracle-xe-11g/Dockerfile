@@ -7,6 +7,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 ADD chkconfig /sbin/chkconfig
 ADD oracle-install.sh /oracle-install.sh
+ADD entrypoint.sh /entrypoint.sh
 ADD init.ora /
 ADD initXETemp.ora /
 
@@ -35,6 +36,5 @@ ENV processes 500
 ENV sessions 555
 ENV transactions 610
 
-ADD entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD [""]
