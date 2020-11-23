@@ -16,7 +16,9 @@ apt-get clean && \
 rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/* &&\
 ln -s /usr/bin/awk /bin/awk &&\
 mkdir /var/lock/subsys &&\
-chmod 755 /sbin/chkconfig &&\
+chmod +x /sbin/chkconfig &&\
+chmod +x /oracle-install.sh &&\
+chmod +x /entrypoint.sh &&\
 /oracle-install.sh
 
 # see issue #1
