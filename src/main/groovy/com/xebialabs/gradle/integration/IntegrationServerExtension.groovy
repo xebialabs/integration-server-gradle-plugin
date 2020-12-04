@@ -25,6 +25,8 @@ class IntegrationServerExtension {
 
     String xldIsDataVersion
 
+    Boolean removeStdoutConfig
+
     Map<String, String> logLevels
 
     Map<String, List<Object>> overlays
