@@ -26,6 +26,7 @@ class StartIntegrationServerTask extends DefaultTask {
                 DownloadAndExtractServerDistTask.NAME,
                 CopyOverlaysTask.NAME,
                 SetLogbackLevelsTask.NAME,
+                RemoveStdoutConfigTask.NAME,
                 PrepareDatabaseTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME
         ]

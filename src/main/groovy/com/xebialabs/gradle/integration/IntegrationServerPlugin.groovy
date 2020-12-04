@@ -26,6 +26,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
         project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
         project.tasks.create(DockerComposeDatabaseStopTask.NAME, DockerComposeDatabaseStopTask)
+        project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
     }
 
     private static applyDerbyPlugin(Project project) {
