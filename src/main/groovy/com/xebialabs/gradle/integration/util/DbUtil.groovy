@@ -74,7 +74,7 @@ class DbUtil {
     )
     static final DbParameters db2Pararms = new DbParameters(
         'com.ibm:db2jcc4',
-        "com.mysql.jdbc.Driver",
+        "com.ibm.db2.jcc.DB2Driver",
         "org.dbunit.ext.db2.Db2DataTypeFactory",
         "org.dbunit.ext.db2.Db2MetadataHandler",
         "\"?\""
