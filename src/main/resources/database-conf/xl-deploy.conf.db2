@@ -9,3 +9,4 @@ xl {
         }
     }
 }
+xl.repository.artifacts.root = "build/artifacts"

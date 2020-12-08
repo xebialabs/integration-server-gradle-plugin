@@ -92,7 +92,7 @@ class ExtensionsUtil {
             'mysql': '5.1.6',
             'oracle-xe-11g': '11.2.0.4',
             'mssql': '8.4.1.jre8',
-            'db2': '11.5.0.0'
+            'db2': '4.19.26'
         ])
     }
 }
