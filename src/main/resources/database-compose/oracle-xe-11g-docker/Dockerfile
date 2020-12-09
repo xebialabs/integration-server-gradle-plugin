@@ -7,7 +7,6 @@ ENV DEBIAN_FRONTEND noninteractive
 
 ADD chkconfig /sbin/chkconfig
 ADD oracle-install.sh /oracle-install.sh
-ADD entrypoint.sh /entrypoint.sh
 ADD init.ora /
 ADD initXETemp.ora /
 
@@ -17,9 +16,7 @@ apt-get clean && \
 rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/* &&\
 ln -s /usr/bin/awk /bin/awk &&\
 mkdir /var/lock/subsys &&\
-chmod +x /sbin/chkconfig &&\
-chmod +x /oracle-install.sh &&\
-chmod +x /entrypoint.sh &&\
+chmod 755 /sbin/chkconfig &&\
 /oracle-install.sh
 
 # see issue #1
@@ -36,5 +33,6 @@ ENV processes 500
 ENV sessions 555
 ENV transactions 610
 
+ADD entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD [""]

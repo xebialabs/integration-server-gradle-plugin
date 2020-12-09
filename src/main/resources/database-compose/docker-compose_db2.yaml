@@ -3,7 +3,7 @@ version: "3.3"
 services:
   db2:
     container_name: is-db2
-    build: db2
+    build: db2-docker
     ports:
       - 50000:50000
     environment:
@@ -12,4 +12,4 @@ services:
     privileged: true
     healthcheck:
       test: /bin/bash start-init-db.sh
-      interval: 200s
+      interval: 45s

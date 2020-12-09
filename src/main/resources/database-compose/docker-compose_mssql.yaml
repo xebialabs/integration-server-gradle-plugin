@@ -3,7 +3,7 @@ version: "3.3"
 services:
   db_mssql:
     container_name: is-mssql
-    build: mssql
+    build: mssql-docker
     ports:
       - 1433:1433
     networks:

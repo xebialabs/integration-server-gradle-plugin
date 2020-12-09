@@ -1,9 +1,8 @@
-version: "3.3"
+version: "3.4"
 
 services:
   oracle-xe-11g:
-    build: ./oracle-xe-11g
-    container_name: db-oracle-xe-11g
+    build: ./oracle-xe-11g-docker
     image: oracle-xe-11g
     ports:
       - "1521:1521"

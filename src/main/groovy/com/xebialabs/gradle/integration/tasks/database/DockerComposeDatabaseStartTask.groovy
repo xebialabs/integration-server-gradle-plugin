@@ -39,8 +39,8 @@ class DockerComposeDatabaseStartTask extends DockerComposeUp {
         def src = DockerComposeDatabaseStartTask.class.getProtectionDomain().getCodeSource()
         if (src != null) {
             def dbName = DbUtil.databaseName(project)
-            def folderName = "database-compose/$dbName/"
-            def dockerfileDir = new File(dbName, parentDir)
+            def folderName = "database-compose/$dbName-docker/"
+            def dockerfileDir = new File("$dbName-docker", parentDir)
             dockerfileDir.mkdirs()
             URL jar = src.getLocation()
             def zip = new ZipInputStream(jar.openStream())
