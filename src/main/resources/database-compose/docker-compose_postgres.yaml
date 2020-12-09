@@ -2,7 +2,6 @@ version: "3.3"
 
 services:
   postgres:
-    container_name: is-postgres
     image: postgres:10.5
     working_dir: /
     ports:

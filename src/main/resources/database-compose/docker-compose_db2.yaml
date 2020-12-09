@@ -2,7 +2,6 @@ version: "3.3"
 
 services:
   db2:
-    container_name: is-db2
     build: db2-docker
     ports:
       - 50000:50000

@@ -89,7 +89,7 @@ class ExtensionsUtil {
         extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())
         extension.driverVersions = resolveValue(project, extension, "driverVersions", [
             'postgres': '42.2.9',
-            'mysql': '5.1.6',
+            'mysql': '8.0.22',
             'oracle-xe-11g': '11.2.0.4',
             'mssql': '8.4.1.jre8',
             'db2': '11.5.5.0'
