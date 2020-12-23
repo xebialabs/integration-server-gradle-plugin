@@ -55,7 +55,7 @@ __END__
 function create_big_repo {
 	$CURL -s -d '{"name":"'$PROJECT_BASE_NAME'-big-repo"}' -H "Content-Type: application/json" -X POST $BASE_URL/api/v4/projects?$ACCESS_TOKEN=$GITLAB_TOKEN >/dev/null 2>&1
 	$GIT clone $BASE_URL_WITH_CREDENTIALS/root/$PROJECT_BASE_NAME-big-repo.git >/dev/null 2>&1
-	for i in {1..100}; do 
+	for i in {1..100}; do
 		py_simple_rule $i
 	done
 	$GIT -C $PROJECT_BASE_NAME-big-repo init . >/dev/null 2>&1
@@ -66,18 +66,6 @@ function create_big_repo {
 	echo "Created $PROJECT_BASE_NAME-big-repo"
 }
 
-function create_monster_repo {
-	$CURL -s -d '{"name":"'$PROJECT_BASE_NAME'-monster-repo"}' -H "Content-Type: application/json" -X POST $BASE_URL/api/v4/projects?$ACCESS_TOKEN=$GITLAB_TOKEN >/dev/null 2>&1
-	$GIT clone $BASE_URL_WITH_CREDENTIALS/root/$PROJECT_BASE_NAME-monster-repo.git >/dev/null 2>&1
-
-	cp -r monster-repo/* $PROJECT_BASE_NAME-monster-repo/.
-	$GIT -C $PROJECT_BASE_NAME-monster-repo init >/dev/null 2>&1
-	$GIT -C $PROJECT_BASE_NAME-monster-repo add >/dev/null 2>&1
-	$GIT -C $PROJECT_BASE_NAME-monster-repo commit -m "Init commit" >/dev/null 2>&1
-	$GIT -C $PROJECT_BASE_NAME-monster-repo push >/dev/null 2>&1
-	rm -rf $PROJECT_BASE_NAME-monster-repo 
-	echo "Created $PROJECT_BASE_NAME-monster-repo"
-}
 
 function create_huge_repo {
   echo "Creating $BIGASS_REPO"
@@ -101,7 +89,6 @@ function create_huge_repo {
 	echo "Created repo for $BIGASS_REPO"
 }
 
-create_monster_repo
 create_huge_repo
 create_big_repo
 

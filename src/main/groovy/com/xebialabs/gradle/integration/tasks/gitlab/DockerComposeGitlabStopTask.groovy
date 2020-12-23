@@ -19,7 +19,7 @@ class DockerComposeGitlabStopTask extends DefaultTask {
     @InputFiles
     File getDockerComposeFile() {
         def composeFilePath = Paths.get(
-                "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}"+"/docker-compose.yml")
+                "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}"+"/docker-compose-gitlab.yml")
         return composeFilePath.toFile()
     }
 

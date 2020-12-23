@@ -23,12 +23,12 @@ class DockerComposeGitlabStartTask extends DockerComposeUp {
 
     @Override
     String getDescription() {
-        return "Starts gitlab instance using `docker-compose` and docker-compose.yaml file."
+        return "Starts gitlab instance using `docker-compose` and docker-compose-gitlab.yaml file."
     }
 
     @InputFiles
     File getDockerComposeFile() {
-        def composeFile = "docker-compose.yml"
+        def composeFile = "docker-compose-gitlab.yml"
         def dockerComposeStream = DockerComposeGitlabStartTask.class.classLoader
                 .getResourceAsStream("gitlab/gitlab-compose/${composeFile}")
         def resultComposeFilePath = Paths.get(
