@@ -10,4 +10,4 @@ services:
       - "11181:80"
       - "11443:443"
     volumes:
-      - .:/etc/gitlab:z
+      - ./gitlab/config:/etc/gitlab:z
