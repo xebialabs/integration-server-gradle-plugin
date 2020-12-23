@@ -5,6 +5,8 @@ import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStar
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStopTask
 import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
+import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStartTask
+import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStopTask
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.TaskUtil
@@ -26,6 +28,8 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
         project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
         project.tasks.create(DockerComposeDatabaseStopTask.NAME, DockerComposeDatabaseStopTask)
+        project.tasks.create(DockerComposeGitlabStartTask.NAME, DockerComposeGitlabStartTask)
+        project.tasks.create(DockerComposeGitlabStopTask.NAME, DockerComposeGitlabStopTask)
         project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
     }
 
