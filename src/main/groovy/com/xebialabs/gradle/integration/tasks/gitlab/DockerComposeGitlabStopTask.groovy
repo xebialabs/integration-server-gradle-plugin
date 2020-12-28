@@ -27,7 +27,7 @@ class DockerComposeGitlabStopTask extends DefaultTask {
     void run() {
         project.exec {
             it.executable 'docker-compose'
-            it.args '-f', getDockerComposeFile(), 'down'
+            it.args '-f', getDockerComposeFile(), '-p' ,'gitlabServer', 'down'
         }
     }
 }

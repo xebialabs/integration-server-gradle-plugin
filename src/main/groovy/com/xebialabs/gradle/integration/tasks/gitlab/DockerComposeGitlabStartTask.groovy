@@ -78,28 +78,13 @@ class DockerComposeGitlabStartTask extends DockerComposeUp {
         }
     }
 
-    private void setupRepo(){
-        def scriptFile = "filler.sh"
-        def scriptStream = DockerComposeGitlabStartTask.class.classLoader
-                .getResourceAsStream("gitlab/scripts/filler.sh")
-        def resultScriptFilePath = Paths.get(
-                "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${scriptFile}")
-        def parentDir = resultScriptFilePath.getParent().toFile()
-        parentDir.mkdirs()
-        copyFile(scriptStream, resultScriptFilePath)
-        println "echo \"Running GitLab filler\"".execute().text
-        def script = project.file(resultScriptFilePath)
-        println "chmod +x $script".execute().text
-        def command = "$script"
-        println command.execute().text
-        println "echo \"Finished GitLab filling..\"".execute().text
-    }
-
     @TaskAction
     void run() {
-        super.run()
+        project.exec {
+            it.executable "docker-compose"
+            it.args '-f', getDockerComposeFile(), '-p' ,'gitlabServer', 'up', '-d'
+        }
         waitForBoot()
-        setupRepo()
     }
 
 }
