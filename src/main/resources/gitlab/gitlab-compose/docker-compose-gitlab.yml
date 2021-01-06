@@ -1,0 +1,13 @@
+version: "3.3"
+services:
+  gitlab-local:
+    image: gitlab/gitlab-ce:latest
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        gitlab_rails['initial_root_password'] = "password"
+    ports:
+      - "1122:22"
+      - "11180:80"
+      - "11443:443"
+    volumes:
+      - ../../gitlab/config:/etc/gitlab:z
