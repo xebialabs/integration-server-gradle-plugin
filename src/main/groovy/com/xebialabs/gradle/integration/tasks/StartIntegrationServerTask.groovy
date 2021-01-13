@@ -103,7 +103,8 @@ class StartIntegrationServerTask extends DefaultTask {
         ProcessUtil.exec([
             command    : "run",
             environment: getEnv(),
-            workDir    : getBinDir()
+            workDir    : getBinDir(),
+            inheritIO  : true
         ])
     }
 
