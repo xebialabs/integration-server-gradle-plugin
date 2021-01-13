@@ -22,6 +22,9 @@ class ProcessUtil {
             processBuilder.environment().putAll(config.environment as Map<String, String>)
         }
         processBuilder.directory(config.workDir as File)
+        if (config.inheritIO) {
+            processBuilder.inheritIO()
+        }
         def process = processBuilder.start()
         if (config.wait) {
             process.waitFor()
