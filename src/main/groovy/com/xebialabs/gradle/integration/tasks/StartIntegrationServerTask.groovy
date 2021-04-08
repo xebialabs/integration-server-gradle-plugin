@@ -102,6 +102,7 @@ class StartIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("Launching server")
         ProcessUtil.exec([
             command    : "run",
+            params : ["-force-upgrades"],
             environment: getEnv(),
             workDir    : getBinDir(),
             inheritIO  : true
