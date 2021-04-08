@@ -92,7 +92,7 @@ class StartIntegrationServerTask extends DefaultTask {
 
         ProcessUtil.exec([
             command: "run",
-            params : ["-setup", "-reinitialize", "-force", "-setup-defaults", "conf/deployit.conf"],
+            params : ["-setup", "-reinitialize", "-force", "-setup-defaults", "-force-upgrades", "conf/deployit.conf"],
             workDir: getBinDir(),
             wait   : true
         ])
