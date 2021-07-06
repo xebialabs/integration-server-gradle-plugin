@@ -16,7 +16,7 @@ class PrepareDatabaseTask extends DefaultTask {
         def from = DbUtil.dbConfigFile(project)
         def intoDir = project.projectDir.toPath().resolve("src").resolve("test").resolve("resources")
         if (Files.exists(intoDir)) {
-            def into = intoDir.resolve("xl-deploy.conf").toFile()
+            def into = intoDir.resolve("deploy-repository.yaml").toFile()
             into.delete()
             into.createNewFile()
             into << from

@@ -1,0 +1,10 @@
+xl.repository:
+  artifacts:
+    root: build/artifacts
+  database:
+    db-driver-classname: "org.postgresql.Driver"
+    db-url: "jdbc:postgresql://127.0.0.1:5432/xldrepo"
+    db-username: "postgres"
+    db-password: "demo"
+    leak-detection-threshold: 2 minutes
+    max-pool-size: 10

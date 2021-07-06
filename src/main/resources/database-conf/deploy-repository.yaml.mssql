@@ -1,0 +1,10 @@
+xl.repository:
+  artifacts:
+    root: build/artifacts
+  database:
+    db-driver-classname: "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+    db-url: "jdbc:sqlserver://localhost:1433"
+    db-username: "xldrepo"
+    db-password: "xldrepo"
+    leak-detection-threshold: 2 minutes
+    max-pool-size: 10

@@ -1,14 +1,14 @@
 package com.xebialabs.gradle.integration.util
 
-import com.typesafe.config.ConfigFactory
-import org.apache.commons.io.IOUtils
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
-import java.nio.charset.StandardCharsets
-
 class DbUtil {
 
+    static def mapper = new ObjectMapper(new YAMLFactory())
     static def POSTGRES = 'postgres'
     static def ORACLE = 'oracle-xe-11g'
     static def DB2 = 'db2'
@@ -26,7 +26,7 @@ class DbUtil {
 
     static def dbConfigFile(project) {
         def dbname = DbUtil.databaseName(project)
-        return DbUtil.class.classLoader.getResourceAsStream("database-conf/xl-deploy.conf.${dbname}")
+        return DbUtil.class.classLoader.getResourceAsStream("database-conf/deploy-repository.yaml.${dbname}")
     }
 
     static def isDerby(Project project) {
@@ -47,8 +47,7 @@ class DbUtil {
 
     static def dbConfig(project) {
         def from = DbUtil.dbConfigFile(project)
-        def configFileStr = IOUtils.toString(from, StandardCharsets.UTF_8.name())
-        return ConfigFactory.parseString(configFileStr)
+        return mapper.readTree(from)
     }
 
     static final DbParameters postgresParams = new DbParameters(
