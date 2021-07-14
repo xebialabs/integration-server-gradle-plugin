@@ -7,6 +7,10 @@ import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStartTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStopTask
+import com.xebialabs.gradle.integration.tasks.satellite.CopySatelliteOverlaysTask
+import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatelliteDistTask
+import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
+import com.xebialabs.gradle.integration.tasks.satellite.StopSatelliteTask
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.TaskUtil
@@ -17,10 +21,15 @@ class IntegrationServerPlugin implements Plugin<Project> {
     private static void createTasks(Project project) {
         project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
         project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
+        project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
         project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
+        project.tasks.create(CopySatelliteOverlaysTask.NAME, CopySatelliteOverlaysTask)
         project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask)
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
+        project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
+        project.tasks.create(StopSatelliteTask.NAME, StopSatelliteTask)
+        project.tasks.create(IntegrationServerTask.NAME, IntegrationServerTask)
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)

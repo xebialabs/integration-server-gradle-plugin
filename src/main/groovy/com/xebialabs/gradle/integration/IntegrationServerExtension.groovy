@@ -1,6 +1,10 @@
 package com.xebialabs.gradle.integration
 
 class IntegrationServerExtension {
+    Integer satelliteDebugPort
+
+    Boolean satelliteDebugSuspend
+
     Integer serverHttpPort
 
     Integer serverPingTotalTries
@@ -21,6 +25,8 @@ class IntegrationServerExtension {
 
     String serverVersion
 
+    String satelliteVersion
+
     String serverContextRoot
 
     String xldIsDataVersion
@@ -31,5 +37,8 @@ class IntegrationServerExtension {
 
     Map<String, List<Object>> overlays
 
+    Map<String, List<Object>> satelliteOverlays
+
     Map<String, String> driverVersions
+
 }

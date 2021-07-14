@@ -67,6 +67,12 @@ class ExtensionsUtil {
         Paths.get(targetDir, "xl-deploy-${serverVersion}-server").toAbsolutePath().toString()
     }
 
+    static def getSatelliteWorkingDir(Project project) {
+        def satelliteVersion = getExtension(project).satelliteVersion
+        def targetDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
+        Paths.get(targetDir, "xl-satellite-server-${satelliteVersion}").toAbsolutePath().toString()
+    }
+
     static create(Project project) {
         project.extensions.create(EXTENSION_NAME, IntegrationServerExtension)
     }
@@ -80,11 +86,15 @@ class ExtensionsUtil {
         extension.akkaRemotingPort = resolveIntValue(project, extension, "akkaRemotingPort", findFreePort())
         extension.derbyPort = resolveIntValue(project, extension, "derbyPort", findFreePort())
         extension.serverDebugPort = resolveIntValue(project, extension, "serverDebugPort", null)
+        extension.satelliteDebugPort = resolveIntValue(project, extension, "satelliteDebugPort", null)
         extension.serverDebugSuspend = resolveBooleanValue(project, extension, "serverDebugSuspend")
+        extension.satelliteDebugSuspend = resolveBooleanValue(project, extension, "satelliteDebugSuspend")
         extension.logSql = resolveBooleanValue(project, extension, "logSql")
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
         extension.xldIsDataVersion = resolveValue(project, extension, "xldIsDataVersion", project.property("xldIsDataVersion"))
+        extension.satelliteVersion = resolveValue(project, extension, "satelliteVersion", project.property("xlDeployVersion"))
+        extension.satelliteOverlays = resolveValue(project, extension, "satelliteOverlays", new HashMap<String, List<Object>>())
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())
         extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())
         extension.driverVersions = resolveValue(project, extension, "driverVersions", [

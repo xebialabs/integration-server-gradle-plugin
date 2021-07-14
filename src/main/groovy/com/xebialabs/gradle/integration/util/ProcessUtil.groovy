@@ -1,6 +1,7 @@
 package com.xebialabs.gradle.integration.util
 
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.api.Project
 
 class ProcessUtil {
     private static def createRunCommand(String baseCommand) {
@@ -11,7 +12,7 @@ class ProcessUtil {
         }
     }
 
-    static void exec(Map<String, Object> config) {
+    static Long exec(Map<String, Object> config) {
         def command = createRunCommand(config.command as String)
         if (config.params) {
             command.addAll(config.params as List<String>)
@@ -28,6 +29,21 @@ class ProcessUtil {
         def process = processBuilder.start()
         if (config.wait) {
             process.waitFor()
+        }
+        process.pid()
+    }
+
+/*    static void killPid(Project project, String pid){
+        project.exec {
+            it.executable 'kill'
+            it.args "-9", pid
+        }
+    }*/
+
+    static void chMod(Project project, String mode, String fileName) {
+        project.exec {
+            it.executable 'chmod'
+            it.args mode, fileName
         }
     }
 }
