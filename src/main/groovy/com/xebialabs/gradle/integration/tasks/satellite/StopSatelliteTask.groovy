@@ -1,9 +1,6 @@
 package com.xebialabs.gradle.integration.tasks.satellite
 
-import com.xebialabs.gradle.integration.util.ApplicationsUtil
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.FileUtil
-import com.xebialabs.gradle.integration.util.PluginUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -38,37 +35,13 @@ class StopSatelliteTask extends DefaultTask {
                 command: "stopSatellite",
                 workDir: getWorkingDir()
         ])
+        project.logger.info("Satellite server successfully shutdown.")
     }
 
-    private void readPidKill(){
-        def targetDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
-        def pid = project.file("${targetDir}/${ApplicationsUtil.SATELLITE_START}").text.toLong()
-
-        project.logger.lifecycle("pid from file -> ${pid}")
-        ProcessHandle parentProcess = ProcessHandle.of(pid).get().parent().get()
-        project.logger.lifecycle("parent process id:"+parentProcess.pid());
-        project.logger.lifecycle("current process id:"+ProcessHandle.current());
-
-       // ProcessUtil.killPid(project, pid.toString())
-       // ProcessUtil.killPid(project, currentProcess.pid().toString())
-        //parentProcess.destroy()
-/*        project.exec {
-            it.executable 'kill'
-            //it.args "-9", pid.toString(), currentProcess.pid().toString()
-            it.args "-9", pid.toString()
-        }
-
-        project.exec {
-            it.executable 'kill'
-            //it.args "-9", pid.toString(), currentProcess.pid().toString()
-            it.args "-9", parentProcess.pid().toString()
-        }*/
-    }
 
     @TaskAction
     void stop() {
         copyStopSatelliteScript()
         stopSatellite()
-        //readPidKill()
     }
 }

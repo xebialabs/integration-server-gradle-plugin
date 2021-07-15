@@ -12,7 +12,7 @@ class ProcessUtil {
         }
     }
 
-    static Long exec(Map<String, Object> config) {
+    static void exec(Map<String, Object> config) {
         def command = createRunCommand(config.command as String)
         if (config.params) {
             command.addAll(config.params as List<String>)
@@ -30,15 +30,7 @@ class ProcessUtil {
         if (config.wait) {
             process.waitFor()
         }
-        process.pid()
     }
-
-/*    static void killPid(Project project, String pid){
-        project.exec {
-            it.executable 'kill'
-            it.args "-9", pid
-        }
-    }*/
 
     static void chMod(Project project, String mode, String fileName) {
         project.exec {
