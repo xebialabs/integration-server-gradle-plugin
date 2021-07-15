@@ -44,8 +44,7 @@ class StartSatelliteTask extends DefaultTask {
                 environment: getEnv(),
                 workDir    : getBinDir()
         ])
-        println("Satellite Server successfully started")
-        project.logger.info("XL Deploy server successfully shutdown.")
+        project.logger.lifecycle("Satellite Server successfully started")
     }
 
     @TaskAction

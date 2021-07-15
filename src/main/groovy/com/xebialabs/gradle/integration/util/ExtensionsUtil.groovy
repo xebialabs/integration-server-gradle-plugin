@@ -73,6 +73,12 @@ class ExtensionsUtil {
         Paths.get(targetDir, "xl-satellite-server-${satelliteVersion}").toAbsolutePath().toString()
     }
 
+    static def getConfigServerWorkingDir(Project project) {
+        def configServerVersion = getExtension(project).configServerVersion
+        def targetDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
+        Paths.get(targetDir, "central-configuration-${configServerVersion}-server").toAbsolutePath().toString()
+    }
+
     static create(Project project) {
         project.extensions.create(EXTENSION_NAME, IntegrationServerExtension)
     }
@@ -80,6 +86,7 @@ class ExtensionsUtil {
     static initialize(Project project) {
         def extension = getExtension(project)
         extension.serverHttpPort = resolveIntValue(project, extension, "serverHttpPort", findFreePort())
+        extension.configServerHttpPort = resolveIntValue(project, extension, "configServerHttpPort", 8888)
         extension.serverPingTotalTries = resolveIntValue(project, extension, "serverPingTotalTries", 60)
         extension.serverPingRetrySleepTime = resolveIntValue(project, extension, "serverPingRetrySleepTime", 10)
         extension.provisionSocketTimeout = resolveIntValue(project, extension, "provisionSocketTimeout", 6000)
@@ -87,13 +94,16 @@ class ExtensionsUtil {
         extension.derbyPort = resolveIntValue(project, extension, "derbyPort", findFreePort())
         extension.serverDebugPort = resolveIntValue(project, extension, "serverDebugPort", null)
         extension.satelliteDebugPort = resolveIntValue(project, extension, "satelliteDebugPort", null)
+        extension.configServerDebugPort = resolveIntValue(project, extension, "configServerDebugPort", null)
         extension.serverDebugSuspend = resolveBooleanValue(project, extension, "serverDebugSuspend")
         extension.satelliteDebugSuspend = resolveBooleanValue(project, extension, "satelliteDebugSuspend")
+        extension.configServerDebugSuspend = resolveBooleanValue(project, extension, "configServerDebugSuspend")
         extension.logSql = resolveBooleanValue(project, extension, "logSql")
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
         extension.xldIsDataVersion = resolveValue(project, extension, "xldIsDataVersion", project.property("xldIsDataVersion"))
         extension.satelliteVersion = resolveValue(project, extension, "satelliteVersion", project.property("xlDeployVersion"))
+        extension.configServerVersion = resolveValue(project, extension, "configServerVersion", project.property("xlDeployVersion"))
         extension.satelliteOverlays = resolveValue(project, extension, "satelliteOverlays", new HashMap<String, List<Object>>())
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())
         extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())

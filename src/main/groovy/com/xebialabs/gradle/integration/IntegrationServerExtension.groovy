@@ -5,6 +5,12 @@ class IntegrationServerExtension {
 
     Boolean satelliteDebugSuspend
 
+    Integer configServerDebugPort
+
+    Boolean configServerDebugSuspend
+
+    Integer configServerHttpPort
+
     Integer serverHttpPort
 
     Integer serverPingTotalTries
@@ -26,6 +32,8 @@ class IntegrationServerExtension {
     String serverVersion
 
     String satelliteVersion
+
+    String configServerVersion
 
     String serverContextRoot
 
