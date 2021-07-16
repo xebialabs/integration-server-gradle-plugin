@@ -106,6 +106,7 @@ class StartConfigServerTask extends DefaultTask {
 
     @TaskAction
     void launch() {
+        ShutDownConfigServerTask.shutdownServer(project)
         writeDeployitConf()
         writeCentralConfig()
         startConfigServer()

@@ -10,6 +10,7 @@ import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStartTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStopTask
+import com.xebialabs.gradle.integration.tasks.pluginManager.StartPluginManagerTask
 import com.xebialabs.gradle.integration.tasks.satellite.CopySatelliteOverlaysTask
 import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatelliteDistTask
 import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
@@ -35,6 +36,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(StopSatelliteTask.NAME, StopSatelliteTask)
         project.tasks.create(StartConfigServerTask.NAME, StartConfigServerTask)
         project.tasks.create(ShutDownConfigServerTask.NAME, ShutDownConfigServerTask)
+        project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask)
         project.tasks.create(IntegrationServerTask.NAME, IntegrationServerTask)
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
