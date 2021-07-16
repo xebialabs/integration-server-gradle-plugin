@@ -4,15 +4,23 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigRenderOptions
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
+import com.xebialabs.gradle.integration.tasks.mq.ShutdownRabbitMq
+import com.xebialabs.gradle.integration.tasks.worker.StartWorker
 import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
+import com.xebialabs.gradle.integration.util.FileUtil
 import com.xebialabs.gradle.integration.util.HTTPUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
+import com.xebialabs.gradle.integration.util.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.impldep.org.yaml.snakeyaml.DumperOptions
+import org.gradle.internal.impldep.org.yaml.snakeyaml.Yaml
 
+import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import java.util.concurrent.TimeUnit
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
@@ -34,6 +42,9 @@ class StartIntegrationServerTask extends DefaultTask {
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
+        }
+        if (WorkerUtil.isWorkerEnabled(project)) {
+            finalizedBy(StartWorker.NAME)
         }
     }
 
@@ -68,23 +79,46 @@ class StartIntegrationServerTask extends DefaultTask {
 
     private void writeXlDeployConf() {
         project.logger.lifecycle("Writing xl-deploy.conf file")
-        def extension = ExtensionsUtil.getExtension(project)
         def defaultConf = project.file("${ExtensionsUtil.getServerWorkingDir(project)}/conf/xl-deploy.conf")
         def dbConfig = DbUtil.dbConfig(project).getObject("xl.repository.database").render()
 
-        def cfgStr = """xl {
-              server.hostname=localhost
-              server.port = ${extension.akkaRemotingPort}
-
-              repository.database $dbConfig
-              
+        def cfgStr = """xl {            
+              repository.database $dbConfig              
               reporting.database $dbConfig
             }
         """
-
+        if (WorkerUtil.isWorkerEnabled(project)) {
+            writeDeployTaskYaml()
+            writeServerTaskYaml()
+        }
         def config = ConfigFactory.parseString(cfgStr)
         def newConfig = config.withFallback(ConfigFactory.parseFile(defaultConf))
         defaultConf.text = newConfig.resolve().root().render(ConfigRenderOptions.concise())
+    }
+
+    private void writeServerTaskYaml(){
+        def extension = ExtensionsUtil.getExtension(project)
+        project.logger.lifecycle("Writing config to deploy-server.yaml file")
+        def deployServerConfig = new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-server.yaml")
+        def configStream = StartIntegrationServerTask.class.classLoader.getResourceAsStream("central-conf/deploy-server.yaml")
+        Files.copy(configStream, Paths.get(deployServerConfig.toURI()), StandardCopyOption.REPLACE_EXISTING)
+        DumperOptions options = new DumperOptions()
+        options.setPrettyFlow(true)
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK)
+        Yaml parser = new Yaml(options)
+        def serverConf = parser.load(deployServerConfig.text)
+
+        if (project.hasProperty("externalWorker")) {
+            serverConf['deploy.server']['port'] = extension.akkaRemotingPort
+        }
+        deployServerConfig.text = parser.dump(serverConf)
+    }
+
+    private void writeDeployTaskYaml() {
+        project.logger.lifecycle("Writing deploy-task.yaml file")
+        def configStream = StartIntegrationServerTask.class.classLoader.getResourceAsStream("central-conf/deploy-task.yaml")
+        def confDest = Paths.get("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-task.yaml")
+        FileUtil.copyFile(configStream, confDest)
     }
 
     private void initialize() {

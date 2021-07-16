@@ -49,4 +49,12 @@ class IntegrationServerExtension {
 
     Map<String, String> driverVersions
 
+    String workerName
+
+    Integer workerRemotingPort
+
+    Boolean workerDebugSuspend
+
+    Integer workerDebugPort
+
 }

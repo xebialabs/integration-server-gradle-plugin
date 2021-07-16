@@ -10,11 +10,15 @@ import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStartTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStopTask
+import com.xebialabs.gradle.integration.tasks.mq.ShutdownRabbitMq
+import com.xebialabs.gradle.integration.tasks.mq.StartRabbitMq
 import com.xebialabs.gradle.integration.tasks.pluginManager.StartPluginManagerTask
 import com.xebialabs.gradle.integration.tasks.satellite.CopySatelliteOverlaysTask
 import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatelliteDistTask
 import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
 import com.xebialabs.gradle.integration.tasks.satellite.StopSatelliteTask
+import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorker
+import com.xebialabs.gradle.integration.tasks.worker.StartWorker
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.TaskUtil
@@ -48,6 +52,10 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DockerComposeGitlabStartTask.NAME, DockerComposeGitlabStartTask)
         project.tasks.create(DockerComposeGitlabStopTask.NAME, DockerComposeGitlabStopTask)
         project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
+        project.tasks.create(StartRabbitMq.NAME, StartRabbitMq)
+        project.tasks.create(ShutdownRabbitMq.NAME, ShutdownRabbitMq)
+        project.tasks.create(StartWorker.NAME, StartWorker)
+        project.tasks.create(ShutdownWorker.NAME, ShutdownWorker)
     }
 
     private static applyDerbyPlugin(Project project) {

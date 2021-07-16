@@ -1,0 +1,28 @@
+deploy.server:
+  hostname: "127.0.0.1"
+  bind-hostname: "0.0.0.0"
+  port: 8180
+  label: master
+  events:
+    time-to-live: "5 minutes"
+    cis-changed-queue-name: "xld-cis-changed"
+  ssl:
+    enabled: false
+    key-store: "keystore"
+    key-password: "changeme"
+    key-store-password: "changeme"
+    trust-store: "truststore"
+    trust-store-password: "changeme"
+    protocol: "TLSv1.2"
+    enabled-algorithms: ["TLS_RSA_WITH_AES_128_CBC_SHA"]
+    random-number-generator: ""
+  session:
+    cleanup-cron: "0 0/20 * * * *"
+  aggregation-timeout: "5 seconds"
+  license:
+    days-before-warning: 5
+  downloads:
+    export-root: "exports"
+  security:
+    auth:
+      provider: "default"
