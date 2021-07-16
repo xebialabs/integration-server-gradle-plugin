@@ -1,10 +1,9 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigRenderOptions
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.util.DbUtil
+import com.xebialabs.gradle.integration.util.ServerConfUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.HTTPUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
@@ -66,25 +65,17 @@ class StartIntegrationServerTask extends DefaultTask {
         }
     }
 
-    private void writeXlDeployConf() {
-        project.logger.lifecycle("Writing xl-deploy.conf file")
+    private void writeDeployConf() {
+        project.logger.lifecycle("Writing deploy config file")
         def extension = ExtensionsUtil.getExtension(project)
-        def defaultConf = project.file("${ExtensionsUtil.getServerWorkingDir(project)}/conf/xl-deploy.conf")
-        def dbConfig = DbUtil.dbConfig(project).getObject("xl.repository.database").render()
+        DbUtil.mapper.writeValue(
+                new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-repository.yaml"),
+                DbUtil.dbConfig(project))
 
-        def cfgStr = """xl {
-              server.hostname=localhost
-              server.port = ${extension.akkaRemotingPort}
-
-              repository.database $dbConfig
-              
-              reporting.database $dbConfig
-            }
-        """
-
-        def config = ConfigFactory.parseString(cfgStr)
-        def newConfig = config.withFallback(ConfigFactory.parseFile(defaultConf))
-        defaultConf.text = newConfig.resolve().root().render(ConfigRenderOptions.concise())
+        def serverConf = ServerConfUtil.serverConfig(project, extension.akkaRemotingPort)
+        DbUtil.mapper.writeValue(
+                new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-server.yaml"),
+                serverConf)
     }
 
     private void initialize() {
@@ -138,7 +129,7 @@ class StartIntegrationServerTask extends DefaultTask {
     void launch() {
         shutdownServer(project)
         writeConfFile()
-        writeXlDeployConf()
+        writeDeployConf()
         initialize()
         startServer()
         waitForBoot()
