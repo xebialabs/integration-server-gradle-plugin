@@ -8,17 +8,17 @@ import org.gradle.api.tasks.TaskAction
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 import static com.xebialabs.gradle.integration.util.PluginUtil.getDistLocation
 
-class StopSatelliteTask extends DefaultTask {
-    static NAME = "stopSatellite"
+class ShutdownSatelliteTask extends DefaultTask {
+    static NAME = "shutDownSatellite"
     static STOP_SATELLITE_SCRIPT = "stopSatellite.sh"
 
 
-    StopSatelliteTask() {
+    ShutdownSatelliteTask() {
         group = PLUGIN_GROUP
     }
 
     private def copyStopSatelliteScript() {
-        def from = StopSatelliteTask.class.classLoader.getResourceAsStream("satellite/bin/$STOP_SATELLITE_SCRIPT")
+        def from = ShutdownSatelliteTask.class.classLoader.getResourceAsStream("satellite/bin/$STOP_SATELLITE_SCRIPT")
         def intoDir = getDistLocation(project).resolve(STOP_SATELLITE_SCRIPT)
         FileUtil.copyFile(from, intoDir)
     }

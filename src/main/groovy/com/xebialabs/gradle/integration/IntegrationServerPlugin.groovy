@@ -16,7 +16,7 @@ import com.xebialabs.gradle.integration.tasks.pluginManager.StartPluginManagerTa
 import com.xebialabs.gradle.integration.tasks.satellite.CopySatelliteOverlaysTask
 import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatelliteDistTask
 import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
-import com.xebialabs.gradle.integration.tasks.satellite.StopSatelliteTask
+import com.xebialabs.gradle.integration.tasks.satellite.ShutdownSatelliteTask
 import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorker
 import com.xebialabs.gradle.integration.tasks.worker.StartWorker
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
@@ -37,7 +37,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask)
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
-        project.tasks.create(StopSatelliteTask.NAME, StopSatelliteTask)
+        project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)
         project.tasks.create(StartConfigServerTask.NAME, StartConfigServerTask)
         project.tasks.create(ShutDownConfigServerTask.NAME, ShutDownConfigServerTask)
         project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask)
