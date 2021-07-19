@@ -108,11 +108,11 @@ class ExtensionsUtil {
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())
         extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())
         extension.driverVersions = resolveValue(project, extension, "driverVersions", [
-            'postgres': '42.2.9',
-            'mysql': '8.0.22',
-            'oracle-xe-11g': '11.2.0.4',
-            'mssql': '8.4.1.jre8',
-            'db2': '11.5.5.0'
+                'postgres'     : '42.2.9',
+                'mysql'        : '8.0.22',
+                'oracle-xe-11g': '11.2.0.4',
+                'mssql'        : '8.4.1.jre8',
+                'db2'          : '11.5.5.0'
         ])
         extension.mqDriverVersions = resolveValue(project, extension, "mqDriverVersions", [
                 'activemq': '5.16.2',

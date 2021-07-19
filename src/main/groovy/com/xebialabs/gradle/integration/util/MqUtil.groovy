@@ -15,7 +15,7 @@ class MqUtil {
         project.hasProperty("mqPort") ? project.property("mqPort") : null
     }
 
-    static def getMqFileName(project){
+    static def getMqFileName(project) {
         "mq/docker-compose_${mqName(project)}.yaml"
     }
 
@@ -43,6 +43,7 @@ class MqUtil {
             "admin"
     )
 }
+
 class MqParameters {
     String driverDependency
     String driverClass
@@ -51,11 +52,11 @@ class MqParameters {
     String password
 
     MqParameters(
-                 String driverDependency,
-                 String driverClass,
-                 String url,
-                 String userName,
-                 String password) {
+            String driverDependency,
+            String driverClass,
+            String url,
+            String userName,
+            String password) {
         this.driverDependency = driverDependency
         this.driverClass = driverClass
         this.url = url

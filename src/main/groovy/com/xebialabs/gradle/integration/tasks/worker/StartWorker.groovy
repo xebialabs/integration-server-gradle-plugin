@@ -86,7 +86,8 @@ class StartWorker extends DefaultTask {
                         success = true
                     }
                 }
-            } catch (ignored) {}
+            } catch (ignored) {
+            }
             if (!success) {
                 println("Waiting  ${extension.serverPingRetrySleepTime} second(s) for Worker startup. ($triesLeft)")
                 TimeUnit.SECONDS.sleep(extension.serverPingRetrySleepTime)

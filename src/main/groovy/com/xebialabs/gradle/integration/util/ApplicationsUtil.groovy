@@ -27,27 +27,25 @@ class ApplicationsUtil {
     static def XLD_WITH_WORKER_STOP = 'stopXLDWithExternalWorker'
 
     static def applicationName(project) {
-       def application =  project.hasProperty("application") ? project.property("application").toString() : XLD_START
-       def externalWorker =  project.hasProperty("externalWorker") ? project.property("externalWorker") : false
+        def application = project.hasProperty("application") ? project.property("application").toString() : XLD_START
+        def externalWorker = project.hasProperty("externalWorker") ? project.property("externalWorker") : false
 
-        if (application.equals(XLD_START) && externalWorker){
+        if (application.equals(XLD_START) && externalWorker) {
             return XLD_WITH_WORKER_START
-        } else if(application.equals(XLD_STOP) && externalWorker) {
+        } else if (application.equals(XLD_STOP) && externalWorker) {
             return XLD_WITH_WORKER_STOP
-        }
-        else
-        {
+        } else {
             return application
         }
     }
 
-    static def getDetail(project){
+    static def getDetail(project) {
 
     }
 
     static def detectApplication(application) {
         switch (application) {
-            case XLD_START:return StartIntegrationServerTask.NAME
+            case XLD_START: return StartIntegrationServerTask.NAME
             case XLD_STOP: return ShutdownIntegrationServerTask.NAME
             case GITLAB_START: return DockerComposeGitlabStartTask.NAME
             case GITLAB_STOP: return DockerComposeGitlabStopTask.NAME
@@ -57,7 +55,7 @@ class ApplicationsUtil {
             case CONFIG_SERVER_STOP: return ShutDownConfigServerTask.NAME
             case PLUGIN_MANAGER_START: return StartPluginManagerTask.NAME
             case XLD_WITH_WORKER_START: return StartWorker.NAME
-            case XLD_WITH_WORKER_STOP: return  ShutdownWorker.NAME
+            case XLD_WITH_WORKER_STOP: return ShutdownWorker.NAME
             default: return StartIntegrationServerTask.NAME
         }
     }

@@ -16,7 +16,7 @@ class DockerComposeUtil {
     static def dockerComposeFileDestination(Project project) {
         def composeFile = dockerComposeFileName(project)
         return Paths.get(
-            "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${composeFile}")
+                "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${composeFile}")
     }
 
     static def dockerfileDestination(Project project, String filename) {

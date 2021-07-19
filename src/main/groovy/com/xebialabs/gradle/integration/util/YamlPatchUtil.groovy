@@ -24,30 +24,30 @@ class YamlPatchUtil {
     }
 
 
-   static def configFile(filename) {
+    static def configFile(filename) {
         return YamlPatchUtil.class.classLoader.getResourceAsStream("central-conf/${filename}.yaml")
     }
 
     static def serverConfig(project) {
         project.logger.info("Writing to deploy-server.yaml")
-        def extension =ExtensionsUtil.getExtension(project)
+        def extension = ExtensionsUtil.getExtension(project)
         def serverConf = YamlUtil.mapper.readTree(configFile("deploy-server"))
         serverConf.put("deploy.server.port", extension.getAkkaRemotingPort())
         YamlUtil.mapper.writeValue(
-             new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-server.yaml"),
-             serverConf)
+                new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-server.yaml"),
+                serverConf)
     }
 
-    static def taskConfig(project){
+    static def taskConfig(project) {
         project.logger.info("Writing to deploy-task.yaml")
-        def taskConf = YamlUtil.mapper.readTree(configFile( "deploy-task"))
+        def taskConf = YamlUtil.mapper.readTree(configFile("deploy-task"))
         if (project.hasProperty("externalWorker")) {
             taskConf.put("deploy.task.in-process-worker", false)
             def mqDetail = mq(MqUtil.mqName(project), MqUtil.mqPort(project))
-            taskConf.put("deploy.task.queue.external.jms-driver-classname",mqDetail.get("jms-driver-classname"))
-            taskConf.put("deploy.task.queue.external.jms-password",mqDetail.get("jms-password"))
-            taskConf.put("deploy.task.queue.external.jms-url",mqDetail.get("jms-url"))
-            taskConf.put("deploy.task.queue.external.jms-username",mqDetail.get("jms-username"))
+            taskConf.put("deploy.task.queue.external.jms-driver-classname", mqDetail.get("jms-driver-classname"))
+            taskConf.put("deploy.task.queue.external.jms-password", mqDetail.get("jms-password"))
+            taskConf.put("deploy.task.queue.external.jms-url", mqDetail.get("jms-url"))
+            taskConf.put("deploy.task.queue.external.jms-username", mqDetail.get("jms-username"))
         } else {
             taskConf.put("deploy.task.in-process-worker", true)
         }

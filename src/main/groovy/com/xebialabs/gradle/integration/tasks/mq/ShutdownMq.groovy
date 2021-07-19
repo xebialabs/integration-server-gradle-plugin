@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Path
 
-class ShutdownMq extends  DefaultTask{
+class ShutdownMq extends DefaultTask {
     static NAME = "shutdownMq"
 
     ShutdownMq() {
@@ -18,7 +18,7 @@ class ShutdownMq extends  DefaultTask{
 
     @InputFiles
     File getDockerComposeFile() {
-        Path composeFile  = DockerComposeUtil.dockerfileDestination(project,  MqUtil.getMqFileName(project))
+        Path composeFile = DockerComposeUtil.dockerfileDestination(project, MqUtil.getMqFileName(project))
 
         return project.file(composeFile)
     }

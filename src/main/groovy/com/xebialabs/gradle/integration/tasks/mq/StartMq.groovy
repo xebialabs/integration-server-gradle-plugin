@@ -29,9 +29,9 @@ class StartMq extends DockerComposeUp {
     @InputFiles
     File getDockerComposeFile() {
         InputStream dockerComposeStream = StartMq.class.classLoader
-                .getResourceAsStream( MqUtil.getMqFileName(project))
+                .getResourceAsStream(MqUtil.getMqFileName(project))
 
-        Path resultComposeFilePath = DockerComposeUtil.dockerfileDestination(project,  MqUtil.getMqFileName(project))
+        Path resultComposeFilePath = DockerComposeUtil.dockerfileDestination(project, MqUtil.getMqFileName(project))
         FileUtil.copyFile(dockerComposeStream, resultComposeFilePath)
 
         return project.file(resultComposeFilePath)

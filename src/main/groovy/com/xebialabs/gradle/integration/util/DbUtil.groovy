@@ -47,53 +47,53 @@ class DbUtil {
     }
 
     static final DbParameters postgresParams = new DbParameters(
-        'org.postgresql:postgresql',
-        'org.postgresql.Driver',
-        "org.dbunit.ext.postgresql.PostgresqlDataTypeFactory",
-        null,
-        "\"?\""
+            'org.postgresql:postgresql',
+            'org.postgresql.Driver',
+            "org.dbunit.ext.postgresql.PostgresqlDataTypeFactory",
+            null,
+            "\"?\""
     )
     static final DbParameters mysqlPararms = new DbParameters(
-        'mysql:mysql-connector-java',
-        "com.mysql.jdbc.Driver",
-        "org.dbunit.ext.mysql.MySqlDataTypeFactory",
-        "org.dbunit.ext.mysql.MySqlMetadataHandler",
-        "`?`"
+            'mysql:mysql-connector-java',
+            "com.mysql.jdbc.Driver",
+            "org.dbunit.ext.mysql.MySqlDataTypeFactory",
+            "org.dbunit.ext.mysql.MySqlMetadataHandler",
+            "`?`"
     )
     static final DbParameters oraclePararms = new DbParameters(
-        'com.oracle.database.jdbc:ojdbc6',
-        "oracle.jdbc.OracleDriver",
-        "org.dbunit.ext.oracle.OracleDataTypeFactory",
-        null,
-        "\"?\""
+            'com.oracle.database.jdbc:ojdbc6',
+            "oracle.jdbc.OracleDriver",
+            "org.dbunit.ext.oracle.OracleDataTypeFactory",
+            null,
+            "\"?\""
     )
     static final DbParameters db2Pararms = new DbParameters(
-        'com.ibm.db2:jcc',
-        "com.ibm.db2.jcc.DB2Driver",
-        "org.dbunit.ext.db2.Db2DataTypeFactory",
-        "org.dbunit.ext.db2.Db2MetadataHandler",
-        "\"?\""
+            'com.ibm.db2:jcc',
+            "com.ibm.db2.jcc.DB2Driver",
+            "org.dbunit.ext.db2.Db2DataTypeFactory",
+            "org.dbunit.ext.db2.Db2MetadataHandler",
+            "\"?\""
     )
     static final DbParameters mssqlPararms = new DbParameters(
-        'com.microsoft.sqlserver:mssql-jdbc',
-        "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-        "org.dbunit.ext.mssql.MsSqlDataTypeFactory",
-        null,
-        "\"?\""
+            'com.microsoft.sqlserver:mssql-jdbc',
+            "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+            "org.dbunit.ext.mssql.MsSqlDataTypeFactory",
+            null,
+            "\"?\""
     )
     static final DbParameters derbyPararms = new DbParameters(
-        'org.apache.derby:derby',
-        null,
-        null,
-        null,
-        "\"?\""
+            'org.apache.derby:derby',
+            null,
+            null,
+            null,
+            "\"?\""
     )
     static final DbParameters derbyNetworkPararms = new DbParameters(
-        'org.apache.derby:derbyclient',
-        null,
-        null,
-        null,
-        "\"?\""
+            'org.apache.derby:derbyclient',
+            null,
+            null,
+            null,
+            "\"?\""
     )
 
     static def detectDbDependency(db) {

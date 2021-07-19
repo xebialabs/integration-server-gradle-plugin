@@ -62,11 +62,12 @@ class StartSatelliteTask extends DefaultTask {
             try {
                 workerLog.readLines().each { String line ->
                     if (line.contains("XL Satellite has started")) {
-                        println("XL Satellite Worker successfully started.")
+                        println("XL Satellite successfully started.")
                         success = true
                     }
                 }
-            } catch (ignored) {}
+            } catch (ignored) {
+            }
             if (!success) {
                 println("Waiting  ${extension.serverPingRetrySleepTime} second(s) for satellite startup. ($triesLeft)")
                 TimeUnit.SECONDS.sleep(extension.serverPingRetrySleepTime)
