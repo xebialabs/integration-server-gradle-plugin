@@ -45,9 +45,10 @@ dependencies {
     implementation("org.codehaus.groovy.modules.http-builder:http-builder:$httpBuilderVersion") {
         exclude group: 'org.codehaus.groovy', module: 'groovy'
     }
-    implementation "com.typesafe:config:$typesafeConfigVersion"
     implementation "de.vandermeer:asciitable:$asciitableVersion"
     implementation "commons-io:commons-io:$commonsIOVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
     implementation "org.postgresql:postgresql:${project.properties['driverVersions.postgres']}"
     implementation "mysql:mysql-connector-java:${project.properties['driverVersions.mysql']}"
     implementation "org.dbunit:dbunit:$dbUnitVersion"

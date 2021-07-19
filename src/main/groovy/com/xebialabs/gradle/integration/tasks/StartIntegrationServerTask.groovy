@@ -1,7 +1,5 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigRenderOptions
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.worker.StartWorker
@@ -10,6 +8,7 @@ import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.HTTPUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
 import com.xebialabs.gradle.integration.util.WorkerUtil
+import com.xebialabs.gradle.integration.util.YamlPatchUtil
 import com.xebialabs.gradle.integration.util.YamlUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -72,23 +71,16 @@ class StartIntegrationServerTask extends DefaultTask {
         }
     }
 
-    private void writeXlDeployConf() {
-        project.logger.lifecycle("Writing xl-deploy.conf file")
-        def defaultConf = project.file("${ExtensionsUtil.getServerWorkingDir(project)}/conf/xl-deploy.conf")
-        def dbConfig = DbUtil.dbConfig(project).getObject("xl.repository.database").render()
+    private void writeDeployConf() {
+        project.logger.lifecycle("Writing deploy config file")
+        def extension = ExtensionsUtil.getExtension(project)
+        YamlUtil.mapper.writeValue(
+                new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-repository.yaml"),
+                DbUtil.dbConfig(project))
 
-        def cfgStr = """xl {            
-              repository.database $dbConfig              
-              reporting.database $dbConfig
-            }
-        """
-        if (WorkerUtil.isWorkerEnabled(project)) {
-            YamlUtil.writeDeployTaskYaml(project)
-            YamlUtil.writeServerTaskYaml(project)
-        }
-        def config = ConfigFactory.parseString(cfgStr)
-        def newConfig = config.withFallback(ConfigFactory.parseFile(defaultConf))
-        defaultConf.text = newConfig.resolve().root().render(ConfigRenderOptions.concise())
+
+        YamlPatchUtil.taskConfig(project)
+        YamlPatchUtil.serverConfig(project)
     }
 
 
@@ -143,7 +135,7 @@ class StartIntegrationServerTask extends DefaultTask {
     void launch() {
         shutdownServer(project)
         writeConfFile()
-        writeXlDeployConf()
+        writeDeployConf()
         initialize()
         startServer()
         waitForBoot()

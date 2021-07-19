@@ -15,10 +15,10 @@ deploy.task:
       attempts: 25
       timeout: 500
     external:
-      jms-driver-classname: "com.rabbitmq.jms.admin.RMQConnectionFactory"
-      jms-url: "amqp://localhost:5672"
-      jms-username: "guest"
-      jms-password: "guest"
+      jms-driver-classname:
+      jms-url:
+      jms-username:
+      jms-password:
       artemis:
         local-bind-address:
         local-bind-port:
