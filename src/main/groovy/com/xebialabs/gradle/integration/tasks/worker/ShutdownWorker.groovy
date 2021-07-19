@@ -1,7 +1,7 @@
 package com.xebialabs.gradle.integration.tasks.worker
 
 import com.xebialabs.gradle.integration.tasks.ShutdownIntegrationServerTask
-import com.xebialabs.gradle.integration.tasks.mq.ShutdownRabbitMq
+import com.xebialabs.gradle.integration.tasks.mq.ShutdownMq
 import com.xebialabs.gradle.integration.util.FileUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
 import com.xebialabs.gradle.integration.util.WorkerUtil
@@ -18,13 +18,13 @@ class ShutdownWorker extends DefaultTask {
     ShutdownWorker() {
         def dependencies = [
                 ShutdownIntegrationServerTask.NAME,
-                ShutdownRabbitMq.NAME
+                ShutdownMq.NAME
         ]
 
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
-            shouldRunAfter(ShutdownIntegrationServerTask.NAME, ShutdownRabbitMq.NAME)
+            shouldRunAfter(ShutdownIntegrationServerTask.NAME, ShutdownMq.NAME)
             onlyIf {
                 WorkerUtil.isWorkerEnabled(project)
             }

@@ -2,7 +2,7 @@ package com.xebialabs.gradle.integration.tasks.worker
 
 import com.xebialabs.gradle.integration.tasks.StartIntegrationServerTask
 import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
-import com.xebialabs.gradle.integration.tasks.mq.StartRabbitMq
+import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
 import com.xebialabs.gradle.integration.util.WorkerUtil
@@ -21,13 +21,13 @@ class StartWorker extends DefaultTask {
     StartWorker() {
         def dependencies = [
                 StartIntegrationServerTask.NAME,
-                StartRabbitMq.NAME
+                StartMq.NAME
         ]
 
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
-            shouldRunAfter(StartIntegrationServerTask.NAME, ImportDbUnitDataTask.NAME, StartRabbitMq.NAME)
+            shouldRunAfter(StartIntegrationServerTask.NAME, ImportDbUnitDataTask.NAME, StartMq.NAME)
             onlyIf {
                 WorkerUtil.isWorkerEnabled(project)
             }

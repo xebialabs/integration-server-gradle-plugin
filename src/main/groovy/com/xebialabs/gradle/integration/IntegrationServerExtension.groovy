@@ -49,6 +49,8 @@ class IntegrationServerExtension {
 
     Map<String, String> driverVersions
 
+    Map<String, String> mqDriverVersions
+
     String workerName
 
     Integer workerRemotingPort

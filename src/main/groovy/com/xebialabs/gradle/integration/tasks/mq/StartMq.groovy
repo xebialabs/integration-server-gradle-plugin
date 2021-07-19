@@ -3,6 +3,7 @@ package com.xebialabs.gradle.integration.tasks.mq
 import com.palantir.gradle.docker.DockerComposeUp
 import com.xebialabs.gradle.integration.util.DockerComposeUtil
 import com.xebialabs.gradle.integration.util.FileUtil
+import com.xebialabs.gradle.integration.util.MqUtil
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 
@@ -10,11 +11,10 @@ import java.nio.file.Path
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
-class StartRabbitMq extends DockerComposeUp {
-    static NAME = "startRabbitMq"
-    static COMPOSE_FILE_NAME = "mq/rabbitmq-compose.yaml"
+class StartMq extends DockerComposeUp {
+    static NAME = "startmq"
 
-    StartRabbitMq() {
+    StartMq() {
         this.configure {
             group = PLUGIN_GROUP
         }
@@ -23,15 +23,15 @@ class StartRabbitMq extends DockerComposeUp {
 
     @Override
     String getDescription() {
-        return "Starts rabbit mq using `docker-compose` and ${COMPOSE_FILE_NAME} file."
+        return "Starts rabbit mq using `docker-compose` and ${MqUtil.getMqFileName(project)} file."
     }
 
     @InputFiles
     File getDockerComposeFile() {
-        InputStream dockerComposeStream = StartRabbitMq.class.classLoader
-                .getResourceAsStream(COMPOSE_FILE_NAME)
+        InputStream dockerComposeStream = StartMq.class.classLoader
+                .getResourceAsStream( MqUtil.getMqFileName(project))
 
-        Path resultComposeFilePath = DockerComposeUtil.dockerfileDestination(project, COMPOSE_FILE_NAME)
+        Path resultComposeFilePath = DockerComposeUtil.dockerfileDestination(project,  MqUtil.getMqFileName(project))
         FileUtil.copyFile(dockerComposeStream, resultComposeFilePath)
 
         return project.file(resultComposeFilePath)
@@ -39,7 +39,7 @@ class StartRabbitMq extends DockerComposeUp {
 
     @TaskAction
     void run() {
-        project.logger.lifecycle("Starting Rabbit MQ.")
+        project.logger.lifecycle("Starting  ${MqUtil.mqName(project)} MQ.")
         super.run()
     }
 }

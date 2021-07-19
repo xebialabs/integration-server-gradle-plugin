@@ -114,6 +114,10 @@ class ExtensionsUtil {
             'mssql': '8.4.1.jre8',
             'db2': '11.5.5.0'
         ])
+        extension.mqDriverVersions = resolveValue(project, extension, "mqDriverVersions", [
+                'activemq': '5.16.2',
+                'rabbitmq': '2.2.0'
+        ])
         extension.workerRemotingPort = resolveIntValue(project, extension, "workerRemotingPort", findFreePort())
         extension.workerName = resolveValue(project, extension, "workerName", "worker-1-work")
         extension.workerDebugPort = resolveIntValue(project, extension, "workerDebugPort", null)

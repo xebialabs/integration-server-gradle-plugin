@@ -10,8 +10,8 @@ import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStartTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStopTask
-import com.xebialabs.gradle.integration.tasks.mq.ShutdownRabbitMq
-import com.xebialabs.gradle.integration.tasks.mq.StartRabbitMq
+import com.xebialabs.gradle.integration.tasks.mq.ShutdownMq
+import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.tasks.pluginManager.StartPluginManagerTask
 import com.xebialabs.gradle.integration.tasks.satellite.CopySatelliteOverlaysTask
 import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatelliteDistTask
@@ -52,8 +52,8 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DockerComposeGitlabStartTask.NAME, DockerComposeGitlabStartTask)
         project.tasks.create(DockerComposeGitlabStopTask.NAME, DockerComposeGitlabStopTask)
         project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
-        project.tasks.create(StartRabbitMq.NAME, StartRabbitMq)
-        project.tasks.create(ShutdownRabbitMq.NAME, ShutdownRabbitMq)
+        project.tasks.create(StartMq.NAME, StartMq)
+        project.tasks.create(ShutdownMq.NAME, ShutdownMq)
         project.tasks.create(StartWorker.NAME, StartWorker)
         project.tasks.create(ShutdownWorker.NAME, ShutdownWorker)
     }
