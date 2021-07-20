@@ -33,5 +33,5 @@ class IntegrationServerExtension {
 
     Map<String, String> driverVersions
 
-    Map<String, Map<String, String>> yamlPatches
+    Map<String, Map<String, Object>> yamlPatches
 }
