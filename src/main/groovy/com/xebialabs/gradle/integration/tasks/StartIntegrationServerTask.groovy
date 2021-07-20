@@ -27,7 +27,8 @@ class StartIntegrationServerTask extends DefaultTask {
                 SetLogbackLevelsTask.NAME,
                 RemoveStdoutConfigTask.NAME,
                 PrepareDatabaseTask.NAME,
-                DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME
+                DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME,
+                YamlPatchesTask.NAME
         ]
 
         this.configure {

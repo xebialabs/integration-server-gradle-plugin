@@ -31,6 +31,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DockerComposeGitlabStartTask.NAME, DockerComposeGitlabStartTask)
         project.tasks.create(DockerComposeGitlabStopTask.NAME, DockerComposeGitlabStopTask)
         project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
+        project.tasks.create(YamlPatchesTask.NAME, YamlPatchesTask)
     }
 
     private static applyDerbyPlugin(Project project) {

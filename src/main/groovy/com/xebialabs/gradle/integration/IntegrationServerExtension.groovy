@@ -32,4 +32,6 @@ class IntegrationServerExtension {
     Map<String, List<Object>> overlays
 
     Map<String, String> driverVersions
+
+    Map<String, Map<String, String>> yamlPatches
 }
