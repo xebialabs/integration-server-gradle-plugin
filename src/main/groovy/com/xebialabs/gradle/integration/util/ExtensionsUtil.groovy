@@ -94,5 +94,6 @@ class ExtensionsUtil {
             'mssql': '8.4.1.jre8',
             'db2': '11.5.5.0'
         ])
+        extension.yamlPatches = resolveValue(project, extension, "yamlPatches", new HashMap<String, Map<String, String>>())
     }
 }
