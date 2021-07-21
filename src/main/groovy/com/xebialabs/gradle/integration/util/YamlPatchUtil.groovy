@@ -48,8 +48,6 @@ class YamlPatchUtil {
             taskConf.put("deploy.task.queue.external.jms-password", mqDetail.get("jms-password"))
             taskConf.put("deploy.task.queue.external.jms-url", mqDetail.get("jms-url"))
             taskConf.put("deploy.task.queue.external.jms-username", mqDetail.get("jms-username"))
-        } else {
-            taskConf.put("deploy.task.in-process-worker", true)
         }
         YamlUtil.mapper.writeValue(
                 new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-task.yaml"),
