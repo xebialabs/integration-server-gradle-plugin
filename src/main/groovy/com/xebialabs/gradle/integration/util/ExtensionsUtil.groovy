@@ -62,9 +62,16 @@ class ExtensionsUtil {
     }
 
     static def getServerWorkingDir(Project project) {
-        def serverVersion = getExtension(project).serverVersion
-        def targetDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
-        Paths.get(targetDir, "xl-deploy-${serverVersion}-server").toAbsolutePath().toString()
+        def serverRuntimeDirectory = getExtension(project).serverRuntimeDirectory
+        if (serverRuntimeDirectory == null) {
+            def serverVersion = getExtension(project).serverVersion
+            def targetDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
+            Paths.get(targetDir, "xl-deploy-${serverVersion}-server").toAbsolutePath().toString()
+        } else {
+            def target = project.projectDir.toString()
+            Paths.get(target,serverRuntimeDirectory).toAbsolutePath().toString()
+        }
+
     }
 
     static def getSatelliteWorkingDir(Project project) {
@@ -99,11 +106,11 @@ class ExtensionsUtil {
         extension.satelliteDebugSuspend = resolveBooleanValue(project, extension, "satelliteDebugSuspend")
         extension.configServerDebugSuspend = resolveBooleanValue(project, extension, "configServerDebugSuspend")
         extension.logSql = resolveBooleanValue(project, extension, "logSql")
-        extension.serverVersion = resolveValue(project, extension, "serverVersion", project.property("xlDeployVersion"))
+        extension.serverVersion = resolveValue(project, extension, "serverVersion", project.hasProperty("xlDeployVersion") ? project.property("xlDeployVersion"): null)
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
-        extension.xldIsDataVersion = resolveValue(project, extension, "xldIsDataVersion", project.property("xldIsDataVersion"))
-        extension.satelliteVersion = resolveValue(project, extension, "satelliteVersion", project.property("xlDeployVersion"))
-        extension.configServerVersion = resolveValue(project, extension, "configServerVersion", project.property("xlDeployVersion"))
+        extension.xldIsDataVersion = resolveValue(project, extension, "xldIsDataVersion",project.hasProperty("xldIsDataVersion")? project.property("xldIsDataVersion"): null)
+        extension.satelliteVersion = resolveValue(project, extension, "satelliteVersion",project.hasProperty("xlDeployVersion") ? project.property("xlDeployVersion"): null)
+        extension.configServerVersion = resolveValue(project, extension, "configServerVersion",project.hasProperty("xlDeployVersion") ? project.property("xlDeployVersion"): null)
         extension.satelliteOverlays = resolveValue(project, extension, "satelliteOverlays", new HashMap<String, List<Object>>())
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())
         extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())
@@ -121,5 +128,10 @@ class ExtensionsUtil {
         extension.workerRemotingPort = resolveIntValue(project, extension, "workerRemotingPort", findFreePort())
         extension.workerName = resolveValue(project, extension, "workerName", "worker-1-work")
         extension.workerDebugPort = resolveIntValue(project, extension, "workerDebugPort", null)
+        extension.serverRuntimeDirectory = resolveValue(project, extension, "serverRuntimeDirectory", null)
+        extension.provisionScript = resolveValue(project, extension, "provisionScript", null)
+        extension.anonymizerProvisionScript = resolveValue(project, extension, "anonymizerProvisionScript", null)
+        extension.ldapProvisionScript = resolveValue(project, extension, "ldapProvisionScript", null)
+        extension.oidcProvisionScript = resolveValue(project, extension, "oidcProvisionScript", null)
     }
 }

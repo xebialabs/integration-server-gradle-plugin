@@ -4,6 +4,7 @@ import com.xebialabs.gradle.integration.tasks.*
 import com.xebialabs.gradle.integration.tasks.centralconfig.DownloadAndExtractConfigServerDistTask
 import com.xebialabs.gradle.integration.tasks.centralconfig.ShutDownConfigServerTask
 import com.xebialabs.gradle.integration.tasks.centralconfig.StartConfigServerTask
+import com.xebialabs.gradle.integration.tasks.cli.RunProvisionScriptTask
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStopTask
 import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
@@ -24,9 +25,10 @@ import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.TaskUtil
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 
 class IntegrationServerPlugin implements Plugin<Project> {
-    private static void createTasks(Project project) {
+    private static void createTasks(Project project, Configuration itcfg, Configuration clicfg) {
         project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
         project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
         project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
@@ -34,14 +36,14 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(CopySatelliteOverlaysTask.NAME, CopySatelliteOverlaysTask)
-        project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask)
+        project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask).dependsOn(itcfg)
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
         project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)
         project.tasks.create(StartConfigServerTask.NAME, StartConfigServerTask)
         project.tasks.create(ShutDownConfigServerTask.NAME, ShutDownConfigServerTask)
         project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask)
-        project.tasks.create(IntegrationServerTask.NAME, IntegrationServerTask)
+        project.tasks.create(IntegrationServerTestTask.NAME, IntegrationServerTestTask)
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
@@ -56,6 +58,11 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(ShutdownMq.NAME, ShutdownMq)
         project.tasks.create(StartWorker.NAME, StartWorker)
         project.tasks.create(ShutdownWorker.NAME, ShutdownWorker)
+        project.tasks.create(RunProvisionScriptTask.NAME, RunProvisionScriptTask).dependsOn(clicfg)
+        project.tasks.create("runLdapProvisionScript", RunProvisionScriptTask).configure {
+            conventionMapping.provisionScript = { -> extension.ldapProvisionScript }
+        }.dependsOn(clicfg)
+
     }
 
     private static applyDerbyPlugin(Project project) {
@@ -78,12 +85,14 @@ class IntegrationServerPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        def itcfg = project.configurations.create("integrationTestServer")
+        def clicfg = project.configurations.create("integrationTestCli")
         ConfigurationsUtil.registerConfigurations(project)
         ExtensionsUtil.create(project)
 
         project.afterEvaluate {
             ExtensionsUtil.initialize(project)
-            createTasks(project)
+            createTasks(project, itcfg, clicfg)
             applyPlugins(project)
         }
     }

@@ -7,9 +7,9 @@ import org.gradle.api.tasks.TaskAction
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 
-class IntegrationServerTask extends DefaultTask {
+class IntegrationServerTestTask extends DefaultTask {
 
-    IntegrationServerTask() {
+    IntegrationServerTestTask() {
         def dependencies = [
                 ApplicationsUtil.detectApplication(ApplicationsUtil.applicationName(project))
         ]
@@ -20,10 +20,6 @@ class IntegrationServerTask extends DefaultTask {
         }
     }
 
-    static NAME = "integrationServer"
+    static NAME = "integrationServerTest"
 
-    @TaskAction
-    void launch() {
-
-    }
 }

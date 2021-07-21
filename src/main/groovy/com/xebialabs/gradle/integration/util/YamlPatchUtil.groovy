@@ -28,8 +28,8 @@ class YamlPatchUtil {
         return YamlPatchUtil.class.classLoader.getResourceAsStream("central-conf/${filename}.yaml")
     }
 
-    static def serverConfig(project) {
-        project.logger.info("Writing to deploy-server.yaml")
+    static serverConfig(project) {
+        project.logger.lifecycle("Writing to deploy-server.yaml")
         def extension = ExtensionsUtil.getExtension(project)
         def serverConf = YamlUtil.mapper.readTree(configFile("deploy-server"))
         serverConf.put("deploy.server.port", extension.getAkkaRemotingPort())
@@ -38,8 +38,8 @@ class YamlPatchUtil {
                 serverConf)
     }
 
-    static def taskConfig(project) {
-        project.logger.info("Writing to deploy-task.yaml")
+    static taskConfig(project) {
+        project.logger.lifecycle("Writing to deploy-task.yaml")
         def taskConf = YamlUtil.mapper.readTree(configFile("deploy-task"))
         if (project.hasProperty("externalWorker")) {
             taskConf.put("deploy.task.in-process-worker", false)

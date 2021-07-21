@@ -17,6 +17,7 @@ import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class StartWorker extends DefaultTask {
     static NAME = "startWorker"
+    String configurationName = 'integrationTestServer'
 
     StartWorker() {
         def dependencies = [
@@ -36,12 +37,20 @@ class StartWorker extends DefaultTask {
 
     private def getEnv() {
         def extension = ExtensionsUtil.getExtension(project)
-        def opts = "-Xmx1024m"
+        def opts = "-Xmx1024m -DLOGFILE=deployit-worker"
         def suspend = extension.workerDebugSuspend ? 'y' : 'n'
         if (extension.workerDebugPort) {
-            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.workerDebugPort}"
+            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.workerDebugPort} "
         }
-        ["DEPLOYIT_SERVER_OPTS": opts.toString()]
+
+        if(extension.serverRuntimeDirectory != null) {
+            def classpath = project.configurations.getByName(configurationName).filter { !it.name.endsWith("-sources.jar") }.asPath
+            logger.debug("XL Deploy worker classpath: \n${classpath}")
+            ["DEPLOYIT_SERVER_OPTS": opts.toString(), "DEPLOYIT_SERVER_CLASSPATH": classpath]
+        }
+        else {
+            ["DEPLOYIT_SERVER_OPTS": opts.toString()]
+        }
     }
 
     private def getBinDir() {
@@ -76,7 +85,7 @@ class StartWorker extends DefaultTask {
         boolean success = false
 
         def runtimeDir = ExtensionsUtil.getServerWorkingDir(project)
-        def workerLog = project.file("$runtimeDir/log/deployit.log")
+        def workerLog = project.file("$runtimeDir/log/deployit-worker.log")
 
         while (triesLeft > 0 && !success) {
             try {

@@ -12,13 +12,16 @@ class DownloadAndExtractCliDistTask extends Copy {
     DownloadAndExtractCliDistTask() {
         this.configure {
             group = PLUGIN_GROUP
-            def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
-            project.buildscript.dependencies.add(
-                    SERVER_CLI_DIST_CONFIG,
-                    "com.xebialabs.deployit:xl-deploy-base:${serverVersion}:cli@zip"
-            )
-            from { project.zipTree(project.buildscript.configurations.getByName(SERVER_CLI_DIST_CONFIG).singleFile) }
-            into { project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString() }
+            def downloadRequired = ExtensionsUtil.getExtension(project).serverRuntimeDirectory
+            if(downloadRequired == null){
+                def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
+                project.buildscript.dependencies.add(
+                        SERVER_CLI_DIST_CONFIG,
+                        "com.xebialabs.deployit:xl-deploy-base:${serverVersion}:cli@zip"
+                )
+                from { project.zipTree(project.buildscript.configurations.getByName(SERVER_CLI_DIST_CONFIG).singleFile) }
+                into { project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString() }
+            }
         }
     }
 }

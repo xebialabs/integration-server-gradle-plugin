@@ -22,6 +22,7 @@ import static com.xebialabs.gradle.integration.util.ShutdownUtil.shutdownServer
 
 class StartIntegrationServerTask extends DefaultTask {
     static NAME = "startIntegrationServer"
+    String configurationName = 'integrationTestServer'
 
     StartIntegrationServerTask() {
         def dependencies = [
@@ -32,7 +33,6 @@ class StartIntegrationServerTask extends DefaultTask {
                 PrepareDatabaseTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME
         ]
-
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
@@ -49,7 +49,16 @@ class StartIntegrationServerTask extends DefaultTask {
         if (extension.serverDebugPort) {
             opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.serverDebugPort}"
         }
-        ["DEPLOYIT_SERVER_OPTS": opts.toString()]
+
+        if(extension.serverRuntimeDirectory != null) {
+            def classpath = project.configurations.getByName(configurationName).filter { !it.name.endsWith("-sources.jar") }.asPath
+            logger.debug("XL Deploy Server classpath: \n${classpath}")
+            ["DEPLOYIT_SERVER_OPTS": opts.toString(), "DEPLOYIT_SERVER_CLASSPATH": classpath]
+        }
+        else {
+            ["DEPLOYIT_SERVER_OPTS": opts.toString()]
+        }
+
     }
 
     private def getBinDir() {
@@ -73,11 +82,9 @@ class StartIntegrationServerTask extends DefaultTask {
 
     private void writeDeployConf() {
         project.logger.lifecycle("Writing deploy config file")
-        def extension = ExtensionsUtil.getExtension(project)
         YamlUtil.mapper.writeValue(
                 new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-repository.yaml"),
                 DbUtil.dbConfig(project))
-
 
         YamlPatchUtil.taskConfig(project)
         YamlPatchUtil.serverConfig(project)

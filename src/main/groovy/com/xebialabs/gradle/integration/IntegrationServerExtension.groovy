@@ -29,6 +29,8 @@ class IntegrationServerExtension {
 
     Boolean logSql
 
+    String serverRuntimeDirectory
+
     String serverVersion
 
     String satelliteVersion
@@ -58,5 +60,13 @@ class IntegrationServerExtension {
     Boolean workerDebugSuspend
 
     Integer workerDebugPort
+
+    String provisionScript
+
+    String anonymizerProvisionScript
+
+    String ldapProvisionScript
+
+    String oidcProvisionScript
 
 }
