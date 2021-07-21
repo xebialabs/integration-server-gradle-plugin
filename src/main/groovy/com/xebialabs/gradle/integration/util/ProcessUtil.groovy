@@ -17,6 +17,7 @@ class ProcessUtil {
         if (config.params) {
             command.addAll(config.params as List<String>)
         }
+        println("About to start he process with next config $config")
 
         def processBuilder = new ProcessBuilder(command)
         if (config.environment) {
@@ -26,11 +27,11 @@ class ProcessUtil {
         if (config.inheritIO) {
             processBuilder.inheritIO()
         }
+
         def process = processBuilder.start()
         if (config.wait) {
             process.waitFor()
         }
-
 
     }
 

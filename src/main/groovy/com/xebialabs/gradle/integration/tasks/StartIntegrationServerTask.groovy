@@ -3,13 +3,7 @@ package com.xebialabs.gradle.integration.tasks
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.worker.StartWorker
-import com.xebialabs.gradle.integration.util.DbUtil
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
-import com.xebialabs.gradle.integration.util.HTTPUtil
-import com.xebialabs.gradle.integration.util.ProcessUtil
-import com.xebialabs.gradle.integration.util.WorkerUtil
-import com.xebialabs.gradle.integration.util.YamlPatchUtil
-import com.xebialabs.gradle.integration.util.YamlUtil
+import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
@@ -51,12 +45,11 @@ class StartIntegrationServerTask extends DefaultTask {
             opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.serverDebugPort}"
         }
 
-        if(extension.serverRuntimeDirectory != null) {
+        if (extension.serverRuntimeDirectory != null) {
             def classpath = project.configurations.getByName(configurationName).filter { !it.name.endsWith("-sources.jar") }.asPath
             logger.debug("XL Deploy Server classpath: \n${classpath}")
             ["DEPLOYIT_SERVER_OPTS": opts.toString(), "DEPLOYIT_SERVER_CLASSPATH": classpath]
-        }
-        else {
+        } else {
             ["DEPLOYIT_SERVER_OPTS": opts.toString()]
         }
 
@@ -81,10 +74,15 @@ class StartIntegrationServerTask extends DefaultTask {
         }
     }
 
-    private void writeDeployConf() {
+    private void createFolders() {
+        new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration").mkdirs()
+    }
+
+    private void configureRepository() {
+        def folder = new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration")
         project.logger.lifecycle("Writing deploy config file")
         YamlUtil.mapper.writeValue(
-                new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-repository.yaml"),
+                new File("$folder/deploy-repository.yaml"),
                 DbUtil.dbConfig(project))
 
         YamlPatchUtil.taskConfig(project)
@@ -96,21 +94,21 @@ class StartIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("Initializing XLD")
 
         ProcessUtil.exec([
-            command: "run",
-            params : ["-setup", "-reinitialize", "-force", "-setup-defaults", "-force-upgrades", "conf/deployit.conf"],
-            workDir: getBinDir(),
-            wait   : true
+                command: "run",
+                params : ["-setup", "-reinitialize", "-force", "-setup-defaults", "-force-upgrades", "conf/deployit.conf"],
+                workDir: getBinDir(),
+                wait   : true
         ])
     }
 
     private void startServer() {
         project.logger.lifecycle("Launching server")
         ProcessUtil.exec([
-            command    : "run",
-            params : ["-force-upgrades"],
-            environment: getEnv(),
-            workDir    : getBinDir(),
-            inheritIO  : true
+                command    : "run",
+                params     : ["-force-upgrades"],
+                environment: getEnv(),
+                workDir    : getBinDir(),
+                inheritIO  : true
         ])
     }
 
@@ -142,8 +140,9 @@ class StartIntegrationServerTask extends DefaultTask {
     @TaskAction
     void launch() {
         shutdownServer(project)
+        createFolders()
         writeConfFile()
-        writeDeployConf()
+        configureRepository()
         initialize()
         startServer()
         waitForBoot()
