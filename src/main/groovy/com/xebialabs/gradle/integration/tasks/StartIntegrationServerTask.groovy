@@ -68,7 +68,6 @@ class StartIntegrationServerTask extends DefaultTask {
 
     private void writeConfFile() {
         project.logger.lifecycle("Writing deployit.conf file")
-
         def extension = ExtensionsUtil.getExtension(project)
         def file = project.file("${ExtensionsUtil.getServerWorkingDir(project)}/conf/deployit.conf")
         file.createNewFile()
@@ -82,7 +81,7 @@ class StartIntegrationServerTask extends DefaultTask {
     }
 
     private void writeDeployConf() {
-        project.logger.lifecycle("Writing deploy config file")
+        project.logger.lifecycle("Writing deploy repository yaml file")
         YamlUtil.mapper.writeValue(
                 new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-repository.yaml"),
                 DbUtil.dbConfig(project))
