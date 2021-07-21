@@ -62,7 +62,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create("runLdapProvisionScript", RunProvisionScriptTask).configure {
             conventionMapping.provisionScript = { -> extension.ldapProvisionScript }
         }.dependsOn(clicfg)
-
+        project.tasks.create(YamlPatchesTask.NAME, YamlPatchesTask)
     }
 
     private static applyDerbyPlugin(Project project) {

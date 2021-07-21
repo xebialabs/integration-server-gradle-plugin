@@ -54,6 +54,12 @@ integrationServer {
         'build/artifacts': ["${ciExplorerDataDependency}:artifacts@zip"], // List of artifacts to import
     ]
     logLevels = ["com.xebialabs.deployit.plugin.stitch": "debug"] // Log level overwrites
+    yamlPatches = [
+        'centralConfiguration/deploy-server.yaml': [
+            'deploy.server.hostname': 'test.xebialabs.com',
+            'deploy.server.label': 'XLD'
+        ]
+    ] // overwrites yaml content
 }
 ```
 

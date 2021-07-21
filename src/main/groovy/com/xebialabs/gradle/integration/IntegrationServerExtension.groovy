@@ -69,4 +69,6 @@ class IntegrationServerExtension {
 
     String oidcProvisionScript
 
+    Map<String, Map<String, Object>> yamlPatches
+
 }

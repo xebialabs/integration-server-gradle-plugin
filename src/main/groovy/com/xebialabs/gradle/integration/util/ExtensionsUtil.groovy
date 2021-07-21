@@ -133,5 +133,7 @@ class ExtensionsUtil {
         extension.anonymizerProvisionScript = resolveValue(project, extension, "anonymizerProvisionScript", null)
         extension.ldapProvisionScript = resolveValue(project, extension, "ldapProvisionScript", null)
         extension.oidcProvisionScript = resolveValue(project, extension, "oidcProvisionScript", null)
+        extension.yamlPatches = resolveValue(project, extension, "yamlPatches", new HashMap<String, Map<String, String>>())
+
     }
 }
