@@ -54,7 +54,7 @@ class ApplicationsUtil {
             case CONFIG_SERVER_STOP: return ShutDownConfigServerTask.NAME
             case PLUGIN_MANAGER_START: return StartPluginManagerTask.NAME
             case XLD_WITH_WORKER_START: return StartWorker.NAME
-            case XLD_WITH_WORKER_STOP: return ShutdownWorker.NAME
+            case XLD_WITH_WORKER_STOP: return [ShutdownWorker.NAME, ShutdownIntegrationServerTask.NAME]
             default: return StartIntegrationServerTask.NAME
         }
     }

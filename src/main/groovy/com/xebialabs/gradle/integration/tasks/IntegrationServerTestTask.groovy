@@ -2,7 +2,6 @@ package com.xebialabs.gradle.integration.tasks
 
 import com.xebialabs.gradle.integration.util.ApplicationsUtil
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.TaskAction
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 

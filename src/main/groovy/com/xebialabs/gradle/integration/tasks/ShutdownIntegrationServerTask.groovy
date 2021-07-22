@@ -2,6 +2,7 @@ package com.xebialabs.gradle.integration.tasks
 
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStopTask
 import com.xebialabs.gradle.integration.tasks.mq.ShutdownMq
+import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorker
 import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ShutdownUtil
 import com.xebialabs.gradle.integration.util.WorkerUtil
@@ -21,6 +22,7 @@ class ShutdownIntegrationServerTask extends DefaultTask {
             finalizedBy(DockerComposeDatabaseStopTask.NAME)
         }
         if (WorkerUtil.isWorkerEnabled(project)) {
+            dependsOn(ShutdownWorker.NAME)
             finalizedBy(ShutdownMq.NAME)
         }
     }

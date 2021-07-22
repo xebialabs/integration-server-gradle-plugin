@@ -42,15 +42,8 @@ class StartWorker extends DefaultTask {
         if (extension.workerDebugPort) {
             opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.workerDebugPort} "
         }
+        ["DEPLOYIT_SERVER_OPTS": opts.toString()]
 
-        if(extension.serverRuntimeDirectory != null) {
-            def classpath = project.configurations.getByName(configurationName).filter { !it.name.endsWith("-sources.jar") }.asPath
-            logger.debug("XL Deploy worker classpath: \n${classpath}")
-            ["DEPLOYIT_SERVER_OPTS": opts.toString(), "DEPLOYIT_SERVER_CLASSPATH": classpath]
-        }
-        else {
-            ["DEPLOYIT_SERVER_OPTS": opts.toString()]
-        }
     }
 
     private def getBinDir() {
@@ -108,9 +101,55 @@ class StartWorker extends DefaultTask {
         }
     }
 
+    private void startWorkerFromClasspath() {
+        def classpath = project.configurations.getByName("integrationTestServer").filter { !it.name.endsWith("-sources.jar") }.asPath
+        logger.debug("XL Deploy Worker classpath: \n${classpath}")
+        def extension = ExtensionsUtil.getExtension(project)
+        project.logger.lifecycle("Starting Worker test server for project ${project.name}. Remoting port: ${extension.workerRemotingPort}")
+        def jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+        def params = [fork: true, dir: extension.serverRuntimeDirectory, spawn: true, classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper"]
+        String jvmPath = project.properties['integrationServerJVMPath']
+        if (jvmPath) {
+            jvmPath = jvmPath + '/bin/java'
+            params['jvm'] = jvmPath
+            println("Using JVM from location: ${jvmPath}")
+        }
+
+      ant.java(params) {
+            jvmArgs.each {
+                jvmarg(value: it)
+            }
+            jvmarg(value: "-DLOGFILE=deployit-worker")
+            arg(value: "-master")
+            arg(value: "127.0.0.1:${extension.akkaRemotingPort.toString()}")
+            arg(value: "-api")
+            arg(value: "http://localhost:${extension.serverHttpPort.toString()}")
+            arg(value: "-hostname")
+            arg(value: "localhost")
+            arg(value: "-port")
+            arg(value: extension.workerRemotingPort.toString())
+            arg(value: "-work")
+            arg(value: extension.workerName)
+
+            env(key: "CLASSPATH", value: classpath)
+
+            if (extension.workerDebugPort!=null) {
+                println("Enabled debug mode on port ${extension.workerDebugPort}")
+                jvmarg(value: "-Xdebug")
+                jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.workerDebugPort}")
+            }
+        }
+    }
+
+
     @TaskAction
     void launch() {
-        startWorker()
+        if (ExtensionsUtil.getExtension(project).serverRuntimeDirectory != null) {
+            startWorkerFromClasspath()
+        } else {
+            startWorker()
+        }
+
         waitForBoot()
     }
 }

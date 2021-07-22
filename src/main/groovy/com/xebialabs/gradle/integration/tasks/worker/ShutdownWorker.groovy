@@ -2,9 +2,12 @@ package com.xebialabs.gradle.integration.tasks.worker
 
 import com.xebialabs.gradle.integration.tasks.ShutdownIntegrationServerTask
 import com.xebialabs.gradle.integration.tasks.mq.ShutdownMq
+import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.FileUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
 import com.xebialabs.gradle.integration.util.WorkerUtil
+import groovyx.net.http.HTTPBuilder
+import groovyx.net.http.Method
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -13,49 +16,31 @@ import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class ShutdownWorker extends DefaultTask {
     static NAME = "shutdownWorker"
-    static SHUTDOWN_WORKER_SCRIPT = "shutdownWorker.sh"
 
     ShutdownWorker() {
-        def dependencies = [
-                ShutdownIntegrationServerTask.NAME,
-                ShutdownMq.NAME
-        ]
-
         this.configure {
             group = PLUGIN_GROUP
-            dependsOn(dependencies)
-            shouldRunAfter(ShutdownIntegrationServerTask.NAME, ShutdownMq.NAME)
             onlyIf {
                 WorkerUtil.isWorkerEnabled(project)
             }
         }
     }
 
-    private def copyShutdownWorkerScript() {
-        def from = ShutdownWorker.class.classLoader.getResourceAsStream("worker/bin/$SHUTDOWN_WORKER_SCRIPT")
-        def intoDir = getDistLocation(project).resolve(SHUTDOWN_WORKER_SCRIPT)
-        FileUtil.copyFile(from, intoDir)
-    }
-
-    private def getWorkingDir() {
-        return getDistLocation(project).toFile()
-    }
-
     private void shutdownWorker() {
-        project.logger.lifecycle("Shutdown Worker")
-
-        ProcessUtil.chMod(project, "777", getDistLocation(project).resolve(SHUTDOWN_WORKER_SCRIPT).toAbsolutePath().toString())
-        ProcessUtil.exec([
-                command: "shutdownWorker",
-                workDir: getWorkingDir()
-        ])
-        project.logger.info("Worker successfully shutdown.")
+        try {
+            project.logger.lifecycle("Trying to shutdown workers")
+            def http = new HTTPBuilder("http://localhost:${ExtensionsUtil.getExtension(project).serverHttpPort}/deployit/workers")
+            http.auth.basic("admin", "admin")
+            http.request( Method.DELETE ) {}
+            project.logger.lifecycle("Workers shutdown successfully")
+        } catch (ex) {
+            project.logger.lifecycle("Could not stop workers", ex)
+        }
     }
 
 
     @TaskAction
     void stop() {
-        copyShutdownWorkerScript()
         shutdownWorker()
     }
 }

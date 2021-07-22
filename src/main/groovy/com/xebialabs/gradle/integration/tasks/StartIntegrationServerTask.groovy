@@ -2,6 +2,7 @@ package com.xebialabs.gradle.integration.tasks
 
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
+import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.tasks.worker.StartWorker
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
@@ -33,6 +34,7 @@ class StartIntegrationServerTask extends DefaultTask {
             dependsOn(dependencies)
         }
         if (WorkerUtil.isWorkerEnabled(project)) {
+            dependsOn(StartMq.NAME)
             finalizedBy(StartWorker.NAME)
         }
     }
@@ -44,14 +46,8 @@ class StartIntegrationServerTask extends DefaultTask {
         if (extension.serverDebugPort) {
             opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.serverDebugPort}"
         }
+        ["DEPLOYIT_SERVER_OPTS": opts.toString()]
 
-        if (extension.serverRuntimeDirectory != null) {
-            def classpath = project.configurations.getByName(configurationName).filter { !it.name.endsWith("-sources.jar") }.asPath
-            logger.debug("XL Deploy Server classpath: \n${classpath}")
-            ["DEPLOYIT_SERVER_OPTS": opts.toString(), "DEPLOYIT_SERVER_CLASSPATH": classpath]
-        } else {
-            ["DEPLOYIT_SERVER_OPTS": opts.toString()]
-        }
 
     }
 
@@ -137,14 +133,51 @@ class StartIntegrationServerTask extends DefaultTask {
         }
     }
 
+    private void startServerFromClasspath() {
+        def classpath = project.configurations.getByName("integrationTestServer").filter { !it.name.endsWith("-sources.jar") }.asPath
+        logger.debug("XL Deploy Server classpath: \n${classpath}")
+        def extension = ExtensionsUtil.getExtension(project)
+
+        project.logger.lifecycle("Starting integration test server on port ${extension.serverHttpPort} in runtime dir ${extension.serverRuntimeDirectory}")
+        def jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+        def params = [fork: true, dir: extension.serverRuntimeDirectory, spawn: true, classname: "com.xebialabs.deployit.DeployitBootstrapper"]
+        String jvmPath = project.properties['integrationServerJVMPath']
+         if (jvmPath) {
+            jvmPath = jvmPath + '/bin/java'
+            params['jvm'] = jvmPath
+            println("Using JVM from location: ${jvmPath}")
+        }
+
+       ant.java(params) {
+            arg(value: '-force-upgrades')
+            jvmArgs.each {
+                jvmarg(value: it)
+            }
+
+            env(key: "CLASSPATH", value: classpath)
+
+            if (extension.serverDebugPort!=null) {
+                println("Enabled debug mode on port ${extension.serverDebugPort}")
+                jvmarg(value: "-Xdebug")
+                jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.serverDebugPort}")
+            }
+        }
+    }
+
+
     @TaskAction
     void launch() {
         shutdownServer(project)
         createFolders()
         writeConfFile()
         configureRepository()
-        initialize()
-        startServer()
+        if (ExtensionsUtil.getExtension(project).serverRuntimeDirectory != null) {
+            startServerFromClasspath()
+        } else {
+            initialize()
+            startServer()
+        }
+
         waitForBoot()
     }
 }

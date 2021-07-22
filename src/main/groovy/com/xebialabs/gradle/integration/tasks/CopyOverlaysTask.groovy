@@ -24,6 +24,14 @@ class CopyOverlaysTask extends DefaultTask {
         def libOverlay = ext.overlays.getOrDefault(libKey, new ArrayList<Object>())
         def version = ext.driverVersions[dbname]
         if (version != null && !version.isEmpty()) {
+
+
+            if(ext.serverRuntimeDirectory != null) {
+                def configuration = project.getConfigurations().getByName("integrationTestServer")
+                configuration.dependencies.add(
+                        project.dependencies.create("${dbDependency.driverDependency}:${version}")
+                )
+            }
             libOverlay.add("${dbDependency.driverDependency}:${version}")
             ext.overlays.put(libKey, libOverlay)
         }
@@ -37,6 +45,12 @@ class CopyOverlaysTask extends DefaultTask {
         def libOverlay = ext.overlays.getOrDefault(libKey, new ArrayList<Object>())
         def version = ext.mqDriverVersions[mqname]
         if (version != null && !version.isEmpty()) {
+            if(ext.serverRuntimeDirectory != null) {
+                def configuration = project.getConfigurations().getByName("integrationTestServer")
+                configuration.dependencies.add(
+                        project.dependencies.create("${mqDependency.driverDependency}:${version}")
+                )
+            }
             libOverlay.add("${mqDependency.driverDependency}:${version}")
             ext.overlays.put(libKey, libOverlay)
         }
