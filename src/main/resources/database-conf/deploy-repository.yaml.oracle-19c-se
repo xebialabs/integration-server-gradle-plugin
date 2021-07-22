@@ -1,0 +1,9 @@
+xl:
+  repository:
+    database:
+      db-driver-classname: "oracle.jdbc.OracleDriver"
+      db-password: "xldrepo"
+      db-url: "jdbc:oracle:thin:@//localhost:1521/xldrepo"
+      db-username: xldrepo
+      max-pool-size: 10
+    artifacts.root: "build/artifacts"

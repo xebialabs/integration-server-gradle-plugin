@@ -6,7 +6,9 @@ import org.gradle.api.Project
 class DbUtil {
 
     static def POSTGRES = 'postgres'
+    static def POSTGRES12 = 'postgres-12'
     static def ORACLE = 'oracle-xe-11g'
+    static def ORACLE19 = 'oracle-19c-se'
     static def DB2 = 'db2'
     static def MYSQL = 'mysql'
     static def MYSQL8 = 'mysql-8'
@@ -47,6 +49,13 @@ class DbUtil {
     }
 
     static final DbParameters postgresParams = new DbParameters(
+            'org.postgresql:postgresql',
+            'org.postgresql.Driver',
+            "org.dbunit.ext.postgresql.PostgresqlDataTypeFactory",
+            null,
+            "\"?\""
+    )
+    static final DbParameters postgres12Pararms = new DbParameters(
             'org.postgresql:postgresql',
             'org.postgresql.Driver',
             "org.dbunit.ext.postgresql.PostgresqlDataTypeFactory",
@@ -98,8 +107,9 @@ class DbUtil {
 
     static def detectDbDependency(db) {
         switch (db) {
-            case POSTGRES: return postgresParams
-            case ORACLE: return oraclePararms
+            case [POSTGRES, POSTGRES12]: return postgresParams
+            case POSTGRES12: return postgres12Pararms
+            case [ORACLE, ORACLE19 ]: return oraclePararms
             case DB2: return db2Pararms
             case [MYSQL, MYSQL8]: return mysqlPararms
             case MSSQL: return mssqlPararms
