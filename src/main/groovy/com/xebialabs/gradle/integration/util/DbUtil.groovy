@@ -9,6 +9,7 @@ class DbUtil {
     static def POSTGRES12 = 'postgres-12'
     static def ORACLE = 'oracle-xe-11g'
     static def ORACLE19 = 'oracle-19c-se'
+    static def ORACLE12 = 'oracle-12c'
     static def DB2 = 'db2'
     static def MYSQL = 'mysql'
     static def MYSQL8 = 'mysql-8'
@@ -109,7 +110,7 @@ class DbUtil {
         switch (db) {
             case [POSTGRES, POSTGRES12]: return postgresParams
             case POSTGRES12: return postgres12Pararms
-            case [ORACLE, ORACLE19 ]: return oraclePararms
+            case [ORACLE, ORACLE12, ORACLE19 ]: return oraclePararms
             case DB2: return db2Pararms
             case [MYSQL, MYSQL8]: return mysqlPararms
             case MSSQL: return mssqlPararms

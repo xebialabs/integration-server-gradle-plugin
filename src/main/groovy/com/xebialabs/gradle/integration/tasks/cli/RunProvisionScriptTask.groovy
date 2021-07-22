@@ -32,37 +32,6 @@ class RunProvisionScriptTask extends DefaultTask {
         }
     }
 
-    private def getEnv() {
-        def extension = ExtensionsUtil.getExtension(project)
-        def opts = "-Xmx1024m -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
-
-        if (extension.serverRuntimeDirectory != null) {
-            def classpath = project.configurations.getByName(configurationName).filter { !it.name.endsWith("-sources.jar") }.asPath
-            logger.debug("XL Deploy cli classpath: \n${classpath}")
-            ["DEPLOYIT_CLI_OPTS": opts.toString(), "DEPLOYIT_CLI_CLASSPATH": classpath]
-        } else {
-            ["DEPLOYIT_CLI_OPTS": opts.toString()]
-        }
-
-    }
-
-    private def getBinDir() {
-        Paths.get(ExtensionsUtil.getServerWorkingDir(project), "bin").toFile()
-    }
-
-    private void startCliServer() {
-        project.logger.lifecycle("Launching cli")
-        def extension = ExtensionsUtil.getExtension(project)
-        def script
-        ProcessUtil.exec([
-                command    : "cli",
-                params     : ["-context", extension.getServerContextRoot(), "-q", "-expose-proxies", "-username", "admin", "-password", "admin", "-port", extension.getServerHttpPort().toString(), "-f", extension.getProvisionScript()],
-                environment: getEnv(),
-                workDir    : getBinDir(),
-                inheritIO  : true
-        ])
-    }
-
     private void runProvisioning() {
 
         def filtered = project.configurations.getByName(configurationName).filter { !it.name.endsWith("-sources.jar") }
