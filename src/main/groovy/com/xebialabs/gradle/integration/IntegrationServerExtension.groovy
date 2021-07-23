@@ -17,6 +17,8 @@ class IntegrationServerExtension {
 
     Integer serverPingRetrySleepTime
 
+    String[] serverJvmArgs =[]
+
     Integer provisionSocketTimeout
 
     Integer akkaRemotingPort
@@ -60,6 +62,8 @@ class IntegrationServerExtension {
     Boolean workerDebugSuspend
 
     Integer workerDebugPort
+
+    String[] workerJvmArgs = []
 
     String provisionScript
 

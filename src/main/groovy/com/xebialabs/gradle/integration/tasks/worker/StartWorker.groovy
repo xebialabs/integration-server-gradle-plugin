@@ -106,7 +106,7 @@ class StartWorker extends DefaultTask {
         logger.debug("XL Deploy Worker classpath: \n${classpath}")
         def extension = ExtensionsUtil.getExtension(project)
         project.logger.lifecycle("Starting Worker test server for project ${project.name}. Remoting port: ${extension.workerRemotingPort}")
-        def jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+        def jvmArgs = extension.workerJvmArgs
         def params = [fork: true, dir: extension.serverRuntimeDirectory, spawn: true, classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper"]
         String jvmPath = project.properties['integrationServerJVMPath']
         if (jvmPath) {

@@ -136,7 +136,7 @@ class StartIntegrationServerTask extends DefaultTask {
         def extension = ExtensionsUtil.getExtension(project)
 
         project.logger.lifecycle("Starting integration test server on port ${extension.serverHttpPort} in runtime dir ${extension.serverRuntimeDirectory}")
-        def jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+        def jvmArgs = extension.serverJvmArgs
         def params = [fork: true, dir: extension.serverRuntimeDirectory, spawn: true, classname: "com.xebialabs.deployit.DeployitBootstrapper"]
         String jvmPath = project.properties['integrationServerJVMPath']
          if (jvmPath) {
