@@ -4,20 +4,22 @@ import com.xebialabs.gradle.integration.tasks.DownloadAndExtractCliDistTask
 import com.xebialabs.gradle.integration.tasks.StartIntegrationServerTask
 
 import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
+import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
-import com.xebialabs.gradle.integration.util.ProcessUtil
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.CollectionUtils
 
-import java.nio.file.Paths
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class RunProvisionScriptTask extends DefaultTask {
     static NAME = "runProvisionScript"
-    String configurationName = 'integrationTestCli'
-    String provisionScript
+
+
+    @Input
+    String provisionScript = ""
 
     RunProvisionScriptTask() {
         def dependencies = [
@@ -34,12 +36,12 @@ class RunProvisionScriptTask extends DefaultTask {
 
     private void runProvisioning() {
 
-        def filtered = project.configurations.getByName(configurationName).filter { !it.name.endsWith("-sources.jar") }
+        def filtered = project.configurations.getByName(ConfigurationsUtil.INTEGRATION_TEST_CLI).filter { !it.name.endsWith("-sources.jar") }
         def classpath = CollectionUtils.join(File.pathSeparator, filtered.getFiles())
 
         logger.debug("Provision CLI classpath: \n${classpath}")
         def extension = ExtensionsUtil.getExtension(project)
-        def script = getProvisionScript() != null ? getProvisionScript() : extension.getProvisionScript()
+        def script = getProvisionScript() != null && !getProvisionScript().isEmpty()? getProvisionScript() : extension.getProvisionScript()
         project.javaexec {
             main = "com.xebialabs.deployit.cli.Cli"
             if (extension.getServerContextRoot().isEmpty()) {

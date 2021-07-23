@@ -71,7 +71,7 @@ class DbUtil {
             "`?`"
     )
     static final DbParameters oraclePararms = new DbParameters(
-            'com.oracle.database.jdbc:ojdbc6',
+            'com.oracle.database.jdbc:ojdbc11',
             "oracle.jdbc.OracleDriver",
             "org.dbunit.ext.oracle.OracleDataTypeFactory",
             null,

@@ -1,6 +1,7 @@
 package com.xebialabs.gradle.integration
 
 import com.xebialabs.gradle.integration.tasks.*
+import com.xebialabs.gradle.integration.tasks.anonymizer.ExportDatabaseTask
 import com.xebialabs.gradle.integration.tasks.centralconfig.DownloadAndExtractConfigServerDistTask
 import com.xebialabs.gradle.integration.tasks.centralconfig.ShutDownConfigServerTask
 import com.xebialabs.gradle.integration.tasks.centralconfig.StartConfigServerTask
@@ -59,10 +60,8 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(StartWorker.NAME, StartWorker)
         project.tasks.create(ShutdownWorker.NAME, ShutdownWorker)
         project.tasks.create(RunProvisionScriptTask.NAME, RunProvisionScriptTask).dependsOn(clicfg)
-        project.tasks.create("runLdapProvisionScript", RunProvisionScriptTask).configure {
-            conventionMapping.provisionScript = { -> extension.ldapProvisionScript }
-        }.dependsOn(clicfg)
         project.tasks.create(YamlPatchesTask.NAME, YamlPatchesTask)
+        project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask)
     }
 
     private static applyDerbyPlugin(Project project) {
@@ -85,8 +84,8 @@ class IntegrationServerPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        def itcfg = project.configurations.create("integrationTestServer")
-        def clicfg = project.configurations.create("integrationTestCli")
+        def itcfg = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
+        def clicfg = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_CLI)
         ConfigurationsUtil.registerConfigurations(project)
         ExtensionsUtil.create(project)
 

@@ -17,7 +17,6 @@ import static com.xebialabs.gradle.integration.util.ShutdownUtil.shutdownServer
 
 class StartIntegrationServerTask extends DefaultTask {
     static NAME = "startIntegrationServer"
-    String configurationName = 'integrationTestServer'
 
     StartIntegrationServerTask() {
         def dependencies = [
@@ -47,8 +46,6 @@ class StartIntegrationServerTask extends DefaultTask {
             opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.serverDebugPort}"
         }
         ["DEPLOYIT_SERVER_OPTS": opts.toString()]
-
-
     }
 
     private def getBinDir() {
@@ -134,7 +131,7 @@ class StartIntegrationServerTask extends DefaultTask {
     }
 
     private void startServerFromClasspath() {
-        def classpath = project.configurations.getByName("integrationTestServer").filter { !it.name.endsWith("-sources.jar") }.asPath
+        def classpath = project.configurations.getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER).filter { !it.name.endsWith("-sources.jar") }.asPath
         logger.debug("XL Deploy Server classpath: \n${classpath}")
         def extension = ExtensionsUtil.getExtension(project)
 

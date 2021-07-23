@@ -3,6 +3,7 @@ package com.xebialabs.gradle.integration.tasks.worker
 import com.xebialabs.gradle.integration.tasks.StartIntegrationServerTask
 import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.mq.StartMq
+import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
 import com.xebialabs.gradle.integration.util.WorkerUtil
@@ -17,7 +18,6 @@ import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class StartWorker extends DefaultTask {
     static NAME = "startWorker"
-    String configurationName = 'integrationTestServer'
 
     StartWorker() {
         def dependencies = [
@@ -102,7 +102,7 @@ class StartWorker extends DefaultTask {
     }
 
     private void startWorkerFromClasspath() {
-        def classpath = project.configurations.getByName("integrationTestServer").filter { !it.name.endsWith("-sources.jar") }.asPath
+        def classpath = project.configurations.getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER).filter { !it.name.endsWith("-sources.jar") }.asPath
         logger.debug("XL Deploy Worker classpath: \n${classpath}")
         def extension = ExtensionsUtil.getExtension(project)
         project.logger.lifecycle("Starting Worker test server for project ${project.name}. Remoting port: ${extension.workerRemotingPort}")

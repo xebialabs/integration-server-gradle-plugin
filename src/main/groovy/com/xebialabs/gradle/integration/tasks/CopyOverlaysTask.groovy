@@ -1,5 +1,6 @@
 package com.xebialabs.gradle.integration.tasks
 
+import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.MqUtil
@@ -27,7 +28,7 @@ class CopyOverlaysTask extends DefaultTask {
 
 
             if(ext.serverRuntimeDirectory != null) {
-                def configuration = project.getConfigurations().getByName("integrationTestServer")
+                def configuration = project.getConfigurations().getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
                 configuration.dependencies.add(
                         project.dependencies.create("${dbDependency.driverDependency}:${version}")
                 )
@@ -46,7 +47,7 @@ class CopyOverlaysTask extends DefaultTask {
         def version = ext.mqDriverVersions[mqname]
         if (version != null && !version.isEmpty()) {
             if(ext.serverRuntimeDirectory != null) {
-                def configuration = project.getConfigurations().getByName("integrationTestServer")
+                def configuration = project.getConfigurations().getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
                 configuration.dependencies.add(
                         project.dependencies.create("${mqDependency.driverDependency}:${version}")
                 )
