@@ -15,23 +15,24 @@ import org.gradle.api.Project
 
 class IntegrationServerPlugin implements Plugin<Project> {
     private static void createTasks(Project project) {
-        project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
-        project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
-        project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
-        project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
-        project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask)
-        project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
-        project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
-        project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
+        project.tasks.create(CentralConfigurationTask.NAME, CentralConfigurationTask)
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
-        project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
-        project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
+        project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
+        project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
         project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
         project.tasks.create(DockerComposeDatabaseStopTask.NAME, DockerComposeDatabaseStopTask)
         project.tasks.create(DockerComposeGitlabStartTask.NAME, DockerComposeGitlabStartTask)
         project.tasks.create(DockerComposeGitlabStopTask.NAME, DockerComposeGitlabStopTask)
+        project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
+        project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
+        project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
+        project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
+        project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
-        project.tasks.create(YamlPatchesTask.NAME, YamlPatchesTask)
+        project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
+        project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
+        project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask)
+        project.tasks.create(YamlPatchTask.NAME, YamlPatchTask)
     }
 
     private static applyDerbyPlugin(Project project) {

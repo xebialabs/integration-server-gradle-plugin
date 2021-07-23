@@ -28,7 +28,7 @@ class ExtensionsUtil {
                 }
             }
         }
-        throw new IllegalStateException("Could not find a free TCP/IP port to start Integration Test Server");
+        throw new IllegalStateException("Could not find a free TCP/IP port to start Integration Test Server")
     }
 
     private static def resolveValue(Project project, IntegrationServerExtension extension, String propertyName, def defaultValue) {

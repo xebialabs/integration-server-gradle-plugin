@@ -3,7 +3,6 @@ package com.xebialabs.gradle.integration.tasks
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.util.DbUtil
-import com.xebialabs.gradle.integration.util.ServerConfUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.HTTPUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
@@ -28,7 +27,7 @@ class StartIntegrationServerTask extends DefaultTask {
                 RemoveStdoutConfigTask.NAME,
                 PrepareDatabaseTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME,
-                YamlPatchesTask.NAME
+                YamlPatchTask.NAME
         ]
 
         this.configure {
@@ -51,8 +50,8 @@ class StartIntegrationServerTask extends DefaultTask {
         Paths.get(ExtensionsUtil.getServerWorkingDir(project), "bin").toFile()
     }
 
-    private void writeConfFile() {
-        project.logger.lifecycle("Writing deployit.conf file")
+    private void createConfFile() {
+        project.logger.lifecycle("Creating deployit.conf file")
 
         def extension = ExtensionsUtil.getExtension(project)
         def file = project.file("${ExtensionsUtil.getServerWorkingDir(project)}/conf/deployit.conf")
@@ -66,38 +65,25 @@ class StartIntegrationServerTask extends DefaultTask {
         }
     }
 
-    private void writeDeployConf() {
-        project.logger.lifecycle("Writing deploy config file")
-        def extension = ExtensionsUtil.getExtension(project)
-        DbUtil.mapper.writeValue(
-                new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-repository.yaml"),
-                DbUtil.dbConfig(project))
-
-        def serverConf = ServerConfUtil.serverConfig(project, extension.akkaRemotingPort)
-        DbUtil.mapper.writeValue(
-                new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-server.yaml"),
-                serverConf)
-    }
-
     private void initialize() {
-        project.logger.lifecycle("Initializing XLD")
+        project.logger.lifecycle("Initializing Deploy")
 
         ProcessUtil.exec([
-            command: "run",
-            params : ["-setup", "-reinitialize", "-force", "-setup-defaults", "-force-upgrades", "conf/deployit.conf"],
-            workDir: getBinDir(),
-            wait   : true
+                command: "run",
+                params : ["-setup", "-reinitialize", "-force", "-setup-defaults", "-force-upgrades", "conf/deployit.conf"],
+                workDir: getBinDir(),
+                wait   : true
         ])
     }
 
     private void startServer() {
         project.logger.lifecycle("Launching server")
         ProcessUtil.exec([
-            command    : "run",
-            params : ["-force-upgrades"],
-            environment: getEnv(),
-            workDir    : getBinDir(),
-            inheritIO  : true
+                command    : "run",
+                params     : ["-force-upgrades"],
+                environment: getEnv(),
+                workDir    : getBinDir(),
+                inheritIO  : true
         ])
     }
 
@@ -129,8 +115,7 @@ class StartIntegrationServerTask extends DefaultTask {
     @TaskAction
     void launch() {
         shutdownServer(project)
-        writeConfFile()
-        writeDeployConf()
+        createConfFile()
         initialize()
         startServer()
         waitForBoot()

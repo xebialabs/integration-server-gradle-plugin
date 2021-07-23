@@ -1,14 +1,11 @@
 package com.xebialabs.gradle.integration.util
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 class DbUtil {
 
-    static def mapper = new ObjectMapper(new YAMLFactory())
     static def POSTGRES = 'postgres'
     static def ORACLE = 'oracle-xe-11g'
     static def DB2 = 'db2'
@@ -25,12 +22,12 @@ class DbUtil {
     }
 
     static def dbConfigFile(project) {
-        def dbname = DbUtil.databaseName(project)
+        def dbname = databaseName(project)
         return DbUtil.class.classLoader.getResourceAsStream("database-conf/deploy-repository.yaml.${dbname}")
     }
 
     static def isDerby(Project project) {
-        def dbname = DbUtil.databaseName(project)
+        def dbname = databaseName(project)
         return isDerby(dbname)
     }
 
@@ -39,65 +36,65 @@ class DbUtil {
     }
 
     static def assertNotDerby(project, message) {
-        def dbname = DbUtil.databaseName(project)
-        if (DbUtil.isDerby(dbname)) {
+        def dbname = databaseName(project)
+        if (isDerby(dbname)) {
             throw new GradleException(message)
         }
     }
 
     static def dbConfig(project) {
-        def from = DbUtil.dbConfigFile(project)
-        return mapper.readTree(from)
+        def from = dbConfigFile(project)
+        return YamlFileUtil.readTree(from)
     }
 
     static final DbParameters postgresParams = new DbParameters(
-        'org.postgresql:postgresql',
-        'org.postgresql.Driver',
-        "org.dbunit.ext.postgresql.PostgresqlDataTypeFactory",
-        null,
-        "\"?\""
+            'org.postgresql:postgresql',
+            'org.postgresql.Driver',
+            "org.dbunit.ext.postgresql.PostgresqlDataTypeFactory",
+            null,
+            "\"?\""
     )
     static final DbParameters mysqlPararms = new DbParameters(
-        'mysql:mysql-connector-java',
-        "com.mysql.jdbc.Driver",
-        "org.dbunit.ext.mysql.MySqlDataTypeFactory",
-        "org.dbunit.ext.mysql.MySqlMetadataHandler",
-        "`?`"
+            'mysql:mysql-connector-java',
+            "com.mysql.jdbc.Driver",
+            "org.dbunit.ext.mysql.MySqlDataTypeFactory",
+            "org.dbunit.ext.mysql.MySqlMetadataHandler",
+            "`?`"
     )
     static final DbParameters oraclePararms = new DbParameters(
-        'com.oracle.database.jdbc:ojdbc6',
-        "oracle.jdbc.OracleDriver",
-        "org.dbunit.ext.oracle.OracleDataTypeFactory",
-        null,
-        "\"?\""
+            'com.oracle.database.jdbc:ojdbc6',
+            "oracle.jdbc.OracleDriver",
+            "org.dbunit.ext.oracle.OracleDataTypeFactory",
+            null,
+            "\"?\""
     )
     static final DbParameters db2Pararms = new DbParameters(
-        'com.ibm.db2:jcc',
-        "com.ibm.db2.jcc.DB2Driver",
-        "org.dbunit.ext.db2.Db2DataTypeFactory",
-        "org.dbunit.ext.db2.Db2MetadataHandler",
-        "\"?\""
+            'com.ibm.db2:jcc',
+            "com.ibm.db2.jcc.DB2Driver",
+            "org.dbunit.ext.db2.Db2DataTypeFactory",
+            "org.dbunit.ext.db2.Db2MetadataHandler",
+            "\"?\""
     )
     static final DbParameters mssqlPararms = new DbParameters(
-        'com.microsoft.sqlserver:mssql-jdbc',
-        "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-        "org.dbunit.ext.mssql.MsSqlDataTypeFactory",
-        null,
-        "\"?\""
+            'com.microsoft.sqlserver:mssql-jdbc',
+            "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+            "org.dbunit.ext.mssql.MsSqlDataTypeFactory",
+            null,
+            "\"?\""
     )
     static final DbParameters derbyPararms = new DbParameters(
-        'org.apache.derby:derby',
-        null,
-        null,
-        null,
-        "\"?\""
+            'org.apache.derby:derby',
+            null,
+            null,
+            null,
+            "\"?\""
     )
     static final DbParameters derbyNetworkPararms = new DbParameters(
-        'org.apache.derby:derbyclient',
-        null,
-        null,
-        null,
-        "\"?\""
+            'org.apache.derby:derbyclient',
+            null,
+            null,
+            null,
+            "\"?\""
     )
 
     static def detectDbDependency(db) {
