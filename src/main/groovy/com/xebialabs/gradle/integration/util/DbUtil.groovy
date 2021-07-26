@@ -24,12 +24,12 @@ class DbUtil {
     }
 
     static def dbConfigFile(project) {
-        def dbname = DbUtil.databaseName(project)
+        def dbname = databaseName(project)
         return DbUtil.class.classLoader.getResourceAsStream("database-conf/deploy-repository.yaml.${dbname}")
     }
 
     static def isDerby(Project project) {
-        def dbname = DbUtil.databaseName(project)
+        def dbname = databaseName(project)
         return isDerby(dbname)
     }
 
@@ -38,25 +38,18 @@ class DbUtil {
     }
 
     static def assertNotDerby(project, message) {
-        def dbname = DbUtil.databaseName(project)
-        if (DbUtil.isDerby(dbname)) {
+        def dbname = databaseName(project)
+        if (isDerby(dbname)) {
             throw new GradleException(message)
         }
     }
 
     static def dbConfig(project) {
-        def from = DbUtil.dbConfigFile(project)
-        return YamlUtil.mapper.readTree(from)
+        def from = dbConfigFile(project)
+        return YamlFileUtil.readTree(from)
     }
 
     static final DbParameters postgresParams = new DbParameters(
-            'org.postgresql:postgresql',
-            'org.postgresql.Driver',
-            "org.dbunit.ext.postgresql.PostgresqlDataTypeFactory",
-            null,
-            "\"?\""
-    )
-    static final DbParameters postgres12Pararms = new DbParameters(
             'org.postgresql:postgresql',
             'org.postgresql.Driver',
             "org.dbunit.ext.postgresql.PostgresqlDataTypeFactory",
@@ -109,7 +102,6 @@ class DbUtil {
     static def detectDbDependency(db) {
         switch (db) {
             case [POSTGRES, POSTGRES12]: return postgresParams
-            case POSTGRES12: return postgres12Pararms
             case [ORACLE, ORACLE12, ORACLE19 ]: return oraclePararms
             case DB2: return db2Pararms
             case [MYSQL, MYSQL8]: return mysqlPararms

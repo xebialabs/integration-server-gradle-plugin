@@ -2,6 +2,7 @@ package com.xebialabs.gradle.integration.tasks
 
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
+
 import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.tasks.worker.StartWorker
 import com.xebialabs.gradle.integration.util.*
@@ -26,7 +27,7 @@ class StartIntegrationServerTask extends DefaultTask {
                 RemoveStdoutConfigTask.NAME,
                 PrepareDatabaseTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME,
-                YamlPatchesTask.NAME
+                YamlPatchTask.NAME
         ]
         this.configure {
             group = PLUGIN_GROUP
@@ -52,8 +53,8 @@ class StartIntegrationServerTask extends DefaultTask {
         Paths.get(ExtensionsUtil.getServerWorkingDir(project), "bin").toFile()
     }
 
-    private void writeConfFile() {
-        project.logger.lifecycle("Writing deployit.conf file")
+    private void createConfFile() {
+        project.logger.lifecycle("Creating deployit.conf file")
 
         def extension = ExtensionsUtil.getExtension(project)
         def file = project.file("${ExtensionsUtil.getServerWorkingDir(project)}/conf/deployit.conf")
@@ -67,24 +68,8 @@ class StartIntegrationServerTask extends DefaultTask {
         }
     }
 
-    private void createFolders() {
-        new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration").mkdirs()
-    }
-
-    private void configureRepository() {
-        def folder = new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration")
-        project.logger.lifecycle("Writing deploy config file")
-        YamlUtil.mapper.writeValue(
-                new File("$folder/deploy-repository.yaml"),
-                DbUtil.dbConfig(project))
-
-        YamlPatchUtil.taskConfig(project)
-        YamlPatchUtil.serverConfig(project)
-    }
-
-
     private void initialize() {
-        project.logger.lifecycle("Initializing XLD")
+        project.logger.lifecycle("Initializing Deploy")
 
         ProcessUtil.exec([
                 command: "run",
@@ -160,21 +145,21 @@ class StartIntegrationServerTask extends DefaultTask {
             }
         }
     }
-
+    private void createFolders() {
+        new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration").mkdirs()
+    }
 
     @TaskAction
     void launch() {
         shutdownServer(project)
         createFolders()
-        writeConfFile()
-        configureRepository()
+        createConfFile()
         if (ExtensionsUtil.getExtension(project).serverRuntimeDirectory != null) {
             startServerFromClasspath()
         } else {
             initialize()
             startServer()
         }
-
         waitForBoot()
     }
 }

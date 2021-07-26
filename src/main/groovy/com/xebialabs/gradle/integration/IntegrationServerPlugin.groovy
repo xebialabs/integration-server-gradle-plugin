@@ -29,39 +29,44 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 
 class IntegrationServerPlugin implements Plugin<Project> {
-    private static void createTasks(Project project, Configuration itcfg, Configuration clicfg) {
-        project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
-        project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
-        project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
-        project.tasks.create(DownloadAndExtractConfigServerDistTask.NAME, DownloadAndExtractConfigServerDistTask)
-        project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
+
+    private static void createTasks(Project project, Configuration itcfg,Configuration clicfg) {
+        project.tasks.create(CentralConfigurationTask.NAME, CentralConfigurationTask)
+        project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(CopySatelliteOverlaysTask.NAME, CopySatelliteOverlaysTask)
-        project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask).dependsOn(itcfg)
-        project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
-        project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
-        project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)
-        project.tasks.create(StartConfigServerTask.NAME, StartConfigServerTask)
-        project.tasks.create(ShutDownConfigServerTask.NAME, ShutDownConfigServerTask)
-        project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask)
-        project.tasks.create(IntegrationServerTestTask.NAME, IntegrationServerTestTask)
-        project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
-        project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
-        project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
-        project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
-        project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
+        project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
         project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
         project.tasks.create(DockerComposeDatabaseStopTask.NAME, DockerComposeDatabaseStopTask)
         project.tasks.create(DockerComposeGitlabStartTask.NAME, DockerComposeGitlabStartTask)
         project.tasks.create(DockerComposeGitlabStopTask.NAME, DockerComposeGitlabStopTask)
+
+        project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
+        project.tasks.create(DownloadAndExtractConfigServerDistTask.NAME, DownloadAndExtractConfigServerDistTask)
+        project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
+        project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
+        project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
+        project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask)
+        project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
+        project.tasks.create(IntegrationServerTestTask.NAME, IntegrationServerTestTask)
+        project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
+	    project.tasks.create(RunProvisionScriptTask.NAME, RunProvisionScriptTask).dependsOn(clicfg)
         project.tasks.create(StartMq.NAME, StartMq)
         project.tasks.create(ShutdownMq.NAME, ShutdownMq)
         project.tasks.create(StartWorker.NAME, StartWorker)
         project.tasks.create(ShutdownWorker.NAME, ShutdownWorker)
-        project.tasks.create(RunProvisionScriptTask.NAME, RunProvisionScriptTask).dependsOn(clicfg)
-        project.tasks.create(YamlPatchesTask.NAME, YamlPatchesTask)
-        project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask)
+
+
+        project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
+        project.tasks.create(ShutDownConfigServerTask.NAME, ShutDownConfigServerTask)
+        project.tasks.create(StartConfigServerTask.NAME, StartConfigServerTask)
+        project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
+        project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask).dependsOn(itcfg)
+        project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)
+        project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
+        project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask)
+        project.tasks.create(YamlPatchTask.NAME, YamlPatchTask)
     }
 
     private static applyDerbyPlugin(Project project) {

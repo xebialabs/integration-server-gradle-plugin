@@ -1,0 +1,2 @@
+deploy.server:
+  port: 8180
