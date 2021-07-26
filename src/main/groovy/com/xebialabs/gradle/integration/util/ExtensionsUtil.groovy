@@ -8,7 +8,7 @@ import java.nio.file.Paths
 class ExtensionsUtil {
     static def EXTENSION_NAME = "integrationServer"
 
-    private static int findFreePort() {
+    static int findFreePort() {
         ServerSocket socket = null
         try {
             socket = new ServerSocket(0)
@@ -98,7 +98,6 @@ class ExtensionsUtil {
         extension.serverPingRetrySleepTime = resolveIntValue(project, extension, "serverPingRetrySleepTime", 10)
         extension.serverJvmArgs = resolveValue(project, extension, "serverJvmArgs",  ["-Xmx1024m", "-Duser.timezone=UTC"])
         extension.provisionSocketTimeout = resolveIntValue(project, extension, "provisionSocketTimeout", 6000)
-        extension.akkaRemotingPort = resolveIntValue(project, extension, "akkaRemotingPort", findFreePort())
         extension.derbyPort = resolveIntValue(project, extension, "derbyPort", findFreePort())
         extension.serverDebugPort = resolveIntValue(project, extension, "serverDebugPort", null)
         extension.satelliteDebugPort = resolveIntValue(project, extension, "satelliteDebugPort", null)

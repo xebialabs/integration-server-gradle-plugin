@@ -3,10 +3,7 @@ package com.xebialabs.gradle.integration.tasks.worker
 import com.xebialabs.gradle.integration.tasks.StartIntegrationServerTask
 import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.mq.StartMq
-import com.xebialabs.gradle.integration.util.ConfigurationsUtil
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
-import com.xebialabs.gradle.integration.util.ProcessUtil
-import com.xebialabs.gradle.integration.util.WorkerUtil
+import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
@@ -58,7 +55,7 @@ class StartWorker extends DefaultTask {
                 params     : [
                         "worker",
                         "-master",
-                        "127.0.0.1:${extension.akkaRemotingPort}".toString(),
+                        "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
                         "-api",
                         "http://localhost:${extension.serverHttpPort}".toString(),
                         "-name",
@@ -115,25 +112,28 @@ class StartWorker extends DefaultTask {
             println("Using JVM from location: ${jvmPath}")
         }
 
-      ant.java(params) {
+        def port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
+        def hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
+
+        ant.java(params) {
             jvmArgs.each {
                 jvmarg(value: it)
             }
             jvmarg(value: "-DLOGFILE=deployit-worker")
             arg(value: "-master")
-            arg(value: "127.0.0.1:${extension.akkaRemotingPort.toString()}")
+            arg(value: "${hostName}:${port}")
             arg(value: "-api")
-            arg(value: "http://localhost:${extension.serverHttpPort.toString()}")
+            arg(value: "http://${hostName}:${port}")
             arg(value: "-hostname")
-            arg(value: "localhost")
+            arg(value: "${hostName}")
             arg(value: "-port")
-            arg(value: extension.workerRemotingPort.toString())
+            arg(value: port)
             arg(value: "-work")
             arg(value: extension.workerName)
 
             env(key: "CLASSPATH", value: classpath)
 
-            if (extension.workerDebugPort!=null) {
+            if (extension.workerDebugPort != null) {
                 println("Enabled debug mode on port ${extension.workerDebugPort}")
                 jvmarg(value: "-Xdebug")
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.workerDebugPort}")

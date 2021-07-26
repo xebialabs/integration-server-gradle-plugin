@@ -1,6 +1,7 @@
 package com.xebialabs.gradle.integration.util
 
 import org.apache.commons.io.IOUtils
+import org.gradle.api.Project
 
 import java.nio.file.Path
 
@@ -20,6 +21,10 @@ class FileUtil {
         } finally {
             os.close()
         }
+    }
 
+    static def readCCValue(Project project, String fileName, String key) {
+        def file = new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/$fileName")
+        return YamlFileUtil.readFileKey(file, key)
     }
 }

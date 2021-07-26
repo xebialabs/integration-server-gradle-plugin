@@ -22,7 +22,7 @@ class CentralConfigurationTask extends DefaultTask {
         project.logger.lifecycle("Writing to deploy-server file")
         YamlFileUtil.overlayFile(
                 new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-server.yaml"),
-                ["deploy.server.port": extension.akkaRemotingPort]
+                ["deploy.server.port": ExtensionsUtil.findFreePort()]
         )
 
         project.logger.lifecycle("Writing to deploy-task file")
@@ -31,7 +31,7 @@ class CentralConfigurationTask extends DefaultTask {
                 taskConfig(project))
     }
 
-    private def taskConfig(project) {
+    private static def taskConfig(project) {
         def mqDetail = mq(MqUtil.mqName(project), MqUtil.mqPort(project))
         def initial = [
                 "deploy.task.queue.name": "xld-tasks-queue",

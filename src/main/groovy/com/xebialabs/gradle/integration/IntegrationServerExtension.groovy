@@ -2,8 +2,6 @@ package com.xebialabs.gradle.integration
 
 class IntegrationServerExtension {
 
-    Integer akkaRemotingPort
-
     Integer configServerDebugPort
 
     Boolean configServerDebugSuspend
