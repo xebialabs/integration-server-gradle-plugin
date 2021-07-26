@@ -68,11 +68,4 @@ class IntegrationServerExtension {
 
     Map<String, Map<String, Object>> yamlPatches
 
-    /** These 3 props has to be removed  */
-    String anonymizerProvisionScript
-
-    String ldapProvisionScript
-
-    String oidcProvisionScript
-
 }

@@ -38,10 +38,6 @@ class ApplicationsUtil {
         }
     }
 
-    static def getDetail(project) {
-
-    }
-
     static def detectApplication(application) {
         switch (application) {
             case XLD_START: return StartIntegrationServerTask.NAME
