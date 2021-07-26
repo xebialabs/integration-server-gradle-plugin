@@ -14,6 +14,7 @@ class DbUtil {
     static def MYSQL = 'mysql'
     static def MYSQL8 = 'mysql-8'
     static def MSSQL = 'mssql'
+    static def DERBY = 'derby'
     static def DERBY_NETWORK = 'derby-network'
     static def DERBY_INMEMORY = 'derby-inmemory'
 
@@ -101,14 +102,15 @@ class DbUtil {
 
     static def detectDbDependency(db) {
         switch (db) {
-            case [POSTGRES, POSTGRES12]: return postgresParams
-            case [ORACLE, ORACLE12, ORACLE19]: return oraclePararms
             case DB2: return db2Pararms
-            case [MYSQL, MYSQL8]: return mysqlPararms
-            case MSSQL: return mssqlPararms
-            case DERBY_NETWORK: return derbyNetworkPararms
+            case DERBY: return derbyNetworkPararms
             case DERBY_INMEMORY: return derbyPararms
-            default: return null
+            case DERBY_NETWORK: return derbyNetworkPararms
+            case MSSQL: return mssqlPararms
+            case [MYSQL, MYSQL8]: return mysqlPararms
+            case [ORACLE, ORACLE12, ORACLE19]: return oraclePararms
+            case [POSTGRES, POSTGRES12]: return postgresParams
+            default: return derbyNetworkPararms
         }
     }
 }
