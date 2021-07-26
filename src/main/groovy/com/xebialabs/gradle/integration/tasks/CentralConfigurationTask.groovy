@@ -50,6 +50,7 @@ class CentralConfigurationTask extends DefaultTask {
         } else {
             taskConf.put("deploy.task.in-process-worker", true)
         }
+        taskConf
     }
 
     static def mq(mqName, mqPort) {
