@@ -69,7 +69,7 @@ class ExtensionsUtil {
             Paths.get(targetDir, "xl-deploy-${serverVersion}-server").toAbsolutePath().toString()
         } else {
             def target = project.projectDir.toString()
-            Paths.get(target,serverRuntimeDirectory).toAbsolutePath().toString()
+            Paths.get(target, serverRuntimeDirectory).toAbsolutePath().toString()
         }
 
     }
@@ -96,7 +96,7 @@ class ExtensionsUtil {
         extension.configServerHttpPort = resolveIntValue(project, extension, "configServerHttpPort", 8888)
         extension.serverPingTotalTries = resolveIntValue(project, extension, "serverPingTotalTries", 60)
         extension.serverPingRetrySleepTime = resolveIntValue(project, extension, "serverPingRetrySleepTime", 10)
-        extension.serverJvmArgs = resolveValue(project, extension, "serverJvmArgs",  ["-Xmx1024m", "-Duser.timezone=UTC"])
+        extension.serverJvmArgs = resolveValue(project, extension, "serverJvmArgs", ["-Xmx1024m", "-Duser.timezone=UTC"])
         extension.provisionSocketTimeout = resolveIntValue(project, extension, "provisionSocketTimeout", 6000)
         extension.derbyPort = resolveIntValue(project, extension, "derbyPort", findFreePort())
         extension.serverDebugPort = resolveIntValue(project, extension, "serverDebugPort", null)
@@ -106,11 +106,11 @@ class ExtensionsUtil {
         extension.satelliteDebugSuspend = resolveBooleanValue(project, extension, "satelliteDebugSuspend")
         extension.configServerDebugSuspend = resolveBooleanValue(project, extension, "configServerDebugSuspend")
         extension.logSql = resolveBooleanValue(project, extension, "logSql")
-        extension.serverVersion = resolveValue(project, extension, "serverVersion", project.hasProperty("xlDeployVersion") ? project.property("xlDeployVersion"): null)
+        extension.serverVersion = resolveValue(project, extension, "serverVersion", project.hasProperty("xlDeployVersion") ? project.property("xlDeployVersion") : null)
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
-        extension.xldIsDataVersion = resolveValue(project, extension, "xldIsDataVersion",project.hasProperty("xldIsDataVersion")? project.property("xldIsDataVersion"): null)
-        extension.satelliteVersion = resolveValue(project, extension, "satelliteVersion",project.hasProperty("xlDeployVersion") ? project.property("xlDeployVersion"): null)
-        extension.configServerVersion = resolveValue(project, extension, "configServerVersion",project.hasProperty("xlDeployVersion") ? project.property("xlDeployVersion"): null)
+        extension.xldIsDataVersion = resolveValue(project, extension, "xldIsDataVersion", project.hasProperty("xldIsDataVersion") ? project.property("xldIsDataVersion") : null)
+        extension.satelliteVersion = resolveValue(project, extension, "satelliteVersion", project.hasProperty("xlDeployVersion") ? project.property("xlDeployVersion") : null)
+        extension.configServerVersion = resolveValue(project, extension, "configServerVersion", project.hasProperty("xlDeployVersion") ? project.property("xlDeployVersion") : null)
         extension.satelliteOverlays = resolveValue(project, extension, "satelliteOverlays", new HashMap<String, List<Object>>())
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())
         extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())
@@ -132,7 +132,7 @@ class ExtensionsUtil {
         extension.workerRemotingPort = resolveIntValue(project, extension, "workerRemotingPort", findFreePort())
         extension.workerName = resolveValue(project, extension, "workerName", "worker-1-work")
         extension.workerDebugPort = resolveIntValue(project, extension, "workerDebugPort", null)
-        extension.workerJvmArgs = resolveValue(project, extension, "workerJvmArgs",  ["-Xmx1024m", "-Duser.timezone=UTC"])
+        extension.workerJvmArgs = resolveValue(project, extension, "workerJvmArgs", ["-Xmx1024m", "-Duser.timezone=UTC"])
         extension.serverRuntimeDirectory = resolveValue(project, extension, "serverRuntimeDirectory", null)
         extension.provisionScript = resolveValue(project, extension, "provisionScript", null)
         extension.anonymizerProvisionScript = resolveValue(project, extension, "anonymizerProvisionScript", null)

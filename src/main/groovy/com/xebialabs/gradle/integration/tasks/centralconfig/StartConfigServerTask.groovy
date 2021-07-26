@@ -1,10 +1,9 @@
 package com.xebialabs.gradle.integration.tasks.centralconfig
 
-
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
+import com.xebialabs.gradle.integration.util.FileUtil
 import com.xebialabs.gradle.integration.util.HTTPUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
-import com.xebialabs.gradle.integration.util.FileUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction

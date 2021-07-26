@@ -9,7 +9,7 @@ class ExportDatabaseTask extends DefaultTask {
 
     static NAME = "exportDatabase"
 
-    private void startFromClasspath(){
+    private void startFromClasspath() {
         def extension = ExtensionsUtil.getExtension(project)
         def classpath = project.configurations.getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER).filter { !it.name.endsWith("-sources.jar") }.asPath
         logger.debug("Export Database application classpath: \n${classpath}")

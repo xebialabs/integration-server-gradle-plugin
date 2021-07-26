@@ -7,8 +7,8 @@ import com.xebialabs.gradle.integration.tasks.centralconfig.StartConfigServerTas
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStartTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStopTask
 import com.xebialabs.gradle.integration.tasks.pluginManager.StartPluginManagerTask
-import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
 import com.xebialabs.gradle.integration.tasks.satellite.ShutdownSatelliteTask
+import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
 import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorker
 import com.xebialabs.gradle.integration.tasks.worker.StartWorker
 

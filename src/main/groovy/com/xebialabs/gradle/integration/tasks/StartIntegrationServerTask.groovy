@@ -2,7 +2,6 @@ package com.xebialabs.gradle.integration.tasks
 
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
-
 import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.tasks.worker.StartWorker
 import com.xebialabs.gradle.integration.util.*
@@ -124,13 +123,13 @@ class StartIntegrationServerTask extends DefaultTask {
         def jvmArgs = extension.serverJvmArgs
         def params = [fork: true, dir: extension.serverRuntimeDirectory, spawn: true, classname: "com.xebialabs.deployit.DeployitBootstrapper"]
         String jvmPath = project.properties['integrationServerJVMPath']
-         if (jvmPath) {
+        if (jvmPath) {
             jvmPath = jvmPath + '/bin/java'
             params['jvm'] = jvmPath
             println("Using JVM from location: ${jvmPath}")
         }
 
-       ant.java(params) {
+        ant.java(params) {
             arg(value: '-force-upgrades')
             jvmArgs.each {
                 jvmarg(value: it)
@@ -138,13 +137,14 @@ class StartIntegrationServerTask extends DefaultTask {
 
             env(key: "CLASSPATH", value: classpath)
 
-            if (extension.serverDebugPort!=null) {
+            if (extension.serverDebugPort != null) {
                 println("Enabled debug mode on port ${extension.serverDebugPort}")
                 jvmarg(value: "-Xdebug")
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.serverDebugPort}")
             }
         }
     }
+
     private void createFolders() {
         new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration").mkdirs()
     }

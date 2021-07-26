@@ -102,7 +102,7 @@ class DbUtil {
     static def detectDbDependency(db) {
         switch (db) {
             case [POSTGRES, POSTGRES12]: return postgresParams
-            case [ORACLE, ORACLE12, ORACLE19 ]: return oraclePararms
+            case [ORACLE, ORACLE12, ORACLE19]: return oraclePararms
             case DB2: return db2Pararms
             case [MYSQL, MYSQL8]: return mysqlPararms
             case MSSQL: return mssqlPararms
