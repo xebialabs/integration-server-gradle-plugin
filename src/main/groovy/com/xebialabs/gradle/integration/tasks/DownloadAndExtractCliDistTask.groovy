@@ -3,8 +3,9 @@ package com.xebialabs.gradle.integration.tasks
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import org.gradle.api.tasks.Copy
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.*
 import static com.xebialabs.gradle.integration.util.ConfigurationsUtil.SERVER_CLI_DIST
+import static com.xebialabs.gradle.integration.util.PluginUtil.getDIST_DESTINATION_NAME
+import static com.xebialabs.gradle.integration.util.PluginUtil.getPLUGIN_GROUP
 
 class DownloadAndExtractCliDistTask extends Copy {
     static NAME = "downloadAndExtractCli"
@@ -12,9 +13,9 @@ class DownloadAndExtractCliDistTask extends Copy {
     DownloadAndExtractCliDistTask() {
         this.configure {
             group = PLUGIN_GROUP
-        def downloadRequired = ExtensionsUtil.getExtension(project).serverRuntimeDirectory
-            if(downloadRequired == null) {
+            def downloadRequired = ExtensionsUtil.getExtension(project).serverRuntimeDirectory
 
+            if (downloadRequired == null) {
                 def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
                 project.buildscript.dependencies.add(
                         SERVER_CLI_DIST,

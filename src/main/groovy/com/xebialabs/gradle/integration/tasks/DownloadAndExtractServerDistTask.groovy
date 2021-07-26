@@ -1,10 +1,11 @@
 package com.xebialabs.gradle.integration.tasks
 
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
+import org.gradle.api.tasks.Copy
 
 import static com.xebialabs.gradle.integration.util.ConfigurationsUtil.SERVER_DIST
-import static com.xebialabs.gradle.integration.util.PluginUtil.*
-import org.gradle.api.tasks.Copy
+import static com.xebialabs.gradle.integration.util.PluginUtil.getDIST_DESTINATION_NAME
+import static com.xebialabs.gradle.integration.util.PluginUtil.getPLUGIN_GROUP
 
 class DownloadAndExtractServerDistTask extends Copy {
     static NAME = "downloadAndExtractServer"
@@ -13,7 +14,8 @@ class DownloadAndExtractServerDistTask extends Copy {
         this.configure {
             group = PLUGIN_GROUP
             def downloadRequired = ExtensionsUtil.getExtension(project).serverRuntimeDirectory
-            if(downloadRequired == null) {
+
+            if (downloadRequired == null) {
                 def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
                 project.buildscript.dependencies.add(
                         SERVER_DIST,
