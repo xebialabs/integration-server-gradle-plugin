@@ -4,8 +4,8 @@ import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import org.gradle.api.tasks.Copy
 
 import static com.xebialabs.gradle.integration.util.ConfigurationsUtil.SERVER_DIST
-import static com.xebialabs.gradle.integration.util.PluginUtil.getDIST_DESTINATION_NAME
-import static com.xebialabs.gradle.integration.util.PluginUtil.getPLUGIN_GROUP
+import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
+import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class DownloadAndExtractServerDistTask extends Copy {
     static NAME = "downloadAndExtractServer"
