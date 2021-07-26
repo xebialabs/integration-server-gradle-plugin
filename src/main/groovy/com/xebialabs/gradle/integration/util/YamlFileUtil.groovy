@@ -103,7 +103,11 @@ class YamlFileUtil {
         return mapper.readTree(resource)
     }
 
-    def static writeFileValue(File file, Object value) {
-        mapper.writeValue(file, value)
+    def static writeFileValue(File sourceFle, Object value) {
+        if (!sourceFle.exists()) {
+            new File(sourceFle.getParent()).mkdirs()
+            sourceFle.createNewFile()
+        }
+        mapper.writeValue(sourceFle, value)
     }
 }
