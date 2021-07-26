@@ -15,7 +15,6 @@ import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 class RunProvisionScriptTask extends DefaultTask {
     static NAME = "runProvisionScript"
 
-
     @Input
     String provisionScript = ""
 
@@ -38,15 +37,19 @@ class RunProvisionScriptTask extends DefaultTask {
         def classpath = CollectionUtils.join(File.pathSeparator, filtered.getFiles())
 
         logger.debug("Provision CLI classpath: \n${classpath}")
+
         def extension = ExtensionsUtil.getExtension(project)
         def script = getProvisionScript() != null && !getProvisionScript().isEmpty() ? getProvisionScript() : extension.getProvisionScript()
+        def port = extension.getServerHttpPort()
+        def contextRoot = extension.getServerContextRoot()
+
         project.javaexec {
             main = "com.xebialabs.deployit.cli.Cli"
-            if (extension.getServerContextRoot().isEmpty()) {
-                args '-q', '-expose-proxies', '-username', 'admin', '-password', 'admin', '-port', "${extension.getServerHttpPort()}", '-f', extension.getProvisionScript()
+            if (contextRoot.isEmpty()) {
+                args '-q', '-expose-proxies', '-username', 'admin', '-password', 'admin', '-port', port, '-f', script
             } else {
-                args '-context', extension.getServerContextRoot(), '-q', '-expose-proxies', '-username', 'admin', '-password', 'admin', '-port',
-                        "${extension.getServerHttpPort()}", '-f', script
+                args '-context', contextRoot, '-q',
+                        '-expose-proxies', '-username', 'admin', '-password', 'admin', '-port', port, '-f', script
             }
             environment "CLASSPATH", classpath
             jvmArgs '-Dlogback.config=src/main/resources/logback.xml'

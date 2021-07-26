@@ -38,6 +38,11 @@ class DbUtil {
         return name == DERBY_NETWORK || name == DERBY_INMEMORY || name == DERBY
     }
 
+    static def isDerbyNetwork(Project project) {
+        def dbName = databaseName(project)
+        return dbName == DERBY_NETWORK || dbName == DERBY
+    }
+
     static def assertNotDerby(project, message) {
         def dbname = databaseName(project)
         if (isDerby(dbname)) {
@@ -47,7 +52,15 @@ class DbUtil {
 
     static def dbConfig(project) {
         def from = dbConfigFile(project)
-        return YamlFileUtil.readTree(from)
+        def config = YamlFileUtil.readTree(from)
+        def port = ExtensionsUtil.getExtension(project).derbyPort
+
+        if (isDerbyNetwork(project)) {
+            config.get("xl.repository")
+                    .get("database")
+                    .put("db-url", "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin")
+        }
+        return config
     }
 
     static final DbParameters postgresParams = new DbParameters(
