@@ -4,13 +4,8 @@ import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.MqUtil
 import com.xebialabs.gradle.integration.util.YamlFileUtil
-
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
-
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 
 class CentralConfigurationTask extends DefaultTask {
     static NAME = "centralConfiguration"
@@ -36,21 +31,17 @@ class CentralConfigurationTask extends DefaultTask {
                 taskConfig(project))
     }
 
-    private def taskConfig(project) {
-        def taskConfigStream = YamlFileUtil.class.classLoader.getResourceAsStream("central-conf/deploy-task.yaml")
-        Files.copy(taskConfigStream, Paths.get(new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-task.yaml").toURI()), StandardCopyOption.REPLACE_EXISTING)
-        Map taskConf = new LinkedHashMap<String, Object>()
-        if (project.hasProperty("externalWorker")) {
-            taskConf.put("deploy.task.in-process-worker", false)
-            def mqDetail = mq(MqUtil.mqName(project), MqUtil.mqPort(project))
-            taskConf.put("deploy.task.queue.external.jms-driver-classname", mqDetail.get("jms-driver-classname"))
-            taskConf.put("deploy.task.queue.external.jms-password", mqDetail.get("jms-password"))
-            taskConf.put("deploy.task.queue.external.jms-url", mqDetail.get("jms-url"))
-            taskConf.put("deploy.task.queue.external.jms-username", mqDetail.get("jms-username"))
-        } else {
-            taskConf.put("deploy.task.in-process-worker", true)
-        }
-        taskConf
+    private static def taskConfig(project) {
+        def mqDetail = mq(MqUtil.mqName(project), MqUtil.mqPort(project))
+        return project.hasProperty("externalWorker") ?
+                [
+                        "deploy.task.in-process-worker"                  : false,
+                        "deploy.task.queue.external.jms-driver-classname": mqDetail.get("jms-driver-classname"),
+                        "deploy.task.queue.external.jms-password"        : mqDetail.get("jms-password"),
+                        "deploy.task.queue.external.jms-url"             : mqDetail.get("jms-url"),
+                        "deploy.task.queue.external.jms-username"        : mqDetail.get("jms-username")
+                ] :
+                ["deploy.task.in-process-worker": true]
     }
 
     static def mq(mqName, mqPort) {

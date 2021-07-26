@@ -17,8 +17,8 @@ import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.tasks.pluginManager.StartPluginManagerTask
 import com.xebialabs.gradle.integration.tasks.satellite.CopySatelliteOverlaysTask
 import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatelliteDistTask
-import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
 import com.xebialabs.gradle.integration.tasks.satellite.ShutdownSatelliteTask
+import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
 import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorker
 import com.xebialabs.gradle.integration.tasks.worker.StartWorker
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
@@ -30,7 +30,7 @@ import org.gradle.api.artifacts.Configuration
 
 class IntegrationServerPlugin implements Plugin<Project> {
 
-    private static void createTasks(Project project, Configuration itcfg,Configuration clicfg) {
+    private static void createTasks(Project project, Configuration itcfg, Configuration clicfg) {
         project.tasks.create(CentralConfigurationTask.NAME, CentralConfigurationTask)
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
@@ -51,12 +51,11 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(IntegrationServerTestTask.NAME, IntegrationServerTestTask)
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
-	    project.tasks.create(RunProvisionScriptTask.NAME, RunProvisionScriptTask).dependsOn(clicfg)
+        project.tasks.create(RunProvisionScriptTask.NAME, RunProvisionScriptTask).dependsOn(clicfg)
         project.tasks.create(StartMq.NAME, StartMq)
         project.tasks.create(ShutdownMq.NAME, ShutdownMq)
         project.tasks.create(StartWorker.NAME, StartWorker)
         project.tasks.create(ShutdownWorker.NAME, ShutdownWorker)
-
 
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
         project.tasks.create(ShutDownConfigServerTask.NAME, ShutDownConfigServerTask)
@@ -89,14 +88,14 @@ class IntegrationServerPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        def itcfg = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
-        def clicfg = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_CLI)
+        def serverConfig = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
+        def cliConfig = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_CLI)
         ConfigurationsUtil.registerConfigurations(project)
         ExtensionsUtil.create(project)
 
         project.afterEvaluate {
             ExtensionsUtil.initialize(project)
-            createTasks(project, itcfg, clicfg)
+            createTasks(project, serverConfig, cliConfig)
             applyPlugins(project)
         }
     }

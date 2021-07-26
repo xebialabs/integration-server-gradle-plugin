@@ -44,7 +44,7 @@ class IntegrationServerExtension {
 
     Boolean serverDebugSuspend
 
-    String[] serverJvmArgs =[]
+    String[] serverJvmArgs = []
 
     Integer serverHttpPort
 
@@ -70,7 +70,7 @@ class IntegrationServerExtension {
 
     Map<String, Map<String, Object>> yamlPatches
 
-    /** These 3 props be removed  */
+    /** These 3 props has to be removed  */
     String anonymizerProvisionScript
 
     String ldapProvisionScript
