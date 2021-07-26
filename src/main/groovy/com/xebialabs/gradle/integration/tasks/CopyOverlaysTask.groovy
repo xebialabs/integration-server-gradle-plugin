@@ -28,7 +28,7 @@ class CopyOverlaysTask extends DefaultTask {
                         project.dependencies.create("${dependency.driverDependency}:${version}")
                 )
             }
-            libOverlay.add("${dbDependency.driverDependency}:${version}")
+            libOverlay.add("${dependency.driverDependency}:${version}")
             ext.overlays.put(LIB_KEY, libOverlay)
         }
     }
