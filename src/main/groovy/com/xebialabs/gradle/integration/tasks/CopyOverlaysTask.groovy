@@ -1,60 +1,56 @@
 package com.xebialabs.gradle.integration.tasks
 
+import com.xebialabs.gradle.integration.IntegrationServerExtension
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.MqUtil
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class CopyOverlaysTask extends DefaultTask {
+    static LIB_KEY = "lib"
     static NAME = "copyOverlays"
 
     static boolean shouldUnzip(File file) {
         file.name.endsWith(".zip")
     }
 
-    private static def addDatabaseDependency(project) {
-        def libKey = 'lib'
-        def dbname = DbUtil.databaseName(project)
-        def dbDependency = DbUtil.detectDbDependency(dbname)
-        def ext = ExtensionsUtil.getExtension(project)
-        def libOverlay = ext.overlays.getOrDefault(libKey, new ArrayList<Object>())
-        def version = ext.driverVersions[dbname]
+    private static def overlayDependency(String version, IntegrationServerExtension ext, Project project, Object libOverlay, Object dependency) {
         if (version != null && !version.isEmpty()) {
-
-
-            if(ext.serverRuntimeDirectory != null) {
+            if (ext.serverRuntimeDirectory != null) {
                 def configuration = project.getConfigurations().getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
                 configuration.dependencies.add(
-                        project.dependencies.create("${dbDependency.driverDependency}:${version}")
+                        project.dependencies.create("${dependency.driverDependency}:${version}")
                 )
             }
             libOverlay.add("${dbDependency.driverDependency}:${version}")
-            ext.overlays.put(libKey, libOverlay)
+            ext.overlays.put(LIB_KEY, libOverlay)
         }
     }
 
+    private static def addDatabaseDependency(Project project) {
+        def dbname = DbUtil.databaseName(project)
+        def dbDependency = DbUtil.detectDbDependency(dbname)
+        def ext = ExtensionsUtil.getExtension(project)
+        def libOverlay = ext.overlays.getOrDefault(LIB_KEY, new ArrayList<Object>())
+        def version = ext.driverVersions[dbname]
+
+        overlayDependency(version, ext, project, libOverlay, dbDependency)
+    }
+
     private static def addMqDependency(project) {
-        def libKey = 'lib'
         def mqname = MqUtil.mqName(project)
         def mqDependency = MqUtil.detectMqDependency(mqname)
         def ext = ExtensionsUtil.getExtension(project)
-        def libOverlay = ext.overlays.getOrDefault(libKey, new ArrayList<Object>())
+        def libOverlay = ext.overlays.getOrDefault(LIB_KEY, new ArrayList<Object>())
         def version = ext.mqDriverVersions[mqname]
-        if (version != null && !version.isEmpty()) {
-            if(ext.serverRuntimeDirectory != null) {
-                def configuration = project.getConfigurations().getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
-                configuration.dependencies.add(
-                        project.dependencies.create("${mqDependency.driverDependency}:${version}")
-                )
-            }
-            libOverlay.add("${mqDependency.driverDependency}:${version}")
-            ext.overlays.put(libKey, libOverlay)
-        }
+
+        overlayDependency(version, ext, project, libOverlay, mqDependency)
     }
 
 
