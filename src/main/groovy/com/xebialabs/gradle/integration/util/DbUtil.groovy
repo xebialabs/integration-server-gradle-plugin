@@ -35,7 +35,7 @@ class DbUtil {
     }
 
     static def isDerby(String name) {
-        return name == DERBY_NETWORK || name == DERBY_INMEMORY
+        return name == DERBY_NETWORK || name == DERBY_INMEMORY || name == DERBY
     }
 
     static def assertNotDerby(project, message) {
