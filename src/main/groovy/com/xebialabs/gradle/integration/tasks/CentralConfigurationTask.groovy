@@ -31,17 +31,22 @@ class CentralConfigurationTask extends DefaultTask {
                 taskConfig(project))
     }
 
-    private static def taskConfig(project) {
+    private def taskConfig(project) {
         def mqDetail = mq(MqUtil.mqName(project), MqUtil.mqPort(project))
-        return project.hasProperty("externalWorker") ?
+        def initial = [
+                "deploy.task.queue.name": "xld-tasks-queue",
+                "deploy.task.queue.archive-queue-name" : "xld-archive-queue"
+        ]
+        return initial.plus(project.hasProperty("externalWorker") ?
                 [
                         "deploy.task.in-process-worker"                  : false,
                         "deploy.task.queue.external.jms-driver-classname": mqDetail.get("jms-driver-classname"),
                         "deploy.task.queue.external.jms-password"        : mqDetail.get("jms-password"),
                         "deploy.task.queue.external.jms-url"             : mqDetail.get("jms-url"),
-                        "deploy.task.queue.external.jms-username"        : mqDetail.get("jms-username")
+                        "deploy.task.queue.external.jms-username"        : mqDetail.get("jms-username"),
+                        "akka.io.dns.resolver": "inet-address"
                 ] :
-                ["deploy.task.in-process-worker": true]
+                ["deploy.task.in-process-worker": true])
     }
 
     static def mq(mqName, mqPort) {

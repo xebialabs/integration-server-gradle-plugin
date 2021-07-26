@@ -46,7 +46,7 @@ class IntegrationServerExtension {
 
     String[] serverJvmArgs = []
 
-    Integer serverHttpPort
+    Integer serverHttpPort =0
 
     Integer serverPingRetrySleepTime
 
