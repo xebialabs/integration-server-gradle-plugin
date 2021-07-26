@@ -123,11 +123,11 @@ class StartWorker extends DefaultTask {
             arg(value: "-master")
             arg(value: "${hostName}:${port}")
             arg(value: "-api")
-            arg(value: "http://${hostName}:${port}")
+            arg(value: "http://${hostName}:${extension.serverHttpPort}")
             arg(value: "-hostname")
             arg(value: "${hostName}")
             arg(value: "-port")
-            arg(value: port)
+            arg(value: ExtensionsUtil.findFreePort())
             arg(value: "-work")
             arg(value: extension.workerName)
 

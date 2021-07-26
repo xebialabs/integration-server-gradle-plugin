@@ -13,7 +13,6 @@ class CentralConfigurationTask extends DefaultTask {
     private void createCentralConfigurationFiles() {
         project.logger.lifecycle("Generating initial central configuration files")
 
-        def extension = ExtensionsUtil.getExtension(project)
         project.logger.lifecycle("Writing to deploy-repository file")
         YamlFileUtil.writeFileValue(
                 new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-repository.yaml"),
@@ -22,7 +21,10 @@ class CentralConfigurationTask extends DefaultTask {
         project.logger.lifecycle("Writing to deploy-server file")
         YamlFileUtil.overlayFile(
                 new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-server.yaml"),
-                ["deploy.server.port": ExtensionsUtil.findFreePort()]
+                [
+                        "deploy.server.port"    : ExtensionsUtil.findFreePort(),
+                        "deploy.server.hostname": "127.0.0.1"
+                ]
         )
 
         project.logger.lifecycle("Writing to deploy-task file")
@@ -34,8 +36,8 @@ class CentralConfigurationTask extends DefaultTask {
     private static def taskConfig(project) {
         def mqDetail = mq(MqUtil.mqName(project), MqUtil.mqPort(project))
         def initial = [
-                "deploy.task.queue.name": "xld-tasks-queue",
-                "deploy.task.queue.archive-queue-name" : "xld-archive-queue"
+                "deploy.task.queue.name"              : "xld-tasks-queue",
+                "deploy.task.queue.archive-queue-name": "xld-archive-queue"
         ]
         return initial.plus(project.hasProperty("externalWorker") ?
                 [
@@ -44,7 +46,7 @@ class CentralConfigurationTask extends DefaultTask {
                         "deploy.task.queue.external.jms-password"        : mqDetail.get("jms-password"),
                         "deploy.task.queue.external.jms-url"             : mqDetail.get("jms-url"),
                         "deploy.task.queue.external.jms-username"        : mqDetail.get("jms-username"),
-                        "akka.io.dns.resolver": "inet-address"
+                        "akka.io.dns.resolver"                           : "inet-address"
                 ] :
                 ["deploy.task.in-process-worker": true])
     }

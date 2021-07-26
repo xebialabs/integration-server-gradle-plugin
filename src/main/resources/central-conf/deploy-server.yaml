@@ -1,6 +1,0 @@
-deploy.server:
-  hostname: "127.0.0.1"
-  port: 8180
-  security:
-    auth:
-      provider: "default"
