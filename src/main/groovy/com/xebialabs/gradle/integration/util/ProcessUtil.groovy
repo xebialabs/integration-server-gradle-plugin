@@ -1,6 +1,7 @@
 package com.xebialabs.gradle.integration.util
 
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.api.Project
 
 class ProcessUtil {
     private static def createRunCommand(String baseCommand) {
@@ -16,6 +17,7 @@ class ProcessUtil {
         if (config.params) {
             command.addAll(config.params as List<String>)
         }
+        println("About to start he process with next config $config")
 
         def processBuilder = new ProcessBuilder(command)
         if (config.environment) {
@@ -25,9 +27,18 @@ class ProcessUtil {
         if (config.inheritIO) {
             processBuilder.inheritIO()
         }
+
         def process = processBuilder.start()
         if (config.wait) {
             process.waitFor()
+        }
+
+    }
+
+    static void chMod(Project project, String mode, String fileName) {
+        project.exec {
+            it.executable 'chmod'
+            it.args mode, fileName
         }
     }
 }

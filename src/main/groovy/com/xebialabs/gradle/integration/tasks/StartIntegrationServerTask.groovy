@@ -2,10 +2,9 @@ package com.xebialabs.gradle.integration.tasks
 
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
-import com.xebialabs.gradle.integration.util.DbUtil
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
-import com.xebialabs.gradle.integration.util.HTTPUtil
-import com.xebialabs.gradle.integration.util.ProcessUtil
+import com.xebialabs.gradle.integration.tasks.mq.StartMq
+import com.xebialabs.gradle.integration.tasks.worker.StartWorker
+import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
@@ -29,10 +28,13 @@ class StartIntegrationServerTask extends DefaultTask {
                 DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME,
                 YamlPatchTask.NAME
         ]
-
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
+        }
+        if (WorkerUtil.isWorkerEnabled(project)) {
+            dependsOn(StartMq.NAME)
+            finalizedBy(StartWorker.NAME)
         }
     }
 
@@ -112,12 +114,52 @@ class StartIntegrationServerTask extends DefaultTask {
         }
     }
 
+    private void startServerFromClasspath() {
+        def classpath = project.configurations.getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER).filter { !it.name.endsWith("-sources.jar") }.asPath
+        logger.debug("XL Deploy Server classpath: \n${classpath}")
+        def extension = ExtensionsUtil.getExtension(project)
+
+        project.logger.lifecycle("Starting integration test server on port ${extension.serverHttpPort} in runtime dir ${extension.serverRuntimeDirectory}")
+        def jvmArgs = extension.serverJvmArgs
+        def params = [fork: true, dir: extension.serverRuntimeDirectory, spawn: true, classname: "com.xebialabs.deployit.DeployitBootstrapper"]
+        String jvmPath = project.properties['integrationServerJVMPath']
+        if (jvmPath) {
+            jvmPath = jvmPath + '/bin/java'
+            params['jvm'] = jvmPath
+            println("Using JVM from location: ${jvmPath}")
+        }
+
+        ant.java(params) {
+            arg(value: '-force-upgrades')
+            jvmArgs.each {
+                jvmarg(value: it)
+            }
+
+            env(key: "CLASSPATH", value: classpath)
+
+            if (extension.serverDebugPort != null) {
+                println("Enabled debug mode on port ${extension.serverDebugPort}")
+                jvmarg(value: "-Xdebug")
+                jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.serverDebugPort}")
+            }
+        }
+    }
+
+    private void createFolders() {
+        new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration").mkdirs()
+    }
+
     @TaskAction
     void launch() {
         shutdownServer(project)
+        createFolders()
         createConfFile()
-        initialize()
-        startServer()
+        if (ExtensionsUtil.getExtension(project).serverRuntimeDirectory != null) {
+            startServerFromClasspath()
+        } else {
+            initialize()
+            startServer()
+        }
         waitForBoot()
     }
 }

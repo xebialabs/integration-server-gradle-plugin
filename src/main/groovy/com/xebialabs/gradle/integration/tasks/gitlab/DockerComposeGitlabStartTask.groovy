@@ -11,8 +11,8 @@ import org.gradle.api.tasks.TaskAction
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
+import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class DockerComposeGitlabStartTask extends DockerComposeUp {
     static NAME = "dockerComposeGitlabStart"
@@ -53,6 +53,7 @@ class DockerComposeGitlabStartTask extends DockerComposeUp {
             os.close()
         }
     }
+
     private void waitForBoot() {
         project.logger.lifecycle("Waiting for Gitlab to start")
         def extension = ExtensionsUtil.getExtension(project)
@@ -82,7 +83,7 @@ class DockerComposeGitlabStartTask extends DockerComposeUp {
     void run() {
         project.exec {
             it.executable "docker-compose"
-            it.args '-f', getDockerComposeFile(), '-p' ,'gitlabServer', 'up', '-d'
+            it.args '-f', getDockerComposeFile(), '-p', 'gitlabServer', 'up', '-d'
         }
         waitForBoot()
     }

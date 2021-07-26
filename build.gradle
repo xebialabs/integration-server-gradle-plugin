@@ -61,5 +61,4 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-
 tasks.release.dependsOn(build, uploadArchives)

@@ -1,13 +1,15 @@
 package com.xebialabs.gradle.integration.util
 
-
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 class DbUtil {
 
     static def POSTGRES = 'postgres'
+    static def POSTGRES12 = 'postgres-12'
     static def ORACLE = 'oracle-xe-11g'
+    static def ORACLE19 = 'oracle-19c-se'
+    static def ORACLE12 = 'oracle-12c'
     static def DB2 = 'db2'
     static def MYSQL = 'mysql'
     static def MYSQL8 = 'mysql-8'
@@ -62,7 +64,7 @@ class DbUtil {
             "`?`"
     )
     static final DbParameters oraclePararms = new DbParameters(
-            'com.oracle.database.jdbc:ojdbc6',
+            'com.oracle.database.jdbc:ojdbc11',
             "oracle.jdbc.OracleDriver",
             "org.dbunit.ext.oracle.OracleDataTypeFactory",
             null,
@@ -99,8 +101,8 @@ class DbUtil {
 
     static def detectDbDependency(db) {
         switch (db) {
-            case POSTGRES: return postgresParams
-            case ORACLE: return oraclePararms
+            case [POSTGRES, POSTGRES12]: return postgresParams
+            case [ORACLE, ORACLE12, ORACLE19]: return oraclePararms
             case DB2: return db2Pararms
             case [MYSQL, MYSQL8]: return mysqlPararms
             case MSSQL: return mssqlPararms
