@@ -1,78 +1,80 @@
 package com.xebialabs.gradle.integration
 
 class IntegrationServerExtension {
-    Integer satelliteDebugPort
 
-    Boolean satelliteDebugSuspend
+    Integer akkaRemotingPort
 
     Integer configServerDebugPort
 
     Boolean configServerDebugSuspend
 
+    String configServerVersion
+
     Integer configServerHttpPort
 
-    Integer serverHttpPort
+    Integer derbyPort
 
-    Integer serverPingTotalTries
+    Map<String, String> driverVersions
 
-    Integer serverPingRetrySleepTime
+    Map<String, String> logLevels
 
-    String[] serverJvmArgs =[]
+    Boolean logSql
+
+    Map<String, String> mqDriverVersions
+
+    Map<String, List<Object>> overlays
+
+    String provisionScript
 
     Integer provisionSocketTimeout
 
-    Integer akkaRemotingPort
+    Boolean removeStdoutConfig
 
-    Integer derbyPort
+    Integer satelliteDebugPort
+
+    Boolean satelliteDebugSuspend
+
+    Map<String, List<Object>> satelliteOverlays
+
+    String satelliteVersion
+
+    String serverContextRoot
 
     Integer serverDebugPort
 
     Boolean serverDebugSuspend
 
-    Boolean logSql
+    String[] serverJvmArgs =[]
+
+    Integer serverHttpPort
+
+    Integer serverPingRetrySleepTime
+
+    Integer serverPingTotalTries
 
     String serverRuntimeDirectory
 
     String serverVersion
 
-    String satelliteVersion
-
-    String configServerVersion
-
-    String serverContextRoot
-
     String xldIsDataVersion
 
-    Boolean removeStdoutConfig
+    Integer workerDebugPort
 
-    Map<String, String> logLevels
+    Boolean workerDebugSuspend
 
-    Map<String, List<Object>> overlays
-
-    Map<String, List<Object>> satelliteOverlays
-
-    Map<String, String> driverVersions
-
-    Map<String, String> mqDriverVersions
+    String[] workerJvmArgs = []
 
     String workerName
 
     Integer workerRemotingPort
 
-    Boolean workerDebugSuspend
+    Map<String, Map<String, Object>> yamlPatches
 
-    Integer workerDebugPort
-
-    String[] workerJvmArgs = []
-
-    String provisionScript
-
+    /** These 3 props be removed  */
     String anonymizerProvisionScript
 
     String ldapProvisionScript
 
     String oidcProvisionScript
-
-    Map<String, Map<String, Object>> yamlPatches
 
 }
