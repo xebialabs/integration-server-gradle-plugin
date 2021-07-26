@@ -65,35 +65,35 @@ integrationServer {
 
 #### Tasks
 
-* `startIntegrationServer` - starts an integration server with a provided configuration and a database
-* `shutdownIntegrationServer` - stops a database server and also stop a database
-* `ImportDbUnitDataTask` - imports data files into a database
 * `dockerComposeDatabaseStart` - starts containers required by the server
 * `dockerComposeDatabaseStop` - stops containers required by the server
-* `prepareDatabase` - copies configuration files for the selected database
+* `ImportDbUnitDataTask` - imports data files into a database
 * `integrationServer` - Starts an integration server
+* `prepareDatabase` - copies configuration files for the selected database
+* `startIntegrationServer` - starts an integration server with a provided configuration and a database
+* `shutdownIntegrationServer` - stops a database server and also stop a database
 
 
 
 #### Flags
 
-* `-Pdatabase` - sets a database to launch, options: `db2`, `derby-inmemory`, `derby-network`, `mssql`, `mysql`, `mysql-8`, `oracle-xe-11g`, `postgres`
-* `-PserverHttpPort` - provides an http port, overrides a configuration option
-* `-PderbyPort` - provides Derby port if Derby database is used
-* `-PserverDebugPort` - provides a server debug port for remote debugging
-* `-PlogSql` - enables printing of SQL queries executed by the server
 * `-Papplication` - Starts the application
+* `-Pdatabase` - sets a database to launch, options: `db2`, `derby-inmemory`, `derby-network`, `mssql`, `mysql`, `mysql-8`, `oracle-xe-11g`, `postgres`
+* `-PderbyPort` - provides Derby port if Derby database is used
 * `-PexternalWorker` - if enabled , it will start the XLDserver with external worker.
                      - `./gradlew :integration-test:integrationServer -Papplication=startXLDServer -PexternaleWorker=true`
                      - `./gradlew :integration-test:integrationServer -Papplication=shutdownXLDServer`
+* `-PlogSql` - enables printing of SQL queries executed by the server
+* `-PserverDebugPort` - provides a server debug port for remote debugging
+* `-PserverHttpPort` - provides an http port, overrides a configuration option
 
 #### application flags
 * `-Papplication=startXLDServer` - starts the integration server
 * `-Papplication=shutdownXLDServer` - shutdown the integration server, we need to mention the port as well(`./gradlew :integration-test:integrationServer -Papplication=shutdownXLDServer -PserverHttpPort=87989 `)
 * `-Papplication=startXLDServer -PexternalWorker=true` -starts the integration server with external worker with default mq(eg: rabbitmq)
-* `-Papplication=sthutdownXLDServer -PexternalWorker=true` -shutdown the integration server with external worker
+* `-Papplication=shutdownXLDServer -PexternalWorker=true` -shutdown the integration server with external worker
 * `-Papplication=startXLDServer -PexternalWorker=true -Pmq=activemq` -starts the integration server with external worker with activemq
-* `-Papplication=sthutdownXLDServer -PexternalWorker=true` -shutdown the integration server with external worker
+* `-Papplication=shutdownXLDServer -PexternalWorker=true` -shutdown the integration server with external worker
 * `-Papplication=startSatelliteServer` - starts the satellite server
 * `-Papplication=shutdownSatelliteServer` - shutdown the satellite server
 * `-Papplication=startConfigServer` - starts the standalone config server
