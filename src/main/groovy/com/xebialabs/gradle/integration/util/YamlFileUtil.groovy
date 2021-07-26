@@ -18,11 +18,11 @@ class YamlFileUtil {
 
         def current = objectMap
         keyChain.each { keyItem ->
-            def val = objectMap.get(keyItem)
+            def val = current.get(keyItem)
             if (val == null) {
-                objectMap.put(keyItem, new LinkedHashMap<String, Object>())
+                current.put(keyItem, new LinkedHashMap<String, Object>())
             }
-            current = objectMap.get(keyItem)
+            current = current.get(keyItem)
         }
         return new Tuple(current, tokens.last())
     }
