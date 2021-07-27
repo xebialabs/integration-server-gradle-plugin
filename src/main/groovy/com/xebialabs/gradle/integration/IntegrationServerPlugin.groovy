@@ -2,9 +2,6 @@ package com.xebialabs.gradle.integration
 
 import com.xebialabs.gradle.integration.tasks.*
 import com.xebialabs.gradle.integration.tasks.anonymizer.ExportDatabaseTask
-import com.xebialabs.gradle.integration.tasks.centralconfig.DownloadAndExtractConfigServerDistTask
-import com.xebialabs.gradle.integration.tasks.centralconfig.ShutDownConfigServerTask
-import com.xebialabs.gradle.integration.tasks.centralconfig.StartConfigServerTask
 import com.xebialabs.gradle.integration.tasks.cli.RunProvisionScriptTask
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStopTask
@@ -42,7 +39,6 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DockerComposeGitlabStopTask.NAME, DockerComposeGitlabStopTask)
 
         project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
-        project.tasks.create(DownloadAndExtractConfigServerDistTask.NAME, DownloadAndExtractConfigServerDistTask)
         project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
         project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
         project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
@@ -58,8 +54,6 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(ShutdownWorker.NAME, ShutdownWorker)
 
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
-        project.tasks.create(ShutDownConfigServerTask.NAME, ShutDownConfigServerTask)
-        project.tasks.create(StartConfigServerTask.NAME, StartConfigServerTask)
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
         project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask).dependsOn(itcfg)
         project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)

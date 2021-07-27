@@ -2,14 +2,6 @@ package com.xebialabs.gradle.integration
 
 class IntegrationServerExtension {
 
-    Integer configServerDebugPort
-
-    Boolean configServerDebugSuspend
-
-    String configServerVersion
-
-    Integer configServerHttpPort
-
     Integer derbyPort
 
     Map<String, String> driverVersions

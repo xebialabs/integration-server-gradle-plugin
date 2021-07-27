@@ -96,8 +96,6 @@ integrationServer {
 * `-Papplication=shutdownXLDServer -PexternalWorker=true` -shutdown the integration server with external worker
 * `-Papplication=startSatelliteServer` - starts the satellite server
 * `-Papplication=shutdownSatelliteServer` - shutdown the satellite server
-* `-Papplication=startConfigServer` - starts the standalone config server
-* `-Papplication=shutdownConfigServer` - shutdown config server  
 ## Limitations
 
 * `db2`, `mssql`, `mysql`, `mysql-8`, `oracle-xe-11g`, `postgres` are started in a docker container
