@@ -11,6 +11,7 @@ import java.nio.file.Path
 
 class ShutdownMq extends DefaultTask {
     static NAME = "shutdownMq"
+    def envPath = DockerComposeUtil.dockerfileDestination(project, "mq/mq.env")
 
     ShutdownMq() {
         this.group = PluginUtil.PLUGIN_GROUP
@@ -19,7 +20,6 @@ class ShutdownMq extends DefaultTask {
     @InputFiles
     File getDockerComposeFile() {
         Path composeFile = DockerComposeUtil.dockerfileDestination(project, MqUtil.getMqFileName(project))
-
         return project.file(composeFile)
     }
 
@@ -28,7 +28,7 @@ class ShutdownMq extends DefaultTask {
         project.logger.lifecycle("Stopping MQ.")
         project.exec {
             it.executable 'docker-compose'
-            it.args '-f', getDockerComposeFile(), 'down'
+            it.args '-f', getDockerComposeFile(), '--env-file', "${envPath}", 'down'
         }
     }
 }

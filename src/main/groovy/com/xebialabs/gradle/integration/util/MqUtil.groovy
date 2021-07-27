@@ -7,6 +7,8 @@ class MqUtil {
 
     private MqUtil() {}
 
+
+
     static def mqName(project) {
         project.hasProperty("mq") ? project.property("mq").toString() : RABBITMQ
     }
