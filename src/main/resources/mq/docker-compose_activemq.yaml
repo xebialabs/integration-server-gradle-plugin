@@ -2,11 +2,10 @@ version: "3.4"
 
 services:
   activemq:
-    container_name: activeMq
     image: xldevdocker/activemq:5.15.13
     ports:
       - 8161:8161 # Dashboard
-      - 61616:61616
+      - ${ACTIVEMQ_PORT2}
       - 61613:61613
       - 1883:1883
       - 61614:61614

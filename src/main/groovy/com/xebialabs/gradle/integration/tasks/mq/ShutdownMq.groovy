@@ -19,7 +19,6 @@ class ShutdownMq extends DefaultTask {
     @InputFiles
     File getDockerComposeFile() {
         Path composeFile = DockerComposeUtil.dockerfileDestination(project, MqUtil.getMqFileName(project))
-
         return project.file(composeFile)
     }
 
@@ -28,7 +27,7 @@ class ShutdownMq extends DefaultTask {
         project.logger.lifecycle("Stopping MQ.")
         project.exec {
             it.executable 'docker-compose'
-            it.args '-f', getDockerComposeFile(), 'down'
+            it.args '-f', getDockerComposeFile(), '--env-file', "${MqUtil.getMqEnvFilePath(project)}", 'down'
         }
     }
 }

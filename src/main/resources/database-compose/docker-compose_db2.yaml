@@ -1,8 +1,8 @@
-version: "3.3"
+version: "3.4"
 
 services:
   db2:
-    build: db2-docker
+    image: xldevdocker/db2
     ports:
       - 50000:50000
     environment:

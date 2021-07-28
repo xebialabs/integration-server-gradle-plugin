@@ -7,12 +7,16 @@ class MqUtil {
 
     private MqUtil() {}
 
+    static def getMqEnvFilePath(project) {
+        DockerComposeUtil.dockerfileDestination(project, "mq/mq.env")
+    }
+
     static def mqName(project) {
         project.hasProperty("mq") ? project.property("mq").toString() : RABBITMQ
     }
 
     static def mqPort(project) {
-        project.hasProperty("mqPort") ? project.property("mqPort") : null
+        project.hasProperty("mqPort") ? project.property("mqPort") : 5672
     }
 
     static def getMqFileName(project) {
