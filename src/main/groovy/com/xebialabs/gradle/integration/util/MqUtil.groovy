@@ -7,7 +7,9 @@ class MqUtil {
 
     private MqUtil() {}
 
-
+    static def getMqEnvFilePath(project) {
+        DockerComposeUtil.dockerfileDestination(project, "mq/mq.env")
+    }
 
     static def mqName(project) {
         project.hasProperty("mq") ? project.property("mq").toString() : RABBITMQ

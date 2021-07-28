@@ -13,7 +13,6 @@ import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
 class StartMq extends DockerComposeUp {
     static NAME = "startMq"
-    def envPath = DockerComposeUtil.dockerfileDestination(project, "mq/mq.env")
 
     StartMq() {
         this.configure {
@@ -37,7 +36,7 @@ class StartMq extends DockerComposeUp {
 
         //copy env file
         def mqPort = project.hasProperty("mqPort") ? project.property("mqPort") : 5672
-        def myFile = new File(envPath.toString())
+        def myFile = new File(MqUtil.getMqEnvFilePath(project).toString())
         myFile.write("RABBITMQ_PORT2=${mqPort}:5672")
         return project.file(resultComposeFilePath)
     }
@@ -47,7 +46,7 @@ class StartMq extends DockerComposeUp {
         project.logger.lifecycle("Starting  ${MqUtil.mqName(project)} MQ.")
         project.exec {
             it.executable "docker-compose"
-            it.args '-f', getDockerComposeFile(), '--env-file', "${envPath}" , 'up', '-d'
+            it.args '-f', getDockerComposeFile(), '--env-file', "${MqUtil.getMqEnvFilePath(project).toString()}" , 'up', '-d'
         }
 
     }
