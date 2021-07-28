@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   db_mssql:
-    build: mssql-docker
+    image: xldevdocker/mssql
     ports:
       - 1433:1433
     networks:
