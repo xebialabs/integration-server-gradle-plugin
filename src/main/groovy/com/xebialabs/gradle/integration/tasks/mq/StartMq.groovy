@@ -35,9 +35,14 @@ class StartMq extends DockerComposeUp {
         FileUtil.copyFile(dockerComposeStream, resultComposeFilePath)
 
         //copy env file
-        def mqPort = project.hasProperty("mqPort") ? project.property("mqPort") : 5672
+        def mqPort = project.hasProperty("mqPort") ? project.property("mqPort") : (MqUtil.mqName(project) == MqUtil.RABBITMQ ? 5672 : 61616)
         def myFile = new File(MqUtil.getMqEnvFilePath(project).toString())
-        myFile.write("RABBITMQ_PORT2=${mqPort}:5672")
+
+        def envContent = """\
+RABBITMQ_PORT2=${mqPort}:5672
+ACTIVEMQ_PORT2=${mqPort}:61616
+"""
+        myFile.write(envContent)
         return project.file(resultComposeFilePath)
     }
 

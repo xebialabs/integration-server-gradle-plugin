@@ -16,7 +16,7 @@ class MqUtil {
     }
 
     static def mqPort(project) {
-        project.hasProperty("mqPort") ? project.property("mqPort") : null
+        project.hasProperty("mqPort") ? project.property("mqPort") : 5672
     }
 
     static def getMqFileName(project) {
