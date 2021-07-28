@@ -105,7 +105,7 @@ class ExtensionsUtil {
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())
         extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())
         extension.driverVersions = resolveValue(project, extension, "driverVersions", [
-                'postgres'     : '42.2.9',
+                'postgres-10'     : '42.2.9',
                 'postgres-12'  : '42.2.23',
                 'mysql'        : '8.0.22',
                 'mysql-8'      : '8.0.22',
