@@ -5,7 +5,7 @@ import org.gradle.api.Project
 
 class DbUtil {
 
-    static def POSTGRES = 'postgres'
+    static def POSTGRES = 'postgres-10'
     static def POSTGRES12 = 'postgres-12'
     static def ORACLE = 'oracle-xe-11g'
     static def ORACLE19 = 'oracle-19c-se'
