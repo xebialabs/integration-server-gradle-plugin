@@ -27,7 +27,7 @@ class ShutdownMq extends DefaultTask {
         project.logger.lifecycle("Stopping MQ.")
         project.exec {
             it.executable 'docker-compose'
-            it.args '-f', getDockerComposeFile(), '--env-file', "${MqUtil.getMqEnvFilePath(project)}", 'down'
+            it.args '-f', getDockerComposeFile(), '--project-directory', "${MqUtil.getProjectDirectory(project)}/mq", 'down'
         }
     }
 }

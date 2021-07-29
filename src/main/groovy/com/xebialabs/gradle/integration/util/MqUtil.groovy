@@ -1,5 +1,9 @@
 package com.xebialabs.gradle.integration.util
 
+import java.nio.file.Paths
+
+import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
+
 class MqUtil {
 
     static def RABBITMQ = 'rabbitmq'
@@ -7,8 +11,12 @@ class MqUtil {
 
     private MqUtil() {}
 
+    static def getProjectDirectory(project){
+        Paths.get(project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString())
+    }
+
     static def getMqEnvFilePath(project) {
-        DockerComposeUtil.dockerfileDestination(project, "mq/mq.env")
+        DockerComposeUtil.dockerfileDestination(project, "mq/.env")
     }
 
     static def mqName(project) {
@@ -16,7 +24,7 @@ class MqUtil {
     }
 
     static def mqPort(project) {
-        project.hasProperty("mqPort") ? project.property("mqPort") : 5672
+        project.hasProperty("mqPort") ? project.property("mqPort") : null
     }
 
     static def getMqFileName(project) {
