@@ -28,29 +28,30 @@ class StartMq extends DockerComposeUp {
 
     @InputFiles
     File getDockerComposeFile() {
-        InputStream dockerComposeStream = StartMq.class.classLoader
-                .getResourceAsStream(MqUtil.getMqFileName(project))
+        InputStream dockerComposeStream = StartMq.class.classLoader.getResourceAsStream(MqUtil.getMqFileName(project))
 
         Path resultComposeFilePath = DockerComposeUtil.dockerfileDestination(project, MqUtil.getMqFileName(project))
         FileUtil.copyFile(dockerComposeStream, resultComposeFilePath)
 
-        //copy env file
-        def mqPort = project.hasProperty("mqPort") ? project.property("mqPort") : (MqUtil.mqName(project) == MqUtil.RABBITMQ ? 5672 : 61616)
-        def myFile = new File(MqUtil.getMqEnvFilePath(project).toString())
-        def envContent = """\
-RABBITMQ_PORT2=${mqPort}:5672
-ACTIVEMQ_PORT2=${mqPort}:61616
-"""
-        myFile.write(envContent)
+        def mqTemplate = resultComposeFilePath.toFile()
+        def mqPort = project.hasProperty("mqPort") ?
+                project.property("mqPort") :
+                MqUtil.mqName(project) == MqUtil.RABBITMQ ? 5672 : 61616
+
+        def configuredTemplate = mqTemplate.text
+                .replace('RABBITMQ_PORT2', "${mqPort}:5672")
+                .replace('ACTIVEMQ_PORT2', "${mqPort}:61616")
+        mqTemplate.text = configuredTemplate
+
         return project.file(resultComposeFilePath)
     }
 
     @TaskAction
     void run() {
-        project.logger.lifecycle("Starting  ${MqUtil.mqName(project)} MQ.")
+        project.logger.lifecycle("Starting ${MqUtil.mqName(project)} MQ.")
         project.exec {
             it.executable "docker-compose"
-            it.args '-f', getDockerComposeFile(), '--project-directory', "${MqUtil.getProjectDirectory(project)}/mq",  'up', '-d'
+            it.args '-f', getDockerComposeFile(), '--project-directory', "${MqUtil.getProjectDirectory(project)}/mq", 'up', '-d'
         }
 
     }
