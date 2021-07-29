@@ -5,7 +5,7 @@ services:
     image: xldevdocker/activemq:5.15.13
     ports:
       - 8161:8161 # Dashboard
-      - ${ACTIVEMQ_PORT2}
+      - ACTIVEMQ_PORT2
       - 61613:61613
       - 1883:1883
       - 61614:61614

@@ -5,6 +5,6 @@ services:
     image: xldevdocker/rabbitmq:3.7
     ports:
       - 4369:4369
-      - ${RABBITMQ_PORT2}
+      - RABBITMQ_PORT2
       - 15672:15672
       - 25672:25672
