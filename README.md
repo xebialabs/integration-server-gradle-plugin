@@ -78,7 +78,7 @@ integrationServer {
 #### Flags
 
 * `-Papplication` - Starts the application
-* `-Pdatabase` - sets a database to launch, options: `db2`, `derby-inmemory`, `derby-network`, `mssql`, `mysql`, `mysql-8`, `oracle-xe-11g`, `postgres`
+* `-Pdatabase` - sets a database to launch, options: `derby-inmemory`, `derby-network`, `mssql`, `mysql`, `mysql-8`, `oracle-19c-se`, `postgres`
 * `-PderbyPort` - provides Derby port if Derby database is used
 * `-PexternalWorker` - if enabled , it will start the XLDserver with external worker.
                      - `./gradlew :integration-test:integrationServer -Papplication=startXLDServer -PexternaleWorker=true`
@@ -98,10 +98,10 @@ integrationServer {
 * `-Papplication=shutdownSatelliteServer` - shutdown the satellite server
 ## Limitations
 
-* `db2`, `mssql`, `mysql`, `mysql-8`, `oracle-xe-11g`, `postgres` are started in a docker container
+* `mssql`, `mysql`, `mysql-8`, `oracle-19c-se`, `postgres` are started in a docker container
 * `derby-inmemory`, `derby-network` are started as a Java process on a host machine
 * Only  `mysql`, `mysql-8`, `postgres` can be started at the moment with the integration server
-* `db2`, `mssql`, `oracle-xe-11g` require building an image at the moment and cannot be started by the integration server
+* `mssql`, `oracle-19c-se` require building an image at the moment and cannot be started by the integration server
 * `postgres` is the only database which fully support data import
 * `derby-inmemory`, `derby-network` do not support DbUnit data import, as these databases are not supported, use old data export format
 

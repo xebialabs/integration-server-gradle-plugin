@@ -7,10 +7,7 @@ class DbUtil {
 
     static def POSTGRES = 'postgres-10'
     static def POSTGRES12 = 'postgres-12'
-    static def ORACLE = 'oracle-xe-11g'
     static def ORACLE19 = 'oracle-19c-se'
-    static def ORACLE12 = 'oracle-12c'
-    static def DB2 = 'db2'
     static def MYSQL = 'mysql'
     static def MYSQL8 = 'mysql-8'
     static def MSSQL = 'mssql'
@@ -84,20 +81,6 @@ class DbUtil {
             null,
             "\"?\""
     )
-    static final DbParameters oracle12Pararms = new DbParameters(
-            'com.oracle:ojdbc6',
-            "oracle.jdbc.OracleDriver",
-            "org.dbunit.ext.oracle.OracleDataTypeFactory",
-            null,
-            "\"?\""
-    )
-    static final DbParameters db2Pararms = new DbParameters(
-            'com.ibm:db2jcc4',
-            "com.ibm.db2.jcc.DB2Driver",
-            "org.dbunit.ext.db2.Db2DataTypeFactory",
-            "org.dbunit.ext.db2.Db2MetadataHandler",
-            "\"?\""
-    )
     static final DbParameters mssqlPararms = new DbParameters(
             'com.microsoft.sqlserver:mssql-jdbc',
             "com.microsoft.sqlserver.jdbc.SQLServerDriver",
@@ -122,14 +105,12 @@ class DbUtil {
 
     static def detectDbDependency(db) {
         switch (db) {
-            case DB2: return db2Pararms
             case DERBY: return derbyNetworkPararms
             case DERBY_INMEMORY: return derbyPararms
             case DERBY_NETWORK: return derbyNetworkPararms
             case MSSQL: return mssqlPararms
             case [MYSQL, MYSQL8]: return mysqlPararms
             case ORACLE19: return oracle19Pararms
-            case [ORACLE, ORACLE12]: return oracle12Pararms
             case [POSTGRES, POSTGRES12]: return postgresParams
             default: return derbyNetworkPararms
         }
