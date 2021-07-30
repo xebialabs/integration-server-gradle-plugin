@@ -12,12 +12,11 @@ class NebulaRelease extends DefaultTask {
         getProject().exec(new Action<ExecSpec>() {
             @Override
             void execute(ExecSpec execSpec) {
-                def commandParams = "-Prelease.version=10.3.0-${(new Date().format('Mdd.Hmm'))} final"
-                project.logger.lifecycle("Executing: ./gradlew build uploadArchives $commandParams")
+                def version = "-Prelease.version=10.3.0-${(new Date().format('Mdd.Hmm'))}"
+                project.logger.lifecycle("Releasing version is: $version")
 
                 execSpec.executable('./gradlew')
-                execSpec.args('build', 'uploadArchives',
-                        "-Prelease.version=10.3.0-${(new Date().format('Mdd.Hmm'))} final")
+                execSpec.args('build', 'uploadArchives', "-Prelease.version=$version", "final")
             }
         })
     }

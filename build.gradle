@@ -81,4 +81,4 @@ uploadArchives {
 
 import com.xebialabs.gradle.release.NebulaRelease
 
-task release(type: NebulaRelease)
+task nebulaRelease(type: NebulaRelease)
