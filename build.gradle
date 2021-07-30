@@ -1,29 +1,23 @@
-apply plugin: 'groovy'
-apply plugin: 'idea'
-apply plugin: 'xebialabs.artifact'
-apply plugin: 'xebialabs.root.opinions'
-apply plugin: 'com.xebialabs.dependency'
-apply plugin: 'xebialabs.opinions'
-
 buildscript {
     repositories {
-        jcenter()
-        mavenCentral()
-        mavenLocal()
-        ["public", "thirdparty", "releases"].each { r ->
-            maven {
-                credentials {
-                    username nexusUserName
-                    password nexusPassword
-                }
-                url "${nexusBaseUrl}/repositories/${r}"
-            }
+        maven {
+            url "https://plugins.gradle.org/m2/"
         }
+        mavenLocal()
     }
 
     dependencies {
-        classpath "com.xebialabs.gradle.plugins:gradle-xl-plugins-plugin:$xlPluginsPluginVersion"
+        if (project.gradle.startParameter.taskNames.contains("final")) {
+            classpath "com.netflix.nebula:nebula-release-plugin:${nebulaReleasePluginVersion}"
+        }
     }
+}
+
+plugins {
+    id 'groovy'
+    id 'idea'
+    id 'maven'
+    id "org.ajoberstar.release-opinion" version "1.4.2"
 }
 
 group = 'com.xebialabs.gradle.plugins'
@@ -32,12 +26,44 @@ defaultTasks 'build'
 sourceCompatibility = languageLevel
 targetCompatibility = languageLevel
 
+repositories {
+    jcenter()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+    mavenLocal()
+    maven {
+        credentials {
+            username project.property("nexusUserName")
+            password project.property("nexusPassword")
+        }
+        url "${project.property('nexusBaseUrl')}/repositories/releases"
+    }
+}
+
 idea {
     module {
         downloadJavadoc = true
         downloadSources = true
     }
 }
+
+release {
+    grgit = org.ajoberstar.grgit.Grgit.open(dir: project.projectDir)
+    defaultVersionStrategy = org.ajoberstar.gradle.git.release.opinion.Strategies.SNAPSHOT
+    tagStrategy {
+        toTagString = { vs -> "${project.name}-$vs" }
+        parseTag = { org.ajoberstar.grgit.Tag tag ->
+            if (tag.name.startsWith(project.name)) {
+                com.github.zafarkhaja.semver.Version.valueOf(tag.name[project.name.size() + 1..-1])
+            } else {
+                null
+            }
+        }
+    }
+}
+
+configurations.compile.transitive = false
 
 dependencies {
     implementation gradleApi()
@@ -58,7 +84,29 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
 }
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
 test {
     useJUnitPlatform()
 }
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: "${project.property("nexusBaseUrl")}/repositories/releases") {
+            authentication(userName: "${project.property("nexusUserName")}", password: "${project.property("nexusPassword")}")
+        }
+        snapshotRepository(url: "${project.property("nexusBaseUrl")}/repositories/snapshots") {
+            authentication(userName: "${project.property("nexusUserName")}", password: "${project.property("nexusPassword")}")
+        }
+    }
+}
+
 tasks.release.dependsOn(build, uploadArchives)
