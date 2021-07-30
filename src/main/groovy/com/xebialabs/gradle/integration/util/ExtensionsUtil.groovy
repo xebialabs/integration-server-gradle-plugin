@@ -111,7 +111,7 @@ class ExtensionsUtil {
                 'mysql-8'      : '8.0.22',
                 'oracle-xe-11g': '11.2.0.4',
                 'oracle-19c-se': '21.1.0.0',
-                'oracle-12c'   : '21.1.0.0',
+                'oracle-12c'   : '11.2.0.1.0',
                 'mssql'        : '8.4.1.jre8',
                 'db2'          : '4.19.26'
         ])

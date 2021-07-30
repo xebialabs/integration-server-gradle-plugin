@@ -77,8 +77,15 @@ class DbUtil {
             "org.dbunit.ext.mysql.MySqlMetadataHandler",
             "`?`"
     )
-    static final DbParameters oraclePararms = new DbParameters(
+    static final DbParameters oracle19Pararms = new DbParameters(
             'com.oracle.database.jdbc:ojdbc11',
+            "oracle.jdbc.OracleDriver",
+            "org.dbunit.ext.oracle.OracleDataTypeFactory",
+            null,
+            "\"?\""
+    )
+    static final DbParameters oracle12Pararms = new DbParameters(
+            'com.oracle:ojdbc6',
             "oracle.jdbc.OracleDriver",
             "org.dbunit.ext.oracle.OracleDataTypeFactory",
             null,
@@ -121,7 +128,8 @@ class DbUtil {
             case DERBY_NETWORK: return derbyNetworkPararms
             case MSSQL: return mssqlPararms
             case [MYSQL, MYSQL8]: return mysqlPararms
-            case [ORACLE, ORACLE12, ORACLE19]: return oraclePararms
+            case ORACLE19: return oracle19Pararms
+            case [ORACLE, ORACLE12]: return oracle12Pararms
             case [POSTGRES, POSTGRES12]: return postgresParams
             default: return derbyNetworkPararms
         }
