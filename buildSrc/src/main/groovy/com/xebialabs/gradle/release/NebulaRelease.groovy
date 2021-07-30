@@ -16,7 +16,8 @@ class NebulaRelease extends DefaultTask {
                 project.logger.lifecycle("Releasing version is: $version")
 
                 execSpec.executable('./gradlew')
-                execSpec.args('build', 'uploadArchives', "-Prelease.version=$version", "final")
+                execSpec.args('build', 'uploadArchives', "-Prelease.version=$version", "final",
+                "-Prelease.ignoreSuppliedVersionVerification=true")
             }
         })
     }
