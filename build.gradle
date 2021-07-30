@@ -79,6 +79,7 @@ dependencies {
     implementation "mysql:mysql-connector-java:${project.properties['driverVersions.mysql']}"
     implementation "org.dbunit:dbunit:$dbUnitVersion"
     implementation "gradle.plugin.com.palantir.gradle.docker:gradle-docker:$dockerPluginVersion"
+    implementation "com.xebialabs.gradle.plugins:gradle-xl-defaults-plugin:$xlDefaultsPluginVersion"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
