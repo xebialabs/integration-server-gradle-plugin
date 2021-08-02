@@ -48,25 +48,18 @@ class StartWorker extends DefaultTask {
 
 
     private def getBinDir() {
-        def localWorker = project.hasProperty("localWorker") ? project.property("localWorker") : true
-        project.logger.lifecycle("localWorker ${localWorker}")
-        if (localWorker) {
-            Paths.get(ExtensionsUtil.getServerWorkingDir(project), "bin").toFile()
-        } else {
-            def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
-            def targetDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
-            def source = Paths.get(targetDir, "xl-deploy-${serverVersion}-server").toAbsolutePath().toString()
-            def target = Paths.get(targetDir, "xl-deploy-${serverVersion}-worker").toAbsolutePath().toString()
-            ProcessUtil.cpServerDirToWorkDir(project, source, target)
-            Paths.get(target,"bin").toFile()
-        }
+            Paths.get(WorkerUtil.getWorkerDir(project), "bin").toFile()
     }
-
 
     private void startWorker() {
         project.logger.lifecycle("Launching worker")
         def extension = ExtensionsUtil.getExtension(project)
-        def workBinDir = getBinDir()
+        if (!WorkerUtil.isLocalWorker(project)){
+            def source = ExtensionsUtil.getServerWorkingDir(project)
+            def target = WorkerUtil.getExternalWorkerDir(project)
+            ProcessUtil.cpServerDirToWorkDir(project, source, target)
+        }
+
         ProcessUtil.exec([
                 command    : "run",
                 params     : [
@@ -81,18 +74,17 @@ class StartWorker extends DefaultTask {
                         "${extension.workerRemotingPort}".toString()
                 ],
                 environment: getEnv(),
-                workDir    : workBinDir
+                workDir    : getBinDir()
         ])
-        waitForBoot()
+        waitForBoot(WorkerUtil.getWorkerDir(project))
     }
 
-    def waitForBoot() {
+    def waitForBoot(runtimeDir) {
         project.logger.lifecycle("Waiting for worker to start")
         def extension = ExtensionsUtil.getExtension(project)
         int triesLeft = extension.serverPingTotalTries
         boolean success = false
 
-        def runtimeDir = ExtensionsUtil.getWorkerWorkingDir(project)
         def workerLog = project.file("$runtimeDir/log/deployit-worker.log")
 
         while (triesLeft > 0 && !success) {
@@ -157,6 +149,7 @@ class StartWorker extends DefaultTask {
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.workerDebugPort}")
             }
         }
+        waitForBoot(ExtensionsUtil.getServerWorkingDir(project))
     }
 
 

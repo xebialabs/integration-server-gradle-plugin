@@ -73,18 +73,6 @@ class ExtensionsUtil {
         }
     }
 
-    static def getWorkerWorkingDir(Project project) {
-        def localWorker = project.hasProperty("localWorker") ? project.property("localWorker") : true
-        project.logger.lifecycle("localWorker ${localWorker}")
-        if (localWorker) {
-            ExtensionsUtil.getServerWorkingDir(project)
-        } else {
-            def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
-            def targetDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
-            Paths.get(targetDir, "xl-deploy-${serverVersion}-worker").toAbsolutePath().toString()
-        }
-    }
-
 
     static def getSatelliteWorkingDir(Project project) {
         def satelliteVersion = getExtension(project).satelliteVersion
