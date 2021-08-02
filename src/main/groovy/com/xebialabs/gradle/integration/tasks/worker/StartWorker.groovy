@@ -6,9 +6,12 @@ import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
+import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import java.util.concurrent.TimeUnit
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
@@ -43,13 +46,27 @@ class StartWorker extends DefaultTask {
 
     }
 
+
     private def getBinDir() {
-        Paths.get(ExtensionsUtil.getServerWorkingDir(project), "bin").toFile()
+        def localWorker = project.hasProperty("localWorker") ? project.property("localWorker") : true
+        project.logger.lifecycle("localWorker ${localWorker}")
+        if (localWorker) {
+            Paths.get(ExtensionsUtil.getServerWorkingDir(project), "bin").toFile()
+        } else {
+            def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
+            def targetDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
+            def source = Paths.get(targetDir, "xl-deploy-${serverVersion}-server").toAbsolutePath().toString()
+            def target = Paths.get(targetDir, "xl-deploy-${serverVersion}-worker").toAbsolutePath().toString()
+            ProcessUtil.cpServerDirToWorkDir(project, source, target)
+            Paths.get(target,"bin").toFile()
+        }
     }
+
 
     private void startWorker() {
         project.logger.lifecycle("Launching worker")
         def extension = ExtensionsUtil.getExtension(project)
+        def workBinDir = getBinDir()
         ProcessUtil.exec([
                 command    : "run",
                 params     : [
@@ -64,8 +81,9 @@ class StartWorker extends DefaultTask {
                         "${extension.workerRemotingPort}".toString()
                 ],
                 environment: getEnv(),
-                workDir    : getBinDir()
+                workDir    : workBinDir
         ])
+        waitForBoot()
     }
 
     def waitForBoot() {
@@ -74,7 +92,7 @@ class StartWorker extends DefaultTask {
         int triesLeft = extension.serverPingTotalTries
         boolean success = false
 
-        def runtimeDir = ExtensionsUtil.getServerWorkingDir(project)
+        def runtimeDir = ExtensionsUtil.getWorkerWorkingDir(project)
         def workerLog = project.file("$runtimeDir/log/deployit-worker.log")
 
         while (triesLeft > 0 && !success) {
@@ -149,7 +167,5 @@ class StartWorker extends DefaultTask {
         } else {
             startWorker()
         }
-
-        waitForBoot()
     }
 }
