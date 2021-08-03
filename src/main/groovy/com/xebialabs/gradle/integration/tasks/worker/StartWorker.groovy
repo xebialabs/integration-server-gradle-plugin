@@ -6,12 +6,9 @@ import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
-import java.nio.file.Files
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 import java.util.concurrent.TimeUnit
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
@@ -22,7 +19,8 @@ class StartWorker extends DefaultTask {
     StartWorker() {
         def dependencies = [
                 StartIntegrationServerTask.NAME,
-                StartMq.NAME
+                StartMq.NAME,
+                CopyWorkerTask.NAME
         ]
 
         this.configure {
@@ -54,11 +52,6 @@ class StartWorker extends DefaultTask {
     private void startWorker() {
         project.logger.lifecycle("Launching worker")
         def extension = ExtensionsUtil.getExtension(project)
-        if (!WorkerUtil.isLocalWorker(project)){
-            def source = ExtensionsUtil.getServerWorkingDir(project)
-            def target = WorkerUtil.getExternalWorkerDir(project)
-            ProcessUtil.cpServerDirToWorkDir(project, source, target)
-        }
 
         ProcessUtil.exec([
                 command    : "run",

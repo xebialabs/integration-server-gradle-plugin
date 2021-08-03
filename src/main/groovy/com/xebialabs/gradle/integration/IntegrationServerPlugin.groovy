@@ -16,6 +16,7 @@ import com.xebialabs.gradle.integration.tasks.satellite.CopySatelliteOverlaysTas
 import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatelliteDistTask
 import com.xebialabs.gradle.integration.tasks.satellite.ShutdownSatelliteTask
 import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
+import com.xebialabs.gradle.integration.tasks.worker.CopyWorkerTask
 import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorker
 import com.xebialabs.gradle.integration.tasks.worker.StartWorker
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
@@ -32,6 +33,8 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(CopySatelliteOverlaysTask.NAME, CopySatelliteOverlaysTask)
+        project.tasks.create(CopyWorkerTask.NAME,CopyWorkerTask)
+
         project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
         project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
         project.tasks.create(DockerComposeDatabaseStopTask.NAME, DockerComposeDatabaseStopTask)
@@ -42,12 +45,17 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
         project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
         project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
+
         project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask)
+
         project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
         project.tasks.create(IntegrationServerTestTask.NAME, IntegrationServerTestTask)
+
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
+
         project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
         project.tasks.create(RunProvisionScriptTask.NAME, RunProvisionScriptTask).dependsOn(clicfg)
+
         project.tasks.create(StartMq.NAME, StartMq)
         project.tasks.create(ShutdownMq.NAME, ShutdownMq)
         project.tasks.create(StartWorker.NAME, StartWorker)
@@ -59,6 +67,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
         project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask)
+
         project.tasks.create(YamlPatchTask.NAME, YamlPatchTask)
     }
 

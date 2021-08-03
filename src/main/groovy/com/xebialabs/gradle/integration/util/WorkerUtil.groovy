@@ -11,18 +11,24 @@ class WorkerUtil {
                 project.getProperty("externalWorker").toBoolean() : false
     }
 
-    static def isLocalWorker(Project project) {
-        project.hasProperty("localWorker") ?
-                project.getProperty("localWorker").toBoolean() : true
+    static def isWorkerDirLocal(Project project) {
+        project.hasProperty("workerDirLocal") ?
+                project.getProperty("workerDirLocal").toBoolean() : true && ExtensionsUtil.getServerWorkingDir(project) == null
     }
 
     static def getWorkerDir(project) {
-        if (isLocalWorker(project)) {
-            ExtensionsUtil.getServerWorkingDir(project)
+        if (!isWorkerDirLocal(project)) {
+            getWorkerRunTimeDirectory(project)
         } else {
-            getExternalWorkerDir(project)
+            ExtensionsUtil.getServerWorkingDir(project)
         }
     }
+
+    static def getWorkerRunTimeDirectory(Project project) {
+        project.hasProperty("workerRuntimeDirectory") ?
+                project.getProperty("workerRuntimeDirectory") : getExternalWorkerDir(project)
+    }
+
 
     static def getExternalWorkerDir(project) {
         def serverVersion = ExtensionsUtil.getExtension(project).serverVersion

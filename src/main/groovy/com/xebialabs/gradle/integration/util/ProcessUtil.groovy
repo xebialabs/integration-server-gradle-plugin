@@ -45,7 +45,7 @@ class ProcessUtil {
     static  void cpServerDirToWorkDir(Project project, String source,String target){
         project.exec {
             it.executable 'cp'
-            it.args "-r", source, target
+            it.args "-rf", source, target
         }
     }
 }

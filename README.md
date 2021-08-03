@@ -83,6 +83,10 @@ integrationServer {
 * `-PexternalWorker` - if enabled , it will start the XLDserver with external worker.
                      - `./gradlew :integration-test:integrationServer -Papplication=startXLDServer -PexternaleWorker=true`
                      - `./gradlew :integration-test:integrationServer -Papplication=shutdownXLDServer`
+* `-PworkerDirLocal` - if disabled, along with externalWorker enabled, then we will run the worker in separate directory.(eg : xl-deploy-${serverVersion}-worker)
+                     - `./gradlew :integration-test:integrationServer -Papplication=startXLDServer -PexternaleWorker=true -PworkerDirLocal=false`
+* `-PworkerRuntimeDirectory` - if enabled with absolutePath, along with externalWorker enabled and workerDirLocal disabled, then worker will run worker in mentioned directory.
+                     - `./gradlew :integration-test:integrationServer -Papplication=startXLDServer -PexternaleWorker=true -PworkerDirLocal=false -PworkerRuntimeDirectory=/tmp/worker-$serverion`
 * `-PlogSql` - enables printing of SQL queries executed by the server
 * `-PserverDebugPort` - provides a server debug port for remote debugging
 * `-PserverHttpPort` - provides an http port, overrides a configuration option
