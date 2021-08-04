@@ -60,6 +60,7 @@ integrationServer {
             'deploy.server.label': 'XLD'
         ]
     ] // overwrites yaml content
+    workerDirLocal = false // for running the worker in separate directory.
 }
 ```
 
