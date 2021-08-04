@@ -58,6 +58,12 @@ class IntegrationServerExtension {
 
     Integer workerRemotingPort
 
+    Boolean workerDirLocal
+
+    String workerRuntimeDirectory
+
+    Boolean externalWorker
+
     Map<String, Map<String, Object>> yamlPatches
 
 }

@@ -46,7 +46,7 @@ class StartWorker extends DefaultTask {
 
 
     private def getBinDir() {
-            Paths.get(WorkerUtil.getWorkerDir(project), "bin").toFile()
+        Paths.get(WorkerUtil.getWorkerDir(project), "bin").toFile()
     }
 
     private void startWorker() {
@@ -107,7 +107,7 @@ class StartWorker extends DefaultTask {
         def extension = ExtensionsUtil.getExtension(project)
         project.logger.lifecycle("Starting Worker test server for project ${project.name}. Remoting port: ${extension.workerRemotingPort}")
         def jvmArgs = extension.workerJvmArgs
-        def params = [fork: true, dir: extension.serverRuntimeDirectory, spawn: true, classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper"]
+        def params = [fork: true, dir: WorkerUtil.getWorkerDir(project), spawn: true, classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper"]
         String jvmPath = project.properties['integrationServerJVMPath']
         if (jvmPath) {
             jvmPath = jvmPath + '/bin/java'
@@ -142,7 +142,7 @@ class StartWorker extends DefaultTask {
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.workerDebugPort}")
             }
         }
-        waitForBoot(ExtensionsUtil.getServerWorkingDir(project))
+        waitForBoot(WorkerUtil.getWorkerDir(project))
     }
 
 

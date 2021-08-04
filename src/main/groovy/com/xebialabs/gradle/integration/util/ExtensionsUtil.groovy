@@ -47,13 +47,13 @@ class ExtensionsUtil {
         } else Integer.parseInt(value as String)
     }
 
-    private static def resolveBooleanValue(Project project, IntegrationServerExtension extension, String propertyName) {
+    private static def resolveBooleanValue(Project project, IntegrationServerExtension extension, String propertyName, Boolean defaultValue) {
         if (project.hasProperty(propertyName)) {
             def value = project.property(propertyName)
             !value || Boolean.parseBoolean(value as String)
         } else {
             def valueFromExtension = extension[propertyName]
-            valueFromExtension != null ? valueFromExtension : false
+            valueFromExtension != null ? valueFromExtension : defaultValue
         }
     }
 
@@ -94,9 +94,9 @@ class ExtensionsUtil {
         extension.derbyPort = resolveIntValue(project, extension, "derbyPort", findFreePort())
         extension.serverDebugPort = resolveIntValue(project, extension, "serverDebugPort", null)
         extension.satelliteDebugPort = resolveIntValue(project, extension, "satelliteDebugPort", null)
-        extension.serverDebugSuspend = resolveBooleanValue(project, extension, "serverDebugSuspend")
-        extension.satelliteDebugSuspend = resolveBooleanValue(project, extension, "satelliteDebugSuspend")
-        extension.logSql = resolveBooleanValue(project, extension, "logSql")
+        extension.serverDebugSuspend = resolveBooleanValue(project, extension, "serverDebugSuspend", false)
+        extension.satelliteDebugSuspend = resolveBooleanValue(project, extension, "satelliteDebugSuspend", false)
+        extension.logSql = resolveBooleanValue(project, extension, "logSql", false)
         extension.serverVersion = resolveValue(project, extension, "serverVersion", project.hasProperty("xlDeployVersion") ? project.property("xlDeployVersion") : null)
         extension.serverContextRoot = resolveValue(project, extension, "serverContextRoot", "/")
         extension.xldIsDataVersion = resolveValue(project, extension, "xldIsDataVersion", project.hasProperty("xldIsDataVersion") ? project.property("xldIsDataVersion") : null)
@@ -105,7 +105,7 @@ class ExtensionsUtil {
         extension.logLevels = resolveValue(project, extension, "logLevels", new HashMap<String, String>())
         extension.overlays = resolveValue(project, extension, "overlays", new HashMap<String, List<Object>>())
         extension.driverVersions = resolveValue(project, extension, "driverVersions", [
-                'postgres-10'     : '42.2.9',
+                'postgres-10'  : '42.2.9',
                 'postgres-12'  : '42.2.23',
                 'mysql'        : '8.0.22',
                 'mysql-8'      : '8.0.22',
@@ -120,6 +120,9 @@ class ExtensionsUtil {
         extension.workerName = resolveValue(project, extension, "workerName", "worker-1-work")
         extension.workerDebugPort = resolveIntValue(project, extension, "workerDebugPort", null)
         extension.workerJvmArgs = resolveValue(project, extension, "workerJvmArgs", ["-Xmx1024m", "-Duser.timezone=UTC"])
+        extension.workerDirLocal = resolveBooleanValue(project, extension, "workerDirLocal", true)
+        extension.workerRuntimeDirectory = resolveValue(project, extension, "workerRuntimeDirectory", WorkerUtil.getExternalWorkerDir(project))
+        extension.externalWorker = resolveBooleanValue(project, extension, "externalWorker", false)
         extension.serverRuntimeDirectory = resolveValue(project, extension, "serverRuntimeDirectory", null)
         extension.provisionScript = resolveValue(project, extension, "provisionScript", null)
         extension.yamlPatches = resolveValue(project, extension, "yamlPatches", new HashMap<String, Map<String, String>>())

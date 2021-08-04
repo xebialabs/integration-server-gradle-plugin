@@ -32,20 +32,12 @@ class ProcessUtil {
         if (config.wait) {
             process.waitFor()
         }
-
     }
 
     static void chMod(Project project, String mode, String fileName) {
         project.exec {
             it.executable 'chmod'
-            it.args mode, fileName
-        }
-    }
-
-    static  void cpServerDirToWorkDir(Project project, String source,String target){
-        project.exec {
-            it.executable 'cp'
-            it.args "-rf", source, target
+            it.args "-R", mode, fileName
         }
     }
 }

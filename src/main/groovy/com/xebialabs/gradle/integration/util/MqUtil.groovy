@@ -11,7 +11,7 @@ class MqUtil {
 
     private MqUtil() {}
 
-    static def getProjectDirectory(project){
+    static def getProjectDirectory(project) {
         Paths.get(project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString())
     }
 

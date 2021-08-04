@@ -33,7 +33,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(CopySatelliteOverlaysTask.NAME, CopySatelliteOverlaysTask)
-        project.tasks.create(CopyWorkerTask.NAME,CopyWorkerTask)
+        project.tasks.create(CopyWorkerTask.NAME, CopyWorkerTask)
 
         project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
         project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
