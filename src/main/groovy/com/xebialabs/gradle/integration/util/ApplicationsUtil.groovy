@@ -22,8 +22,8 @@ class ApplicationsUtil {
     static def XLD_WITH_WORKER_STOP = 'stopXLDWithExternalWorker'
 
     static def applicationName(project) {
-        def application = project.hasProperty("application") ? project.property("application").toString() : XLD_START
-        def externalWorker = project.hasProperty("externalWorker") ? project.property("externalWorker") : false
+        def application = PropertyUtil.resolveValue(project, "application", XLD_START)
+        def externalWorker = PropertyUtil.resolveBooleanValue(project, "externalWorker", false)
 
         if (application.equals(XLD_START) && externalWorker) {
             return XLD_WITH_WORKER_START

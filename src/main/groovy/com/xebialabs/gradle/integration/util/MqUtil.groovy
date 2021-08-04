@@ -15,16 +15,12 @@ class MqUtil {
         Paths.get(project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString())
     }
 
-    static def getMqEnvFilePath(project) {
-        DockerComposeUtil.dockerfileDestination(project, "mq/.env")
-    }
-
     static def mqName(project) {
-        project.hasProperty("mq") ? project.property("mq").toString() : RABBITMQ
+        PropertyUtil.resolveValue(project, "mq", RABBITMQ)
     }
 
     static def mqPort(project) {
-        project.hasProperty("mqPort") ? project.property("mqPort") : null
+        PropertyUtil.resolveValue(project, "mqPort", null)
     }
 
     static def getMqFileName(project) {

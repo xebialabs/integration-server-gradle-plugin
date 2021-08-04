@@ -4,6 +4,7 @@ import com.palantir.gradle.docker.DockerComposeUp
 import com.xebialabs.gradle.integration.util.DockerComposeUtil
 import com.xebialabs.gradle.integration.util.FileUtil
 import com.xebialabs.gradle.integration.util.MqUtil
+import com.xebialabs.gradle.integration.util.PropertyUtil
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 
@@ -34,9 +35,7 @@ class StartMq extends DockerComposeUp {
         FileUtil.copyFile(dockerComposeStream, resultComposeFilePath)
 
         def mqTemplate = resultComposeFilePath.toFile()
-        def mqPort = project.hasProperty("mqPort") ?
-                project.property("mqPort") :
-                MqUtil.mqName(project) == MqUtil.RABBITMQ ? 5672 : 61616
+        def mqPort = PropertyUtil.resolveIntValue(project, "mqPort", MqUtil.mqName(project) == MqUtil.RABBITMQ ? 5672 : 61616)
 
         def configuredTemplate = mqTemplate.text
                 .replace('RABBITMQ_PORT2', "${mqPort}:5672")

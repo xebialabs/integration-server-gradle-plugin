@@ -18,7 +18,7 @@ class DbUtil {
     private DbUtil() {}
 
     static def databaseName(project) {
-        project.hasProperty("database") ? project.property("database").toString() : DERBY_INMEMORY
+        PropertyUtil.resolveValue(project, "database", DERBY_INMEMORY)
     }
 
     static def dbConfigFile(project) {
