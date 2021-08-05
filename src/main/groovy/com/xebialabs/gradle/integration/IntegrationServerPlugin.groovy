@@ -18,10 +18,11 @@ import com.xebialabs.gradle.integration.tasks.satellite.ShutdownSatelliteTask
 import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
 
 import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorker
-import com.xebialabs.gradle.integration.tasks.worker.StartWorker
+import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.TaskUtil
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -48,7 +49,6 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask)
 
         project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
-        project.tasks.create(IntegrationServerTestTask.NAME, IntegrationServerTestTask)
 
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
 
@@ -57,7 +57,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
 
         project.tasks.create(StartMq.NAME, StartMq)
         project.tasks.create(ShutdownMq.NAME, ShutdownMq)
-        project.tasks.create(StartWorker.NAME, StartWorker)
+        project.tasks.create(StartWorkers.NAME, StartWorkers)
         project.tasks.create(ShutdownWorker.NAME, ShutdownWorker)
 
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
@@ -66,8 +66,6 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
         project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask)
-
-        project.tasks.create(WorkersTask.NAME, WorkersTask)
 
         project.tasks.create(YamlPatchTask.NAME, YamlPatchTask)
     }
@@ -96,6 +94,9 @@ class IntegrationServerPlugin implements Plugin<Project> {
         def cliConfig = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_CLI)
         ConfigurationsUtil.registerConfigurations(project)
         ExtensionsUtil.create(project)
+        NamedDomainObjectContainer<Worker> workerContainer =
+                project.container(Worker)
+        project.extensions.add('workers', workerContainer)
 
         project.afterEvaluate {
             ExtensionsUtil.initialize(project)

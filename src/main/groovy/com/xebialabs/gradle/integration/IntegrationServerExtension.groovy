@@ -48,10 +48,6 @@ class IntegrationServerExtension {
 
     String xldIsDataVersion
 
-    Boolean externalWorker
-
     Map<String, Map<String, Object>> yamlPatches
-
-    List<Worker> workers = List.of()
 
 }

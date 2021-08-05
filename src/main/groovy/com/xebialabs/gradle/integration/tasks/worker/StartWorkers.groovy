@@ -1,13 +1,12 @@
 package com.xebialabs.gradle.integration.tasks.worker
 
+import com.xebialabs.gradle.integration.Worker
 import com.xebialabs.gradle.integration.tasks.StartIntegrationServerTask
 import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.util.*
-import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
@@ -15,62 +14,40 @@ import java.util.concurrent.TimeUnit
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
-class StartWorker extends DefaultTask {
-    @Input
-    Integer debugPort
+class StartWorkers extends DefaultTask {
 
-    @Input
-    Boolean debugSuspend
+    static NAME = "startWorkers"
 
-    @Input
-    String[] jvmArgs = []
-
-    @Input
-    String name
-
-    @Input
-    Integer port
-
-    @Input
-    Boolean directoryLocal
-
-    @Input
-    String directory
-
-    static NAME = "startWorker"
-
-    StartWorker() {
+    StartWorkers() {
         def dependencies = [
-                StartIntegrationServerTask.NAME,
                 StartMq.NAME
         ]
 
         this.configure {
             group = PLUGIN_GROUP
-            dependsOn(dependencies)
             shouldRunAfter(StartIntegrationServerTask.NAME, ImportDbUnitDataTask.NAME, StartMq.NAME)
-            onlyIf {
-                WorkerUtil.isWorkerEnabled(project)
+
+            if (WorkerUtil.isWorkerEnabled(project)) {
+                dependsOn(dependencies)
             }
         }
     }
 
-    private def getEnv() {
-        def opts = "-Xmx1024m -DLOGFILE=deployit-worker"
-        def suspend = getDebugSuspend() ? 'y' : 'n'
-        if (getDebugPort() != 0) {
-            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${getDebugPort()} "
+    private def getEnv(worker) {
+        def opts = "-Xmx1024m -DLOGFILE=deployit-worker-${worker.name}"
+        def suspend = worker.debugSuspend ? 'y' : 'n'
+        if (worker.debugPort != null) {
+            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${worker.debugPort} "
         }
         ["DEPLOYIT_SERVER_OPTS": opts.toString()]
-
     }
 
 
-    private def getBinDir() {
-        Paths.get(WorkerUtil.getWorkerDir(project), "bin").toFile()
+    private def getBinDir(worker) {
+        Paths.get(WorkerUtil.getWorkerDir(worker, project), "bin").toFile()
     }
 
-    private void startWorker() {
+    void startWorker(worker) {
         project.logger.lifecycle("Launching worker")
         def extension = ExtensionsUtil.getExtension(project)
 
@@ -83,23 +60,23 @@ class StartWorker extends DefaultTask {
                         "-api",
                         "http://localhost:${extension.serverHttpPort}".toString(),
                         "-name",
-                        "${getName()}".toString(),
+                        worker.name,
                         "-port",
-                        "${getPort()}".toString()
+                        worker.port.toString()
                 ],
-                environment: getEnv(),
-                workDir    : getBinDir()
+                environment: getEnv(worker),
+                workDir    : getBinDir(worker)
         ])
-        waitForBoot(getWorkerDir(project))
+        waitForBoot(WorkerUtil.getWorkerDir(worker, project), worker.name)
     }
 
-    def waitForBoot(runtimeDir) {
+    def waitForBoot(runtimeDir, workerName) {
         project.logger.lifecycle("Waiting for worker to start")
         def extension = ExtensionsUtil.getExtension(project)
         int triesLeft = extension.serverPingTotalTries
         boolean success = false
 
-        def workerLog = project.file("$runtimeDir/log/deployit-worker.log")
+        def workerLog = project.file("$runtimeDir/log/deployit-worker-${workerName}.log")
 
         while (triesLeft > 0 && !success) {
             try {
@@ -122,13 +99,13 @@ class StartWorker extends DefaultTask {
         }
     }
 
-    private void startWorkerFromClasspath() {
+    void startWorkerFromClasspath(Worker worker) {
         def classpath = project.configurations.getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER).filter { !it.name.endsWith("-sources.jar") }.asPath
         logger.debug("XL Deploy Worker classpath: \n${classpath}")
         def extension = ExtensionsUtil.getExtension(project)
-        project.logger.lifecycle("Starting Worker test server for project ${project.name}. Remoting port: ${getPort()}")
-        def jvmArgs = getJvmArgs()
-        def params = [fork: true, dir: getWorkerDir(project), spawn: true, classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper"]
+        project.logger.lifecycle("Starting Worker test server for project ${project.name}. Remoting port: ${worker.port}")
+        def jvmArgs = worker.jvmArgs
+        def params = [fork: true, dir: WorkerUtil.getWorkerDir(worker, project), spawn: true, classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper"]
         String jvmPath = project.properties['integrationServerJVMPath']
         if (jvmPath) {
             jvmPath = jvmPath + '/bin/java'
@@ -143,7 +120,7 @@ class StartWorker extends DefaultTask {
             jvmArgs.each {
                 jvmarg(value: it)
             }
-            jvmarg(value: "-DLOGFILE=deployit-worker")
+            jvmarg(value: "-DLOGFILE=deployit-worker-${worker.name}")
             arg(value: "-master")
             arg(value: "${hostName}:${port}")
             arg(value: "-api")
@@ -151,47 +128,35 @@ class StartWorker extends DefaultTask {
             arg(value: "-hostname")
             arg(value: "${hostName}")
             arg(value: "-port")
-            arg(value: getPort())
+            arg(value: worker.port)
             arg(value: "-work")
-            arg(value: getName())
+            arg(value: worker.name)
 
             env(key: "CLASSPATH", value: classpath)
 
-            if (getDebugPort() != null) {
-                println("Enabled debug mode on port ${getDebugPort()}")
+            if (worker.debugPort != null) {
+                println("Enabled debug mode on port ${worker.debugPort}")
                 jvmarg(value: "-Xdebug")
-                jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${getDebugPort()}")
+                jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${worker.debugPort}")
             }
         }
-        waitForBoot(getWorkerDir(project))
+        waitForBoot(WorkerUtil.getWorkerDir(worker, project), worker.name)
     }
 
-    private def getWorkerDir(project) {
-        if (!getDirectoryLocal()) {
-            getDirectory()
-        } else {
-            ExtensionsUtil.getServerWorkingDir(project)
-        }
-    }
-
-
-    void copyServerDirToWorkerDir() {
-        def sourceDir = Paths.get(ExtensionsUtil.getServerWorkingDir(project)).toFile()
-        def destinationDir = Paths.get(ExtensionsUtil.getExtension(project).workerRuntimeDirectory).toFile()
-        destinationDir.setExecutable(true)
-        FileUtils.copyDirectory(sourceDir, destinationDir);
-        ProcessUtil.chMod(project, "755", "${destinationDir.getAbsolutePath().toString()}")
-    }
 
     @TaskAction
     void launch() {
-        if(!directoryLocal){
-            copyServerDirToWorkerDir()
-        }
-        if (ExtensionsUtil.getExtension(project).serverRuntimeDirectory != null) {
-            startWorkerFromClasspath()
-        } else {
-            startWorker()
+        def workers = project.extensions.getByName('workers')
+        List<Worker> workerList = workers.collect().toList()
+        workerList.each { worker ->
+            if (worker.directory != null && !worker.directory.isEmpty())
+                WorkerUtil.copyServerDirToWorkerDir(worker, project)
+
+            if (ExtensionsUtil.getExtension(project).serverRuntimeDirectory != null) {
+                startWorkerFromClasspath(worker)
+            } else {
+                startWorker(worker)
+            }
         }
     }
 }

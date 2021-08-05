@@ -3,6 +3,7 @@ package com.xebialabs.gradle.integration.tasks
 import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.MqUtil
+import com.xebialabs.gradle.integration.util.WorkerUtil
 import com.xebialabs.gradle.integration.util.YamlFileUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -39,7 +40,7 @@ class CentralConfigurationTask extends DefaultTask {
                 "deploy.task.queue.name"              : "xld-tasks-queue",
                 "deploy.task.queue.archive-queue-name": "xld-archive-queue"
         ]
-        return initial.plus(project.hasProperty("externalWorker") ?
+        return initial.plus(WorkerUtil.isWorkerEnabled(project) ?
                 [
                         "deploy.task.in-process-worker"                  : false,
                         "deploy.task.queue.external.jms-driver-classname": mqDetail.get("jms-driver-classname"),

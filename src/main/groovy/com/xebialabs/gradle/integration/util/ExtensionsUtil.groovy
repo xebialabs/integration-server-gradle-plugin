@@ -86,7 +86,6 @@ class ExtensionsUtil {
     }
 
 
-
     static initialize(Project project) {
         def extension = getExtension(project)
         extension.serverHttpPort = resolveIntValue(project, extension, "serverHttpPort", findFreePort())
@@ -119,7 +118,6 @@ class ExtensionsUtil {
                 'activemq': '5.16.2',
                 'rabbitmq': '2.2.0'
         ])
-        extension.externalWorker = resolveBooleanValue(project, extension, "externalWorker", false)
         extension.serverRuntimeDirectory = resolveValue(project, extension, "serverRuntimeDirectory", null)
         extension.provisionScript = resolveValue(project, extension, "provisionScript", null)
         extension.yamlPatches = resolveValue(project, extension, "yamlPatches", new HashMap<String, Map<String, String>>())

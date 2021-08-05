@@ -3,7 +3,7 @@ package com.xebialabs.gradle.integration.tasks
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.mq.StartMq
-import com.xebialabs.gradle.integration.tasks.worker.StartWorker
+import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -26,15 +26,15 @@ class StartIntegrationServerTask extends DefaultTask {
                 RemoveStdoutConfigTask.NAME,
                 PrepareDatabaseTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME,
-                YamlPatchTask.NAME
+                YamlPatchTask.NAME,
         ]
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
-        }
-        if (WorkerUtil.isWorkerEnabled(project)) {
-            dependsOn(StartMq.NAME)
-            finalizedBy(StartWorker.NAME)
+            if (WorkerUtil.isWorkerEnabled(project)) {
+                dependsOn(StartMq.NAME)
+                finalizedBy(StartWorkers.NAME)
+            }
         }
     }
 

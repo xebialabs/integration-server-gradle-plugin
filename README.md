@@ -59,8 +59,26 @@ integrationServer {
             'deploy.server.hostname': 'test.xebialabs.com',
             'deploy.server.label': 'XLD'
         ]
-    ] // overwrites yaml content
-    workerDirLocal = false // for running the worker in separate directory.
+    ] // overwrites yaml content    
+ workers {
+        // By default we need only name, debugPort is disabled and port will be auto-generated from free ports
+        // if directory is not specified then we run worker from the xl-deploy-server as local worker.
+        // if directory is specified, then value should be absolute path
+        worker01 { // name = worker01, worker01 will start from the same server directory as local worker(xl-deploy-10.2.0-server)
+        }
+        worker02 { // name = worker02, worker02 will start from the same server directory as local worker (xl-deploy-10.2.0-server)
+            debugPort = 5006
+            debugSuspend = false
+            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+        }
+        worker03 { // name = worker03, worker03 will start from the mentioned directory path(/opt/xl-deploy-worker)
+            debugPort = 5007
+            directory = "/opt/xl-deploy-worker"
+            debugSuspend = false
+            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+            port = 8182
+        }
+    }
 }
 ```
 
