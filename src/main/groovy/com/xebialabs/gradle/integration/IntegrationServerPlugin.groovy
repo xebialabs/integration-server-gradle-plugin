@@ -16,7 +16,7 @@ import com.xebialabs.gradle.integration.tasks.satellite.CopySatelliteOverlaysTas
 import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatelliteDistTask
 import com.xebialabs.gradle.integration.tasks.satellite.ShutdownSatelliteTask
 import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
-import com.xebialabs.gradle.integration.tasks.worker.CopyWorkerTask
+
 import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorker
 import com.xebialabs.gradle.integration.tasks.worker.StartWorker
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
@@ -33,7 +33,6 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(CopySatelliteOverlaysTask.NAME, CopySatelliteOverlaysTask)
-        project.tasks.create(CopyWorkerTask.NAME, CopyWorkerTask)
 
         project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
         project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
@@ -67,6 +66,8 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
         project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask)
+
+        project.tasks.create(WorkersTask.NAME, WorkersTask)
 
         project.tasks.create(YamlPatchTask.NAME, YamlPatchTask)
     }

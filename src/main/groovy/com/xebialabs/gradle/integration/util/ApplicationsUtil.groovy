@@ -2,13 +2,13 @@ package com.xebialabs.gradle.integration.util
 
 import com.xebialabs.gradle.integration.tasks.ShutdownIntegrationServerTask
 import com.xebialabs.gradle.integration.tasks.StartIntegrationServerTask
+import com.xebialabs.gradle.integration.tasks.WorkersTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStartTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStopTask
 import com.xebialabs.gradle.integration.tasks.pluginManager.StartPluginManagerTask
 import com.xebialabs.gradle.integration.tasks.satellite.ShutdownSatelliteTask
 import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
 import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorker
-import com.xebialabs.gradle.integration.tasks.worker.StartWorker
 
 class ApplicationsUtil {
     static def XLD_START = 'startXLDServer'
@@ -43,7 +43,7 @@ class ApplicationsUtil {
             case SATELLITE_START: return StartSatelliteTask.NAME
             case SATELLITE_STOP: return ShutdownSatelliteTask.NAME
             case PLUGIN_MANAGER_START: return StartPluginManagerTask.NAME
-            case XLD_WITH_WORKER_START: return StartWorker.NAME
+            case XLD_WITH_WORKER_START: return WorkersTask.NAME
             case XLD_WITH_WORKER_STOP: return [ShutdownWorker.NAME, ShutdownIntegrationServerTask.NAME]
             default: return StartIntegrationServerTask.NAME
         }

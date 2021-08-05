@@ -18,13 +18,7 @@ class WorkerUtil {
      }
     }
 
-    static def getWorkerDir(project) {
-        if (!isWorkerDirLocal(project)) {
-            ExtensionsUtil.getExtension(project).workerRuntimeDirectory
-        } else {
-            ExtensionsUtil.getServerWorkingDir(project)
-        }
-    }
+
 
     static def getExternalWorkerDir(project) {
             def serverVersion = ExtensionsUtil.getExtension(project).serverVersion

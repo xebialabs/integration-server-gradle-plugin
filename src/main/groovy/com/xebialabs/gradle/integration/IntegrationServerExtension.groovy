@@ -48,22 +48,10 @@ class IntegrationServerExtension {
 
     String xldIsDataVersion
 
-    Integer workerDebugPort
-
-    Boolean workerDebugSuspend
-
-    String[] workerJvmArgs = []
-
-    String workerName
-
-    Integer workerRemotingPort
-
-    Boolean workerDirLocal
-
-    String workerRuntimeDirectory
-
     Boolean externalWorker
 
     Map<String, Map<String, Object>> yamlPatches
+
+    List<Worker> workers = List.of()
 
 }

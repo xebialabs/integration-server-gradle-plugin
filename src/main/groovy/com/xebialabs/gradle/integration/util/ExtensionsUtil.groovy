@@ -1,6 +1,7 @@
 package com.xebialabs.gradle.integration.util
 
 import com.xebialabs.gradle.integration.IntegrationServerExtension
+import com.xebialabs.gradle.integration.Worker
 import org.gradle.api.Project
 
 import java.nio.file.Paths
@@ -84,6 +85,8 @@ class ExtensionsUtil {
         project.extensions.create(EXTENSION_NAME, IntegrationServerExtension)
     }
 
+
+
     static initialize(Project project) {
         def extension = getExtension(project)
         extension.serverHttpPort = resolveIntValue(project, extension, "serverHttpPort", findFreePort())
@@ -116,12 +119,6 @@ class ExtensionsUtil {
                 'activemq': '5.16.2',
                 'rabbitmq': '2.2.0'
         ])
-        extension.workerRemotingPort = resolveIntValue(project, extension, "workerRemotingPort", findFreePort())
-        extension.workerName = resolveValue(project, extension, "workerName", "worker-1-work")
-        extension.workerDebugPort = resolveIntValue(project, extension, "workerDebugPort", null)
-        extension.workerJvmArgs = resolveValue(project, extension, "workerJvmArgs", ["-Xmx1024m", "-Duser.timezone=UTC"])
-        extension.workerDirLocal = resolveBooleanValue(project, extension, "workerDirLocal", true)
-        extension.workerRuntimeDirectory = resolveValue(project, extension, "workerRuntimeDirectory", WorkerUtil.getExternalWorkerDir(project))
         extension.externalWorker = resolveBooleanValue(project, extension, "externalWorker", false)
         extension.serverRuntimeDirectory = resolveValue(project, extension, "serverRuntimeDirectory", null)
         extension.provisionScript = resolveValue(project, extension, "provisionScript", null)
