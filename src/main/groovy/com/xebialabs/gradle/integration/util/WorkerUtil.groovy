@@ -24,4 +24,12 @@ class WorkerUtil {
         ProcessUtil.chMod(project, "755", "${destinationDir.getAbsolutePath().toString()}")
     }
 
+    static def isExternalWorker(Worker worker) {
+        return worker.directory != null && !worker.directory.isEmpty()
+    }
+
+    static def hasRuntimeDirectory(Project project) {
+        return ExtensionsUtil.getExtension(project).serverRuntimeDirectory != null
+    }
+
 }

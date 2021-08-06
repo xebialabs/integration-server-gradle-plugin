@@ -38,7 +38,7 @@ class StartWorkers extends DefaultTask {
     }
 
     private static def logFileName(String workerName) {
-        return "deploy-worker-${workerName}";
+        return "deploy-worker-${workerName}"
     }
 
     void startWorker(Worker worker) {
@@ -67,7 +67,7 @@ class StartWorkers extends DefaultTask {
         waitForBoot(WorkerUtil.getWorkerDir(worker, project), worker.name)
     }
 
-    def waitForBoot(runtimeDir, workerName) {
+    def waitForBoot(String runtimeDir, String workerName) {
         project.logger.lifecycle("Waiting for worker to start")
         def extension = ExtensionsUtil.getExtension(project)
         int triesLeft = extension.serverPingTotalTries
@@ -97,12 +97,20 @@ class StartWorkers extends DefaultTask {
     }
 
     void startWorkerFromClasspath(Worker worker) {
-        def classpath = project.configurations.getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER).filter { !it.name.endsWith("-sources.jar") }.asPath
+        def classpath = project.configurations
+                .getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
+                .filter { !it.name.endsWith("-sources.jar") }.asPath
+
         logger.debug("XL Deploy Worker classpath: \n${classpath}")
-        def extension = ExtensionsUtil.getExtension(project)
-        project.logger.lifecycle("Starting Worker test server for project ${project.name}. Remoting port: ${worker.port}")
-        def jvmArgs = worker.jvmArgs
-        def params = [fork: true, dir: WorkerUtil.getWorkerDir(worker, project), spawn: true, classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper"]
+        project.logger.lifecycle("Starting Worker for project ${project.name} on a port: ${worker.port}")
+
+        def params = [
+                classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper",
+                dir      : WorkerUtil.getWorkerDir(worker, project),
+                fork     : true,
+                spawn    : true
+        ]
+
         String jvmPath = project.properties['integrationServerJVMPath']
         if (jvmPath) {
             jvmPath = jvmPath + '/bin/java'
@@ -114,14 +122,14 @@ class StartWorkers extends DefaultTask {
         def hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
 
         ant.java(params) {
-            jvmArgs.each {
+            worker.jvmArgs.each {
                 jvmarg(value: it)
             }
             jvmarg(value: "-DLOGFILE=${logFileName(worker.name)}")
             arg(value: "-master")
             arg(value: "${hostName}:${port}")
             arg(value: "-api")
-            arg(value: "http://${hostName}:${extension.serverHttpPort}")
+            arg(value: "http://${hostName}:${ExtensionsUtil.getExtension(project).serverHttpPort}")
             arg(value: "-hostname")
             arg(value: "${hostName}")
             arg(value: "-port")
@@ -140,16 +148,14 @@ class StartWorkers extends DefaultTask {
         waitForBoot(WorkerUtil.getWorkerDir(worker, project), worker.name)
     }
 
-
     @TaskAction
     void launch() {
         def workers = project.extensions.getByName('workers')
         List<Worker> workerList = workers.collect().toList()
-        workerList.each { worker ->
-            if (worker.directory != null && !worker.directory.isEmpty())
+        workerList.each { Worker worker ->
+            if (WorkerUtil.isExternalWorker(worker))
                 WorkerUtil.copyServerDirToWorkerDir(worker, project)
-
-            if (ExtensionsUtil.getExtension(project).serverRuntimeDirectory != null) {
+            if (WorkerUtil.hasRuntimeDirectory(project)) {
                 startWorkerFromClasspath(worker)
             } else {
                 startWorker(worker)
