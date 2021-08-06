@@ -3,8 +3,8 @@ package com.xebialabs.gradle.integration
 import com.xebialabs.gradle.integration.tasks.*
 import com.xebialabs.gradle.integration.tasks.anonymizer.ExportDatabaseTask
 import com.xebialabs.gradle.integration.tasks.cli.RunProvisionScriptTask
-import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
-import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStopTask
+import com.xebialabs.gradle.integration.tasks.database.DatabaseStartTask
+import com.xebialabs.gradle.integration.tasks.database.DatabaseStopTask
 import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStartTask
@@ -34,8 +34,8 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(CopySatelliteOverlaysTask.NAME, CopySatelliteOverlaysTask)
 
         project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
-        project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
-        project.tasks.create(DockerComposeDatabaseStopTask.NAME, DockerComposeDatabaseStopTask)
+        project.tasks.create(DatabaseStartTask.NAME, DatabaseStartTask)
+        project.tasks.create(DatabaseStopTask.NAME, DatabaseStopTask)
         project.tasks.create(DockerComposeGitlabStartTask.NAME, DockerComposeGitlabStartTask)
         project.tasks.create(DockerComposeGitlabStopTask.NAME, DockerComposeGitlabStopTask)
 

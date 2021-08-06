@@ -1,8 +1,7 @@
 package com.xebialabs.gradle.integration.tasks.worker
 
 import com.xebialabs.gradle.integration.Worker
-import com.xebialabs.gradle.integration.tasks.StartIntegrationServerTask
-import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
+import com.xebialabs.gradle.integration.tasks.YamlPatchTask
 import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
@@ -20,13 +19,13 @@ class StartWorkers extends DefaultTask {
 
     StartWorkers() {
         def dependencies = [
-                StartMq.NAME
+                StartMq.NAME,
+                YamlPatchTask.NAME
         ]
 
         this.configure {
             dependsOn(dependencies)
             group = PLUGIN_GROUP
-            shouldRunAfter(StartIntegrationServerTask.NAME, ImportDbUnitDataTask.NAME, StartMq.NAME)
             onlyIf {
                 WorkerUtil.hasWorkers(project)
             }
@@ -42,7 +41,7 @@ class StartWorkers extends DefaultTask {
     }
 
     void startWorker(Worker worker) {
-        project.logger.lifecycle("Launching worker")
+        project.logger.lifecycle("Launching worker $worker.name")
         def extension = ExtensionsUtil.getExtension(project)
 
         ProcessUtil.exec([
@@ -68,7 +67,7 @@ class StartWorkers extends DefaultTask {
     }
 
     def waitForBoot(String runtimeDir, String workerName) {
-        project.logger.lifecycle("Waiting for worker to start")
+        project.logger.lifecycle("Waiting for worker $workerName to start")
         def extension = ExtensionsUtil.getExtension(project)
         int triesLeft = extension.serverPingTotalTries
         boolean success = false
@@ -151,8 +150,7 @@ class StartWorkers extends DefaultTask {
     @TaskAction
     void launch() {
         def workers = ExtensionsUtil.getExtension(project).workers
-        List<Worker> workerList = workers
-        workerList.each { Worker worker ->
+        workers.each { Worker worker ->
             if (WorkerUtil.isExternalWorker(worker))
                 WorkerUtil.copyServerDirToWorkerDir(worker, project)
             if (WorkerUtil.hasRuntimeDirectory(project)) {

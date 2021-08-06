@@ -1,7 +1,8 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
+import com.xebialabs.gradle.integration.tasks.database.DatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
+import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
@@ -22,11 +23,13 @@ class StartIntegrationServerTask extends DefaultTask {
                 DownloadAndExtractServerDistTask.NAME,
                 CopyOverlaysTask.NAME,
                 SetLogbackLevelsTask.NAME,
+                StartMq.NAME,
                 RemoveStdoutConfigTask.NAME,
                 PrepareDatabaseTask.NAME,
-                DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME,
+                DbUtil.isDerby(project) ? "derbyStart" : DatabaseStartTask.NAME,
                 YamlPatchTask.NAME,
         ]
+
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)

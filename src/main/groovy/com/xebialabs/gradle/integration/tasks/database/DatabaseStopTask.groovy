@@ -8,10 +8,10 @@ import org.gradle.api.tasks.TaskAction
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
-class DockerComposeDatabaseStopTask extends DefaultTask {
-    static NAME = 'dockerComposeDatabaseStop'
+class DatabaseStopTask extends DefaultTask {
+    static NAME = 'databaseStop'
 
-    DockerComposeDatabaseStopTask() {
+    DatabaseStopTask() {
         this.group = PLUGIN_GROUP
     }
 
@@ -19,7 +19,7 @@ class DockerComposeDatabaseStopTask extends DefaultTask {
     File getDockerComposeFile() {
         DbUtil.assertNotDerby(project, 'Docker compose tasks do not support Derby database.')
 
-        def composeFilePath = DockerComposeUtil.dockerComposeFileDestination(project)
+        def composeFilePath = DbUtil.dockerComposeFileDestination(project)
         return composeFilePath.toFile()
     }
 

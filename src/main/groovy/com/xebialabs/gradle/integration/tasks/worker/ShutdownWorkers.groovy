@@ -33,8 +33,7 @@ class ShutdownWorkers extends DefaultTask {
             http.auth.basic("admin", "admin")
             http.request(Method.DELETE) {}
             project.logger.lifecycle("Workers shutdown successfully")
-        } catch (ex) {
-            project.logger.lifecycle("Could not stop workers", ex)
+        } catch (ignore) {
         }
     }
 
