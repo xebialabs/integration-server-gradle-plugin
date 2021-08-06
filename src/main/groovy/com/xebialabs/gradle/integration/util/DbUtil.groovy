@@ -3,6 +3,10 @@ package com.xebialabs.gradle.integration.util
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
+import java.nio.file.Paths
+
+import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
+
 class DbUtil {
 
     static def POSTGRES = 'postgres-10'
@@ -17,11 +21,11 @@ class DbUtil {
 
     private DbUtil() {}
 
-    static def databaseName(project) {
-        project.hasProperty("database") ? project.property("database").toString() : DERBY_INMEMORY
+    static String databaseName(Project project) {
+        PropertyUtil.resolveValue(project, "database", DERBY_INMEMORY)
     }
 
-    static def dbConfigFile(project) {
+    static def dbConfigFile(Project project) {
         def dbname = databaseName(project)
         return DbUtil.class.classLoader.getResourceAsStream("database-conf/deploy-repository.yaml.${dbname}")
     }
@@ -40,14 +44,14 @@ class DbUtil {
         return dbName == DERBY_NETWORK || dbName == DERBY
     }
 
-    static def assertNotDerby(project, message) {
+    static def assertNotDerby(Project project, message) {
         def dbname = databaseName(project)
         if (isDerby(dbname)) {
             throw new GradleException(message)
         }
     }
 
-    static def dbConfig(project) {
+    static def dbConfig(Project project) {
         def from = dbConfigFile(project)
         def config = YamlFileUtil.readTree(from)
         def port = ExtensionsUtil.getExtension(project).derbyPort
@@ -58,6 +62,17 @@ class DbUtil {
                     .put("db-url", "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin")
         }
         return config
+    }
+
+    static def dockerComposeFileName(Project project) {
+        def dbName = databaseName(project)
+        return "docker-compose_${dbName}.yaml"
+    }
+
+    static def dockerComposeFileDestination(Project project) {
+        def composeFileName = dockerComposeFileName(project)
+        return Paths.get(
+                "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${composeFileName}")
     }
 
     static final DbParameters postgresParams = new DbParameters(

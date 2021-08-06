@@ -1,6 +1,6 @@
 package com.xebialabs.gradle.integration.tasks.worker
 
-
+import com.xebialabs.gradle.integration.tasks.mq.ShutdownMq
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.WorkerUtil
 import groovyx.net.http.HTTPBuilder
@@ -10,14 +10,18 @@ import org.gradle.api.tasks.TaskAction
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
-class ShutdownWorker extends DefaultTask {
-    static NAME = "shutdownWorker"
+class ShutdownWorkers extends DefaultTask {
+    static NAME = "shutdownWorkers"
 
-    ShutdownWorker() {
+    ShutdownWorkers() {
+        def dependencies = [
+                ShutdownMq.NAME
+        ]
         this.configure {
+            dependsOn(dependencies)
             group = PLUGIN_GROUP
             onlyIf {
-                WorkerUtil.isWorkerEnabled(project)
+                WorkerUtil.hasWorkers(project)
             }
         }
     }
@@ -29,8 +33,7 @@ class ShutdownWorker extends DefaultTask {
             http.auth.basic("admin", "admin")
             http.request(Method.DELETE) {}
             project.logger.lifecycle("Workers shutdown successfully")
-        } catch (ex) {
-            project.logger.lifecycle("Could not stop workers", ex)
+        } catch (ignore) {
         }
     }
 

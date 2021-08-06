@@ -3,8 +3,8 @@ package com.xebialabs.gradle.integration
 import com.xebialabs.gradle.integration.tasks.*
 import com.xebialabs.gradle.integration.tasks.anonymizer.ExportDatabaseTask
 import com.xebialabs.gradle.integration.tasks.cli.RunProvisionScriptTask
-import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
-import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStopTask
+import com.xebialabs.gradle.integration.tasks.database.DatabaseStartTask
+import com.xebialabs.gradle.integration.tasks.database.DatabaseStopTask
 import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.gitlab.DockerComposeGitlabStartTask
@@ -16,8 +16,8 @@ import com.xebialabs.gradle.integration.tasks.satellite.CopySatelliteOverlaysTas
 import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatelliteDistTask
 import com.xebialabs.gradle.integration.tasks.satellite.ShutdownSatelliteTask
 import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
-import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorker
-import com.xebialabs.gradle.integration.tasks.worker.StartWorker
+import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorkers
+import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.TaskUtil
@@ -32,9 +32,10 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(CopySatelliteOverlaysTask.NAME, CopySatelliteOverlaysTask)
+
         project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
-        project.tasks.create(DockerComposeDatabaseStartTask.NAME, DockerComposeDatabaseStartTask)
-        project.tasks.create(DockerComposeDatabaseStopTask.NAME, DockerComposeDatabaseStopTask)
+        project.tasks.create(DatabaseStartTask.NAME, DatabaseStartTask)
+        project.tasks.create(DatabaseStopTask.NAME, DatabaseStopTask)
         project.tasks.create(DockerComposeGitlabStartTask.NAME, DockerComposeGitlabStartTask)
         project.tasks.create(DockerComposeGitlabStopTask.NAME, DockerComposeGitlabStopTask)
 
@@ -42,16 +43,20 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
         project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
         project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
+
         project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask)
+
         project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
-        project.tasks.create(IntegrationServerTestTask.NAME, IntegrationServerTestTask)
+
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
+
         project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
         project.tasks.create(RunProvisionScriptTask.NAME, RunProvisionScriptTask).dependsOn(clicfg)
+
         project.tasks.create(StartMq.NAME, StartMq)
         project.tasks.create(ShutdownMq.NAME, ShutdownMq)
-        project.tasks.create(StartWorker.NAME, StartWorker)
-        project.tasks.create(ShutdownWorker.NAME, ShutdownWorker)
+        project.tasks.create(StartWorkers.NAME, StartWorkers)
+        project.tasks.create(ShutdownWorkers.NAME, ShutdownWorkers)
 
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
@@ -59,6 +64,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
         project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask)
+
         project.tasks.create(YamlPatchTask.NAME, YamlPatchTask)
     }
 
@@ -85,7 +91,10 @@ class IntegrationServerPlugin implements Plugin<Project> {
         def serverConfig = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
         def cliConfig = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_CLI)
         ConfigurationsUtil.registerConfigurations(project)
-        ExtensionsUtil.create(project)
+
+        project.configure(project) {
+            ExtensionsUtil.createExtension(project)
+        }
 
         project.afterEvaluate {
             ExtensionsUtil.initialize(project)

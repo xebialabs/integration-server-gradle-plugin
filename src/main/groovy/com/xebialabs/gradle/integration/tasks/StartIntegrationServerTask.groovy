@@ -1,9 +1,9 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
+import com.xebialabs.gradle.integration.tasks.database.DatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.mq.StartMq
-import com.xebialabs.gradle.integration.tasks.worker.StartWorker
+import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -23,29 +23,21 @@ class StartIntegrationServerTask extends DefaultTask {
                 DownloadAndExtractServerDistTask.NAME,
                 CopyOverlaysTask.NAME,
                 SetLogbackLevelsTask.NAME,
+                StartMq.NAME,
                 RemoveStdoutConfigTask.NAME,
                 PrepareDatabaseTask.NAME,
-                DbUtil.isDerby(project) ? "derbyStart" : DockerComposeDatabaseStartTask.NAME,
-                YamlPatchTask.NAME
+                DbUtil.isDerby(project) ? "derbyStart" : DatabaseStartTask.NAME,
+                YamlPatchTask.NAME,
         ]
+
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
-        }
-        if (WorkerUtil.isWorkerEnabled(project)) {
-            dependsOn(StartMq.NAME)
-            finalizedBy(StartWorker.NAME)
-        }
-    }
 
-    private def getEnv() {
-        def extension = ExtensionsUtil.getExtension(project)
-        def opts = "-Xmx1024m -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
-        def suspend = extension.serverDebugSuspend ? 'y' : 'n'
-        if (extension.serverDebugPort) {
-            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.serverDebugPort}"
+            if (WorkerUtil.hasWorkers(project)) {
+                finalizedBy(StartWorkers.NAME)
+            }
         }
-        ["DEPLOYIT_SERVER_OPTS": opts.toString()]
     }
 
     private def getBinDir() {
@@ -83,7 +75,7 @@ class StartIntegrationServerTask extends DefaultTask {
         ProcessUtil.exec([
                 command    : "run",
                 params     : ["-force-upgrades"],
-                environment: getEnv(),
+                environment: EnvironmentUtil.getEnv(project, "DEPLOYIT_SERVER_OPTS"),
                 workDir    : getBinDir(),
                 inheritIO  : true
         ])

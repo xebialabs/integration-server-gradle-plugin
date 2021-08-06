@@ -32,13 +32,12 @@ class ProcessUtil {
         if (config.wait) {
             process.waitFor()
         }
-
     }
 
     static void chMod(Project project, String mode, String fileName) {
         project.exec {
             it.executable 'chmod'
-            it.args mode, fileName
+            it.args "-R", mode, fileName
         }
     }
 }

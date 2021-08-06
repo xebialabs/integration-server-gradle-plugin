@@ -1,6 +1,10 @@
 package com.xebialabs.gradle.integration
 
+import org.gradle.api.NamedDomainObjectContainer
+
 class IntegrationServerExtension {
+
+    final NamedDomainObjectContainer<Worker> workers
 
     Integer derbyPort
 
@@ -48,16 +52,13 @@ class IntegrationServerExtension {
 
     String xldIsDataVersion
 
-    Integer workerDebugPort
-
-    Boolean workerDebugSuspend
-
-    String[] workerJvmArgs = []
-
-    String workerName
-
-    Integer workerRemotingPort
-
     Map<String, Map<String, Object>> yamlPatches
 
+    IntegrationServerExtension(NamedDomainObjectContainer<Worker> workers) {
+        this.workers = workers
+    }
+
+    def workers(Closure closure) {
+        workers.configure(closure)
+    }
 }

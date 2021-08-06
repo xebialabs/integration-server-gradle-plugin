@@ -1,8 +1,8 @@
 package com.xebialabs.gradle.integration.util
 
-import java.nio.file.Paths
+import org.gradle.api.Project
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
+import java.nio.file.Path
 
 class MqUtil {
 
@@ -11,23 +11,19 @@ class MqUtil {
 
     private MqUtil() {}
 
-    static def getProjectDirectory(project){
-        Paths.get(project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString())
-    }
-
-    static def getMqEnvFilePath(project) {
-        DockerComposeUtil.dockerfileDestination(project, "mq/.env")
+    static String getMqDirectory(Project project) {
+        "${FileUtil.getServerDir(project)}/mq"
     }
 
     static def mqName(project) {
-        project.hasProperty("mq") ? project.property("mq").toString() : RABBITMQ
+        PropertyUtil.resolveValue(project, "mq", RABBITMQ)
     }
 
     static def mqPort(project) {
-        project.hasProperty("mqPort") ? project.property("mqPort") : null
+        PropertyUtil.resolveValue(project, "mqPort", null)
     }
 
-    static def getMqFileName(project) {
+    static def getMqRelativePath(project) {
         "mq/docker-compose_${mqName(project)}.yaml"
     }
 
@@ -37,6 +33,22 @@ class MqUtil {
             case ACTIVEMQ: return activemqPararms
             default: return rabbitmqPararms
         }
+    }
+
+    static Path getResolvedDockerFile(Project project) {
+        def resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, getMqRelativePath(project))
+
+        def mqTemplate = resultComposeFilePath.toFile()
+        def port = mqName(project) == MqUtil.RABBITMQ ? 5672 : 61616
+
+        def resolvedMqPort = PropertyUtil.resolveIntValue(project, "mqPort", port)
+
+        def configuredTemplate = mqTemplate.text
+                .replace('RABBITMQ_PORT2', "${resolvedMqPort}:5672")
+                .replace('ACTIVEMQ_PORT2', "${resolvedMqPort}:61616")
+        mqTemplate.text = configuredTemplate
+
+        return resultComposeFilePath
     }
 
     static final MqParameters rabbitmqPararms = new MqParameters(
