@@ -17,6 +17,6 @@ class EnvironmentUtil {
         if (debugPort != null) {
             opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${debugPort} "
         }
-        [${variableName}: opts.toString()]
+        [(variableName): opts.toString()]
     }
 }
