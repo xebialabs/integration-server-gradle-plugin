@@ -87,38 +87,31 @@ integrationServer {
 * `dockerComposeDatabaseStart` - starts containers required by the server
 * `dockerComposeDatabaseStop` - stops containers required by the server
 * `ImportDbUnitDataTask` - imports data files into a database
-* `integrationServer` - Starts an integration server
 * `prepareDatabase` - copies configuration files for the selected database
-* `startIntegrationServer` - starts an integration server with a provided configuration and a database
+* `startIntegrationServer` 
+  - starts an integration server with a provided configuration and a database.
+  - if the integrationServer needs to be started with the external worker ,we need to add the below configuration in build.gradle. if not integration server will start with in-process-worker.
+   ```grovvy
+   workers {      
+        worker03 { // name = worker03, worker03 will start from the mentioned directory path(/opt/xl-deploy-worker)
+            debugPort = 5007
+            directory = "/opt/xl-deploy-worker"
+            debugSuspend = false
+            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+            port = 8182
+        }
+    }
+```
 * `shutdownIntegrationServer` - stops a database server and also stop a database
-
-
-
+* `startSatellite` - starts satellite.
+* `shutdownSatellite` - stops satellite.
 #### Flags
-
-* `-Papplication` - Starts the application
 * `-Pdatabase` - sets a database to launch, options: `derby-inmemory`, `derby-network`, `mssql`, `mysql`, `mysql-8`, `oracle-19c-se`, `postgres`
 * `-PderbyPort` - provides Derby port if Derby database is used
-* `-PexternalWorker` - if enabled , it will start the XLDserver with external worker.
-                     - `./gradlew :integration-test:integrationServer -Papplication=startXLDServer -PexternaleWorker=true`
-                     - `./gradlew :integration-test:integrationServer -Papplication=shutdownXLDServer`
-* `-PworkerDirLocal` - if disabled, along with externalWorker enabled, then we will run the worker in separate directory.(eg : xl-deploy-${serverVersion}-worker)
-                     - `./gradlew :integration-test:integrationServer -Papplication=startXLDServer -PexternaleWorker=true -PworkerDirLocal=false`
-* `-PworkerRuntimeDirectory` - if enabled with absolutePath, along with externalWorker enabled and workerDirLocal disabled, then worker will run worker in mentioned directory.
-                     - `./gradlew :integration-test:integrationServer -Papplication=startXLDServer -PexternaleWorker=true -PworkerDirLocal=false -PworkerRuntimeDirectory=/tmp/worker-$serverion`
 * `-PlogSql` - enables printing of SQL queries executed by the server
 * `-PserverDebugPort` - provides a server debug port for remote debugging
 * `-PserverHttpPort` - provides an http port, overrides a configuration option
 
-#### application flags
-* `-Papplication=startXLDServer` - starts the integration server
-* `-Papplication=shutdownXLDServer` - shutdown the integration server, we need to mention the port as well(`./gradlew :integration-test:integrationServer -Papplication=shutdownXLDServer -PserverHttpPort=87989 `)
-* `-Papplication=startXLDServer -PexternalWorker=true` -starts the integration server with external worker with default mq(eg: rabbitmq)
-* `-Papplication=shutdownXLDServer -PexternalWorker=true` -shutdown the integration server with external worker
-* `-Papplication=startXLDServer -PexternalWorker=true -Pmq=activemq` -starts the integration server with external worker with activemq
-* `-Papplication=shutdownXLDServer -PexternalWorker=true` -shutdown the integration server with external worker
-* `-Papplication=startSatelliteServer` - starts the satellite server
-* `-Papplication=shutdownSatelliteServer` - shutdown the satellite server
 ## Limitations
 
 * `mssql`, `mysql`, `mysql-8`, `oracle-19c-se`, `postgres` are started in a docker container

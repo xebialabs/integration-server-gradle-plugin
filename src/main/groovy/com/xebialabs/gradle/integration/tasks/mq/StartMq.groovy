@@ -19,7 +19,6 @@ class StartMq extends DockerComposeUp {
         this.configure {
             group = PLUGIN_GROUP
         }
-
     }
 
     @Override

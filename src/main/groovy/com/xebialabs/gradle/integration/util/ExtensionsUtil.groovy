@@ -1,7 +1,6 @@
 package com.xebialabs.gradle.integration.util
 
 import com.xebialabs.gradle.integration.IntegrationServerExtension
-import com.xebialabs.gradle.integration.Worker
 import org.gradle.api.Project
 
 import java.nio.file.Paths
