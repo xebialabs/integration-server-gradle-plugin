@@ -1,6 +1,6 @@
 package com.xebialabs.gradle.integration.tasks.worker
 
-
+import com.xebialabs.gradle.integration.tasks.mq.ShutdownMq
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.WorkerUtil
 import groovyx.net.http.HTTPBuilder
@@ -15,7 +15,7 @@ class ShutdownWorkers extends DefaultTask {
 
     ShutdownWorkers() {
         def dependencies = [
-                ShutdownWorkers.NAME
+                ShutdownMq.NAME
         ]
         this.configure {
             dependsOn(dependencies)
