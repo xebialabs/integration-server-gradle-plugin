@@ -1,6 +1,8 @@
 package com.xebialabs.gradle.integration.util
 
 import com.xebialabs.gradle.integration.IntegrationServerExtension
+import com.xebialabs.gradle.integration.Worker
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 
 import java.nio.file.Paths
@@ -80,10 +82,13 @@ class ExtensionsUtil {
         Paths.get(targetDir, "xl-satellite-server-${satelliteVersion}").toAbsolutePath().toString()
     }
 
-    static create(Project project) {
-        project.extensions.create(EXTENSION_NAME, IntegrationServerExtension)
+    static createExtension(Project project) {
+        NamedDomainObjectContainer<Worker> workers = project.container(Worker)
+        project.extensions.create(EXTENSION_NAME,
+                IntegrationServerExtension,
+                workers
+        )
     }
-
 
     static initialize(Project project) {
         def extension = getExtension(project)

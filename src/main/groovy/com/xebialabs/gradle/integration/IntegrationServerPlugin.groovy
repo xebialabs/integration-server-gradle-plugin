@@ -16,13 +16,11 @@ import com.xebialabs.gradle.integration.tasks.satellite.CopySatelliteOverlaysTas
 import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatelliteDistTask
 import com.xebialabs.gradle.integration.tasks.satellite.ShutdownSatelliteTask
 import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
-
 import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorkers
 import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.TaskUtil
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -93,10 +91,10 @@ class IntegrationServerPlugin implements Plugin<Project> {
         def serverConfig = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
         def cliConfig = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_CLI)
         ConfigurationsUtil.registerConfigurations(project)
-        ExtensionsUtil.create(project)
-        NamedDomainObjectContainer<Worker> workerContainer =
-                project.container(Worker)
-        project.extensions.add('workers', workerContainer)
+
+        project.configure(project) {
+            ExtensionsUtil.createExtension(project)
+        }
 
         project.afterEvaluate {
             ExtensionsUtil.initialize(project)

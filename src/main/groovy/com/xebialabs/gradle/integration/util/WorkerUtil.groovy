@@ -9,7 +9,7 @@ import java.nio.file.Paths
 class WorkerUtil {
 
     static def hasWorkers(Project project) {
-        project.extensions.getByName('workers').collect().toList().size() > 0
+        ExtensionsUtil.getExtension(project).workers.size() > 0
     }
 
     static def getWorkerDir(Worker worker, Project project) {

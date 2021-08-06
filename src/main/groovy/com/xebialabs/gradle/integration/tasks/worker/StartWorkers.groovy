@@ -150,8 +150,8 @@ class StartWorkers extends DefaultTask {
 
     @TaskAction
     void launch() {
-        def workers = project.extensions.getByName('workers')
-        List<Worker> workerList = workers.collect().toList()
+        def workers = ExtensionsUtil.getExtension(project).workers
+        List<Worker> workerList = workers
         workerList.each { Worker worker ->
             if (WorkerUtil.isExternalWorker(worker))
                 WorkerUtil.copyServerDirToWorkerDir(worker, project)

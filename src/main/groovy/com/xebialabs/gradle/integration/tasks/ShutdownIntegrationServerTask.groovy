@@ -1,11 +1,9 @@
 package com.xebialabs.gradle.integration.tasks
 
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStopTask
-import com.xebialabs.gradle.integration.tasks.mq.ShutdownMq
 import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorkers
 import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ShutdownUtil
-import com.xebialabs.gradle.integration.util.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -15,15 +13,18 @@ class ShutdownIntegrationServerTask extends DefaultTask {
     static NAME = "shutdownIntegrationServer"
 
     ShutdownIntegrationServerTask() {
+        def dependencies = [
+                ShutdownWorkers.NAME
+        ]
         group = PLUGIN_GROUP
         if (DbUtil.isDerby(project)) {
             finalizedBy("derbyStop")
         } else {
             finalizedBy(DockerComposeDatabaseStopTask.NAME)
         }
-        if (WorkerUtil.hasWorkers(project)) {
-            dependsOn(ShutdownWorkers.NAME)
-            finalizedBy(ShutdownMq.NAME)
+        this.configure {
+            group = PLUGIN_GROUP
+            dependsOn(dependencies)
         }
     }
 
