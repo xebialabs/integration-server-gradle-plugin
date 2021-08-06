@@ -5,11 +5,9 @@ import com.xebialabs.gradle.integration.tasks.YamlPatchTask
 import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
-import java.util.concurrent.TimeUnit
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
@@ -63,36 +61,8 @@ class StartWorkers extends DefaultTask {
                         logFileName(worker.name)),
                 workDir    : getBinDir(worker)
         ])
-        waitForBoot(WorkerUtil.getWorkerDir(worker, project), worker.name)
-    }
 
-    def waitForBoot(String runtimeDir, String workerName) {
-        project.logger.lifecycle("Waiting for worker $workerName to start")
-        def extension = ExtensionsUtil.getExtension(project)
-        int triesLeft = extension.serverPingTotalTries
-        boolean success = false
-
-        def workerLog = project.file("$runtimeDir/log/${logFileName(workerName)}.log")
-
-        while (triesLeft > 0 && !success) {
-            try {
-                workerLog.readLines().each { String line ->
-                    if (line.contains("Registered successfully with Actor[akka://task-sys@127.0.0.1")) {
-                        println("XL Deploy Worker successfully started.")
-                        success = true
-                    }
-                }
-            } catch (ignored) {
-            }
-            if (!success) {
-                println("Waiting  ${extension.serverPingRetrySleepTime} second(s) for Worker startup. ($triesLeft)")
-                TimeUnit.SECONDS.sleep(extension.serverPingRetrySleepTime)
-                triesLeft -= 1
-            }
-        }
-        if (!success) {
-            throw new GradleException("Worker failed to start")
-        }
+        waitForBoot(worker)
     }
 
     void startWorkerFromClasspath(Worker worker) {
@@ -144,7 +114,7 @@ class StartWorkers extends DefaultTask {
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${worker.debugPort}")
             }
         }
-        waitForBoot(WorkerUtil.getWorkerDir(worker, project), worker.name)
+        waitForBoot(worker)
     }
 
     @TaskAction
@@ -159,5 +129,11 @@ class StartWorkers extends DefaultTask {
                 startWorker(worker)
             }
         }
+    }
+
+    private void waitForBoot(Worker worker) {
+        def workerLog = project.file("${WorkerUtil.getWorkerDir(worker, project)}/log/${logFileName(worker.name)}.log")
+        def containsLine = "Registered successfully with Actor[akka://task-sys@127.0.0.1"
+        WaitForBootUtil.byLog(project, "worker ${worker.name}", workerLog, containsLine)
     }
 }

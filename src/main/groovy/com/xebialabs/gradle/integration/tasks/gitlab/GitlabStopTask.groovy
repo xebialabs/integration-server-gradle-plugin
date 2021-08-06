@@ -9,10 +9,10 @@ import java.nio.file.Paths
 import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
-class DockerComposeGitlabStopTask extends DefaultTask {
-    static NAME = 'dockerComposeGitlabStop'
+class GitlabStopTask extends DefaultTask {
+    static NAME = 'gitlabStop'
 
-    DockerComposeGitlabStopTask() {
+    GitlabStopTask() {
         this.group = PLUGIN_GROUP
     }
 
@@ -25,6 +25,8 @@ class DockerComposeGitlabStopTask extends DefaultTask {
 
     @TaskAction
     void run() {
+        project.logger.lifecycle("Stopping GitLab server.")
+
         project.exec {
             it.executable 'docker-compose'
             it.args '-f', getDockerComposeFile(), '-p', 'gitlabServer', 'down'

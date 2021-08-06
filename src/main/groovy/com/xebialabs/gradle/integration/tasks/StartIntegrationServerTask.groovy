@@ -6,11 +6,9 @@ import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
-import java.util.concurrent.TimeUnit
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 import static com.xebialabs.gradle.integration.util.ShutdownUtil.shutdownServer
@@ -81,31 +79,6 @@ class StartIntegrationServerTask extends DefaultTask {
         ])
     }
 
-    private void waitForBoot() {
-        project.logger.lifecycle("Waiting for server to start")
-        def extension = ExtensionsUtil.getExtension(project)
-        int triesLeft = extension.serverPingTotalTries
-        boolean success = false
-        while (triesLeft > 0 && !success) {
-            try {
-                def http = HTTPUtil.buildRequest("http://localhost:${extension.serverHttpPort}${extension.serverContextRoot}/deployit/metadata/type")
-                http.get([:]) { resp, reader ->
-                    println("XL Deploy successfully started on port ${extension.serverHttpPort}")
-                    success = true
-                }
-            } catch (ignored) {
-            }
-            if (!success) {
-                println("Waiting for ${extension.serverPingRetrySleepTime} second(s) before retry. ($triesLeft)")
-                TimeUnit.SECONDS.sleep(extension.serverPingRetrySleepTime)
-                triesLeft -= 1
-            }
-        }
-        if (!success) {
-            throw new GradleException("Server failed to start")
-        }
-    }
-
     private void startServerFromClasspath() {
         def classpath = project.configurations.getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER).filter { !it.name.endsWith("-sources.jar") }.asPath
         logger.debug("XL Deploy Server classpath: \n${classpath}")
@@ -152,6 +125,9 @@ class StartIntegrationServerTask extends DefaultTask {
             initialize()
             startServer()
         }
-        waitForBoot()
+
+        def extension = ExtensionsUtil.getExtension(project)
+        def url = "http://localhost:${extension.serverHttpPort}${extension.serverContextRoot}/deployit/metadata/type"
+        WaitForBootUtil.byPort(project, "Deploy", url, extension.serverHttpPort)
     }
 }

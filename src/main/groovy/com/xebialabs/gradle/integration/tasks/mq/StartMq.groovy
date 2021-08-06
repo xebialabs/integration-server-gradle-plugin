@@ -34,8 +34,6 @@ class StartMq extends DockerComposeUp {
     void run() {
         project.logger.lifecycle("Starting ${MqUtil.mqName(project)} MQ.")
 
-        project.logger.lifecycle("Running docker-compose -f ${getDockerComposeFile()} --project-directory ${MqUtil.getMqDirectory(project)} up -d")
-
         project.exec {
             it.executable "docker-compose"
             it.args '-f', getDockerComposeFile(), '--project-directory', "${MqUtil.getMqDirectory(project)}/mq", 'up', '-d'

@@ -3,12 +3,11 @@ package com.xebialabs.gradle.integration.tasks.satellite
 import com.xebialabs.gradle.integration.util.EnvironmentUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
+import com.xebialabs.gradle.integration.util.WaitForBootUtil
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
-import java.util.concurrent.TimeUnit
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
@@ -32,48 +31,22 @@ class StartSatelliteTask extends DefaultTask {
     }
 
     private void startServer() {
-        project.logger.lifecycle("Launching satellite")
+        project.logger.lifecycle("Launching Satellite.")
         ProcessUtil.exec([
                 command    : "run",
                 environment: EnvironmentUtil.getEnv(project, "SATELLITE_OPTS"),
                 workDir    : getBinDir()
         ])
-        project.logger.lifecycle("Satellite Server successfully started")
+        project.logger.lifecycle("Satellite successfully started.")
     }
 
-    def waitForBoot() {
-        project.logger.lifecycle("Waiting for xl satellite to start")
-        def extension = ExtensionsUtil.getExtension(project)
-        int triesLeft = extension.serverPingTotalTries
-        boolean success = false
-
-        def runtimeDir = ExtensionsUtil.getSatelliteWorkingDir(project)
-        def workerLog = project.file("$runtimeDir/log/xl-satellite.log")
-
-        while (triesLeft > 0 && !success) {
-            try {
-                workerLog.readLines().each { String line ->
-                    if (line.contains("XL Satellite has started")) {
-                        println("XL Satellite successfully started.")
-                        success = true
-                    }
-                }
-            } catch (ignored) {
-            }
-            if (!success) {
-                println("Waiting  ${extension.serverPingRetrySleepTime} second(s) for satellite startup. ($triesLeft)")
-                TimeUnit.SECONDS.sleep(extension.serverPingRetrySleepTime)
-                triesLeft -= 1
-            }
-        }
-        if (!success) {
-            throw new GradleException("Satellite failed to start")
-        }
+    private def getWorkerLog() {
+        project.file("${ExtensionsUtil.getSatelliteWorkingDir(project)}/log/xl-satellite.log")
     }
 
     @TaskAction
     void launch() {
         startServer()
-        waitForBoot()
+        WaitForBootUtil.byLog(project, "Satellite", getWorkerLog(), "XL Satellite has started")
     }
 }
