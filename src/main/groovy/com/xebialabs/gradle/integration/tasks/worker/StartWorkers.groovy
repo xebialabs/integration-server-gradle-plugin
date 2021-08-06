@@ -24,11 +24,11 @@ class StartWorkers extends DefaultTask {
         ]
 
         this.configure {
+            dependsOn(dependencies)
             group = PLUGIN_GROUP
             shouldRunAfter(StartIntegrationServerTask.NAME, ImportDbUnitDataTask.NAME, StartMq.NAME)
-
-            if (WorkerUtil.isWorkerEnabled(project)) {
-                dependsOn(dependencies)
+            onlyIf {
+                WorkerUtil.hasWorkers(project)
             }
         }
     }

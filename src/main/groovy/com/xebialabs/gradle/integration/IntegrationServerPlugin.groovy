@@ -17,7 +17,7 @@ import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatell
 import com.xebialabs.gradle.integration.tasks.satellite.ShutdownSatelliteTask
 import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
 
-import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorker
+import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorkers
 import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
@@ -58,7 +58,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(StartMq.NAME, StartMq)
         project.tasks.create(ShutdownMq.NAME, ShutdownMq)
         project.tasks.create(StartWorkers.NAME, StartWorkers)
-        project.tasks.create(ShutdownWorker.NAME, ShutdownWorker)
+        project.tasks.create(ShutdownWorkers.NAME, ShutdownWorkers)
 
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)

@@ -10,14 +10,18 @@ import org.gradle.api.tasks.TaskAction
 
 import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
 
-class ShutdownWorker extends DefaultTask {
-    static NAME = "shutdownWorker"
+class ShutdownWorkers extends DefaultTask {
+    static NAME = "shutdownWorkers"
 
-    ShutdownWorker() {
+    ShutdownWorkers() {
+        def dependencies = [
+                ShutdownWorkers.NAME
+        ]
         this.configure {
+            dependsOn(dependencies)
             group = PLUGIN_GROUP
             onlyIf {
-                WorkerUtil.isWorkerEnabled(project)
+                WorkerUtil.hasWorkers(project)
             }
         }
     }

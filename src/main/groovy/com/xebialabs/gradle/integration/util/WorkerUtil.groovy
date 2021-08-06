@@ -8,7 +8,7 @@ import java.nio.file.Paths
 
 class WorkerUtil {
 
-    static def isWorkerEnabled(Project project) {
+    static def hasWorkers(Project project) {
         project.extensions.getByName('workers').collect().toList().size() > 0
     }
 

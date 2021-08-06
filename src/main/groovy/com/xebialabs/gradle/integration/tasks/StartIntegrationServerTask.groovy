@@ -2,7 +2,6 @@ package com.xebialabs.gradle.integration.tasks
 
 import com.xebialabs.gradle.integration.tasks.database.DockerComposeDatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
-import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
@@ -31,8 +30,8 @@ class StartIntegrationServerTask extends DefaultTask {
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
-            if (WorkerUtil.isWorkerEnabled(project)) {
-                dependsOn(StartMq.NAME)
+
+            if (WorkerUtil.hasWorkers(project)) {
                 finalizedBy(StartWorkers.NAME)
             }
         }
