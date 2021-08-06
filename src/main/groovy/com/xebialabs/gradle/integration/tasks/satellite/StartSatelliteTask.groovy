@@ -1,5 +1,6 @@
 package com.xebialabs.gradle.integration.tasks.satellite
 
+import com.xebialabs.gradle.integration.util.EnvironmentUtil
 import com.xebialabs.gradle.integration.util.ExtensionsUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
 import org.gradle.api.DefaultTask
@@ -26,16 +27,6 @@ class StartSatelliteTask extends DefaultTask {
         }
     }
 
-    private def getEnv() {
-        def extension = ExtensionsUtil.getExtension(project)
-        def opts = "-Xmx1024m"
-        def suspend = extension.satelliteDebugSuspend ? 'y' : 'n'
-        if (extension.satelliteDebugPort) {
-            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.satelliteDebugPort}"
-        }
-        ["SATELLITE_OPTS": opts.toString()]
-    }
-
     private def getBinDir() {
         Paths.get(ExtensionsUtil.getSatelliteWorkingDir(project), "bin").toFile()
     }
@@ -44,7 +35,7 @@ class StartSatelliteTask extends DefaultTask {
         project.logger.lifecycle("Launching satellite")
         ProcessUtil.exec([
                 command    : "run",
-                environment: getEnv(),
+                environment: EnvironmentUtil.getEnv(project, "SATELLITE_OPTS"),
                 workDir    : getBinDir()
         ])
         project.logger.lifecycle("Satellite Server successfully started")

@@ -33,21 +33,15 @@ class StartWorkers extends DefaultTask {
         }
     }
 
-    private def getEnv(worker) {
-        def opts = "-Xmx1024m -DLOGFILE=deployit-worker-${worker.name}"
-        def suspend = worker.debugSuspend ? 'y' : 'n'
-        if (worker.debugPort != null) {
-            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${worker.debugPort} "
-        }
-        ["DEPLOYIT_SERVER_OPTS": opts.toString()]
-    }
-
-
-    private def getBinDir(worker) {
+    private def getBinDir(Worker worker) {
         Paths.get(WorkerUtil.getWorkerDir(worker, project), "bin").toFile()
     }
 
-    void startWorker(worker) {
+    private static def logFileName(String workerName) {
+        return "deploy-worker-${workerName}";
+    }
+
+    void startWorker(Worker worker) {
         project.logger.lifecycle("Launching worker")
         def extension = ExtensionsUtil.getExtension(project)
 
@@ -64,7 +58,10 @@ class StartWorkers extends DefaultTask {
                         "-port",
                         worker.port.toString()
                 ],
-                environment: getEnv(worker),
+                environment: EnvironmentUtil.getEnv("DEPLOYIT_SERVER_OPTS",
+                        worker.debugSuspend,
+                        worker.debugPort,
+                        logFileName(worker.name)),
                 workDir    : getBinDir(worker)
         ])
         waitForBoot(WorkerUtil.getWorkerDir(worker, project), worker.name)
@@ -76,7 +73,7 @@ class StartWorkers extends DefaultTask {
         int triesLeft = extension.serverPingTotalTries
         boolean success = false
 
-        def workerLog = project.file("$runtimeDir/log/deployit-worker-${workerName}.log")
+        def workerLog = project.file("$runtimeDir/log/${logFileName(workerName)}.log")
 
         while (triesLeft > 0 && !success) {
             try {
@@ -120,7 +117,7 @@ class StartWorkers extends DefaultTask {
             jvmArgs.each {
                 jvmarg(value: it)
             }
-            jvmarg(value: "-DLOGFILE=deployit-worker-${worker.name}")
+            jvmarg(value: "-DLOGFILE=${logFileName(worker.name)}")
             arg(value: "-master")
             arg(value: "${hostName}:${port}")
             arg(value: "-api")

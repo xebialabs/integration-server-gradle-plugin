@@ -37,16 +37,6 @@ class StartIntegrationServerTask extends DefaultTask {
         }
     }
 
-    private def getEnv() {
-        def extension = ExtensionsUtil.getExtension(project)
-        def opts = "-Xmx1024m -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
-        def suspend = extension.serverDebugSuspend ? 'y' : 'n'
-        if (extension.serverDebugPort) {
-            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${extension.serverDebugPort}"
-        }
-        ["DEPLOYIT_SERVER_OPTS": opts.toString()]
-    }
-
     private def getBinDir() {
         Paths.get(ExtensionsUtil.getServerWorkingDir(project), "bin").toFile()
     }
@@ -82,7 +72,7 @@ class StartIntegrationServerTask extends DefaultTask {
         ProcessUtil.exec([
                 command    : "run",
                 params     : ["-force-upgrades"],
-                environment: getEnv(),
+                environment: EnvironmentUtil.getEnv(project, "DEPLOYIT_SERVER_OPTS"),
                 workDir    : getBinDir(),
                 inheritIO  : true
         ])
