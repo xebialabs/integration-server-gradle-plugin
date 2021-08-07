@@ -13,14 +13,14 @@ class DbConfigurationUtil {
         Properties properties = new Properties()
         properties.put('user', username)
         properties.put('password', password)
-        return properties
+        properties
     }
 
-    static def createDriverConnection(driverClass, url, properties) {
+    static Connection createDriverConnection(String driverClass, String url, Properties properties) {
         Driver driver = (Driver) Class.forName(driverClass).newInstance()
         Connection driverConnection = driver.connect(url, properties)
         driverConnection.setAutoCommit(true)
-        return driverConnection
+        driverConnection
     }
 
     static def configureConnection(driverConnection, dbDependency) {
@@ -39,6 +39,6 @@ class DbConfigurationUtil {
             config.setProperty(DatabaseConfig.PROPERTY_METADATA_HANDLER, metadataHandler)
         }
 
-        return connection
+        connection
     }
 }

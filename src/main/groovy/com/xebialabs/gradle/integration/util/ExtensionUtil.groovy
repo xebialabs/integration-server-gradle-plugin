@@ -32,7 +32,7 @@ class ExtensionUtil {
         if (databases.isEmpty()) {
             return new Database(DbUtil.databaseName(project))
         }
-        return databases.first()
+        databases.first()
     }
 
     static createExtension(Project project) {

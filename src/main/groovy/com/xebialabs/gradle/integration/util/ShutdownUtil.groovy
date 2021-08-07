@@ -16,7 +16,7 @@ class ShutdownUtil {
             try {
                 def http = HTTPUtil.buildRequest("http://localhost:${server.httpPort}${server.contextRoot}")
                 http.handler.failure = {
-                    project.logger.info("XL Deploy server successfully shutdown")
+                    project.logger.lifecycle("XL Deploy server successfully shutdown")
                     success = true
                 }
                 http.post([:]) { resp, reader ->
@@ -24,7 +24,7 @@ class ShutdownUtil {
                     TimeUnit.SECONDS.sleep(server.pingRetrySleepTime)
                 }
             } catch (ignored) {
-                project.logger.info("XL Deploy server successfully shutdown.")
+                project.logger.lifecycle("XL Deploy server successfully shutdown.")
                 success = true
                 break
             }

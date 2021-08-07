@@ -1,11 +1,10 @@
 package com.xebialabs.gradle.integration.util
 
+import com.fasterxml.jackson.core.TreeNode
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 import java.nio.file.Paths
-
-import static com.xebialabs.gradle.integration.constant.PluginConstant.DIST_DESTINATION_NAME
 
 class DbUtil {
 
@@ -27,21 +26,21 @@ class DbUtil {
 
     static def dbConfigFile(Project project) {
         def dbname = databaseName(project)
-        return DbUtil.class.classLoader.getResourceAsStream("database-conf/deploy-repository.yaml.${dbname}")
+        DbUtil.class.classLoader.getResourceAsStream("database-conf/deploy-repository.yaml.${dbname}")
     }
 
     static def isDerby(Project project) {
         def dbname = databaseName(project)
-        return isDerby(dbname)
+        isDerby(dbname)
     }
 
     static def isDerby(String name) {
-        return name == DERBY_NETWORK || name == DERBY_INMEMORY || name == DERBY
+        name == DERBY_NETWORK || name == DERBY_INMEMORY || name == DERBY
     }
 
     static def isDerbyNetwork(Project project) {
         def dbName = databaseName(project)
-        return dbName == DERBY_NETWORK || dbName == DERBY
+        dbName == DERBY_NETWORK || dbName == DERBY
     }
 
     static def assertNotDerby(Project project, message) {
@@ -51,28 +50,27 @@ class DbUtil {
         }
     }
 
-    static def dbConfig(Project project) {
+    static TreeNode dbConfig(Project project) {
         def from = dbConfigFile(project)
-        def config = YamlFileUtil.readTree(from)
-        def port = ExtensionUtil.getDatabase(project).derbyPort
+        TreeNode config = YamlFileUtil.readTree(from)
 
         if (isDerbyNetwork(project)) {
+            def port = ExtensionUtil.getDatabase(project).derbyPort
             config.get("xl.repository")
                     .get("database")
-                    .put("db-url", "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin")
+                    .putAt("db-url", "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin")
         }
-        return config
+        config
     }
 
     static def dockerComposeFileName(Project project) {
         def dbName = databaseName(project)
-        return "docker-compose_${dbName}.yaml"
+        "docker-compose_${dbName}.yaml"
     }
 
     static def dockerComposeFileDestination(Project project) {
         def composeFileName = dockerComposeFileName(project)
-        return Paths.get(
-                "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}/${composeFileName}")
+        Paths.get("${LocationUtil.getServerDir(project)}/${composeFileName}")
     }
 
     static final DbParameters postgresParams = new DbParameters(
@@ -82,35 +80,35 @@ class DbUtil {
             null,
             "\"?\""
     )
-    static final DbParameters mysqlPararms = new DbParameters(
+    static final DbParameters mysqlParams = new DbParameters(
             'mysql:mysql-connector-java',
             "com.mysql.jdbc.Driver",
             "org.dbunit.ext.mysql.MySqlDataTypeFactory",
             "org.dbunit.ext.mysql.MySqlMetadataHandler",
             "`?`"
     )
-    static final DbParameters oracle19Pararms = new DbParameters(
+    static final DbParameters oracle19Params = new DbParameters(
             'com.oracle.database.jdbc:ojdbc11',
             "oracle.jdbc.OracleDriver",
             "org.dbunit.ext.oracle.OracleDataTypeFactory",
             null,
             "\"?\""
     )
-    static final DbParameters mssqlPararms = new DbParameters(
+    static final DbParameters mssqlParams = new DbParameters(
             'com.microsoft.sqlserver:mssql-jdbc',
             "com.microsoft.sqlserver.jdbc.SQLServerDriver",
             "org.dbunit.ext.mssql.MsSqlDataTypeFactory",
             null,
             "\"?\""
     )
-    static final DbParameters derbyPararms = new DbParameters(
+    static final DbParameters derbyParams = new DbParameters(
             'org.apache.derby:derby',
             null,
             null,
             null,
             "\"?\""
     )
-    static final DbParameters derbyNetworkPararms = new DbParameters(
+    static final DbParameters derbyNetworkParams = new DbParameters(
             'org.apache.derby:derbyclient',
             null,
             null,
@@ -120,14 +118,14 @@ class DbUtil {
 
     static def detectDbDependencies(db) {
         switch (db) {
-            case DERBY: return derbyNetworkPararms
-            case DERBY_INMEMORY: return derbyPararms
-            case DERBY_NETWORK: return derbyNetworkPararms
-            case MSSQL: return mssqlPararms
-            case [MYSQL, MYSQL8]: return mysqlPararms
-            case ORACLE19: return oracle19Pararms
+            case DERBY: return derbyNetworkParams
+            case DERBY_INMEMORY: return derbyParams
+            case DERBY_NETWORK: return derbyNetworkParams
+            case MSSQL: return mssqlParams
+            case [MYSQL, MYSQL8]: return mysqlParams
+            case ORACLE19: return oracle19Params
             case [POSTGRES, POSTGRES12]: return postgresParams
-            default: return derbyNetworkPararms
+            default: return derbyNetworkParams
         }
     }
 }

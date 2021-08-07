@@ -39,7 +39,8 @@ class CentralConfigurationTask extends DefaultTask {
                 "deploy.task.queue.name"              : "xld-tasks-queue",
                 "deploy.task.queue.archive-queue-name": "xld-archive-queue"
         ]
-        return initial.plus(WorkerUtil.hasWorkers(project) ?
+
+        initial.plus(WorkerUtil.hasWorkers(project) ?
                 [
                         "deploy.task.in-process-worker"                  : false,
                         "deploy.task.queue.external.jms-driver-classname": mqDetail.get("jms-driver-classname"),
@@ -69,7 +70,7 @@ class CentralConfigurationTask extends DefaultTask {
                 "jms-username"        : "admin"
         ]
 
-        return "activemq" == mqName ? activeMq : rabbitMq
+        "activemq" == mqName ? activeMq : rabbitMq
     }
 
     @TaskAction

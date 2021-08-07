@@ -27,7 +27,7 @@ class ShutdownSatelliteTask extends DefaultTask { // TODO: Not working
     }
 
     private def getWorkingDir() {
-        return LocationUtil.getSatelliteWorkingDir(project).toFile()
+        LocationUtil.getSatelliteWorkingDir(project).toFile()
     }
 
     private void stopSatellite(Satellite satellite) {
@@ -37,7 +37,7 @@ class ShutdownSatelliteTask extends DefaultTask { // TODO: Not working
                 command: "stopSatellite",
                 workDir: getWorkingDir()
         ])
-        project.logger.info("Satellite server '${satellite.name}' successfully shutdown.")
+        project.logger.lifecycle("Satellite server '${satellite.name}' successfully shutdown.")
     }
 
 

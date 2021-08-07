@@ -137,7 +137,7 @@ class StartIntegrationServerTask extends DefaultTask {
         }
     }
 
-    private def waitForBoot(server) {
+    private def waitForBoot(Server server) {
         def url = "http://localhost:${server.httpPort}${server.contextRoot}/deployit/metadata/type"
         WaitForBootUtil.byPort(project, "Deploy", url, server.httpPort)
     }

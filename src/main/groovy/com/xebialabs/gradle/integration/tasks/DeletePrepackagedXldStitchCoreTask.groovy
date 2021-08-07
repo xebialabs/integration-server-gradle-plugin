@@ -7,6 +7,7 @@ import org.gradle.api.tasks.TaskAction
 
 import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
+//TODO: Refactor it, it has to be done in a generic way of excluding any lib/plugin from the dist
 class DeletePrepackagedXldStitchCoreTask extends Delete {
     static NAME = "deletePrepackagedStitchCore"
 

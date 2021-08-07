@@ -20,7 +20,7 @@ class DatabaseStopTask extends DefaultTask {
         DbUtil.assertNotDerby(project, 'Docker compose tasks do not support Derby database.')
 
         def composeFilePath = DbUtil.dockerComposeFileDestination(project)
-        return composeFilePath.toFile()
+        composeFilePath.toFile()
     }
 
     @TaskAction

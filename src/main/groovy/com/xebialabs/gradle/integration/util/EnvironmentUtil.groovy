@@ -5,7 +5,7 @@ import com.xebialabs.gradle.integration.domain.Server
 class EnvironmentUtil {
 
     static def getServerEnv(Server server) {
-        return getEnv("DEPLOYIT_SERVER_OPTS", server.debugSuspend, server.debugPort, null)
+        getEnv("DEPLOYIT_SERVER_OPTS", server.debugSuspend, server.debugPort, null)
     }
 
     static def getEnv(String variableName, Boolean debugSuspend, Integer debugPort, String logFileName) {

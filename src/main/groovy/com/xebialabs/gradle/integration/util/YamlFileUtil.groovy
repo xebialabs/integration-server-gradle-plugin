@@ -1,5 +1,6 @@
 package com.xebialabs.gradle.integration.util
 
+import com.fasterxml.jackson.core.TreeNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
@@ -11,7 +12,7 @@ class YamlFileUtil {
 
     static def mapper = new ObjectMapper(new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER))
 
-    private def static getKeyParentAndLastToken(Map<String, Object> objectMap, String key) {
+    private static Tuple getKeyParentAndLastToken(Map<String, Object> objectMap, String key) {
         def tokens = key.split("\\.")
         def keyChain = [tokens[0] + "." + tokens[1]]
         keyChain = keyChain.plus(tokens.init().drop(2)).flatten()
@@ -24,12 +25,12 @@ class YamlFileUtil {
             }
             current = current.get(keyItem)
         }
-        return new Tuple(current, tokens.last())
+        new Tuple(current, tokens.last())
     }
 
     private def static readKey(Map<String, Object> objectMap, String key) {
         def tuple = getKeyParentAndLastToken(objectMap, key)
-        return tuple[0].get(tuple[1])
+        tuple[0].get(tuple[1])
     }
 
     private def static addPair(Map<String, Object> initial, Map<String, Object> newPairs) {
@@ -96,11 +97,11 @@ class YamlFileUtil {
     }
 
     def static readFileKey(File file, String key) {
-        return readKey(mapper.readValue(file, Object.class), key)
+        readKey(mapper.readValue(file, Object.class), key)
     }
 
-    def static readTree(Object resource) {
-        return mapper.readTree(resource)
+    static TreeNode readTree(Object resource) {
+        mapper.readTree(resource)
     }
 
     def static writeFileValue(File sourceFle, Object value) {

@@ -20,12 +20,12 @@ class DatabaseStartTask extends DockerComposeUp {
 
     @Override
     String getDescription() {
-        return "Starts database instance using `docker-compose` and ${DbUtil.dockerComposeFileName(project).toString()} file."
+        "Starts database instance using `docker-compose` and ${DbUtil.dockerComposeFileName(project).toString()} file."
     }
 
     private def getResolveDbFilePath() {
         def composeFileName = DbUtil.dockerComposeFileName(project)
-        return DockerComposeUtil.getResolvedDockerPath(project, "database-compose/$composeFileName")
+        DockerComposeUtil.getResolvedDockerPath(project, "database-compose/$composeFileName")
     }
 
     @InputFiles
@@ -53,7 +53,7 @@ class DatabaseStartTask extends DockerComposeUp {
                 }
             }
         }
-        return project.file(resultComposeFilePath)
+        project.file(resultComposeFilePath)
     }
 
     @TaskAction

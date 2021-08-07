@@ -100,6 +100,7 @@ integrationServer {
 * `startIntegrationServer` 
   - starts an integration server with a provided configuration and a database.
   - if the integrationServer needs to be started with the external worker ,we need to add the below configuration in build.gradle. if not integration server will start with in-process-worker.
+
    ```grovvy
    workers {      
         worker03 { // name = worker03, worker03 will start from the mentioned directory path(/opt/xl-deploy-worker)
@@ -110,7 +111,8 @@ integrationServer {
             port = 8182
         }
     }
-```
+    ```
+  
 * `shutdownIntegrationServer` - stops a database server and also stop a database
 * `startSatellite` - starts satellite.
 * `shutdownSatellite` - stops satellite.
@@ -133,6 +135,18 @@ integrationServer {
 ## Development
 
 Jenkins Job to run the build: https://jenkins-ng.xebialabs.com/jenkinsng/job/Gradle%20Plugins/job/integration-server-gradle-plugin/
-
 Jenkins Job to release a new version: https://jenkins-ng.xebialabs.com/jenkinsng/job/Gradle%20Plugins/job/Release/job/Release%20integration-server-gradle-plugin/
+
+## Troubleshooting
+
+In case you have to debug the plugin in the application, you can add a parameter `-Dorg.gradle.debug=true`.
+
+The full command can look like this:
+
+```shell script
+./gradlew clean startIntegrationServer --stacktrace -Dorg.gradle.debug=true --no-daemon
+```
+
+Then in Intellij IDEA you are connecting to remote port 5005. The gradle task will proceed executing only after 
+you will be connected to this port. If you have some troubles with it, you might need first to execute: `./gradlew --stop`
 

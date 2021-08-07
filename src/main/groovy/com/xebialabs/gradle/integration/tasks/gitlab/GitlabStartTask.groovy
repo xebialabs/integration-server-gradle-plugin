@@ -17,13 +17,13 @@ class GitlabStartTask extends DockerComposeUp {
 
     @Override
     String getDescription() {
-        return "Starts gitlab instance using `docker-compose` and docker-compose-gitlab.yaml file."
+        "Starts gitlab instance using `docker-compose` and docker-compose-gitlab.yaml file."
     }
 
     @InputFiles
     File getDockerComposeFile() {
         def relativePath = "gitlab/gitlab-compose/docker-compose-gitlab.yml"
-        return project.file(DockerComposeUtil.getResolvedDockerPath(project, relativePath))
+        project.file(DockerComposeUtil.getResolvedDockerPath(project, relativePath))
     }
 
     @TaskAction

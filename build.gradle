@@ -79,6 +79,10 @@ uploadArchives {
     }
 }
 
+jar {
+    from sourceSets.main.allSource
+}
+
 import com.xebialabs.gradle.release.NebulaRelease
 
 task nebulaRelease(type: NebulaRelease)

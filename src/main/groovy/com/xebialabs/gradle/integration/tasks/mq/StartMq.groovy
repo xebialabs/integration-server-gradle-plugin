@@ -22,12 +22,12 @@ class StartMq extends DockerComposeUp {
 
     @Override
     String getDescription() {
-        return "Starts rabbit mq using `docker-compose` and ${MqUtil.getMqRelativePath(project)} file."
+        "Starts rabbit mq using `docker-compose` and ${MqUtil.getMqRelativePath(project)} file."
     }
 
     @InputFiles
     File getDockerComposeFile() {
-        return project.file(MqUtil.getResolvedDockerFile(project))
+        project.file(MqUtil.getResolvedDockerFile(project))
     }
 
     @TaskAction

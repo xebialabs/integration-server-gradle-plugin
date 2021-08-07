@@ -15,7 +15,7 @@ class ShutdownMq extends DefaultTask {
 
     @InputFiles
     File getDockerComposeFile() {
-        return MqUtil.getResolvedDockerFile(project).toFile()
+        MqUtil.getResolvedDockerFile(project).toFile()
     }
 
     @TaskAction

@@ -35,7 +35,7 @@ class StartWorkers extends DefaultTask {
     }
 
     private static def logFileName(String workerName) {
-        return "deploy-worker-${workerName}"
+        "deploy-worker-${workerName}"
     }
 
     void startWorker(Worker worker) {

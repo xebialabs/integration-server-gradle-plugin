@@ -20,10 +20,10 @@ class DockerComposeUtil {
 
     }
 
-    static def getResolvedDockerPath(Project project, String composeFileRelativePath) {
-        def dockerComposeStream = DockerComposeUtil.class.classLoader
-                .getResourceAsStream(composeFileRelativePath)
-        Path resultComposeFilePath = dockerComposeFileDestination(project, composeFileRelativePath)
+    static def getResolvedDockerPath(Project project, String relativePath) {
+        project.logger.lifecycle("Resolving docker path $relativePath")
+        def dockerComposeStream = DockerComposeUtil.class.classLoader.getResourceAsStream(relativePath)
+        Path resultComposeFilePath = dockerComposeFileDestination(project, relativePath)
         FileUtil.copyFile(dockerComposeStream, resultComposeFilePath)
         return resultComposeFilePath
     }

@@ -28,12 +28,12 @@ class StartSatelliteTask extends DefaultTask {
         }
     }
 
-    private def getBinDir(Satellite satellite) {
+    private def getBinDir() {
         Paths.get(LocationUtil.getSatelliteWorkingDir(project), "bin").toFile()
     }
 
     private void startSatellite(Satellite satellite) {
-        project.logger.lifecycle("Launching Satellite ${satellite.name}.")
+        project.logger.lifecycle("Launching Satellite '${satellite.name}'.")
 
         ProcessUtil.exec([
                 command    : "run",
@@ -45,7 +45,7 @@ class StartSatelliteTask extends DefaultTask {
                 ),
                 workDir    : getBinDir()
         ])
-        project.logger.lifecycle("Satellite successfully started.")
+        project.logger.lifecycle("Satellite '${satellite.name}' successfully started.")
     }
 
     private def getSatelliteLog() {

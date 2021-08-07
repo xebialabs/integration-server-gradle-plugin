@@ -23,7 +23,7 @@ class WaitForBootUtil {
             } catch (ignored) {
             }
             if (!success) {
-                println("Waiting for ${server.pingRetrySleepTime} second(s) before retry. ($triesLeft)")
+                println("Retrying after ${server.pingRetrySleepTime} second(s). ($triesLeft)")
                 TimeUnit.SECONDS.sleep(server.pingRetrySleepTime)
                 triesLeft -= 1
             }
@@ -50,7 +50,7 @@ class WaitForBootUtil {
             } catch (ignored) {
             }
             if (!success) {
-                println("Waiting  ${server.pingRetrySleepTime} second(s) for satellite startup. ($triesLeft)")
+                println("Retrying after ${server.pingRetrySleepTime} second(s). ($triesLeft)")
                 TimeUnit.SECONDS.sleep(server.pingRetrySleepTime)
                 triesLeft -= 1
             }

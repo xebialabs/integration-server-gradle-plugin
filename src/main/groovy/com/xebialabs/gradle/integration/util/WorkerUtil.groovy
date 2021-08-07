@@ -26,11 +26,11 @@ class WorkerUtil {
     }
 
     static def isExternalWorker(Worker worker) {
-        return worker.directory != null && !worker.directory.isEmpty()
+        worker.directory != null && !worker.directory.isEmpty()
     }
 
     static def hasRuntimeDirectory(Project project) {
-        return ServerUtil.getServer(project).runtimeDirectory != null
+        ServerUtil.getServer(project).runtimeDirectory != null
     }
 
 }

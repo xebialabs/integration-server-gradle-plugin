@@ -12,7 +12,7 @@ import static com.xebialabs.gradle.integration.constant.PluginConstant.DIST_DEST
 class LocationUtil {
 
     static Path getServerDir(Project project) {
-        return Paths.get(project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString())
+        Paths.get(project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString())
     }
 
     static def getServerWorkingDir(Project project) {

@@ -38,7 +38,6 @@ class RunProvisionScriptTask extends DefaultTask {
 
         logger.debug("Provision CLI classpath: \n${classpath}")
 
-        def provisionScript = server.provisionScript
         def script = getProvisionScript() != null && !getProvisionScript().isEmpty() ? getProvisionScript() : server.provisionScript
         def port = server.httpPort
         def contextRoot = server.contextRoot
