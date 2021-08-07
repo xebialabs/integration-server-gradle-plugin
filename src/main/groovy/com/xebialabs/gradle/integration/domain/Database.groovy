@@ -1,10 +1,8 @@
 package com.xebialabs.gradle.integration.domain
 
-import com.xebialabs.gradle.integration.util.HTTPUtil
-
 class Database {
 
-    Integer derbyPort = HTTPUtil.findFreePort()
+    Integer derbyPort
 
     Map<String, String> driverVersions = [
             'mssql'        : '8.4.1.jre8',

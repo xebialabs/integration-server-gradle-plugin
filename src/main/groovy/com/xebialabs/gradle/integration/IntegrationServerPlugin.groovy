@@ -19,6 +19,7 @@ import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
 import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorkers
 import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
+import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionUtil
 import com.xebialabs.gradle.integration.util.LocationUtil
 import com.xebialabs.gradle.integration.util.TaskUtil
@@ -69,7 +70,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
     }
 
     private static applyDerbyPlugin(Project project) {
-        def database = ExtensionUtil.getDatabase(project)
+        def database = DbUtil.getDatabase(project)
 
         project.plugins.apply('derby-ns')
         def derbyExtension = project.extensions.getByName("derby")

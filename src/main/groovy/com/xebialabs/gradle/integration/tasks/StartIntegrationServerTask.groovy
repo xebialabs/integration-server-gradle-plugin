@@ -91,7 +91,7 @@ class StartIntegrationServerTask extends DefaultTask {
         if (jvmPath) {
             jvmPath = jvmPath + '/bin/java'
             params['jvm'] = jvmPath
-            println("Using JVM from location: ${jvmPath}")
+            project.logger.lifecycle("Using JVM from location: ${jvmPath}")
         }
 
 
@@ -104,7 +104,7 @@ class StartIntegrationServerTask extends DefaultTask {
             env(key: "CLASSPATH", value: classpath)
 
             if (server.debugPort != null) {
-                println("Enabled debug mode on port ${server.debugPort}")
+                project.logger.lifecycle("Enabled debug mode on port ${server.debugPort}")
                 jvmarg(value: "-Xdebug")
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${server.debugPort}")
             }

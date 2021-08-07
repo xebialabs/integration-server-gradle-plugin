@@ -34,7 +34,7 @@ class CopyOverlaysTask extends DefaultTask {
         def dbname = DbUtil.databaseName(project)
         def dbDependencies = DbUtil.detectDbDependencies(dbname)
         def libOverlay = server.overlays.getOrDefault(LIB_KEY, new ArrayList<Object>())
-        def version = ExtensionUtil.getDatabase(project).driverVersions[dbname]
+        def version = DbUtil.getDatabase(project).driverVersions[dbname]
 
         overlayDependency(version, project, server, libOverlay, dbDependencies)
     }

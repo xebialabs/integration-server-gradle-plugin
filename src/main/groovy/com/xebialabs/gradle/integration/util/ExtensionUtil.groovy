@@ -27,14 +27,6 @@ class ExtensionUtil {
         project.extensions.getByType(IntegrationServerExtension).satellites.first()
     }
 
-    static Database getDatabase(Project project) {
-        def databases = project.extensions.getByType(IntegrationServerExtension).databases
-        if (databases.isEmpty()) {
-            return new Database(DbUtil.databaseName(project))
-        }
-        databases.first()
-    }
-
     static createExtension(Project project) {
         project.extensions.create(EXTENSION_NAME,
                 IntegrationServerExtension,

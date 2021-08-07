@@ -1,6 +1,8 @@
 package com.xebialabs.gradle.integration.util
 
 import com.fasterxml.jackson.core.TreeNode
+import com.xebialabs.gradle.integration.IntegrationServerExtension
+import com.xebialabs.gradle.integration.domain.Database
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
@@ -17,6 +19,8 @@ class DbUtil {
     static def DERBY = 'derby'
     static def DERBY_NETWORK = 'derby-network'
     static def DERBY_INMEMORY = 'derby-inmemory'
+
+    static randomDerbyPort = HTTPUtil.findFreePort()
 
     private DbUtil() {}
 
@@ -55,12 +59,27 @@ class DbUtil {
         TreeNode config = YamlFileUtil.readTree(from)
 
         if (isDerbyNetwork(project)) {
-            def port = ExtensionUtil.getDatabase(project).derbyPort
+            def port = getDatabase(project).derbyPort
             config.get("xl.repository")
                     .get("database")
                     .put("db-url", "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin")
         }
         config
+    }
+
+    private static enrichDatabase(Project project, Database database) {
+        def port = project.hasProperty("derbyPort") ? Integer.valueOf(project.property("derbyPort").toString()) : randomDerbyPort
+        database.setDerbyPort(port)
+
+        def logSql = project.hasProperty("logSql") ? Boolean.valueOf(project.property("logSql").toString()) : database.logSql
+        database.setLogSql(logSql)
+
+        database
+    }
+
+    static Database getDatabase(Project project) {
+        def databases = project.extensions.getByType(IntegrationServerExtension).databases
+        enrichDatabase(project, databases.isEmpty() ? new Database(databaseName(project)) : databases.first())
     }
 
     static def dockerComposeFileName(Project project) {

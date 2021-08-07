@@ -1,6 +1,6 @@
 package com.xebialabs.gradle.integration.tasks
 
-
+import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionUtil
 import com.xebialabs.gradle.integration.util.LocationUtil
 import com.xebialabs.gradle.integration.util.ServerUtil
@@ -22,7 +22,7 @@ class SetLogbackLevelsTask extends DefaultTask {
     }
 
     private def getHardCodedLevels() {
-        ExtensionUtil.getDatabase(project).logSql ? [
+        DbUtil.getDatabase(project).logSql ? [
                 "org.hibernate.SQL" : "trace",
                 "org.hibernate.type": "all"
         ] : [:]

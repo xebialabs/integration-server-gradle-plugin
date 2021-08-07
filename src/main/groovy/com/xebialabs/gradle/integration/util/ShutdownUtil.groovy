@@ -20,7 +20,7 @@ class ShutdownUtil {
                     success = true
                 }
                 http.post([:]) { resp, reader ->
-                    println("Waiting ${server.pingRetrySleepTime} seconds for shutdown. ($triesLeft)")
+                    project.logger.lifecycle("Waiting ${server.pingRetrySleepTime} seconds for shutdown. ($triesLeft)")
                     TimeUnit.SECONDS.sleep(server.pingRetrySleepTime)
                 }
             } catch (ignored) {

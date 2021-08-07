@@ -84,7 +84,7 @@ class StartWorkers extends DefaultTask {
         if (jvmPath) {
             jvmPath = jvmPath + '/bin/java'
             params['jvm'] = jvmPath
-            println("Using JVM from location: ${jvmPath}")
+            project.logger.lifecycle("Using JVM from location: ${jvmPath}")
         }
 
         def port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
@@ -109,7 +109,7 @@ class StartWorkers extends DefaultTask {
             env(key: "CLASSPATH", value: classpath)
 
             if (worker.debugPort != null) {
-                println("Enabled debug mode on port ${worker.debugPort}")
+                project.logger.lifecycle("Enabled debug mode on port ${worker.debugPort}")
                 jvmarg(value: "-Xdebug")
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${worker.debugPort}")
             }

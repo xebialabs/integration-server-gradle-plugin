@@ -9,8 +9,9 @@ class ServerUtil {
     static Server getServer(Project project) {
         def ext = project.extensions.getByType(IntegrationServerExtension)
         def server = ext.servers.first()
-        server.setVersion(getServerVersion(project, server))
+        server.setDebugPort(getDebugPort(project, server))
         server.setHttpPort(getHttpPort(project, server))
+        server.setVersion(getServerVersion(project, server))
         server
     }
 
@@ -20,5 +21,9 @@ class ServerUtil {
 
     private static Integer getHttpPort(Project project, Server server) {
         project.hasProperty("serverHttpPort") ? Integer.valueOf(project.property("serverHttpPort").toString()) : server.httpPort
+    }
+
+    private static Integer getDebugPort(Project project, Server server) {
+        project.hasProperty("serverDebugPort") ? Integer.valueOf(project.property("serverDebugPort").toString()) : server.debugPort
     }
 }
