@@ -1,6 +1,6 @@
-package com.xebialabs.gradle.integration
+package com.xebialabs.gradle.integration.domain
 
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
+import com.xebialabs.gradle.integration.util.HTTPUtil
 
 class Worker {
 
@@ -12,7 +12,7 @@ class Worker {
 
     String name
 
-    Integer port = ExtensionsUtil.findFreePort()
+    Integer port = HTTPUtil.findFreePort()
 
     String directory
 

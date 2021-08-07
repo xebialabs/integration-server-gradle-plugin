@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 
 import java.util.zip.ZipInputStream
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
 class DatabaseStartTask extends DockerComposeUp {
     static NAME = "databaseStart"

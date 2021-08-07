@@ -7,7 +7,7 @@ import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Files
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.*
+import static com.xebialabs.gradle.integration.constant.PluginConstant.*
 
 class PrepareDatabaseTask extends DefaultTask {
     static NAME = "prepareDatabase"
@@ -27,7 +27,7 @@ class PrepareDatabaseTask extends DefaultTask {
     private static void injectDbDependency(Project project, def dbName) {
         def testCompile = project.configurations.findByName("testCompile")
         if (testCompile) {
-            def dbDependency = DbUtil.detectDbDependency(dbName).getDriverDependency()
+            def dbDependency = DbUtil.detectDbDependencies(dbName).getDriverDependency()
             project.logger.debug("Test compile configuration has been found. Injecting database dependency '$dbDependency' for db: '$dbName'")
             project.dependencies.add(testCompile.name, dbDependency)
         }

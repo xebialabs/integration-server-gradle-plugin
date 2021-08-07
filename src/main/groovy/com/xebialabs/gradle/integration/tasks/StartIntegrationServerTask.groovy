@@ -1,5 +1,6 @@
 package com.xebialabs.gradle.integration.tasks
 
+import com.xebialabs.gradle.integration.domain.Server
 import com.xebialabs.gradle.integration.tasks.database.DatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.mq.StartMq
@@ -10,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 import static com.xebialabs.gradle.integration.util.ShutdownUtil.shutdownServer
 
 class StartIntegrationServerTask extends DefaultTask {
@@ -39,19 +40,18 @@ class StartIntegrationServerTask extends DefaultTask {
     }
 
     private def getBinDir() {
-        Paths.get(ExtensionsUtil.getServerWorkingDir(project), "bin").toFile()
+        Paths.get(LocationUtil.getServerWorkingDir(project), "bin").toFile()
     }
 
-    private void createConfFile() {
+    private void createConfFile(Server server) {
         project.logger.lifecycle("Creating deployit.conf file")
 
-        def extension = ExtensionsUtil.getExtension(project)
-        def file = project.file("${ExtensionsUtil.getServerWorkingDir(project)}/conf/deployit.conf")
+        def file = project.file("${LocationUtil.getServerWorkingDir(project)}/conf/deployit.conf")
         file.createNewFile()
-        file.withWriter { w ->
-            w.write("http.port=${extension.serverHttpPort}\n")
+        file.withWriter { BufferedWriter w ->
+            w.write("http.port=${server.httpPort}\n")
             w.write("http.bind.address=0.0.0.0\n")
-            w.write("http.context.root=${extension.serverContextRoot}\n")
+            w.write("http.context.root=${server.contextRoot}\n")
             w.write("threads.min=3\n")
             w.write("threads.max=24\n")
         }
@@ -68,25 +68,25 @@ class StartIntegrationServerTask extends DefaultTask {
         ])
     }
 
-    private void startServer() {
+    private void startServer(Server server) {
         project.logger.lifecycle("Launching server")
         ProcessUtil.exec([
                 command    : "run",
                 params     : ["-force-upgrades"],
-                environment: EnvironmentUtil.getEnv(project, "DEPLOYIT_SERVER_OPTS"),
+                environment: EnvironmentUtil.getServerEnv(server),
                 workDir    : getBinDir(),
                 inheritIO  : true
         ])
     }
 
-    private void startServerFromClasspath() {
-        def classpath = project.configurations.getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER).filter { !it.name.endsWith("-sources.jar") }.asPath
-        logger.debug("XL Deploy Server classpath: \n${classpath}")
-        def extension = ExtensionsUtil.getExtension(project)
+    private void startServerFromClasspath(Server server) {
+        project.logger.lifecycle("startServerFromClasspath.")
+        def classpath = project.configurations.getByName(ConfigurationsUtil.DEPLOY_SERVER).filter { !it.name.endsWith("-sources.jar") }.asPath
 
-        project.logger.lifecycle("Starting integration test server on port ${extension.serverHttpPort} in runtime dir ${extension.serverRuntimeDirectory}")
-        def jvmArgs = extension.serverJvmArgs
-        def params = [fork: true, dir: extension.serverRuntimeDirectory, spawn: true, classname: "com.xebialabs.deployit.DeployitBootstrapper"]
+        project.logger.lifecycle("Launching Deploy Server from classpath ${classpath}.")
+        project.logger.lifecycle("Starting integration test server on port ${server.httpPort} from runtime dir ${server.runtimeDirectory}")
+
+        def params = [fork: true, dir: server.runtimeDirectory, spawn: true, classname: "com.xebialabs.deployit.DeployitBootstrapper"]
         String jvmPath = project.properties['integrationServerJVMPath']
         if (jvmPath) {
             jvmPath = jvmPath + '/bin/java'
@@ -94,40 +94,72 @@ class StartIntegrationServerTask extends DefaultTask {
             println("Using JVM from location: ${jvmPath}")
         }
 
+
         ant.java(params) {
             arg(value: '-force-upgrades')
-            jvmArgs.each {
+            server.jvmArgs.each {
                 jvmarg(value: it)
             }
 
             env(key: "CLASSPATH", value: classpath)
 
-            if (extension.serverDebugPort != null) {
-                println("Enabled debug mode on port ${extension.serverDebugPort}")
+            if (server.debugPort != null) {
+                println("Enabled debug mode on port ${server.debugPort}")
                 jvmarg(value: "-Xdebug")
-                jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.serverDebugPort}")
+                jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${server.debugPort}")
             }
         }
     }
 
     private void createFolders() {
-        new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration").mkdirs()
+        project.logger.lifecycle("Creating folders for central configuration files.")
+        new File("${LocationUtil.getServerWorkingDir(project)}/centralConfiguration").mkdirs()
+    }
+
+    private static def hasToBeStartedFromClasspath(Server server) {
+        server.runtimeDirectory != null
+    }
+
+    private def prepare(Server server) {
+        project.logger.lifecycle("Preparing serve ${server.name} before launching it.")
+        createFolders()
+        createConfFile(server)
+        project.logger.lifecycle("----- 1 --------")
+
+        if (!hasToBeStartedFromClasspath(server)) {
+            project.logger.lifecycle("----- 2 --------")
+            initialize()
+        }
+    }
+
+    private def start(Server server) {
+        project.logger.lifecycle("----- 3 --------")
+        if (hasToBeStartedFromClasspath(server)) {
+            project.logger.lifecycle("----- 4 --------")
+            startServerFromClasspath(server)
+        } else {
+            project.logger.lifecycle("----- 5 --------")
+            startServer(server)
+        }
+    }
+
+    private def waitForBoot(server) {
+        def url = "http://localhost:${server.httpPort}${server.contextRoot}/deployit/metadata/type"
+        WaitForBootUtil.byPort(project, "Deploy", url, server.httpPort)
+    }
+
+    private def maybeTearDown() {
+        shutdownServer(project)
     }
 
     @TaskAction
     void launch() {
-        shutdownServer(project)
-        createFolders()
-        createConfFile()
-        if (ExtensionsUtil.getExtension(project).serverRuntimeDirectory != null) {
-            startServerFromClasspath()
-        } else {
-            initialize()
-            startServer()
-        }
+        def server = ServerUtil.getServer(project)
+        project.logger.lifecycle("About to launch Deploy Server on port ${server.httpPort}.")
 
-        def extension = ExtensionsUtil.getExtension(project)
-        def url = "http://localhost:${extension.serverHttpPort}${extension.serverContextRoot}/deployit/metadata/type"
-        WaitForBootUtil.byPort(project, "Deploy", url, extension.serverHttpPort)
+        maybeTearDown()
+        prepare(server)
+        start(server)
+        waitForBoot(server)
     }
 }

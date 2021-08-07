@@ -6,7 +6,7 @@ import com.xebialabs.gradle.integration.util.WaitForBootUtil
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
 class GitlabStartTask extends DockerComposeUp {
     static NAME = "gitlabStart"
@@ -35,7 +35,7 @@ class GitlabStartTask extends DockerComposeUp {
             it.args '-f', getDockerComposeFile(), '-p', 'gitlabServer', 'up', '-d'
         }
 
-        WaitForBootUtil.byPort(project, "GitLab server", "http://localhost:11180/", 11180)
+        WaitForBootUtil.byPort(project, "GitLab server", "http://localhost:11180/", 11180) // TODO: port has to be configurable
     }
 
 }

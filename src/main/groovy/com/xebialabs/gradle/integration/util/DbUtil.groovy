@@ -5,7 +5,7 @@ import org.gradle.api.Project
 
 import java.nio.file.Paths
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
+import static com.xebialabs.gradle.integration.constant.PluginConstant.DIST_DESTINATION_NAME
 
 class DbUtil {
 
@@ -54,7 +54,7 @@ class DbUtil {
     static def dbConfig(Project project) {
         def from = dbConfigFile(project)
         def config = YamlFileUtil.readTree(from)
-        def port = ExtensionsUtil.getExtension(project).derbyPort
+        def port = ExtensionUtil.getDatabase(project).derbyPort
 
         if (isDerbyNetwork(project)) {
             config.get("xl.repository")
@@ -118,7 +118,7 @@ class DbUtil {
             "\"?\""
     )
 
-    static def detectDbDependency(db) {
+    static def detectDbDependencies(db) {
         switch (db) {
             case DERBY: return derbyNetworkPararms
             case DERBY_INMEMORY: return derbyPararms

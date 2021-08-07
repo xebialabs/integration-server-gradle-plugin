@@ -6,8 +6,8 @@ import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.DIST_DESTINATION_NAME
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
 class GitlabStopTask extends DefaultTask {
     static NAME = 'gitlabStop'

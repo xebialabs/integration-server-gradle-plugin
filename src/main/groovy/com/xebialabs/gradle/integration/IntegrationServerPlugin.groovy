@@ -19,7 +19,8 @@ import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
 import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorkers
 import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
+import com.xebialabs.gradle.integration.util.ExtensionUtil
+import com.xebialabs.gradle.integration.util.LocationUtil
 import com.xebialabs.gradle.integration.util.TaskUtil
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -39,27 +40,26 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(GitlabStartTask.NAME, GitlabStartTask)
         project.tasks.create(GitlabStopTask.NAME, GitlabStopTask)
 
+        project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask)
+        project.tasks.create(RunProvisionScriptTask.NAME, RunProvisionScriptTask).dependsOn(clicfg)
+
+        project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
+        project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
+        project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
+
+        project.tasks.create(ShutdownWorkers.NAME, ShutdownWorkers)
+        project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
+
         project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
         project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
         project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
         project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
 
-        project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask)
-
-        project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
-
-        project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
-
-        project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
-        project.tasks.create(RunProvisionScriptTask.NAME, RunProvisionScriptTask).dependsOn(clicfg)
-
         project.tasks.create(StartMq.NAME, StartMq)
         project.tasks.create(ShutdownMq.NAME, ShutdownMq)
         project.tasks.create(StartWorkers.NAME, StartWorkers)
-        project.tasks.create(ShutdownWorkers.NAME, ShutdownWorkers)
 
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
-        project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
         project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask).dependsOn(itcfg)
         project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
@@ -69,12 +69,12 @@ class IntegrationServerPlugin implements Plugin<Project> {
     }
 
     private static applyDerbyPlugin(Project project) {
-        def extension = ExtensionsUtil.getExtension(project)
+        def database = ExtensionUtil.getDatabase(project)
 
         project.plugins.apply('derby-ns')
         def derbyExtension = project.extensions.getByName("derby")
-        derbyExtension.dataDir = "${ExtensionsUtil.getServerWorkingDir(project)}/derbydb"
-        derbyExtension.port = extension.derbyPort
+        derbyExtension.dataDir = "${LocationUtil.getServerWorkingDir(project)}/derbydb"
+        derbyExtension.port = database.derbyPort
         def startDerbyTask = project.tasks.getByName("derbyStart")
         def stopDerbyTask = project.tasks.getByName("derbyStop")
         TaskUtil.dontFailOnException(stopDerbyTask)
@@ -88,16 +88,16 @@ class IntegrationServerPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        def serverConfig = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
-        def cliConfig = project.configurations.create(ConfigurationsUtil.INTEGRATION_TEST_CLI)
+        def serverConfig = project.configurations.create(ConfigurationsUtil.DEPLOY_SERVER)
+        def cliConfig = project.configurations.create(ConfigurationsUtil.DEPLOY_CLI)
         ConfigurationsUtil.registerConfigurations(project)
 
         project.configure(project) {
-            ExtensionsUtil.createExtension(project)
+            ExtensionUtil.createExtension(project)
         }
 
         project.afterEvaluate {
-            ExtensionsUtil.initialize(project)
+            ExtensionUtil.initialize(project)
             createTasks(project, serverConfig, cliConfig)
             applyPlugins(project)
         }

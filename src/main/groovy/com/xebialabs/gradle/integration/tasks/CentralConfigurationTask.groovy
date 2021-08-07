@@ -1,11 +1,9 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.xebialabs.gradle.integration.util.DbUtil
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
-import com.xebialabs.gradle.integration.util.MqUtil
-import com.xebialabs.gradle.integration.util.WorkerUtil
-import com.xebialabs.gradle.integration.util.YamlFileUtil
+
+import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
 class CentralConfigurationTask extends DefaultTask {
@@ -13,28 +11,29 @@ class CentralConfigurationTask extends DefaultTask {
 
     private void createCentralConfigurationFiles() {
         project.logger.lifecycle("Generating initial central configuration files")
+        def serverDir = LocationUtil.getServerWorkingDir(project)
 
-        project.logger.lifecycle("Writing to deploy-repository file")
+        project.logger.lifecycle("Creating custom deploy-repository.yaml")
         YamlFileUtil.writeFileValue(
-                new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-repository.yaml"),
+                new File("${serverDir}/centralConfiguration/deploy-repository.yaml"),
                 DbUtil.dbConfig(project))
 
-        project.logger.lifecycle("Writing to deploy-server file")
+        project.logger.lifecycle("Creating custom deploy-server.yaml")
         YamlFileUtil.overlayFile(
-                new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-server.yaml"),
+                new File("${serverDir}/centralConfiguration/deploy-server.yaml"),
                 [
-                        "deploy.server.port"    : ExtensionsUtil.findFreePort(),
+                        "deploy.server.port"    : HTTPUtil.findFreePort(),
                         "deploy.server.hostname": "127.0.0.1"
                 ]
         )
 
-        project.logger.lifecycle("Writing to deploy-task file")
+        project.logger.lifecycle("Creating custom deploy-task.yaml")
         YamlFileUtil.overlayFile(
-                new File("${ExtensionsUtil.getServerWorkingDir(project)}/centralConfiguration/deploy-task.yaml"),
+                new File("${serverDir}/centralConfiguration/deploy-task.yaml"),
                 taskConfig(project))
     }
 
-    private static def taskConfig(project) {
+    private static def taskConfig(Project project) {
         def mqDetail = mq(MqUtil.mqName(project), MqUtil.mqPort(project))
         def initial = [
                 "deploy.task.queue.name"              : "xld-tasks-queue",

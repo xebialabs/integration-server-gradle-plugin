@@ -26,7 +26,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.xebialabs.gradle.plugins:integration-server-gradle-plugin:0.0.1-alpha.13"
+        classpath "com.xebialabs.gradle.plugins:integration-server-gradle-plugin:10.3.0-806.1518"
     }
 }
 
@@ -37,30 +37,39 @@ apply plugin: 'integration.server'
 
 ```groovy
 integrationServer {
-    serverHttpPort = 4516 // Default HTTP port 
-    derbyPort = 55661 // Default derby port, if Derby database is used
-    overlays = [
-        plugins          : [
-            "com.xebialabs.deployit.plugins:xld-ci-explorer:${xldCiExplorerVersion}@xldp", 
-        ], // List of plugins to install 
-        stitch           : ["${ciExplorerDataDependency}:stitch@zip"], // Creates a folder "stitch" with copied content of zip archive 
-        conf             : [
-            "${ciExplorerDataDependency}:configuration@zip",
-            files("src/test/xld/deployit-license.lic")
-        ], // Additional configuration files, e.g. license or archived configuration files
-        lib              : [project.tasks.getByName("jar").outputs.files], // List of libraries to install in lib directory
-        ext              : ["${ciExplorerDataDependency}:extensions@zip"], // List of extensions to install
-        'derbydb/xldrepo': ["${ciExplorerDataDependency}:repository@zip"], // Derby data files, if Derby is used
-        'build/artifacts': ["${ciExplorerDataDependency}:artifacts@zip"], // List of artifacts to import
-    ]
-    logLevels = ["com.xebialabs.deployit.plugin.stitch": "debug"] // Log level overwrites
-    yamlPatches = [
-        'centralConfiguration/deploy-server.yaml': [
-            'deploy.server.hostname': 'test.xebialabs.com',
-            'deploy.server.label': 'XLD'
-        ]
-    ] // overwrites yaml content    
- workers {
+    servers {
+        controlPlane {
+            contextRoot = "/custom" // By default "/", but you can customize it
+            debugPort = 4005 // Debug port, by default it is disabled
+            httpPort = 4516 // Server HTTP port, by default it is random port
+            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"] // custom Java process arguments
+            logLevels = ["com.xebialabs.deployit.plugin.stitch": "debug"] // Log level overwrites
+            overlays = [
+                plugins          : [
+                    "com.xebialabs.deployit.plugins:xld-ci-explorer:${xldCiExplorerVersion}@xldp", 
+                ], // List of plugins to install 
+                stitch           : ["${ciExplorerDataDependency}:stitch@zip"], // Creates a folder "stitch" with copied content of zip archive 
+                conf             : [
+                    "${ciExplorerDataDependency}:configuration@zip",
+                    files("src/test/xld/deployit-license.lic")
+                ], // Additional configuration files, e.g. license or archived configuration files
+                lib              : [project.tasks.getByName("jar").outputs.files], // List of libraries to install in lib directory
+                ext              : ["${ciExplorerDataDependency}:extensions@zip"], // List of extensions to install
+                'derbydb/xldrepo': ["${ciExplorerDataDependency}:repository@zip"], // Derby data files, if Derby is used
+                'build/artifacts': ["${ciExplorerDataDependency}:artifacts@zip"], // List of artifacts to import
+            ]
+            runtimeDirectory = "server-runtime" // If to specify this directory, Deploy will be started from this folder and will not download it from external provider (Nexus)
+            version = '10.2.0' // Version of the Server. By default it takes it from project property `xlDeployVersion`.
+            yamlPatches = [ // Overwrites YAML file properties (create the file if it didn't exist yet)
+                'centralConfiguration/deploy-server.yaml': [
+                    'deploy.server.hostname': 'test.xebialabs.com',
+                    'deploy.server.label': 'XLD'
+                ]
+            ]     
+        }       
+    }   
+    
+    workers {
         // By default we need only name, debugPort is disabled and port will be auto-generated from free ports
         // if directory is not specified then we run worker from the xl-deploy-server as local worker.
         // if directory is specified, then value should be absolute path
@@ -68,7 +77,7 @@ integrationServer {
         }
         worker02 { // name = worker02, worker02 will start from the same server directory as local worker (xl-deploy-10.2.0-server)
             debugPort = 5006
-            debugSuspend = false
+            debugSuspend = true // by default false
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
         }
         worker03 { // name = worker03, worker03 will start from the mentioned directory path(/opt/xl-deploy-worker)

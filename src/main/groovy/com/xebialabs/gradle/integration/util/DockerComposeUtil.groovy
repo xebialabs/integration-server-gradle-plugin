@@ -5,7 +5,7 @@ import org.gradle.api.Project
 import java.nio.file.Path
 import java.nio.file.Paths
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.DIST_DESTINATION_NAME
+import static com.xebialabs.gradle.integration.constant.PluginConstant.DIST_DESTINATION_NAME
 
 class DockerComposeUtil {
 

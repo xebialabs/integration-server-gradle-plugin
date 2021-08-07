@@ -1,12 +1,13 @@
 package com.xebialabs.gradle.integration.tasks
 
 
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
+import com.xebialabs.gradle.integration.util.LocationUtil
+import com.xebialabs.gradle.integration.util.ServerUtil
 import com.xebialabs.gradle.integration.util.YamlFileUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
 class YamlPatchTask extends DefaultTask {
     static NAME = "yamlPatches"
@@ -24,14 +25,12 @@ class YamlPatchTask extends DefaultTask {
 
     @TaskAction
     def yamlPatches() {
-        project.logger.lifecycle("Applying yaml patches on central configuration files")
-        def yamlPatches = ExtensionsUtil.getExtension(project).yamlPatches
+        def server = ServerUtil.getServer(project)
+        project.logger.lifecycle("Applying patches on YAML files for ${server.name}.")
 
-        if (yamlPatches && yamlPatches.size() > 0) {
-            yamlPatches.each { yamlPatch ->
-                def file = new File("${ExtensionsUtil.getServerWorkingDir(project)}/${yamlPatch.key}")
-                YamlFileUtil.overlayFile(file, yamlPatch.value)
-            }
+        server.yamlPatches.each { Map.Entry<String, Map<String, Object>> yamlPatch ->
+            def file = new File("${LocationUtil.getServerWorkingDir(project)}/${yamlPatch.key}")
+            YamlFileUtil.overlayFile(file, yamlPatch.value)
         }
     }
 }

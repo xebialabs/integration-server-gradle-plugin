@@ -1,5 +1,6 @@
 package com.xebialabs.gradle.integration.util
 
+
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
@@ -7,20 +8,20 @@ import java.util.concurrent.TimeUnit
 
 class ShutdownUtil {
     private static void waitForShutdown(Project project) {
-        def extension = ExtensionsUtil.getExtension(project)
+        def server = ServerUtil.getServer(project)
+        int triesLeft = server.pingTotalTries
 
-        int triesLeft = extension.serverPingTotalTries
         boolean success = false
         while (triesLeft > 0 && !success) {
             try {
-                def http = HTTPUtil.buildRequest("http://localhost:${extension.serverHttpPort}${extension.serverContextRoot}")
+                def http = HTTPUtil.buildRequest("http://localhost:${server.httpPort}${server.contextRoot}")
                 http.handler.failure = {
                     project.logger.info("XL Deploy server successfully shutdown")
                     success = true
                 }
                 http.post([:]) { resp, reader ->
-                    println("Waiting ${extension.serverPingRetrySleepTime} seconds for shutdown. ($triesLeft)")
-                    TimeUnit.SECONDS.sleep(extension.serverPingRetrySleepTime)
+                    println("Waiting ${server.pingRetrySleepTime} seconds for shutdown. ($triesLeft)")
+                    TimeUnit.SECONDS.sleep(server.pingRetrySleepTime)
                 }
             } catch (ignored) {
                 project.logger.info("XL Deploy server successfully shutdown.")
@@ -34,16 +35,18 @@ class ShutdownUtil {
     }
 
     static void shutdownServer(Project project) {
-        def extension = ExtensionsUtil.getExtension(project)
+        def server = ServerUtil.getServer(project)
         try {
-            project.logger.lifecycle("Trying to shutdown integration server at port ${extension.serverHttpPort}")
-            def http = HTTPUtil.buildRequest("http://localhost:${extension.serverHttpPort}/deployit/server/shutdown")
+            def port = server.httpPort
+            project.logger.lifecycle("Trying to shutdown integration server on port ${port}")
+            def http = HTTPUtil.buildRequest("http://localhost:$port}/deployit/server/shutdown")
+
             http.post([:]) { resp, reader ->
                 waitForShutdown(project)
-                project.logger.lifecycle("Integration server at port ${extension.serverHttpPort} is now shutdown")
+                project.logger.lifecycle("Integration server at port ${port} is now shutdown")
             }
         } catch (ignored) {
-            project.logger.lifecycle("Integration server at port ${extension.serverHttpPort} is not running")
+            project.logger.lifecycle("Integration server on port ${server.httpPort} is not running")
         }
     }
 }

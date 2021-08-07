@@ -1,6 +1,6 @@
 package com.xebialabs.gradle.integration.tasks.worker
 
-import com.xebialabs.gradle.integration.Worker
+import com.xebialabs.gradle.integration.domain.Worker
 import com.xebialabs.gradle.integration.tasks.YamlPatchTask
 import com.xebialabs.gradle.integration.tasks.mq.StartMq
 import com.xebialabs.gradle.integration.util.*
@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
 class StartWorkers extends DefaultTask {
 
@@ -40,7 +40,7 @@ class StartWorkers extends DefaultTask {
 
     void startWorker(Worker worker) {
         project.logger.lifecycle("Launching worker $worker.name")
-        def extension = ExtensionsUtil.getExtension(project)
+        def server = ServerUtil.getServer(project)
 
         ProcessUtil.exec([
                 command    : "run",
@@ -49,7 +49,7 @@ class StartWorkers extends DefaultTask {
                         "-master",
                         "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
                         "-api",
-                        "http://localhost:${extension.serverHttpPort}".toString(),
+                        "http://localhost:${server.httpPort}".toString(),
                         "-name",
                         worker.name,
                         "-port",
@@ -67,7 +67,7 @@ class StartWorkers extends DefaultTask {
 
     void startWorkerFromClasspath(Worker worker) {
         def classpath = project.configurations
-                .getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
+                .getByName(ConfigurationsUtil.DEPLOY_SERVER)
                 .filter { !it.name.endsWith("-sources.jar") }.asPath
 
         logger.debug("XL Deploy Worker classpath: \n${classpath}")
@@ -98,7 +98,7 @@ class StartWorkers extends DefaultTask {
             arg(value: "-master")
             arg(value: "${hostName}:${port}")
             arg(value: "-api")
-            arg(value: "http://${hostName}:${ExtensionsUtil.getExtension(project).serverHttpPort}")
+            arg(value: "http://${hostName}:${ServerUtil.getServer(project).httpPort}")
             arg(value: "-hostname")
             arg(value: "${hostName}")
             arg(value: "-port")
@@ -119,7 +119,7 @@ class StartWorkers extends DefaultTask {
 
     @TaskAction
     void launch() {
-        def workers = ExtensionsUtil.getExtension(project).workers
+        def workers = ExtensionUtil.getExtension(project).workers
         workers.each { Worker worker ->
             if (WorkerUtil.isExternalWorker(worker))
                 WorkerUtil.copyServerDirToWorkerDir(worker, project)

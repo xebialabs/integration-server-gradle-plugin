@@ -1,61 +1,46 @@
 package com.xebialabs.gradle.integration
 
+import com.xebialabs.gradle.integration.domain.Database
+import com.xebialabs.gradle.integration.domain.Satellite
+import com.xebialabs.gradle.integration.domain.Server
+import com.xebialabs.gradle.integration.domain.Worker
 import org.gradle.api.NamedDomainObjectContainer
 
 class IntegrationServerExtension {
 
+    final NamedDomainObjectContainer<Database> databases
+
+    final NamedDomainObjectContainer<Satellite> satellites
+
+    final NamedDomainObjectContainer<Server> servers
+
     final NamedDomainObjectContainer<Worker> workers
 
-    Integer derbyPort
-
-    Map<String, String> driverVersions
-
-    Map<String, String> logLevels
-
-    Boolean logSql
-
-    Map<String, String> mqDriverVersions
-
-    Map<String, List<Object>> overlays
-
-    String provisionScript
-
-    Integer provisionSocketTimeout
-
-    Boolean removeStdoutConfig
-
-    Integer satelliteDebugPort
-
-    Boolean satelliteDebugSuspend
-
-    Map<String, List<Object>> satelliteOverlays
-
-    String satelliteVersion
-
-    String serverContextRoot
-
-    Integer serverDebugPort
-
-    Boolean serverDebugSuspend
-
-    String[] serverJvmArgs = []
-
-    Integer serverHttpPort
-
-    Integer serverPingRetrySleepTime
-
-    Integer serverPingTotalTries
-
-    String serverRuntimeDirectory
-
-    String serverVersion
+    Map<String, String> mqDriverVersions = Map.of()
 
     String xldIsDataVersion
 
-    Map<String, Map<String, Object>> yamlPatches
-
-    IntegrationServerExtension(NamedDomainObjectContainer<Worker> workers) {
+    IntegrationServerExtension(
+            NamedDomainObjectContainer<Database> databases,
+            NamedDomainObjectContainer<Satellite> satellites,
+            NamedDomainObjectContainer<Server> servers,
+            NamedDomainObjectContainer<Worker> workers) {
+        this.databases = databases
+        this.satellites = satellites
+        this.servers = servers
         this.workers = workers
+    }
+
+    def databases(Closure closure) {
+        databases.configure(closure)
+    }
+
+    def satellites(Closure closure) {
+        satellites.configure(closure)
+    }
+
+    def servers(Closure closure) {
+        servers.configure(closure)
     }
 
     def workers(Closure closure) {

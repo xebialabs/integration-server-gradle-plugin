@@ -1,16 +1,13 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.xebialabs.gradle.integration.IntegrationServerExtension
-import com.xebialabs.gradle.integration.util.ConfigurationsUtil
-import com.xebialabs.gradle.integration.util.DbUtil
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
-import com.xebialabs.gradle.integration.util.MqUtil
+import com.xebialabs.gradle.integration.domain.Server
+import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
 class CopyOverlaysTask extends DefaultTask {
     static LIB_KEY = "lib"
@@ -20,39 +17,37 @@ class CopyOverlaysTask extends DefaultTask {
         file.name.endsWith(".zip")
     }
 
-    private static def overlayDependency(String version, IntegrationServerExtension ext, Project project, Object libOverlay, Object dependency) {
+    private static def overlayDependency(String version, Project project, Server server, List<Object> libOverlays, Object dependency) {
         if (version != null && !version.isEmpty()) {
-            if (ext.serverRuntimeDirectory != null) {
-                def configuration = project.getConfigurations().getByName(ConfigurationsUtil.INTEGRATION_TEST_SERVER)
+            if (server.runtimeDirectory != null) {
+                def configuration = project.getConfigurations().getByName(ConfigurationsUtil.DEPLOY_SERVER)
                 configuration.dependencies.add(
                         project.dependencies.create("${dependency.driverDependency}:${version}")
                 )
             }
-            libOverlay.add("${dependency.driverDependency}:${version}")
-            ext.overlays.put(LIB_KEY, libOverlay)
+            libOverlays.add("${dependency.driverDependency}:${version}")
+            server.overlays.put(LIB_KEY, libOverlays)
         }
     }
 
-    private static def addDatabaseDependency(Project project) {
+    private static def addDatabaseDependency(Project project, Server server) {
         def dbname = DbUtil.databaseName(project)
-        def dbDependency = DbUtil.detectDbDependency(dbname)
-        def ext = ExtensionsUtil.getExtension(project)
-        def libOverlay = ext.overlays.getOrDefault(LIB_KEY, new ArrayList<Object>())
-        def version = ext.driverVersions[dbname]
+        def dbDependencies = DbUtil.detectDbDependencies(dbname)
+        def libOverlay = server.overlays.getOrDefault(LIB_KEY, new ArrayList<Object>())
+        def version = ExtensionUtil.getDatabase(project).driverVersions[dbname]
 
-        overlayDependency(version, ext, project, libOverlay, dbDependency)
+        overlayDependency(version, project, server, libOverlay, dbDependencies)
     }
 
-    private static def addMqDependency(project) {
-        def mqname = MqUtil.mqName(project)
-        def mqDependency = MqUtil.detectMqDependency(mqname)
-        def ext = ExtensionsUtil.getExtension(project)
-        def libOverlay = ext.overlays.getOrDefault(LIB_KEY, new ArrayList<Object>())
-        def version = ext.mqDriverVersions[mqname]
+    private static def addMqDependency(Project project, Server server) {
+        def mqName = MqUtil.mqName(project)
+        def mqDependency = MqUtil.detectMqDependency(mqName)
+        def ext = ExtensionUtil.getExtension(project)
+        def libOverlay = server.overlays.getOrDefault(LIB_KEY, new ArrayList<Object>())
+        String version = ext.mqDriverVersions[mqName]
 
-        overlayDependency(version, ext, project, libOverlay, mqDependency)
+        overlayDependency(version, project, server, libOverlay, mqDependency)
     }
-
 
     CopyOverlaysTask() {
         this.configure { ->
@@ -61,11 +56,14 @@ class CopyOverlaysTask extends DefaultTask {
             mustRunAfter DeletePrepackagedXldStitchCoreTask.NAME
             finalizedBy CheckUILibVersionsTask.NAME
             project.afterEvaluate {
-                addDatabaseDependency(project)
-                addMqDependency(project)
+                Server server = ServerUtil.getServer(project)
+                project.logger.lifecycle("Copying overlays on Deploy server ${server.name}")
 
-                ExtensionsUtil.getExtension(project).overlays.each { definition ->
-                    def configurationName = "integrationServer${definition.key.capitalize().replace("/", "")}"
+                addDatabaseDependency(project, server)
+                addMqDependency(project, server)
+
+                server.overlays.each { Map.Entry<String, List<Object>> definition ->
+                    def configurationName = "${ExtensionUtil.EXTENSION_NAME}${definition.key.capitalize().replace("/", "")}"
                     def config = project.buildscript.configurations.create(configurationName)
                     definition.value.each { dependencyNotation ->
                         project.buildscript.dependencies.add(configurationName, dependencyNotation)
@@ -74,10 +72,10 @@ class CopyOverlaysTask extends DefaultTask {
                     def task = project.getTasks().register("copy${configurationName.capitalize()}", Copy.class, new Action<Copy>() {
                         @Override
                         void execute(Copy copy) {
-                            config.files.each { file ->
+                            config.files.each { File file ->
                                 copy.from { shouldUnzip(file) ? project.zipTree(file) : file }
                             }
-                            copy.into { "${ExtensionsUtil.getServerWorkingDir(project)}/${definition.key}" }
+                            copy.into { "${LocationUtil.getServerWorkingDir(project)}/${definition.key}" }
                         }
                     })
                     project.tasks.getByName(task.name).dependsOn DownloadAndExtractServerDistTask.NAME

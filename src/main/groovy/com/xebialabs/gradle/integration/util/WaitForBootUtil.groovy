@@ -10,12 +10,12 @@ class WaitForBootUtil {
     static void byPort(Project project, String name, String url, Integer port) {
         project.logger.lifecycle("Waiting for $name to start.")
 
-        def extension = ExtensionsUtil.getExtension(project)
-        int triesLeft = extension.serverPingTotalTries
+        def server = ServerUtil.getServer(project)
+        int triesLeft = server.pingTotalTries
         boolean success = false
         while (triesLeft > 0 && !success) {
             try {
-                def http = buildRequest(url)
+                def http = HTTPUtil.buildRequest(url)
                 http.get([:]) { resp, reader ->
                     println("$name successfully started on port $port.")
                     success = true
@@ -23,8 +23,8 @@ class WaitForBootUtil {
             } catch (ignored) {
             }
             if (!success) {
-                println("Waiting for ${extension.serverPingRetrySleepTime} second(s) before retry. ($triesLeft)")
-                TimeUnit.SECONDS.sleep(extension.serverPingRetrySleepTime)
+                println("Waiting for ${server.pingRetrySleepTime} second(s) before retry. ($triesLeft)")
+                TimeUnit.SECONDS.sleep(server.pingRetrySleepTime)
                 triesLeft -= 1
             }
         }
@@ -35,8 +35,8 @@ class WaitForBootUtil {
 
     static def byLog(Project project, String name, File logFile, String containsLine) {
         project.logger.lifecycle("Waiting for $name to start.")
-        def extension = ExtensionsUtil.getExtension(project)
-        int triesLeft = extension.serverPingTotalTries
+        def server = ServerUtil.getServer(project)
+        int triesLeft = server.pingTotalTries
         boolean success = false
 
         while (triesLeft > 0 && !success) {
@@ -50,8 +50,8 @@ class WaitForBootUtil {
             } catch (ignored) {
             }
             if (!success) {
-                println("Waiting  ${extension.serverPingRetrySleepTime} second(s) for satellite startup. ($triesLeft)")
-                TimeUnit.SECONDS.sleep(extension.serverPingRetrySleepTime)
+                println("Waiting  ${server.pingRetrySleepTime} second(s) for satellite startup. ($triesLeft)")
+                TimeUnit.SECONDS.sleep(server.pingRetrySleepTime)
                 triesLeft -= 1
             }
         }

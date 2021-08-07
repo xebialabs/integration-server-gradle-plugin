@@ -1,14 +1,14 @@
 package com.xebialabs.gradle.integration.tasks.worker
 
 import com.xebialabs.gradle.integration.tasks.mq.ShutdownMq
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
+import com.xebialabs.gradle.integration.util.ServerUtil
 import com.xebialabs.gradle.integration.util.WorkerUtil
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
 class ShutdownWorkers extends DefaultTask {
     static NAME = "shutdownWorkers"
@@ -26,10 +26,10 @@ class ShutdownWorkers extends DefaultTask {
         }
     }
 
-    private void shutdownWorker() {
+    private void shutdownWorkers() {
         try {
-            project.logger.lifecycle("Trying to shutdown workers")
-            def http = new HTTPBuilder("http://localhost:${ExtensionsUtil.getExtension(project).serverHttpPort}/deployit/workers")
+            project.logger.lifecycle("About to shutdown all workers")
+            def http = new HTTPBuilder("http://localhost:${ServerUtil.getServer(project).httpPort}/deployit/workers")
             http.auth.basic("admin", "admin")
             http.request(Method.DELETE) {}
             project.logger.lifecycle("Workers shutdown successfully")
@@ -37,9 +37,8 @@ class ShutdownWorkers extends DefaultTask {
         }
     }
 
-
     @TaskAction
     void stop() {
-        shutdownWorker()
+        shutdownWorkers()
     }
 }

@@ -1,12 +1,11 @@
 package com.xebialabs.gradle.integration.util
 
-import org.gradle.api.Project
+import com.xebialabs.gradle.integration.domain.Server
 
 class EnvironmentUtil {
 
-    static def getEnv(Project project, String variableName) {
-        def extension = ExtensionsUtil.getExtension(project)
-        return getEnv(variableName, extension.serverDebugSuspend, extension.serverDebugPort, null)
+    static def getServerEnv(Server server) {
+        return getEnv("DEPLOYIT_SERVER_OPTS", server.debugSuspend, server.debugPort, null)
     }
 
     static def getEnv(String variableName, Boolean debugSuspend, Integer debugPort, String logFileName) {

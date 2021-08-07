@@ -1,6 +1,7 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
+
+import com.xebialabs.gradle.integration.util.LocationUtil
 import de.vandermeer.asciitable.AsciiTable
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment
 import groovy.json.JsonSlurper
@@ -15,7 +16,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
 class CheckUILibVersionsTask extends DefaultTask {
     static NAME = "checkUILibVersions"
@@ -97,7 +98,7 @@ class CheckUILibVersionsTask extends DefaultTask {
         table.addRow(null, "Version(s) mismatch has been detected").setTextAlignment(TextAlignment.CENTER)
         table.addRule()
 
-        mismatches.each { current ->
+        mismatches.each { Map<String, Object> current ->
             table.addRow(null, current.lib).setTextAlignment(TextAlignment.CENTER)
             table.addRule()
             current.versions.each { descriptor ->
@@ -110,11 +111,17 @@ class CheckUILibVersionsTask extends DefaultTask {
 
     @TaskAction
     def check() {
-        def plugins = Paths.get(ExtensionsUtil.getServerWorkingDir(project)).resolve("plugins").toFile().listFiles().toList()
+        project.logger.lifecycle("Checking UI Lib Versions on Deploy server")
+
+        def plugins = Paths.get(LocationUtil.getServerWorkingDir(project))
+                .resolve("plugins")
+                .resolve("xld-official").toFile().listFiles().toList()
+
         def metadata = collectPluginMetadata(plugins)
         def mismatches = findMismatches(metadata)
         if (!mismatches.isEmpty()) {
             throw new GradleException(formatErrorMessage(mismatches))
         }
     }
+
 }

@@ -1,11 +1,13 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
+
+import com.xebialabs.gradle.integration.util.LocationUtil
+import com.xebialabs.gradle.integration.util.ServerUtil
 import groovy.xml.XmlUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
 class RemoveStdoutConfigTask extends DefaultTask {
     static NAME = "removeStdoutConfigTask"
@@ -19,9 +21,11 @@ class RemoveStdoutConfigTask extends DefaultTask {
 
     @TaskAction
     def RemoveStdoutConfig() {
-        def removeStdoutConfig = ExtensionsUtil.getExtension(project).removeStdoutConfig
+        def server = ServerUtil.getServer(project)
+        project.logger.lifecycle("Removing STDOUT config on Deploy Server ${server.name}.")
+        def removeStdoutConfig = server.removeStdoutConfig
         if (removeStdoutConfig) {
-            def logbackConfig = "${ExtensionsUtil.getServerWorkingDir(project)}/conf/logback.xml"
+            def logbackConfig = "${LocationUtil.getServerWorkingDir(project)}/conf/logback.xml"
             def xml = new XmlParser().parse(project.file(logbackConfig))
 
             def stdoutAppender = xml.'**'.find { it["@name"] == 'STDOUT' }

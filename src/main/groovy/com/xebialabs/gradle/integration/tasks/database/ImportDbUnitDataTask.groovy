@@ -1,9 +1,9 @@
 package com.xebialabs.gradle.integration.tasks.database
 
+import com.xebialabs.gradle.integration.constant.PluginConstant
 import com.xebialabs.gradle.integration.tasks.DownloadAndExtractDbUnitDataDistTask
 import com.xebialabs.gradle.integration.util.DbConfigurationUtil
 import com.xebialabs.gradle.integration.util.DbUtil
-import com.xebialabs.gradle.integration.util.PluginUtil
 import com.xebialabs.gradle.integration.util.PostgresDbUtil
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import org.dbunit.operation.DatabaseOperation
@@ -17,7 +17,7 @@ class ImportDbUnitDataTask extends DefaultTask {
 
     ImportDbUnitDataTask() {
         this.configure {
-            group = PluginUtil.PLUGIN_GROUP
+            group = PluginConstant.PLUGIN_GROUP
             dependsOn(DownloadAndExtractDbUnitDataDistTask.NAME)
         }
     }
@@ -34,7 +34,7 @@ class ImportDbUnitDataTask extends DefaultTask {
         FlatXmlDataSetBuilder provider = new FlatXmlDataSetBuilder()
         provider.setColumnSensing(true)
         provider.setCaseSensitiveTableNames(true)
-        def destinationDir = project.buildDir.toPath().resolve(PluginUtil.DIST_DESTINATION_NAME).toAbsolutePath().toString()
+        def destinationDir = project.buildDir.toPath().resolve(PluginConstant.DIST_DESTINATION_NAME).toAbsolutePath().toString()
         def dataFile = Paths.get("${destinationDir}/xld-is-data-${project.xldIsDataVersion}-repository/data.xml")
         return provider.build(new FileInputStream(dataFile.toFile()))
     }
@@ -44,7 +44,7 @@ class ImportDbUnitDataTask extends DefaultTask {
         DbUtil.assertNotDerby(project, 'import job cannot be executed with Derby in network or in-memory configuration.')
 
         def dbname = DbUtil.databaseName(project)
-        def dbDependency = DbUtil.detectDbDependency(dbname)
+        def dbDependency = DbUtil.detectDbDependencies(dbname)
         def dbConfig = getConfiguration()
         def properties = DbConfigurationUtil.connectionProperties(dbConfig.get(0), dbConfig.get(1))
         def driverConnection = DbConfigurationUtil.createDriverConnection(dbDependency.getDriverClass(), dbConfig.get(2), properties)

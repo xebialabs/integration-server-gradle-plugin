@@ -1,11 +1,12 @@
 package com.xebialabs.gradle.integration.tasks
 
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
+import com.xebialabs.gradle.integration.domain.Server
+import com.xebialabs.gradle.integration.util.ServerUtil
 import org.gradle.api.tasks.Copy
 
+import static com.xebialabs.gradle.integration.constant.PluginConstant.DIST_DESTINATION_NAME
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 import static com.xebialabs.gradle.integration.util.ConfigurationsUtil.SERVER_CLI_DIST
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
-import static com.xebialabs.gradle.integration.util.PluginUtil.getDIST_DESTINATION_NAME
 
 class DownloadAndExtractCliDistTask extends Copy {
     static NAME = "downloadAndExtractCli"
@@ -13,18 +14,20 @@ class DownloadAndExtractCliDistTask extends Copy {
     DownloadAndExtractCliDistTask() {
         this.configure {
             group = PLUGIN_GROUP
-            def downloadRequired = ExtensionsUtil.getExtension(project).serverRuntimeDirectory
-
-            if (downloadRequired == null) {
-                def serverVersion = ExtensionsUtil.getExtension(project).serverVersion
+            def server = ServerUtil.getServer(project)
+            if (isDownloadRequired(server)) {
+                project.logger.lifecycle("Downloading and extracting the CLI.")
                 project.buildscript.dependencies.add(
                         SERVER_CLI_DIST,
-                        "com.xebialabs.deployit:xl-deploy-base:${serverVersion}:cli@zip"
+                        "com.xebialabs.deployit:xl-deploy-base:${server.version}:cli@zip"
                 )
                 from { project.zipTree(project.buildscript.configurations.getByName(SERVER_CLI_DIST).singleFile) }
                 into { project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString() }
             }
-
         }
+    }
+
+    private static def isDownloadRequired(Server server) {
+        server.runtimeDirectory == null
     }
 }

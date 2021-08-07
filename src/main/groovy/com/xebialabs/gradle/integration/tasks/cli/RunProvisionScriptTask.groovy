@@ -1,16 +1,17 @@
 package com.xebialabs.gradle.integration.tasks.cli
 
+import com.xebialabs.gradle.integration.domain.Server
 import com.xebialabs.gradle.integration.tasks.DownloadAndExtractCliDistTask
 import com.xebialabs.gradle.integration.tasks.StartIntegrationServerTask
 import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
+import com.xebialabs.gradle.integration.util.ServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.CollectionUtils
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
 class RunProvisionScriptTask extends DefaultTask {
     static NAME = "runProvisionScript"
@@ -31,17 +32,16 @@ class RunProvisionScriptTask extends DefaultTask {
         }
     }
 
-    private void runProvisioning() {
-
-        def filtered = project.configurations.getByName(ConfigurationsUtil.INTEGRATION_TEST_CLI).filter { !it.name.endsWith("-sources.jar") }
+    private void runProvisioning(Server server) {
+        def filtered = project.configurations.getByName(ConfigurationsUtil.DEPLOY_CLI).filter { !it.name.endsWith("-sources.jar") }
         def classpath = CollectionUtils.join(File.pathSeparator, filtered.getFiles())
 
         logger.debug("Provision CLI classpath: \n${classpath}")
 
-        def extension = ExtensionsUtil.getExtension(project)
-        def script = getProvisionScript() != null && !getProvisionScript().isEmpty() ? getProvisionScript() : extension.getProvisionScript()
-        def port = extension.getServerHttpPort()
-        def contextRoot = extension.getServerContextRoot()
+        def provisionScript = server.provisionScript
+        def script = getProvisionScript() != null && !getProvisionScript().isEmpty() ? getProvisionScript() : server.provisionScript
+        def port = server.httpPort
+        def contextRoot = server.contextRoot
 
         project.javaexec {
             main = "com.xebialabs.deployit.cli.Cli"
@@ -60,6 +60,7 @@ class RunProvisionScriptTask extends DefaultTask {
 
     @TaskAction
     void launch() {
-        runProvisioning()
+        project.logger.lifecycle("Running provision script on Deploy server.")
+        runProvisioning(ServerUtil.getServer(project))
     }
 }

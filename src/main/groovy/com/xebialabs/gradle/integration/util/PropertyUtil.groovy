@@ -18,13 +18,4 @@ class PropertyUtil {
             null as Integer
         } else Integer.parseInt(value as String)
     }
-
-    static def resolveBooleanValue(Project project, String propertyName, Boolean defaultValue) {
-        if (project.hasProperty(propertyName)) {
-            def value = project.property(propertyName)
-            !value || Boolean.parseBoolean(value as String)
-        } else {
-            defaultValue
-        }
-    }
 }

@@ -1,7 +1,9 @@
 package com.xebialabs.gradle.integration.tasks.satellite
 
+import com.xebialabs.gradle.integration.domain.Satellite
 import com.xebialabs.gradle.integration.util.EnvironmentUtil
-import com.xebialabs.gradle.integration.util.ExtensionsUtil
+import com.xebialabs.gradle.integration.util.ExtensionUtil
+import com.xebialabs.gradle.integration.util.LocationUtil
 import com.xebialabs.gradle.integration.util.ProcessUtil
 import com.xebialabs.gradle.integration.util.WaitForBootUtil
 import org.gradle.api.DefaultTask
@@ -9,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
 
-import static com.xebialabs.gradle.integration.util.PluginUtil.PLUGIN_GROUP
+import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
 class StartSatelliteTask extends DefaultTask {
     static NAME = "startSatellite"
@@ -26,27 +28,35 @@ class StartSatelliteTask extends DefaultTask {
         }
     }
 
-    private def getBinDir() {
-        Paths.get(ExtensionsUtil.getSatelliteWorkingDir(project), "bin").toFile()
+    private def getBinDir(Satellite satellite) {
+        Paths.get(LocationUtil.getSatelliteWorkingDir(project), "bin").toFile()
     }
 
-    private void startServer() {
-        project.logger.lifecycle("Launching Satellite.")
+    private void startSatellite(Satellite satellite) {
+        project.logger.lifecycle("Launching Satellite ${satellite.name}.")
+
         ProcessUtil.exec([
                 command    : "run",
-                environment: EnvironmentUtil.getEnv(project, "SATELLITE_OPTS"),
+                environment: EnvironmentUtil.getEnv(
+                        "SATELLITE_OPTS",
+                        satellite.debugSuspend,
+                        satellite.debugPort,
+                        "xl-satellite.log"
+                ),
                 workDir    : getBinDir()
         ])
         project.logger.lifecycle("Satellite successfully started.")
     }
 
-    private def getWorkerLog() {
-        project.file("${ExtensionsUtil.getSatelliteWorkingDir(project)}/log/xl-satellite.log")
+    private def getSatelliteLog() {
+        project.file("${LocationUtil.getSatelliteWorkingDir(project)}/log/xl-satellite.log")
     }
 
     @TaskAction
     void launch() {
-        startServer()
-        WaitForBootUtil.byLog(project, "Satellite", getWorkerLog(), "XL Satellite has started")
+        ExtensionUtil.getExtension(project).satellites.each { Satellite satellite ->
+            startSatellite(satellite)
+            WaitForBootUtil.byLog(project, "Satellite", getSatelliteLog(), "XL Satellite has started")
+        }
     }
 }
