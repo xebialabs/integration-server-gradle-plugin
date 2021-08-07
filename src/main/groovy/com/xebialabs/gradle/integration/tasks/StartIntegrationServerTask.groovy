@@ -124,21 +124,15 @@ class StartIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("Preparing serve ${server.name} before launching it.")
         createFolders()
         createConfFile(server)
-        project.logger.lifecycle("----- 1 --------")
-
         if (!hasToBeStartedFromClasspath(server)) {
-            project.logger.lifecycle("----- 2 --------")
             initialize()
         }
     }
 
     private def start(Server server) {
-        project.logger.lifecycle("----- 3 --------")
         if (hasToBeStartedFromClasspath(server)) {
-            project.logger.lifecycle("----- 4 --------")
             startServerFromClasspath(server)
         } else {
-            project.logger.lifecycle("----- 5 --------")
             startServer(server)
         }
     }
