@@ -58,7 +58,7 @@ class DbUtil {
             def port = ExtensionUtil.getDatabase(project).derbyPort
             config.get("xl.repository")
                     .get("database")
-                    .putAt("db-url", "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin")
+                    .put("db-url", "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin")
         }
         config
     }
