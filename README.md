@@ -26,7 +26,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.xebialabs.gradle.plugins:integration-server-gradle-plugin:10.3.0-806.1518"
+        classpath "com.xebialabs.gradle.plugins:integration-server-gradle-plugin:10.3.0-807.1406"
     }
 }
 
