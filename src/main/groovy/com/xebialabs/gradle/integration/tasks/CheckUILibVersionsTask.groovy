@@ -8,6 +8,7 @@ import groovy.json.JsonSlurper
 import org.apache.commons.io.IOUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
 import java.nio.charset.Charset
@@ -76,10 +77,17 @@ class CheckUILibVersionsTask extends DefaultTask {
         mismatch ? pluginVersions : null
     }
 
-    private static def collectPluginMetadata(List<File> files) {
+    private static def collectPluginMetadata(Project project, List<File> files) {
+        project.logger.lifecycle("Collecting plugins metadata")
+
         files.findAll { it.name.endsWith(".xldp") }.collectMany { plugin ->
+            project.logger.lifecycle("Extracting plugin's metadata from the plugin $plugin")
             def xldpZip = new ZipFile(plugin)
-            def internalJarEntry = xldpZip.entries().toList().find { it.name.endsWith(".jar") }
+            def entries = xldpZip.entries()
+            if (entries == null) {
+                project.logger.lifecycle("No entries found in the plugin $plugin")
+            }
+            def internalJarEntry = entries == null ? null : entries.toList().find { it.name.endsWith(".jar") }
             internalJarEntry ? extractPluginMetadata(xldpZip, internalJarEntry) : []
         }
     }
@@ -117,7 +125,7 @@ class CheckUILibVersionsTask extends DefaultTask {
                 .resolve("plugins")
                 .resolve("xld-official").toFile().listFiles().toList()
 
-        def metadata = collectPluginMetadata(plugins)
+        def metadata = collectPluginMetadata(project, plugins)
         def mismatches = findMismatches(metadata)
         if (!mismatches.isEmpty()) {
             throw new GradleException(formatErrorMessage(mismatches))

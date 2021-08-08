@@ -26,7 +26,7 @@ class DatabaseStartTask extends DockerComposeUp {
     @InputFiles
     File getDockerComposeFile() {
         DbUtil.assertNotDerby(project, 'Docker compose tasks do not support Derby database.')
-        def resultComposeFilePath = DbUtil.getResolveDbFilePath()
+        def resultComposeFilePath = DbUtil.getResolveDbFilePath(project)
 
         def src = DatabaseStartTask.class.getProtectionDomain().getCodeSource()
         if (src != null) {

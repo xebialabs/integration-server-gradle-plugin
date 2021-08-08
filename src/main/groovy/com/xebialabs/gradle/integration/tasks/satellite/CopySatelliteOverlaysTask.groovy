@@ -1,7 +1,6 @@
 package com.xebialabs.gradle.integration.tasks.satellite
 
 import com.xebialabs.gradle.integration.domain.Satellite
-import com.xebialabs.gradle.integration.tasks.CheckUILibVersionsTask
 import com.xebialabs.gradle.integration.util.SatelliteUtil
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
@@ -20,7 +19,6 @@ class CopySatelliteOverlaysTask extends DefaultTask {
         this.configure { ->
             group = PLUGIN_GROUP
             mustRunAfter DownloadAndExtractSatelliteDistTask.NAME
-            finalizedBy CheckUILibVersionsTask.NAME
             project.afterEvaluate {
                 SatelliteUtil.getSatellites(project).each { Satellite satellite ->
                     satellite.overlays.each { Map.Entry<String, List<Object>> overlay ->

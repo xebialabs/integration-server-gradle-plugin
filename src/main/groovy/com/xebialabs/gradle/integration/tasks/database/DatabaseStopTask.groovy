@@ -18,7 +18,7 @@ class DatabaseStopTask extends DefaultTask {
     @InputFiles
     File getDockerComposeFile() {
         DbUtil.assertNotDerby(project, 'Docker compose tasks do not support Derby database.')
-        DbUtil.getResolveDbFilePath().toFile()
+        DbUtil.getResolveDbFilePath(project).toFile()
     }
 
     @TaskAction
