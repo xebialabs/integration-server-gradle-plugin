@@ -24,7 +24,7 @@ class MqUtil {
     }
 
     static def getMqRelativePath(project) {
-        "mq" + File.separator + "docker-compose_${mqName(project)}.yaml"
+        "mq/docker-compose_${mqName(project)}.yaml"
     }
 
     static def detectMqDependency(mq) {
@@ -37,6 +37,7 @@ class MqUtil {
 
     static Path getResolvedDockerFile(Project project) {
         def resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, getMqRelativePath(project))
+        project.logger.lifecycle("Docker compose file for MQ is: $resultComposeFilePath")
 
         def mqTemplate = resultComposeFilePath.toFile()
         def port = mqName(project) == MqUtil.RABBITMQ ? 5672 : 61616
