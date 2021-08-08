@@ -82,14 +82,14 @@ class DbUtil {
         enrichDatabase(project, databases.isEmpty() ? new Database(databaseName(project)) : databases.first())
     }
 
+    static def getResolveDbFilePath(Project project) {
+        def composeFileName = dockerComposeFileName(project)
+        DockerComposeUtil.getResolvedDockerPath(project, "database-compose/$composeFileName")
+    }
+
     static def dockerComposeFileName(Project project) {
         def dbName = databaseName(project)
         "docker-compose_${dbName}.yaml"
-    }
-
-    static def dockerComposeFileDestination(Project project) {
-        def composeFileName = dockerComposeFileName(project)
-        Paths.get("${LocationUtil.getServerDir(project)}/${composeFileName}")
     }
 
     static final DbParameters postgresParams = new DbParameters(

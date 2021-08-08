@@ -23,15 +23,10 @@ class DatabaseStartTask extends DockerComposeUp {
         "Starts database instance using `docker-compose` and ${DbUtil.dockerComposeFileName(project).toString()} file."
     }
 
-    private def getResolveDbFilePath() {
-        def composeFileName = DbUtil.dockerComposeFileName(project)
-        DockerComposeUtil.getResolvedDockerPath(project, "database-compose/$composeFileName")
-    }
-
     @InputFiles
     File getDockerComposeFile() {
         DbUtil.assertNotDerby(project, 'Docker compose tasks do not support Derby database.')
-        def resultComposeFilePath = getResolveDbFilePath()
+        def resultComposeFilePath = DbUtil.getResolveDbFilePath()
 
         def src = DatabaseStartTask.class.getProtectionDomain().getCodeSource()
         if (src != null) {

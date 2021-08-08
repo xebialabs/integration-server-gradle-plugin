@@ -27,7 +27,7 @@ class StartIntegrationServerTask extends DefaultTask {
                 RemoveStdoutConfigTask.NAME,
                 PrepareDatabaseTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DatabaseStartTask.NAME,
-                YamlPatchTask.NAME,
+                YamlPatchTask.NAME
         ]
 
         this.configure {
