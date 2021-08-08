@@ -2,8 +2,7 @@ package com.xebialabs.gradle.integration.tasks.satellite
 
 import com.xebialabs.gradle.integration.domain.Satellite
 import com.xebialabs.gradle.integration.tasks.CheckUILibVersionsTask
-import com.xebialabs.gradle.integration.util.ExtensionUtil
-import com.xebialabs.gradle.integration.util.LocationUtil
+import com.xebialabs.gradle.integration.util.SatelliteUtil
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
@@ -23,7 +22,7 @@ class CopySatelliteOverlaysTask extends DefaultTask {
             mustRunAfter DownloadAndExtractSatelliteDistTask.NAME
             finalizedBy CheckUILibVersionsTask.NAME
             project.afterEvaluate {
-                ExtensionUtil.getExtension(project).satellites.each { Satellite satellite ->
+                SatelliteUtil.getSatellites(project).each { Satellite satellite ->
                     satellite.overlays.each { Map.Entry<String, List<Object>> overlay ->
                         project.logger.lifecycle("Applying overlay for satellite ${satellite.name}.")
 
@@ -39,7 +38,7 @@ class CopySatelliteOverlaysTask extends DefaultTask {
                                 config.files.each { file ->
                                     copy.from { shouldUnzip(file) ? project.zipTree(file) : file }
                                 }
-                                copy.into { "${LocationUtil.getSatelliteWorkingDir(project)}/${overlay.key}" }
+                                copy.into { "${SatelliteUtil.getSatelliteWorkingDir(project, satellite)}/${overlay.key}" }
                             }
                         })
                         project.tasks.getByName(task.name).dependsOn DownloadAndExtractSatelliteDistTask.NAME

@@ -8,10 +8,10 @@ import org.gradle.api.tasks.TaskAction
 
 import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
-class StartMq extends DockerComposeUp {
+class StartMqTask extends DockerComposeUp {
     static NAME = "startMq"
 
-    StartMq() {
+    StartMqTask() {
         this.configure {
             group = PLUGIN_GROUP
             onlyIf {

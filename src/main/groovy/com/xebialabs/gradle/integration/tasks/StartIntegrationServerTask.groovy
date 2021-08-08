@@ -3,8 +3,9 @@ package com.xebialabs.gradle.integration.tasks
 import com.xebialabs.gradle.integration.domain.Server
 import com.xebialabs.gradle.integration.tasks.database.DatabaseStartTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
-import com.xebialabs.gradle.integration.tasks.mq.StartMq
-import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
+import com.xebialabs.gradle.integration.tasks.mq.StartMqTask
+import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
+import com.xebialabs.gradle.integration.tasks.worker.StartWorkersTask
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -22,7 +23,7 @@ class StartIntegrationServerTask extends DefaultTask {
                 DownloadAndExtractServerDistTask.NAME,
                 CopyOverlaysTask.NAME,
                 SetLogbackLevelsTask.NAME,
-                StartMq.NAME,
+                StartMqTask.NAME,
                 RemoveStdoutConfigTask.NAME,
                 PrepareDatabaseTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DatabaseStartTask.NAME,
@@ -34,7 +35,11 @@ class StartIntegrationServerTask extends DefaultTask {
             dependsOn(dependencies)
 
             if (WorkerUtil.hasWorkers(project)) {
-                finalizedBy(StartWorkers.NAME)
+                finalizedBy(StartWorkersTask.NAME)
+            }
+
+            if (SatelliteUtil.hasSatellites(project)) {
+                finalizedBy(StartSatelliteTask.NAME)
             }
         }
     }

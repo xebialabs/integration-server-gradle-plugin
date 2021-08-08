@@ -27,9 +27,5 @@ class LocationUtil {
         }
     }
 
-    static def getSatelliteWorkingDir(Project project) {
-        def satellite = ExtensionUtil.getSatellite(project)
-        def targetDir = project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()
-        Paths.get(targetDir, "xl-satellite-server-${satellite.version}").toAbsolutePath().toString()
-    }
+
 }

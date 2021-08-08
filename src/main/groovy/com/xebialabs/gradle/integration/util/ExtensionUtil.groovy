@@ -23,10 +23,6 @@ class ExtensionUtil {
         project.extensions.getByType(IntegrationServerExtension)
     }
 
-    static Satellite getSatellite(Project project) {
-        project.extensions.getByType(IntegrationServerExtension).satellites.first()
-    }
-
     static createExtension(Project project) {
         project.extensions.create(EXTENSION_NAME,
                 IntegrationServerExtension,

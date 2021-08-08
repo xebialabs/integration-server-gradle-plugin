@@ -9,15 +9,15 @@ import com.xebialabs.gradle.integration.tasks.database.ImportDbUnitDataTask
 import com.xebialabs.gradle.integration.tasks.database.PrepareDatabaseTask
 import com.xebialabs.gradle.integration.tasks.gitlab.GitlabStartTask
 import com.xebialabs.gradle.integration.tasks.gitlab.GitlabStopTask
-import com.xebialabs.gradle.integration.tasks.mq.ShutdownMq
-import com.xebialabs.gradle.integration.tasks.mq.StartMq
+import com.xebialabs.gradle.integration.tasks.mq.ShutdownMqTask
+import com.xebialabs.gradle.integration.tasks.mq.StartMqTask
 import com.xebialabs.gradle.integration.tasks.pluginManager.StartPluginManagerTask
 import com.xebialabs.gradle.integration.tasks.satellite.CopySatelliteOverlaysTask
 import com.xebialabs.gradle.integration.tasks.satellite.DownloadAndExtractSatelliteDistTask
 import com.xebialabs.gradle.integration.tasks.satellite.ShutdownSatelliteTask
 import com.xebialabs.gradle.integration.tasks.satellite.StartSatelliteTask
-import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorkers
-import com.xebialabs.gradle.integration.tasks.worker.StartWorkers
+import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorkersTask
+import com.xebialabs.gradle.integration.tasks.worker.StartWorkersTask
 import com.xebialabs.gradle.integration.util.ConfigurationsUtil
 import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ExtensionUtil
@@ -48,7 +48,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
 
-        project.tasks.create(ShutdownWorkers.NAME, ShutdownWorkers)
+        project.tasks.create(ShutdownWorkersTask.NAME, ShutdownWorkersTask)
         project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask)
 
         project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
@@ -56,9 +56,9 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
         project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
 
-        project.tasks.create(StartMq.NAME, StartMq)
-        project.tasks.create(ShutdownMq.NAME, ShutdownMq)
-        project.tasks.create(StartWorkers.NAME, StartWorkers)
+        project.tasks.create(StartMqTask.NAME, StartMqTask)
+        project.tasks.create(ShutdownMqTask.NAME, ShutdownMqTask)
+        project.tasks.create(StartWorkersTask.NAME, StartWorkersTask)
 
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
         project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask).dependsOn(itcfg)

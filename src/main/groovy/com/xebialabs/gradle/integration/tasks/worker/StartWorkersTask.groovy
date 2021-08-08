@@ -2,7 +2,7 @@ package com.xebialabs.gradle.integration.tasks.worker
 
 import com.xebialabs.gradle.integration.domain.Worker
 import com.xebialabs.gradle.integration.tasks.YamlPatchTask
-import com.xebialabs.gradle.integration.tasks.mq.StartMq
+import com.xebialabs.gradle.integration.tasks.mq.StartMqTask
 import com.xebialabs.gradle.integration.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -11,13 +11,13 @@ import java.nio.file.Paths
 
 import static com.xebialabs.gradle.integration.constant.PluginConstant.PLUGIN_GROUP
 
-class StartWorkers extends DefaultTask {
+class StartWorkersTask extends DefaultTask {
 
     static NAME = "startWorkers"
 
-    StartWorkers() {
+    StartWorkersTask() {
         def dependencies = [
-                StartMq.NAME,
+                StartMqTask.NAME,
                 YamlPatchTask.NAME
         ]
 
@@ -71,7 +71,7 @@ class StartWorkers extends DefaultTask {
                 .filter { !it.name.endsWith("-sources.jar") }.asPath
 
         logger.debug("XL Deploy Worker classpath: \n${classpath}")
-        project.logger.lifecycle("Starting Worker for project ${project.name} on a port: ${worker.port}")
+        project.logger.lifecycle("Starting Worker ${worker.name} for project ${project.name} on a port: ${worker.port}")
 
         def params = [
                 classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper",

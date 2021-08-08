@@ -1,7 +1,7 @@
 package com.xebialabs.gradle.integration.tasks
 
 import com.xebialabs.gradle.integration.tasks.database.DatabaseStopTask
-import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorkers
+import com.xebialabs.gradle.integration.tasks.worker.ShutdownWorkersTask
 import com.xebialabs.gradle.integration.util.DbUtil
 import com.xebialabs.gradle.integration.util.ShutdownUtil
 import com.xebialabs.gradle.integration.util.WorkerUtil
@@ -16,7 +16,7 @@ class ShutdownIntegrationServerTask extends DefaultTask {
     ShutdownIntegrationServerTask() {
         def dependencies = []
         if (WorkerUtil.hasWorkers(project)) {
-            dependencies.push(ShutdownWorkers.NAME)
+            dependencies.push(ShutdownWorkersTask.NAME)
         }
         group = PLUGIN_GROUP
         if (DbUtil.isDerby(project)) {

@@ -6,10 +6,10 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 
-class ShutdownMq extends DefaultTask {
+class ShutdownMqTask extends DefaultTask {
     static NAME = "shutdownMq"
 
-    ShutdownMq() {
+    ShutdownMqTask() {
         this.group = PluginConstant.PLUGIN_GROUP
     }
 
