@@ -3,6 +3,7 @@ package com.xebialabs.gradle.integration.util
 import org.apache.commons.io.IOUtils
 
 import java.nio.file.Path
+import java.nio.file.Paths
 
 class FileUtil {
 
@@ -20,5 +21,13 @@ class FileUtil {
         } finally {
             os.close()
         }
+    }
+
+    static def pathToString(Path path) {
+        path.toAbsolutePath().toString()
+    }
+
+    static def toPathString(Path path, String subDir) {
+        pathToString(Paths.get(pathToString(path), subDir))
     }
 }

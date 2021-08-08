@@ -12,7 +12,7 @@ class MqUtil {
     private MqUtil() {}
 
     static String getMqDirectory(Project project) {
-        "${LocationUtil.getServerDir(project)}/mq"
+        FileUtil.toPathString(LocationUtil.getServerDir(project), "mq")
     }
 
     static def mqName(project) {
@@ -24,7 +24,7 @@ class MqUtil {
     }
 
     static def getMqRelativePath(project) {
-        "mq/docker-compose_${mqName(project)}.yaml"
+        "mq" + File.separator + "docker-compose_${mqName(project)}.yaml"
     }
 
     static def detectMqDependency(mq) {

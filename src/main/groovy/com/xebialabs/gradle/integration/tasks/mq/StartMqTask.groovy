@@ -36,7 +36,7 @@ class StartMqTask extends DockerComposeUp {
 
         project.exec {
             it.executable "docker-compose"
-            it.args '-f', getDockerComposeFile(), '--project-directory', "${MqUtil.getMqDirectory(project)}/mq", 'up', '-d'
+            it.args '-f', getDockerComposeFile(), '--project-directory', MqUtil.getMqDirectory(project), 'up', '-d'
         }
 
     }
