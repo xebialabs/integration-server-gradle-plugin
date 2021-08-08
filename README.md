@@ -37,10 +37,11 @@ apply plugin: 'integration.server'
 
 ```groovy
 integrationServer {
-    servers {
+    servers { // for now it can be only one server
         controlPlane {
             contextRoot = "/custom" // By default "/", but you can customize it
             debugPort = 4005 // Debug port, by default it is disabled
+            debugSuspend = true // by default false
             httpPort = 4516 // Server HTTP port, by default it is random port
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"] // custom Java process arguments
             logLevels = ["com.xebialabs.deployit.plugin.stitch": "debug"] // Log level overwrites
@@ -76,17 +77,24 @@ integrationServer {
         worker01 { // name = worker01, worker01 will start from the same server directory as local worker(xl-deploy-10.2.0-server)
         }
         worker02 { // name = worker02, worker02 will start from the same server directory as local worker (xl-deploy-10.2.0-server)
-            debugPort = 5006
+            debugPort = 5006  // Debug port, by default it is disabled
             debugSuspend = true // by default false
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
         }
         worker03 { // name = worker03, worker03 will start from the mentioned directory path(/opt/xl-deploy-worker)
-            debugPort = 5007
+            debugPort = 5007  // Debug port, by default it is disabled
             directory = "/opt/xl-deploy-worker"
             debugSuspend = false
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
             port = 8182
         }
+    }
+
+    satellites {
+       satellite01 {
+            debugPort = 5008  // Debug port, by default it is disabled
+            debugSuspend = true // By default false
+       }   
     }
 }
 ```
