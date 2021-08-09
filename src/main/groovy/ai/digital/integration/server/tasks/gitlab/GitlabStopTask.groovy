@@ -1,5 +1,6 @@
 package ai.digital.integration.server.tasks.gitlab
 
+import ai.digital.integration.server.util.DockerComposeUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -18,9 +19,8 @@ class GitlabStopTask extends DefaultTask {
 
     @InputFiles
     File getDockerComposeFile() {
-        def composeFilePath = Paths.get(
-                "${project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()}" + "/docker-compose-gitlab.yml")
-        composeFilePath.toFile()
+        def relativePath = "gitlab/gitlab-compose/docker-compose-gitlab.yml"
+        project.file(DockerComposeUtil.getResolvedDockerPath(project, relativePath))
     }
 
     @TaskAction
