@@ -1,6 +1,6 @@
 # Integration server plugin
 
-Gradle plugin designed to provide XL Deploy integration server functionality.
+Gradle plugin designed to provide Deploy Digital.ai integration server functionality.
 
 ## Usage
 
@@ -14,7 +14,7 @@ buildscript {
         jcenter()
         mavenCentral()
         mavenLocal()
-        ["public", "snapshots", "releases", "alphas"].each { r ->
+        ["public", "releases"].each { r ->
             maven {
                 credentials {
                     username nexusUserName
@@ -158,4 +158,7 @@ The full command can look like this:
 
 Then in Intellij IDEA you are connecting to remote port 5005. The gradle task will proceed executing only after 
 you will be connected to this port. If you have some troubles with it, you might need first to execute: `./gradlew --stop`
+
+When you run the job on CI pipeline and the error doesn't give a clue what is going on, it's better to add `--stactrace`
+to get a better idea where exactly it fails. 
 
