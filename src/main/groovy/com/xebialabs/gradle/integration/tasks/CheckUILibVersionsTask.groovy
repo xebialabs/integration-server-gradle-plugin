@@ -83,11 +83,7 @@ class CheckUILibVersionsTask extends DefaultTask {
         files.findAll { it.name.endsWith(".xldp") }.collectMany { plugin ->
             project.logger.lifecycle("Extracting plugin's metadata from the plugin $plugin")
             def xldpZip = new ZipFile(plugin)
-            def entries = xldpZip.entries()
-            if (entries == null) {
-                project.logger.lifecycle("No entries found in the plugin $plugin")
-            }
-            def internalJarEntry = entries == null ? null : entries.toList().find { it.name.endsWith(".jar") }
+            def internalJarEntry = xldpZip.entries().toList().find { it.name.endsWith(".jar") }
             internalJarEntry ? extractPluginMetadata(xldpZip, internalJarEntry) : []
         }
     }
@@ -123,12 +119,20 @@ class CheckUILibVersionsTask extends DefaultTask {
 
         def plugins = Paths.get(LocationUtil.getServerWorkingDir(project))
                 .resolve("plugins")
-                .resolve("xld-official").toFile().listFiles().toList()
+                .resolve("xld-official").toFile().listFiles()
 
-        def metadata = collectPluginMetadata(project, plugins)
-        def mismatches = findMismatches(metadata)
-        if (!mismatches.isEmpty()) {
-            throw new GradleException(formatErrorMessage(mismatches))
+        if (plugins != null) {
+            def metadata = collectPluginMetadata(project, plugins.toList())
+            def mismatches = findMismatches(metadata)
+            if (!mismatches.isEmpty()) {
+                throw new GradleException(formatErrorMessage(mismatches))
+            }
+        } else {
+            /**
+             * This can happen when Deploy started from runtime directory.
+             * Extra logic has to be added to solve this kind of setup.
+             */
+            project.logger.lifecycle("No plugins have been found on Deploy Server. Skipping checking versions for UI libraries.")
         }
     }
 
