@@ -39,7 +39,7 @@ class ShutdownUtil {
         try {
             def port = server.httpPort
             project.logger.lifecycle("Trying to shutdown integration server on port ${port}")
-            def http = HTTPUtil.buildRequest("http://localhost:$port}/deployit/server/shutdown")
+            def http = HTTPUtil.buildRequest("http://localhost:$port/deployit/server/shutdown")
 
             http.post([:]) { resp, reader ->
                 waitForShutdown(project)
