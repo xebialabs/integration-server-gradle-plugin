@@ -4,19 +4,3 @@ plugins {
 
 sourceCompatibility = 11
 targetCompatibility = 11
-
-repositories {
-    maven {
-        url "https://plugins.gradle.org/m2/"
-    }
-    mavenLocal()
-    if (project.hasProperty("nexusUserName")) {
-        maven {
-            credentials {
-                username project.property("nexusUserName")
-                password project.property("nexusPassword")
-            }
-            url "${project.property('nexusBaseUrl')}/repositories/releases"
-        }
-    }
-}

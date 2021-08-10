@@ -13,17 +13,6 @@ buildscript {
     repositories {
         mavenCentral()
         mavenLocal()
-        if (project.hasProperty("nexusUserName")) {
-            ["public", "releases"].each { r ->
-                maven {
-                    credentials {
-                        username nexusUserName
-                        password nexusPassword
-                    }
-                    url "${nexusBaseUrl}/repositories/${r}"
-                }
-            }
-        }
     }
 
     dependencies {

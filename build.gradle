@@ -1,30 +1,26 @@
 plugins {
     id 'groovy'
     id 'idea'
+    id 'io.codearte.nexus-staging' version '0.30.0'
     id 'maven-publish'
-    id "nebula.release" version "15.3.1"
+    id 'nebula.release' version '15.3.1'
+    id 'signing'
 }
 
-group = 'ai.digital.integration.server'
+group = 'com.xebialabs.gradle.plugins'
 defaultTasks 'build'
 
 sourceCompatibility = languageLevel
 targetCompatibility = languageLevel
 
 repositories {
-    maven {
-        url "https://plugins.gradle.org/m2/"
-    }
     mavenCentral()
     mavenLocal()
-    if (project.hasProperty("nexusUserName")) {
-        maven {
-            credentials {
-                username project.property("nexusUserName")
-                password project.property("nexusPassword")
-            }
-            url "${project.property('nexusBaseUrl')}/repositories/releases"
-        }
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/releases'
+    }
+    maven {
+        url "https://plugins.gradle.org/m2/"
     }
 }
 
@@ -69,14 +65,40 @@ test {
     useJUnitPlatform()
 }
 
-if (project.hasProperty("nexusUserName")) {
+if (project.hasProperty("sonatypeUsername")) {
     publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                pom {
+                    inceptionYear '2020'
+                    name = 'Integration Server Gradle Plugin'
+                    url = 'https://github.com/xebialabs/integration-server-gradle-plugin.git'
+                    licenses {
+                        license {
+                            name 'GPLv2 with Digital.ai FLOSS License Exception'
+                            url 'https://github.com/xebialabs/integration-server-gradle-plugin/blob/master/LICENSE'
+                        }
+                    }
+
+                    scm {
+                        url 'https://github.com/xebialabs/integration-server-gradle-plugin'
+                    }
+                }
+            }
+        }
         repositories {
             maven {
-                url "${project.property("nexusBaseUrl")}/repositories/releases"
+                url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
                 credentials {
-                    username = project.property("nexusUserName")
-                    password = project.property("nexusPassword")
+                    username = project.property("sonatypeUsername")
+                    password = project.property("sonatypePassword")
+                }
+            }
+            maven {
+                url "https://oss.sonatype.org/content/repositories/snapshots"
+                credentials {
+                    username = project.property("sonatypeUsername")
+                    password = project.property("sonatypePassword")
                 }
             }
         }
@@ -88,6 +110,24 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
+if (project.hasProperty("sonatypeUsername")) {
+    signing {
+        sign publishing.publications.mavenJava
+    }
+}
+
+nexusStaging {
+    packageGroup = "com.xebialabs"
+}
+
 import com.xebialabs.gradle.release.NebulaRelease
 
 task nebulaRelease(type: NebulaRelease)
+
+task dumpVersion {
+    doLast {
+        file(buildDir).mkdirs()
+        def out = file("$buildDir/version.dump")
+        out.write("version=$project.version")
+    }
+}
