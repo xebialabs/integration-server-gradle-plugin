@@ -19,13 +19,13 @@ class ShutdownSatelliteTask extends DefaultTask {
         group = PLUGIN_GROUP
     }
 
-    private def copyStopSatelliteScript(Satellite satellite) {
+    def copyStopSatelliteScript(Satellite satellite) {
         def from = ShutdownSatelliteTask.class.classLoader.getResourceAsStream("satellite/bin/$STOP_SATELLITE_SCRIPT")
         def intoDir = Paths.get(SatelliteUtil.getSatelliteWorkingDir(project, satellite)).resolve(STOP_SATELLITE_SCRIPT)
         FileUtil.copyFile(from, intoDir)
     }
 
-    private void stopSatellite(Satellite satellite) {
+    void stopSatellite(Satellite satellite) {
         ProcessUtil.chMod(project, "777", Paths.get(SatelliteUtil.getSatelliteWorkingDir(project, satellite))
                 .resolve(STOP_SATELLITE_SCRIPT).toAbsolutePath().toString())
         ProcessUtil.exec([
