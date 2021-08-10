@@ -11,22 +11,23 @@ In the root file **build.gradle** of your project define a plugin dependency lik
 ```groovy
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
         mavenLocal()
-        ["public", "releases"].each { r ->
-            maven {
-                credentials {
-                    username nexusUserName
-                    password nexusPassword
+        if (project.hasProperty("nexusUserName")) {
+            ["public", "releases"].each { r ->
+                maven {
+                    credentials {
+                        username nexusUserName
+                        password nexusPassword
+                    }
+                    url "${nexusBaseUrl}/repositories/${r}"
                 }
-                url "${nexusBaseUrl}/repositories/${r}"
             }
         }
     }
 
     dependencies {
-        classpath "com.xebialabs.gradle.plugins:integration-server-gradle-plugin:10.3.0-807.1406"
+        classpath "com.xebialabs.gradle.plugins:integration-server-gradle-plugin:10.3.0-810.1357"
     }
 }
 

@@ -1,28 +1,30 @@
 plugins {
     id 'groovy'
     id 'idea'
-    id 'maven'
+    id 'maven-publish'
     id "nebula.release" version "15.3.1"
 }
 
-group = 'com.xebialabs.gradle.plugins'
+group = 'ai.digital.integration.server'
 defaultTasks 'build'
 
 sourceCompatibility = languageLevel
 targetCompatibility = languageLevel
 
 repositories {
-    jcenter()
     maven {
         url "https://plugins.gradle.org/m2/"
     }
+    mavenCentral()
     mavenLocal()
-    maven {
-        credentials {
-            username project.property("nexusUserName")
-            password project.property("nexusPassword")
+    if (project.hasProperty("nexusUserName")) {
+        maven {
+            credentials {
+                username project.property("nexusUserName")
+                password project.property("nexusPassword")
+            }
+            url "${project.property('nexusBaseUrl')}/repositories/releases"
         }
-        url "${project.property('nexusBaseUrl')}/repositories/releases"
     }
 }
 
@@ -32,8 +34,6 @@ idea {
         downloadSources = true
     }
 }
-
-configurations.compile.transitive = false
 
 dependencies {
     implementation gradleApi()
@@ -56,31 +56,35 @@ dependencies {
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
-    classifier = 'sources'
+    archiveClassifier.set('sources')
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
     from javadoc.destinationDir
+    archiveClassifier.set('javadoc')
 }
 
 test {
     useJUnitPlatform()
 }
 
-uploadArchives {
-    repositories.mavenDeployer {
-        repository(url: "${project.property("nexusBaseUrl")}/repositories/releases") {
-            authentication(userName: "${project.property("nexusUserName")}", password: "${project.property("nexusPassword")}")
-        }
-        snapshotRepository(url: "${project.property("nexusBaseUrl")}/repositories/snapshots") {
-            authentication(userName: "${project.property("nexusUserName")}", password: "${project.property("nexusPassword")}")
+if (project.hasProperty("nexusUserName")) {
+    uploadArchives {
+        repositories.mavenDeployer {
+            repository(url: "${project.property("nexusBaseUrl")}/repositories/releases") {
+                authentication(userName: "${project.property("nexusUserName")}", password: "${project.property("nexusPassword")}")
+            }
+            snapshotRepository(url: "${project.property("nexusBaseUrl")}/repositories/snapshots") {
+                authentication(userName: "${project.property("nexusUserName")}", password: "${project.property("nexusPassword")}")
+            }
         }
     }
 }
 
 jar {
     from sourceSets.main.allSource
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 import com.xebialabs.gradle.release.NebulaRelease

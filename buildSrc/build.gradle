@@ -2,24 +2,21 @@ plugins {
     id 'groovy'
 }
 
-group = 'com.xebialabs.gradle.release'
-
 sourceCompatibility = 11
 targetCompatibility = 11
 
 repositories {
-    jcenter()
     maven {
         url "https://plugins.gradle.org/m2/"
     }
     mavenLocal()
-    maven {
-        credentials {
-            username project.property("nexusUserName")
-            password project.property("nexusPassword")
+    if (project.hasProperty("nexusUserName")) {
+        maven {
+            credentials {
+                username project.property("nexusUserName")
+                password project.property("nexusPassword")
+            }
+            url "${project.property('nexusBaseUrl')}/repositories/releases"
         }
-        url "${project.property('nexusBaseUrl')}/repositories/releases"
     }
 }
-
-configurations.compile.transitive = false
