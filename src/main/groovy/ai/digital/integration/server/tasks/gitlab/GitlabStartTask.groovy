@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks.gitlab
 
 import ai.digital.integration.server.util.DockerComposeUtil
+import ai.digital.integration.server.util.GitlabUtil
 import ai.digital.integration.server.util.WaitForBootUtil
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
@@ -22,8 +23,7 @@ class GitlabStartTask extends DockerComposeUp {
 
     @InputFiles
     File getDockerComposeFile() {
-        def relativePath = "gitlab/gitlab-compose/docker-compose-gitlab.yml"
-        project.file(DockerComposeUtil.getResolvedDockerPath(project, relativePath))
+        project.file(DockerComposeUtil.getResolvedDockerPath(project, GitlabUtil.getGitlabRelativePath()))
     }
 
     @TaskAction
