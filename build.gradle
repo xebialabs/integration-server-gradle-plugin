@@ -70,13 +70,14 @@ test {
 }
 
 if (project.hasProperty("nexusUserName")) {
-    uploadArchives {
-        repositories.mavenDeployer {
-            repository(url: "${project.property("nexusBaseUrl")}/repositories/releases") {
-                authentication(userName: "${project.property("nexusUserName")}", password: "${project.property("nexusPassword")}")
-            }
-            snapshotRepository(url: "${project.property("nexusBaseUrl")}/repositories/snapshots") {
-                authentication(userName: "${project.property("nexusUserName")}", password: "${project.property("nexusPassword")}")
+    publishing {
+        repositories {
+            maven {
+                url "${project.property("nexusBaseUrl")}/repositories/releases"
+                credentials {
+                    username = project.property("nexusUserName")
+                    password = project.property("nexusPassword")
+                }
             }
         }
     }
