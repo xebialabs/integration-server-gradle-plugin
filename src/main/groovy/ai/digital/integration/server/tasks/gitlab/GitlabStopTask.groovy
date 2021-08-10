@@ -6,9 +6,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 
-import java.nio.file.Paths
-
-import static ai.digital.integration.server.constant.PluginConstant.DIST_DESTINATION_NAME
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class GitlabStopTask extends DefaultTask {
