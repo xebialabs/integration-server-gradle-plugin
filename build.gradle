@@ -131,10 +131,13 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     signing {
         sign publishing.publications.mavenJava
     }
-}
 
-nexusStaging {
-    packageGroup = "com.xebialabs"
+    nexusStaging {
+        packageGroup = "com.xebialabs"
+
+        username = project.property("sonatypeUsername")
+        password = project.property("sonatypePassword")
+    }
 }
 
 import com.xebialabs.gradle.release.NebulaRelease
