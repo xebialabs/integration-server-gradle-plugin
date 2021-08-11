@@ -103,6 +103,18 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
             }
         }
     }
+} else {
+    publishing {
+        repositories {
+            maven {
+                url "${project.property("nexusBaseUrl")}/repositories/releases"
+                credentials {
+                    username = project.property("nexusUserName")
+                    password = project.property("nexusPassword")
+                }
+            }
+        }
+    }
 }
 
 jar {
@@ -121,8 +133,11 @@ nexusStaging {
 }
 
 import com.xebialabs.gradle.release.NebulaRelease
-
 task nebulaRelease(type: NebulaRelease)
+
+task uploadArchives {
+    dependsOn publish
+}
 
 task dumpVersion {
     doLast {
