@@ -70,18 +70,18 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
         publications {
             mavenJava(MavenPublication) {
                 pom {
-                    inceptionYear '2020'
                     name = 'Integration Server Gradle Plugin'
+                    description = 'The easy way to get custom setup for Deploy up and running'
                     url = 'https://github.com/xebialabs/integration-server-gradle-plugin.git'
                     licenses {
                         license {
-                            name 'GPLv2 with Digital.ai FLOSS License Exception'
-                            url 'https://github.com/xebialabs/integration-server-gradle-plugin/blob/master/LICENSE'
+                            name = 'GPLv2 with Digital.ai FLOSS License Exception'
+                            url = 'https://github.com/xebialabs/integration-server-gradle-plugin/blob/master/LICENSE'
                         }
                     }
 
                     scm {
-                        url 'https://github.com/xebialabs/integration-server-gradle-plugin'
+                        url = 'https://github.com/xebialabs/integration-server-gradle-plugin'
                     }
                 }
             }
@@ -138,6 +138,7 @@ nexusStaging {
 }
 
 import com.xebialabs.gradle.release.NebulaRelease
+
 task nebulaRelease(type: NebulaRelease)
 
 task uploadArchives {
