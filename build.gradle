@@ -65,7 +65,7 @@ test {
     useJUnitPlatform()
 }
 
-if (project.hasProperty("sonatypeUsername")) {
+if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -110,7 +110,7 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-if (project.hasProperty("sonatypeUsername")) {
+if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     signing {
         sign publishing.publications.mavenJava
     }
