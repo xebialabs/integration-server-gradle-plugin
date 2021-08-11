@@ -112,7 +112,7 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
         }
         repositories {
             maven {
-                url "${project.property("nexusBaseUrl")}/repositories/releases"
+                url "${project.property("nexusBaseUrl")}/repositories/public"
                 credentials {
                     username = project.property("nexusUserName")
                     password = project.property("nexusPassword")
@@ -133,6 +133,8 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     }
 
     nexusStaging {
+        delayBetweenRetriesInMillis = 5000
+        numberOfRetries = 5
         packageGroup = "com.xebialabs"
 
         username = project.property("sonatypeUsername")
