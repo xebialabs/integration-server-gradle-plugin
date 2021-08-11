@@ -105,6 +105,11 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     }
 } else {
     publishing {
+        publications {
+            myLibrary(MavenPublication) {
+                from components.java
+            }
+        }
         repositories {
             maven {
                 url "${project.property("nexusBaseUrl")}/repositories/releases"
