@@ -27,4 +27,10 @@ class LocationUtil {
         }
     }
 
+    static def getCliWorkingDir(Project project) {
+        Server server = ServerUtil.getServer(project)
+        def targetDir = getServerDir(project).toString()
+        Paths.get(targetDir, "xl-deploy-${server.version}-cli").toAbsolutePath().toString()
+    }
+
 }
