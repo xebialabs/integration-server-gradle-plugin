@@ -112,7 +112,11 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
         }
         repositories {
             maven {
-                url "${project.property("nexusBaseUrl")}/groups/public"
+                url "${project.property("nexusBaseUrl")}/repositories/releases"
+                credentials {
+                    username = project.property("nexusUserName")
+                    password = project.property("nexusPassword")
+                }
             }
         }
     }
