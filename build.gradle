@@ -196,3 +196,8 @@ task dumpVersion {
         out.write("version=$project.version")
     }
 }
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
