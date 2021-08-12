@@ -83,6 +83,37 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
                     scm {
                         url = 'https://github.com/xebialabs/integration-server-gradle-plugin'
                     }
+
+                    developers {
+                        developer {
+                            id = 'bnechyporenko'
+                            name = 'Bogdan Nechyporenko'
+                            email = 'bnechyporenko@digital.ai'
+                        }
+                        developer {
+                            id = 'aalbul'
+                            name = 'Alexander Albul'
+                            email = 'aalbul@digital.ai'
+                        }
+                        developer {
+                            id = 'sishwarya'
+                            name = 'Ishwarya Surendrababu'
+                            email = 'sishwarya@digital.ai'
+                        }
+                        developer {
+                            id = 'tonac'
+                            name = 'Antonio Sostar'
+                            email = 'asostar@digital.ai'
+                        }
+                    }
+                }
+                versionMapping {
+                    usage('java-api') {
+                        fromResolutionOf('runtimeClasspath')
+                    }
+                    usage('java-runtime') {
+                        fromResolutionResult()
+                    }
                 }
             }
         }
