@@ -3,12 +3,15 @@ plugins {
     id 'idea'
     id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
     id 'maven-publish'
+    id 'nebula.release' version '15.3.1'
     id 'signing'
 }
 
 group = 'com.xebialabs.gradle.plugins'
 defaultTasks 'build'
-version = "10.3.0-${(new Date().format('Mdd.Hmm'))}"
+
+def releasedVersion = "10.3.0-${(new Date().format('Mdd.Hmm'))}"
+project.ext.set("releasedVersion", releasedVersion)
 
 sourceCompatibility = languageLevel
 targetCompatibility = languageLevel
@@ -69,7 +72,11 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     publishing {
         publications {
             mavenJava(MavenPublication) {
-                from components.java
+                from(components.java)
+
+                groupId 'com.xebialabs.gradle.plugins'
+                artifactId 'integratoin-server-gradle-plugin'
+                version releasedVersion
 
                 pom {
                     name = 'Integration Server Gradle Plugin'
@@ -173,6 +180,13 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
             }
         }
     }
+}
+
+import com.xebialabs.gradle.release.NebulaRelease
+task nebulaRelease(type: NebulaRelease)
+
+task uploadArchives {
+    dependsOn publish
 }
 
 task dumpVersion {
