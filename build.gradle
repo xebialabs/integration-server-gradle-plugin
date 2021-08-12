@@ -1,7 +1,7 @@
 plugins {
     id 'groovy'
     id 'idea'
-    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+    id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
     id 'maven-publish'
     id 'nebula.release' version '15.3.1'
     id 'signing'
@@ -9,6 +9,10 @@ plugins {
 
 group = 'com.xebialabs.gradle.plugins'
 defaultTasks 'build'
+
+def releasedVersion = "10.3.0-${(new Date().format('Mdd.Hmm'))}"
+project.ext.set("releasedVersion", releasedVersion)
+version = releasedVersion
 
 sourceCompatibility = languageLevel
 targetCompatibility = languageLevel
@@ -69,6 +73,8 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     publishing {
         publications {
             mavenJava(MavenPublication) {
+                from(components.java)
+
                 pom {
                     name = 'Integration Server Gradle Plugin'
                     description = 'The easy way to get custom setup for Deploy up and running'

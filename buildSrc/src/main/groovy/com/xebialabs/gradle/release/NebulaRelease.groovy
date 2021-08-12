@@ -12,11 +12,10 @@ class NebulaRelease extends DefaultTask {
         getProject().exec(new Action<ExecSpec>() {
             @Override
             void execute(ExecSpec execSpec) {
-                def version = "10.3.0-${(new Date().format('Mdd.Hmm'))}"
                 project.logger.lifecycle("Releasing version is: $version")
 
                 execSpec.executable('./gradlew')
-                execSpec.args('build', 'uploadArchives', "-Prelease.version=$version", "final",
+                execSpec.args('build', 'uploadArchives', "-Prelease.version=${project.releasedVersion}", "final",
                 "-Prelease.ignoreSuppliedVersionVerification=true")
             }
         })
