@@ -1,7 +1,7 @@
 plugins {
     id 'groovy'
     id 'idea'
-    id 'io.codearte.nexus-staging' version '0.30.0'
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
     id 'maven-publish'
     id 'nebula.release' version '15.3.1'
     id 'signing'
@@ -132,13 +132,13 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
         sign publishing.publications.mavenJava
     }
 
-    nexusStaging {
-        delayBetweenRetriesInMillis = 5000
-        numberOfRetries = 5
-        packageGroup = "com.xebialabs"
-
-        username = project.property("sonatypeUsername")
-        password = project.property("sonatypePassword")
+    nexusPublishing {
+        repositories {
+            sonatype {
+                username = project.property("sonatypeUsername")
+                password = project.property("sonatypePassword")
+            }
+        }
     }
 }
 
