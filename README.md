@@ -133,8 +133,11 @@ integrationServer {
 
 ## Development
 
-Jenkins Job to run the build: https://jenkins-ng.xebialabs.com/jenkinsng/job/Gradle%20Plugins/job/integration-server-gradle-plugin/
-Jenkins Job to release a new version: https://jenkins-ng.xebialabs.com/jenkinsng/job/Gradle%20Plugins/job/Release/job/Release%20integration-server-gradle-plugin/
+How to build snapshot and publish it to a local Maven repository:
+
+```shell script
+ ./gradlew clean build -x test publishToMavenLocal snapshot
+```
 
 ## Troubleshooting
 
