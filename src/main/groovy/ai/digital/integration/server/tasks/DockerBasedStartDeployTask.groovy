@@ -13,7 +13,8 @@ class DockerBasedStartDeployTask extends DefaultTask {
     DockerBasedStartDeployTask() {
 
         def dependencies = [
-                DockerBasedStopDeployTask.NAME
+                DockerBasedStopDeployTask.NAME,
+                PrepareDeployTask.NAME
         ]
 
         this.configure {

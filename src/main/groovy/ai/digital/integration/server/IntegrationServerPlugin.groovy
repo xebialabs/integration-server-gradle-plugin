@@ -45,6 +45,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
 
         project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
+        project.tasks.create(PrepareDeployTask.NAME, PrepareDeployTask)
         project.tasks.create(RemoveStdoutConfigTask.NAME, RemoveStdoutConfigTask)
 
         project.tasks.create(ShutdownWorkersTask.NAME, ShutdownWorkersTask)

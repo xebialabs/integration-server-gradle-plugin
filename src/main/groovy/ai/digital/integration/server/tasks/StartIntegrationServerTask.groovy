@@ -24,6 +24,7 @@ class StartIntegrationServerTask extends DefaultTask {
                 CopyOverlaysTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DatabaseStartTask.NAME,
                 PrepareDatabaseTask.NAME,
+                PrepareDeployTask.NAME,
                 RemoveStdoutConfigTask.NAME,
                 SetLogbackLevelsTask.NAME,
                 ServerUtil.getServerInstallTaskName(project),
@@ -105,7 +106,6 @@ class StartIntegrationServerTask extends DefaultTask {
         def server = ServerUtil.getServer(project)
         project.logger.lifecycle("About to launch Deploy Server on port ${server.httpPort}.")
 
-        ServerInitializeUtil.prepare(project)
         start(server)
         waitForBoot(server)
     }

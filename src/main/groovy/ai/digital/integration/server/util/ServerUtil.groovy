@@ -44,7 +44,6 @@ class ServerUtil {
 
     static Path getResolvedDockerFile(Project project) {
         def resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, dockerServerRelativePath())
-        project.logger.lifecycle("Docker compose file for Deploy Server is: $resultComposeFilePath")
 
         def server = getServer(project)
         def serverTemplate = resultComposeFilePath.toFile()
@@ -75,11 +74,13 @@ class ServerUtil {
         "${server.dockerImage}:${server.version}"
     }
 
-    static def getServerWorkingDir(Project project) {
+    static String getServerWorkingDir(Project project) {
         Server server = getServer(project)
 
-        if (server.runtimeDirectory == null) {
-            def targetDir = getServerDir(project).toString()
+        if (isDockerBased(project)) {
+            DockerComposeUtil.dockerComposeFileDestination(project, "deploy").toAbsolutePath().toString()
+        } else if (server.runtimeDirectory == null) {
+            def targetDir = getServerDistFolderPath(project).toString()
             Paths.get(targetDir, "xl-deploy-${server.version}-server").toAbsolutePath().toString()
         } else {
             def target = project.projectDir.toString()

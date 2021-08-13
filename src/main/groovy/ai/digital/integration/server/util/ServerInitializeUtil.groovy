@@ -9,8 +9,8 @@ class ServerInitializeUtil {
         project.logger.lifecycle("Preparing server destination folders.")
 
         ["centralConfiguration", "conf", "plugins"].each { String folderName ->
-            def folderPath = "${ServerUtil.getServerDistFolder(project)}/${folderName}"
-            def folder = new File(folderPath).mkdirs()
+            def folderPath = "${ServerUtil.getServerWorkingDir(project)}/${folderName}"
+            new File(folderPath).mkdirs()
             project.logger.lifecycle("Folder $folderPath has created.")
         }
     }
