@@ -3,7 +3,6 @@ package ai.digital.integration.server.tasks.pluginManager
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.tasks.StartIntegrationServerTask
 import ai.digital.integration.server.util.EnvironmentUtil
-import ai.digital.integration.server.util.LocationUtil
 import ai.digital.integration.server.util.ProcessUtil
 import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.DefaultTask
@@ -28,7 +27,7 @@ class StartPluginManagerTask extends DefaultTask {
     }
 
     private def getBinDir() {
-        Paths.get(LocationUtil.getServerWorkingDir(project), "bin").toFile()
+        Paths.get(ServerUtil.getServerWorkingDir(project), "bin").toFile()
     }
 
     private void startPluginManager(Server server) {

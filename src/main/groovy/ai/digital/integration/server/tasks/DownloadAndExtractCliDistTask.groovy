@@ -15,6 +15,7 @@ class DownloadAndExtractCliDistTask extends Copy {
         this.configure {
             group = PLUGIN_GROUP
             def server = ServerUtil.getServer(project)
+
             if (isDownloadRequired(server)) {
                 project.logger.lifecycle("Downloading and extracting the CLI.")
                 project.buildscript.dependencies.add(

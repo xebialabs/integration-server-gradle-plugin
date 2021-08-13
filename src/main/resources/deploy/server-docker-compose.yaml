@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  deploy:
+    image: DEPLOY_IMAGE_VERSION
+    container_name: deploy-DEPLOY_VERSION
+    environment:
+      ADMIN_PASSWORD: admin
+      ACCEPT_EULA: 'Y'
+      GENERATE_XL_CONFIG: "false"
+      PLUGINS_TO_EXCLUDE: DEPLOY_PLUGINS_TO_EXCLUDE
+    ports:
+      - DEPLOY_SERVER_HTTP_PORT:DEPLOY_SERVER_HTTP_PORT
+    volumes:
+      - ./centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration
+      - ./conf:/opt/xebialabs/xl-deploy-server/conf
+      - ./hotfix/lib:/opt/xebialabs/xl-deploy-server/hotfix/lib
+      - ./hotfix/plugins:/opt/xebialabs/xl-deploy-server/hotfix/plugins
+      - ./plugins:/opt/xebialabs/xl-deploy-server/plugins
