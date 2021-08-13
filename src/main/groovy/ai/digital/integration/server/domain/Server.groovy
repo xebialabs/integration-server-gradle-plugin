@@ -20,6 +20,8 @@ class Server {
 
     String name
 
+    List<String> defaultOfficialPluginsToExclude = new LinkedList<>()
+
     Map<String, List<Object>> overlays = new HashMap<>()
 
     Integer pingRetrySleepTime = 10

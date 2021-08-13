@@ -7,6 +7,7 @@ services:
       ADMIN_PASSWORD: admin
       ACCEPT_EULA: 'Y'
       GENERATE_XL_CONFIG: "false"
+      PLUGINS_TO_EXCLUDE: DEPLOY_PLUGINS_TO_EXCLUDE
     ports:
       - DEPLOY_SERVER_HTTP_PORT:DEPLOY_SERVER_HTTP_PORT
     volumes:

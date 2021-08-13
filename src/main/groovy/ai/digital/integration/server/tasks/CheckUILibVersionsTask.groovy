@@ -30,6 +30,7 @@ class CheckUILibVersionsTask extends DefaultTask {
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
+            onlyIf { !ServerUtil.isDockerBased(project) }
         }
     }
 

@@ -15,15 +15,16 @@ class DownloadAndExtractServerDistTask extends Copy {
             def server = ServerUtil.getServer(project)
 
             group = PLUGIN_GROUP
-            onlyIf { isDownloadRequired(server) }
 
-            project.logger.lifecycle("Downloading and extracting the server.")
-            project.buildscript.dependencies.add(
-                    SERVER_DIST,
-                    "com.xebialabs.deployit:xl-deploy-base:${server.version}:server@zip"
-            )
-            from { project.zipTree(project.buildscript.configurations.getByName(SERVER_DIST).singleFile) }
-            into { ServerUtil.getServerDistFolder(project) }
+            if (isDownloadRequired(server)) {
+                project.logger.lifecycle("Downloading and extracting the server.")
+                project.buildscript.dependencies.add(
+                        SERVER_DIST,
+                        "com.xebialabs.deployit:xl-deploy-base:${server.version}:server@zip"
+                )
+                from { project.zipTree(project.buildscript.configurations.getByName(SERVER_DIST).singleFile) }
+                into { ServerUtil.getServerDistFolder(project) }
+            }
         }
     }
 

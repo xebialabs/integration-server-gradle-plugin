@@ -51,6 +51,7 @@ class ServerUtil {
         def configuredTemplate = serverTemplate.text
                 .replace('DEPLOY_SERVER_HTTP_PORT', server.httpPort.toString())
                 .replace('DEPLOY_IMAGE_VERSION', getDockerImageVersion(project))
+                .replace('DEPLOY_PLUGINS_TO_EXCLUDE', server.defaultOfficialPluginsToExclude.join(","))
                 .replace('DEPLOY_VERSION', server.version)
         serverTemplate.text = configuredTemplate
 
