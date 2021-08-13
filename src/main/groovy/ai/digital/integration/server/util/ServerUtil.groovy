@@ -20,7 +20,7 @@ class ServerUtil {
         server.setHttpPort(getHttpPort(project, server))
         server.setVersion(getServerVersion(project, server))
 
-        if (isDockerBased(project)) {
+        if (server.dockerImage?.trim()) {
             server.setRuntimeDirectory(null)
         }
 
