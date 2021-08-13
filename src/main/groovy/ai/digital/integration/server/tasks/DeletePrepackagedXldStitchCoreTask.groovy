@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks
 
-import ai.digital.integration.server.util.LocationUtil
+
+import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.TaskAction
 
@@ -14,6 +15,9 @@ class DeletePrepackagedXldStitchCoreTask extends Delete {
         this.configure { ->
             group = PLUGIN_GROUP
             mustRunAfter DownloadAndExtractServerDistTask.NAME
+            onlyIf {
+                !ServerUtil.isDockerBased(project)
+            }
         }
     }
 
@@ -21,7 +25,7 @@ class DeletePrepackagedXldStitchCoreTask extends Delete {
     void deleteIfDuplicates() {
         project.logger.lifecycle("Deleting prepackaged Stitch Core on Deploy server")
 
-        def baseDir = project.file("${LocationUtil.getServerWorkingDir(project)}/lib")
+        def baseDir = project.file("${ServerUtil.getServerWorkingDir(project)}/lib")
         def lib = baseDir.listFiles()
 
         lib.each { File file ->

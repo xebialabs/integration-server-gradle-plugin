@@ -10,6 +10,8 @@ class Server {
 
     Integer debugPort
 
+    String dockerImage
+
     Integer httpPort = HTTPUtil.findFreePort()
 
     String[] jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]

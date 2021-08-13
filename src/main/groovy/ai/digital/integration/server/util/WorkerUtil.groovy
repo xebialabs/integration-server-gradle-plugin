@@ -14,11 +14,11 @@ class WorkerUtil {
     }
 
     static def getWorkerDir(Worker worker, Project project) {
-        worker.directory != null && !worker.directory.isEmpty() ? worker.directory : LocationUtil.getServerWorkingDir(project)
+        worker.directory != null && !worker.directory.isEmpty() ? worker.directory : ServerUtil.getServerWorkingDir(project)
     }
 
     static void copyServerDirToWorkerDir(Worker worker, Project project) {
-        def sourceDir = Paths.get(LocationUtil.getServerWorkingDir(project)).toFile()
+        def sourceDir = Paths.get(ServerUtil.getServerWorkingDir(project)).toFile()
         def destinationDir = Paths.get(worker.directory).toFile()
         destinationDir.setExecutable(true)
         FileUtils.copyDirectory(sourceDir, destinationDir)

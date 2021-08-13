@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks
 
-import ai.digital.integration.server.util.LocationUtil
+
+import ai.digital.integration.server.util.ServerUtil
 import de.vandermeer.asciitable.AsciiTable
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment
 import groovy.json.JsonSlurper
@@ -22,8 +23,13 @@ class CheckUILibVersionsTask extends DefaultTask {
     static NAME = "checkUILibVersions"
 
     CheckUILibVersionsTask() {
+        def dependencies = [
+                CopyOverlaysTask.NAME
+        ]
+
         this.configure {
             group = PLUGIN_GROUP
+            dependsOn(dependencies)
         }
     }
 
@@ -116,7 +122,7 @@ class CheckUILibVersionsTask extends DefaultTask {
     def check() {
         project.logger.lifecycle("Checking UI Lib Versions on Deploy server")
 
-        def plugins = Paths.get(LocationUtil.getServerWorkingDir(project))
+        def plugins = Paths.get(ServerUtil.getServerWorkingDir(project))
                 .resolve("plugins")
                 .resolve("xld-official").toFile().listFiles()
 

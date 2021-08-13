@@ -1,18 +1,6 @@
 package ai.digital.integration.server
 
-
-import ai.digital.integration.server.tasks.CentralConfigurationTask
-import ai.digital.integration.server.tasks.CheckUILibVersionsTask
-import ai.digital.integration.server.tasks.CopyOverlaysTask
-import ai.digital.integration.server.tasks.DeletePrepackagedXldStitchCoreTask
-import ai.digital.integration.server.tasks.DownloadAndExtractCliDistTask
-import ai.digital.integration.server.tasks.DownloadAndExtractDbUnitDataDistTask
-import ai.digital.integration.server.tasks.DownloadAndExtractServerDistTask
-import ai.digital.integration.server.tasks.RemoveStdoutConfigTask
-import ai.digital.integration.server.tasks.SetLogbackLevelsTask
-import ai.digital.integration.server.tasks.ShutdownIntegrationServerTask
-import ai.digital.integration.server.tasks.StartIntegrationServerTask
-import ai.digital.integration.server.tasks.YamlPatchTask
+import ai.digital.integration.server.tasks.*
 import ai.digital.integration.server.tasks.anonymizer.ExportDatabaseTask
 import ai.digital.integration.server.tasks.cli.RunProvisionScriptTask
 import ai.digital.integration.server.tasks.database.DatabaseStartTask
@@ -30,11 +18,7 @@ import ai.digital.integration.server.tasks.satellite.ShutdownSatelliteTask
 import ai.digital.integration.server.tasks.satellite.StartSatelliteTask
 import ai.digital.integration.server.tasks.worker.ShutdownWorkersTask
 import ai.digital.integration.server.tasks.worker.StartWorkersTask
-import ai.digital.integration.server.util.ConfigurationsUtil
-import ai.digital.integration.server.util.DbUtil
-import ai.digital.integration.server.util.ExtensionUtil
-import ai.digital.integration.server.util.LocationUtil
-import ai.digital.integration.server.util.TaskUtil
+import ai.digital.integration.server.util.*
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -46,6 +30,9 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(CopySatelliteOverlaysTask.NAME, CopySatelliteOverlaysTask)
+
+        project.tasks.create(DockerBasedStopDeployTask.NAME, DockerBasedStopDeployTask)
+        project.tasks.create(DockerBasedStartDeployTask.NAME, DockerBasedStartDeployTask)
 
         project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
         project.tasks.create(DatabaseStartTask.NAME, DatabaseStartTask)
@@ -86,7 +73,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
 
         project.plugins.apply('derby-ns')
         def derbyExtension = project.extensions.getByName("derby")
-        derbyExtension.dataDir = "${LocationUtil.getServerWorkingDir(project)}/derbydb"
+        derbyExtension.dataDir = "${ServerUtil.getServerWorkingDir(project)}/derbydb"
         derbyExtension.port = database.derbyPort
         def startDerbyTask = project.tasks.getByName("derbyStart")
         def stopDerbyTask = project.tasks.getByName("derbyStop")

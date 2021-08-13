@@ -1,11 +1,6 @@
 package ai.digital.integration.server.tasks
 
-import ai.digital.integration.server.util.DbUtil
-import ai.digital.integration.server.util.HTTPUtil
-import ai.digital.integration.server.util.LocationUtil
-import ai.digital.integration.server.util.MqUtil
-import ai.digital.integration.server.util.WorkerUtil
-import ai.digital.integration.server.util.YamlFileUtil
+import ai.digital.integration.server.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
@@ -15,7 +10,7 @@ class CentralConfigurationTask extends DefaultTask {
 
     private void createCentralConfigurationFiles() {
         project.logger.lifecycle("Generating initial central configuration files")
-        def serverDir = LocationUtil.getServerWorkingDir(project)
+        def serverDir = ServerUtil.getServerWorkingDir(project)
 
         project.logger.lifecycle("Creating custom deploy-repository.yaml")
         YamlFileUtil.writeFileValue(
