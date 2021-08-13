@@ -8,8 +8,10 @@ services:
       ACCEPT_EULA: 'Y'
       GENERATE_XL_CONFIG: "false"
     ports:
-      - DEPLOY_SERVER_HTTP_PORT:4516
+      - DEPLOY_SERVER_HTTP_PORT:DEPLOY_SERVER_HTTP_PORT
     volumes:
       - ./centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration
       - ./conf:/opt/xebialabs/xl-deploy-server/conf
+      - ./hotfix/lib:/opt/xebialabs/xl-deploy-server/hotfix/lib
+      - ./hotfix/plugins:/opt/xebialabs/xl-deploy-server/hotfix/plugins
       - ./plugins:/opt/xebialabs/xl-deploy-server/plugins
