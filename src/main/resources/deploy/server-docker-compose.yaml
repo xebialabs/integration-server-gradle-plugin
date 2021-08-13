@@ -1,4 +1,5 @@
-version: "3.9"
+version: "3.3"
+
 services:
   deploy:
     image: DEPLOY_IMAGE_VERSION
