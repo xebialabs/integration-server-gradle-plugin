@@ -19,6 +19,11 @@ class ServerUtil {
         server.setDebugPort(getDebugPort(project, server))
         server.setHttpPort(getHttpPort(project, server))
         server.setVersion(getServerVersion(project, server))
+
+        if (isDockerBased(project)) {
+            server.setRuntimeDirectory(null)
+        }
+
         server
     }
 
@@ -40,6 +45,10 @@ class ServerUtil {
 
     static def isDockerBased(Project project) {
         getServer(project).dockerImage?.trim()
+    }
+
+    static def isDistDownloadRequired(Project project) {
+        getServer(project).runtimeDirectory == null && !isDockerBased(project)
     }
 
     static Path getResolvedDockerFile(Project project) {

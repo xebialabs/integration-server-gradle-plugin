@@ -1,7 +1,6 @@
 package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.util.ServerUtil
-import ai.digital.integration.server.domain.Server
 import org.gradle.api.tasks.Copy
 
 import static ai.digital.integration.server.constant.PluginConstant.DIST_DESTINATION_NAME
@@ -16,7 +15,7 @@ class DownloadAndExtractCliDistTask extends Copy {
             group = PLUGIN_GROUP
             def server = ServerUtil.getServer(project)
 
-            if (isDownloadRequired(server)) {
+            if (ServerUtil.isDistDownloadRequired(project)) {
                 project.logger.lifecycle("Downloading and extracting the CLI.")
                 project.buildscript.dependencies.add(
                         SERVER_CLI_DIST,
@@ -26,9 +25,5 @@ class DownloadAndExtractCliDistTask extends Copy {
                 into { project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString() }
             }
         }
-    }
-
-    private static def isDownloadRequired(Server server) {
-        server.runtimeDirectory == null
     }
 }

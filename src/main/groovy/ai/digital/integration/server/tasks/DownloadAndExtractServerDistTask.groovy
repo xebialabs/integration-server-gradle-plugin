@@ -1,6 +1,6 @@
 package ai.digital.integration.server.tasks
 
-import ai.digital.integration.server.domain.Server
+
 import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.tasks.Copy
 
@@ -16,7 +16,7 @@ class DownloadAndExtractServerDistTask extends Copy {
 
             group = PLUGIN_GROUP
 
-            if (isDownloadRequired(server)) {
+            if (ServerUtil.isDistDownloadRequired(project)) {
                 project.logger.lifecycle("Downloading and extracting the server.")
                 project.buildscript.dependencies.add(
                         SERVER_DIST,
@@ -26,9 +26,5 @@ class DownloadAndExtractServerDistTask extends Copy {
                 into { ServerUtil.getServerDistFolder(project) }
             }
         }
-    }
-
-    private static def isDownloadRequired(Server server) {
-        server.runtimeDirectory == null
     }
 }
