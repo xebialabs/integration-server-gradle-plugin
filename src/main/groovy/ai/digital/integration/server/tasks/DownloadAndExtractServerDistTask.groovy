@@ -23,7 +23,7 @@ class DownloadAndExtractServerDistTask extends Copy {
                     "com.xebialabs.deployit:xl-deploy-base:${server.version}:server@zip"
             )
             from { project.zipTree(project.buildscript.configurations.getByName(SERVER_DIST).singleFile) }
-            into { ServerUtil.getServerDistFolder() }
+            into { ServerUtil.getServerDistFolder(project) }
         }
     }
 
