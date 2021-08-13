@@ -34,7 +34,6 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DockerBasedStopDeployTask.NAME, DockerBasedStopDeployTask)
         project.tasks.create(DockerBasedStartDeployTask.NAME, DockerBasedStartDeployTask)
 
-        project.tasks.create(DeletePrepackagedXldStitchCoreTask.NAME, DeletePrepackagedXldStitchCoreTask)
         project.tasks.create(DatabaseStartTask.NAME, DatabaseStartTask)
         project.tasks.create(DatabaseStopTask.NAME, DatabaseStopTask)
         project.tasks.create(GitlabStartTask.NAME, GitlabStartTask)

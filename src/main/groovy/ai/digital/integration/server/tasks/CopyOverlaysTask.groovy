@@ -16,7 +16,6 @@ class CopyOverlaysTask extends DefaultTask {
 
     CopyOverlaysTask() {
         def dependencies = [
-                DeletePrepackagedXldStitchCoreTask.NAME,
                 ServerUtil.getServerInstallTaskName(project)
         ]
         this.configure { ->
