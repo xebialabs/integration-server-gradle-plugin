@@ -18,6 +18,7 @@ import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 class RunProvisionScriptTask extends DefaultTask {
     static NAME = "runProvisionScript"
 
+    // In case if you want to create a task directly
     @Input
     List<String> provisionScripts = List.of()
 
@@ -34,7 +35,7 @@ class RunProvisionScriptTask extends DefaultTask {
         }
     }
 
-    private void launchProvisionScript(Server server) {
+    private void launchProvisionScripts(Server server) {
         List<String> scripts = getProvisionScripts().size() > 0 ? getProvisionScripts() : server.provisionScripts
         def port = server.httpPort
         def contextRoot = server.contextRoot
@@ -88,6 +89,6 @@ class RunProvisionScriptTask extends DefaultTask {
     @TaskAction
     void launch() {
         project.logger.lifecycle("Running provision script on Deploy server.")
-        launchProvisionScript(ServerUtil.getServer(project))
+        launchProvisionScripts(ServerUtil.getServer(project))
     }
 }
