@@ -32,8 +32,9 @@ integrationServer {
             contextRoot = "/custom" // By default "/", but you can customize it
             debugPort = 4005 // Debug port, by default it is disabled
             debugSuspend = true // by default false
+            dockerImage = "xebialabs/xl-deploy" // If that field is filled in, server will be started as a container. Note that container setup has limited features. 
             httpPort = 4516 // Server HTTP port, by default it is random port
-            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"] // custom Java process arguments
+            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"] // custom Java process arguments, only works if to run the server from runtime directory
             logLevels = ["com.xebialabs.deployit.plugin.stitch": "debug"] // Log level overwrites
             overlays = [
                 plugins          : [
@@ -131,10 +132,31 @@ integrationServer {
 * `postgres` is the only database which fully support data import
 * `derby-inmemory`, `derby-network` do not support DbUnit data import, as these databases are not supported, use old data export format
 
+## Docker setup limitations.
+
+What docker setup doesn't support:
+
+* To run workers
+* To run satellites
+* Overlay works only mounted folders, so it is: conf, centralConfiguration, hotflix, plugins.
+* Debugging
+* Log levels
+
+Docker image contains all plugins which are defined in Deploy Server Trial distribution.
+If you want to exclude some of them you can use property `defaultOfficialPluginsToExclude`.
+For example if you want to exclude terraform and aws plugin, you have to configure as: 
+
+```groovy
+defaultOfficialPluginsToExclude = ["terraform", "aws"]
+```
+
 ## Development
 
-Jenkins Job to run the build: https://jenkins-ng.xebialabs.com/jenkinsng/job/Gradle%20Plugins/job/integration-server-gradle-plugin/
-Jenkins Job to release a new version: https://jenkins-ng.xebialabs.com/jenkinsng/job/Gradle%20Plugins/job/Release/job/Release%20integration-server-gradle-plugin/
+How to build snapshot and publish it to a local Maven repository:
+
+```shell script
+ ./gradlew clean build -x test publishToMavenLocal snapshot
+```
 
 ## Troubleshooting
 

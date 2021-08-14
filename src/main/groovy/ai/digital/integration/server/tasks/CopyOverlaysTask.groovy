@@ -1,12 +1,7 @@
 package ai.digital.integration.server.tasks
 
-import ai.digital.integration.server.util.ConfigurationsUtil
-import ai.digital.integration.server.util.DbUtil
-import ai.digital.integration.server.util.ExtensionUtil
-import ai.digital.integration.server.util.LocationUtil
-import ai.digital.integration.server.util.MqUtil
-import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.domain.Server
+import ai.digital.integration.server.util.*
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -15,10 +10,50 @@ import org.gradle.api.tasks.Copy
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class CopyOverlaysTask extends DefaultTask {
-    static LIB_KEY = "lib"
     static NAME = "copyOverlays"
 
-    static boolean shouldUnzip(File file) {
+    static LIB_KEY = "lib"
+
+    CopyOverlaysTask() {
+        def dependencies = [
+                ServerUtil.getServerInstallTaskName(project)
+        ]
+        this.configure { ->
+            group = PLUGIN_GROUP
+            dependsOn(dependencies)
+
+            finalizedBy CheckUILibVersionsTask.NAME
+            project.afterEvaluate {
+                Server server = ServerUtil.getServer(project)
+                project.logger.lifecycle("Copying overlays on Deploy server ${server.name}")
+
+                addDatabaseDependency(project, server)
+                addMqDependency(project, server)
+
+                server.overlays.each { Map.Entry<String, List<Object>> definition ->
+                    def configurationName = "${ExtensionUtil.EXTENSION_NAME}${definition.key.capitalize().replace("/", "")}"
+                    def config = project.buildscript.configurations.create(configurationName)
+                    definition.value.each { dependencyNotation ->
+                        project.buildscript.dependencies.add(configurationName, dependencyNotation)
+                    }
+
+                    def task = project.getTasks().register("copy${configurationName.capitalize()}", Copy.class, new Action<Copy>() {
+                        @Override
+                        void execute(Copy copy) {
+                            config.files.each { File file ->
+                                copy.from { shouldUnzip(file) ? project.zipTree(file) : file }
+                            }
+                            copy.into { "${ServerUtil.getServerWorkingDir(project)}/${definition.key}" }
+                        }
+                    })
+                    project.tasks.getByName(task.name).dependsOn ServerUtil.getServerInstallTaskName(project)
+                    this.dependsOn task
+                }
+            }
+        }
+    }
+
+    private static boolean shouldUnzip(File file) {
         file.name.endsWith(".zip")
     }
 
@@ -54,39 +89,4 @@ class CopyOverlaysTask extends DefaultTask {
         overlayDependency(version, project, server, libOverlay, mqDependency)
     }
 
-    CopyOverlaysTask() {
-        this.configure { ->
-            group = PLUGIN_GROUP
-            mustRunAfter DownloadAndExtractServerDistTask.NAME
-            mustRunAfter DeletePrepackagedXldStitchCoreTask.NAME
-            finalizedBy CheckUILibVersionsTask.NAME
-            project.afterEvaluate {
-                Server server = ServerUtil.getServer(project)
-                project.logger.lifecycle("Copying overlays on Deploy server ${server.name}")
-
-                addDatabaseDependency(project, server)
-                addMqDependency(project, server)
-
-                server.overlays.each { Map.Entry<String, List<Object>> definition ->
-                    def configurationName = "${ExtensionUtil.EXTENSION_NAME}${definition.key.capitalize().replace("/", "")}"
-                    def config = project.buildscript.configurations.create(configurationName)
-                    definition.value.each { dependencyNotation ->
-                        project.buildscript.dependencies.add(configurationName, dependencyNotation)
-                    }
-
-                    def task = project.getTasks().register("copy${configurationName.capitalize()}", Copy.class, new Action<Copy>() {
-                        @Override
-                        void execute(Copy copy) {
-                            config.files.each { File file ->
-                                copy.from { shouldUnzip(file) ? project.zipTree(file) : file }
-                            }
-                            copy.into { "${LocationUtil.getServerWorkingDir(project)}/${definition.key}" }
-                        }
-                    })
-                    project.tasks.getByName(task.name).dependsOn DownloadAndExtractServerDistTask.NAME
-                    this.dependsOn task
-                }
-            }
-        }
-    }
 }

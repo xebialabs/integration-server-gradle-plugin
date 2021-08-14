@@ -10,6 +10,8 @@ class Server {
 
     Integer debugPort
 
+    String dockerImage
+
     Integer httpPort = HTTPUtil.findFreePort()
 
     String[] jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
@@ -17,6 +19,8 @@ class Server {
     Map<String, String> logLevels = new HashMap<>()
 
     String name
+
+    List<String> defaultOfficialPluginsToExclude = new LinkedList<>()
 
     Map<String, List<Object>> overlays = new HashMap<>()
 

@@ -1,6 +1,5 @@
 package ai.digital.integration.server.tasks
 
-import ai.digital.integration.server.util.LocationUtil
 import ai.digital.integration.server.util.ServerUtil
 import groovy.xml.XmlUtil
 import org.gradle.api.DefaultTask
@@ -24,7 +23,7 @@ class RemoveStdoutConfigTask extends DefaultTask {
         project.logger.lifecycle("Removing STDOUT config on Deploy Server ${server.name}.")
         def removeStdoutConfig = server.removeStdoutConfig
         if (removeStdoutConfig) {
-            def logbackConfig = "${LocationUtil.getServerWorkingDir(project)}/conf/logback.xml"
+            def logbackConfig = "${ServerUtil.getServerWorkingDir(project)}/conf/logback.xml"
             def xml = new XmlParser().parse(project.file(logbackConfig))
 
             def stdoutAppender = xml.'**'.find { it["@name"] == 'STDOUT' }
