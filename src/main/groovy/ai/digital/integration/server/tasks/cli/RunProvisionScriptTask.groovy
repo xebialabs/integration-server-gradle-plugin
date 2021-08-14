@@ -3,17 +3,15 @@ package ai.digital.integration.server.tasks.cli
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.tasks.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.tasks.StartIntegrationServerTask
+import ai.digital.integration.server.tasks.database.ImportDbUnitDataTask
+import ai.digital.integration.server.util.CliUtil
 import ai.digital.integration.server.util.ConfigurationsUtil
-import ai.digital.integration.server.util.LocationUtil
 import ai.digital.integration.server.util.ProcessUtil
 import ai.digital.integration.server.util.ServerUtil
-import ai.digital.integration.server.tasks.database.ImportDbUnitDataTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.CollectionUtils
-
-import java.nio.file.Paths
 
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
@@ -36,11 +34,11 @@ class RunProvisionScriptTask extends DefaultTask {
         }
     }
 
-    private void runProvisioning(Server server) {
+    private void launchProvisionScript(Server server) {
         List<String> scripts = getProvisionScripts().size() > 0 ? getProvisionScripts() : server.provisionScripts
         def port = server.httpPort
         def contextRoot = server.contextRoot
-        scripts.each { script ->
+        scripts.each { String script ->
             if (server.runtimeDirectory != null) {
                 def filtered = project.configurations.getByName(ConfigurationsUtil.DEPLOY_CLI).filter { !it.name.endsWith("-sources.jar") }
                 def classpath = CollectionUtils.join(File.pathSeparator, filtered.getFiles())
@@ -62,11 +60,11 @@ class RunProvisionScriptTask extends DefaultTask {
                 "-source", script,
                 "-context", contextRoot
         ]
-        def binDir = Paths.get(LocationUtil.getCliWorkingDir(project), "bin").toFile()
+
         ProcessUtil.exec([
                 command  : "cli",
                 params   : params,
-                workDir  : binDir,
+                workDir  : CliUtil.getCliBin(project),
                 inheritIO: true
         ])
     }
@@ -90,6 +88,6 @@ class RunProvisionScriptTask extends DefaultTask {
     @TaskAction
     void launch() {
         project.logger.lifecycle("Running provision script on Deploy server.")
-        runProvisioning(ServerUtil.getServer(project))
+        launchProvisionScript(ServerUtil.getServer(project))
     }
 }
