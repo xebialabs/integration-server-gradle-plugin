@@ -3,9 +3,11 @@ package ai.digital.integration.server.tasks.cli
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.tasks.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.tasks.StartIntegrationServerTask
-import ai.digital.integration.server.util.ConfigurationsUtil
-import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.tasks.database.ImportDbUnitDataTask
+import ai.digital.integration.server.util.CliUtil
+import ai.digital.integration.server.util.ConfigurationsUtil
+import ai.digital.integration.server.util.ProcessUtil
+import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -16,8 +18,9 @@ import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 class RunProvisionScriptTask extends DefaultTask {
     static NAME = "runProvisionScript"
 
+    // In case if you want to create a task directly
     @Input
-    String provisionScript = ""
+    List<String> provisionScripts = List.of()
 
     RunProvisionScriptTask() {
         def dependencies = [
@@ -32,16 +35,43 @@ class RunProvisionScriptTask extends DefaultTask {
         }
     }
 
-    private void runProvisioning(Server server) {
-        def filtered = project.configurations.getByName(ConfigurationsUtil.DEPLOY_CLI).filter { !it.name.endsWith("-sources.jar") }
-        def classpath = CollectionUtils.join(File.pathSeparator, filtered.getFiles())
-
-        logger.debug("Provision CLI classpath: \n${classpath}")
-
-        def script = getProvisionScript() != null && !getProvisionScript().isEmpty() ? getProvisionScript() : server.provisionScript
+    private void launchProvisionScripts(Server server) {
+        List<String> scripts = getProvisionScripts().size() > 0 ? getProvisionScripts() : server.provisionScripts
         def port = server.httpPort
         def contextRoot = server.contextRoot
+        scripts.each { String script ->
+            if (server.runtimeDirectory != null) {
+                def filtered = project.configurations.getByName(ConfigurationsUtil.DEPLOY_CLI).filter { !it.name.endsWith("-sources.jar") }
+                def classpath = CollectionUtils.join(File.pathSeparator, filtered.getFiles())
+                logger.debug("Provision CLI classpath: \n${classpath}")
+                executeScriptFromClassPath(contextRoot, port, script, classpath)
+            } else {
+                executeScript(contextRoot, port, script)
+            }
+        }
+    }
 
+    void executeScript(String contextRoot, Integer port, String script) {
+        project.logger.lifecycle("Running provision script ${script}")
+        def params = [
+                "-username", "admin",
+                "-password", "admin",
+                "-expose-proxies",
+                "-port", port.toString(),
+                "-source", script,
+                "-context", contextRoot
+        ]
+
+        ProcessUtil.exec([
+                command  : "cli",
+                params   : params,
+                workDir  : CliUtil.getCliBin(project),
+                inheritIO: true
+        ])
+    }
+
+    void executeScriptFromClassPath(String contextRoot, Integer port, String script, String classpath) {
+        project.logger.lifecycle("Running provision script ${script} from classpath")
         project.javaexec {
             main = "com.xebialabs.deployit.cli.Cli"
             if (contextRoot.isEmpty()) {
@@ -53,13 +83,12 @@ class RunProvisionScriptTask extends DefaultTask {
             environment "CLASSPATH", classpath
             jvmArgs '-Dlogback.config=src/main/resources/logback.xml'
         }
-
     }
 
 
     @TaskAction
     void launch() {
         project.logger.lifecycle("Running provision script on Deploy server.")
-        runProvisioning(ServerUtil.getServer(project))
+        launchProvisionScripts(ServerUtil.getServer(project))
     }
 }

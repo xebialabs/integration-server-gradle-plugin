@@ -28,7 +28,7 @@ class Server {
 
     Integer pingTotalTries = 60
 
-    String provisionScript
+    List<String> provisionScripts = List.of()
 
     Integer provisionSocketTimeout = 60000
 
