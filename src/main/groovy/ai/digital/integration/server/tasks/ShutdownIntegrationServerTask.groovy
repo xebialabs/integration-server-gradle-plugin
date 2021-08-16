@@ -14,6 +14,9 @@ class ShutdownIntegrationServerTask extends DefaultTask {
 
     ShutdownIntegrationServerTask() {
         def dependencies = []
+        if (ServerUtil.isDockerBased(project)) {
+            dependencies.push(DockerBasedStopDeployTask.NAME)
+        }
         if (WorkerUtil.hasWorkers(project)) {
             dependencies.push(ShutdownWorkersTask.NAME)
         }
@@ -39,11 +42,6 @@ class ShutdownIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("About to shutting down Deploy Server.")
 
         if (!ServerUtil.isDockerBased(project)) {
-            project.exec {
-                it.executable "docker-compose"
-                it.args '-f', ServerUtil.getResolvedDockerFile(project).toFile(), 'down'
-            }
-        } else {
             ShutdownUtil.shutdownServer(project)
         }
     }
