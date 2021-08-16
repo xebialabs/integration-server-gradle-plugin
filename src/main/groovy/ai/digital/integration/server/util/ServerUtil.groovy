@@ -89,8 +89,7 @@ class ServerUtil {
 
         if (isDockerBased(project)) {
             def workDir = DockerComposeUtil.dockerComposeFileDestination(project, "deploy")
-            workDir.toFile().setWritable(true)
-            workDir.toFile().setReadable(true)
+            FileUtil.grantRWPermissions(workDir.toFile())
             workDir.toAbsolutePath().toString()
         } else if (server.runtimeDirectory == null) {
             def targetDir = getServerDistFolderPath(project).toString()

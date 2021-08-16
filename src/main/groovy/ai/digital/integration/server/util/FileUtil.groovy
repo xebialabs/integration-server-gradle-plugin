@@ -30,4 +30,9 @@ class FileUtil {
     static def toPathString(Path path, String subDir) {
         pathToString(Paths.get(pathToString(path), subDir))
     }
+
+    static def grantRWPermissions(File file) {
+        file.setWritable(true, false)
+        file.setReadable(true, false)
+    }
 }
