@@ -105,10 +105,6 @@ class StartIntegrationServerTask extends DefaultTask {
         ServerUtil.grantPermissionsToIntegrationServerFolder(project)
     }
 
-    private def allowToCleanNewAddedResources() {
-        ServerUtil.grantPermissionsToIntegrationServerFolder(project)
-    }
-
     @TaskAction
     void launch() {
         def server = ServerUtil.getServer(project)
@@ -117,7 +113,5 @@ class StartIntegrationServerTask extends DefaultTask {
 
         start(server)
         ServerUtil.waitForBoot(project)
-
-        allowToCleanNewAddedResources()
     }
 }
