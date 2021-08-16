@@ -88,7 +88,10 @@ class ServerUtil {
         Server server = getServer(project)
 
         if (isDockerBased(project)) {
-            DockerComposeUtil.dockerComposeFileDestination(project, "deploy").toAbsolutePath().toString()
+            def workDir = DockerComposeUtil.dockerComposeFileDestination(project, "deploy")
+            workDir.toFile().setWritable(true)
+            workDir.toFile().setReadable(true)
+            workDir.toAbsolutePath().toString()
         } else if (server.runtimeDirectory == null) {
             def targetDir = getServerDistFolderPath(project).toString()
             Paths.get(targetDir, "xl-deploy-${server.version}-server").toAbsolutePath().toString()
