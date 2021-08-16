@@ -11,7 +11,6 @@ class ServerInitializeUtil {
         ["centralConfiguration", "conf", "hotfix/plugins", "hotfix/lib", "plugins"].each { String folderName ->
             def folderPath = "${ServerUtil.getServerWorkingDir(project)}/${folderName}"
             def folder = new File(folderPath)
-            FileUtil.grantRWPermissions(folder)
             folder.mkdirs()
             project.logger.lifecycle("Folder $folderPath has created.")
         }

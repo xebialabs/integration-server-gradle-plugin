@@ -2,6 +2,7 @@ package ai.digital.integration.server.util
 
 import ai.digital.integration.server.IntegrationServerExtension
 import ai.digital.integration.server.domain.Server
+import groovy.io.FileType
 import org.gradle.api.Project
 
 import java.nio.file.Path
@@ -89,7 +90,6 @@ class ServerUtil {
 
         if (isDockerBased(project)) {
             def workDir = DockerComposeUtil.dockerComposeFileDestination(project, "deploy")
-            FileUtil.grantRWPermissions(workDir.toFile())
             workDir.toAbsolutePath().toString()
         } else if (server.runtimeDirectory == null) {
             def targetDir = getServerDistFolderPath(project).toString()
@@ -97,6 +97,15 @@ class ServerUtil {
         } else {
             def target = project.projectDir.toString()
             Paths.get(target, server.runtimeDirectory).toAbsolutePath().toString()
+        }
+    }
+
+    static void grantPermissionsToIntegrationServerFolder(Project project) {
+        if (isDockerBased(project)) {
+            def workDir = getServerDistFolder(project);
+            new File(workDir).traverse(type: FileType.ANY) { File it ->
+                FileUtil.grantRWPermissions(it)
+            }
         }
     }
 

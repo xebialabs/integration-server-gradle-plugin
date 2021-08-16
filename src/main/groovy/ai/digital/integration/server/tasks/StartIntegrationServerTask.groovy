@@ -105,6 +105,7 @@ class StartIntegrationServerTask extends DefaultTask {
     void launch() {
         def server = ServerUtil.getServer(project)
         project.logger.lifecycle("About to launch Deploy Server on port ${server.httpPort}.")
+        ServerUtil.grantPermissionsToIntegrationServerFolder(project)
 
         start(server)
         ServerUtil.waitForBoot(project)
