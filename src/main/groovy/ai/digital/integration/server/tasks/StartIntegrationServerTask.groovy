@@ -101,13 +101,23 @@ class StartIntegrationServerTask extends DefaultTask {
         shutdownServer(project)
     }
 
+    private def allowToWriteMountedHostFolders() {
+        ServerUtil.grantPermissionsToIntegrationServerFolder(project)
+    }
+
+    private def allowToCleanNewAddedResources() {
+        ServerUtil.grantPermissionsToIntegrationServerFolder(project)
+    }
+
     @TaskAction
     void launch() {
         def server = ServerUtil.getServer(project)
         project.logger.lifecycle("About to launch Deploy Server on port ${server.httpPort}.")
-        ServerUtil.grantPermissionsToIntegrationServerFolder(project)
+        allowToWriteMountedHostFolders()
 
         start(server)
         ServerUtil.waitForBoot(project)
+
+        allowToCleanNewAddedResources()
     }
 }
