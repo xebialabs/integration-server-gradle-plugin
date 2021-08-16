@@ -39,7 +39,7 @@ class ServerUtil {
         project.hasProperty("serverDebugPort") ? Integer.valueOf(project.property("serverDebugPort").toString()) : server.debugPort
     }
 
-    static def dockerServerRelativePath() {
+    private static def dockerServerRelativePath() {
         "deploy/server-docker-compose.yaml"
     }
 
@@ -52,9 +52,9 @@ class ServerUtil {
     }
 
     static Path getResolvedDockerFile(Project project) {
+        def server = getServer(project)
         def resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, dockerServerRelativePath())
 
-        def server = getServer(project)
         def serverTemplate = resultComposeFilePath.toFile()
 
         def configuredTemplate = serverTemplate.text

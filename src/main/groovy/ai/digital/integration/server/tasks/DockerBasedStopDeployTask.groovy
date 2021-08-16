@@ -11,8 +11,14 @@ class DockerBasedStopDeployTask extends DefaultTask {
     static NAME = "dockerBasedStopDeploy"
 
     DockerBasedStopDeployTask() {
+
+        def dependencies = [
+                PrepareDeployTask.NAME
+        ]
+
         this.configure {
             this.group = PLUGIN_GROUP
+            dependsOn(dependencies)
             onlyIf { ServerUtil.isDockerBased(project) }
         }
     }
