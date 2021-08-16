@@ -1,12 +1,9 @@
 package ai.digital.integration.server.tasks
 
-import ai.digital.integration.server.tasks.satellite.ShutdownSatelliteTask
-import ai.digital.integration.server.util.DbUtil
-import ai.digital.integration.server.util.SatelliteUtil
-import ai.digital.integration.server.util.ShutdownUtil
-import ai.digital.integration.server.util.WorkerUtil
 import ai.digital.integration.server.tasks.database.DatabaseStopTask
+import ai.digital.integration.server.tasks.satellite.ShutdownSatelliteTask
 import ai.digital.integration.server.tasks.worker.ShutdownWorkersTask
+import ai.digital.integration.server.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -40,6 +37,14 @@ class ShutdownIntegrationServerTask extends DefaultTask {
     @TaskAction
     void shutdown() {
         project.logger.lifecycle("About to shutting down Deploy Server.")
-        ShutdownUtil.shutdownServer(project)
+
+        if (!ServerUtil.isDockerBased(project)) {
+            project.exec {
+                it.executable "docker-compose"
+                it.args '-f', ServerUtil.getResolvedDockerFile(project).toFile(), 'down'
+            }
+        } else {
+            ShutdownUtil.shutdownServer(project)
+        }
     }
 }

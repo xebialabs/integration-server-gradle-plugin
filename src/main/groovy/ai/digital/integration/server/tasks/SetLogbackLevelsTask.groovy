@@ -15,7 +15,7 @@ class SetLogbackLevelsTask extends DefaultTask {
     SetLogbackLevelsTask() {
         this.configure { ->
             group = PLUGIN_GROUP
-            mustRunAfter ServerUtil.getServerInstallTaskName(project)
+            mustRunAfter DownloadAndExtractServerDistTask.NAME
             onlyIf { !ServerUtil.isDockerBased(project) }
         }
     }

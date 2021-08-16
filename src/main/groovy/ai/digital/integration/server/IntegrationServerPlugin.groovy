@@ -31,9 +31,6 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(CopySatelliteOverlaysTask.NAME, CopySatelliteOverlaysTask)
 
-        project.tasks.create(DockerBasedStopDeployTask.NAME, DockerBasedStopDeployTask)
-        project.tasks.create(DockerBasedStartDeployTask.NAME, DockerBasedStartDeployTask)
-
         project.tasks.create(DatabaseStartTask.NAME, DatabaseStartTask)
         project.tasks.create(DatabaseStopTask.NAME, DatabaseStopTask)
         project.tasks.create(GitlabStartTask.NAME, GitlabStartTask)

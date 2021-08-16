@@ -10,11 +10,17 @@ import static ai.digital.integration.server.util.ConfigurationsUtil.SERVER_DIST
 class DownloadAndExtractServerDistTask extends Copy {
     static NAME = "downloadAndExtractServer"
 
+
     DownloadAndExtractServerDistTask() {
+        def dependencies = [
+                PrepareDeployTask.NAME
+        ]
+
         this.configure {
             def server = ServerUtil.getServer(project)
 
             group = PLUGIN_GROUP
+            dependsOn(dependencies)
 
             if (ServerUtil.isDistDownloadRequired(project)) {
                 project.logger.lifecycle("Downloading and extracting the server.")

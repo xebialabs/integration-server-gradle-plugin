@@ -2,8 +2,6 @@ package ai.digital.integration.server.util
 
 import ai.digital.integration.server.IntegrationServerExtension
 import ai.digital.integration.server.domain.Server
-import ai.digital.integration.server.tasks.DockerBasedStartDeployTask
-import ai.digital.integration.server.tasks.DownloadAndExtractServerDistTask
 import org.gradle.api.Project
 
 import java.nio.file.Path
@@ -75,8 +73,10 @@ class ServerUtil {
         Paths.get(getServerDistFolder(project))
     }
 
-    static def getServerInstallTaskName(Project project) {
-        isDockerBased(project) ? DockerBasedStartDeployTask.NAME : DownloadAndExtractServerDistTask.NAME
+    static def waitForBoot(Project project) {
+        def server = getServer(project)
+        def url = "http://localhost:${server.httpPort}${server.contextRoot}/deployit/metadata/type"
+        WaitForBootUtil.byPort(project, "Deploy", url, server.httpPort)
     }
 
     static def getDockerImageVersion(Project project) {

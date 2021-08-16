@@ -23,11 +23,11 @@ class StartIntegrationServerTask extends DefaultTask {
                 CheckUILibVersionsTask.NAME,
                 CopyOverlaysTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DatabaseStartTask.NAME,
+                DownloadAndExtractServerDistTask.NAME,
                 PrepareDatabaseTask.NAME,
                 PrepareDeployTask.NAME,
                 RemoveStdoutConfigTask.NAME,
                 SetLogbackLevelsTask.NAME,
-                ServerUtil.getServerInstallTaskName(project),
                 StartMqTask.NAME,
                 YamlPatchTask.NAME
         ]
@@ -89,12 +89,12 @@ class StartIntegrationServerTask extends DefaultTask {
             } else {
                 startServer(server)
             }
+        } else {
+            project.exec {
+                it.executable "docker-compose"
+                it.args '-f', ServerUtil.getResolvedDockerFile(project).toFile(), '-p', 'deployServer', 'up', '-d'
+            }
         }
-    }
-
-    private def waitForBoot(Server server) {
-        def url = "http://localhost:${server.httpPort}${server.contextRoot}/deployit/metadata/type"
-        WaitForBootUtil.byPort(project, "Deploy", url, server.httpPort)
     }
 
     private def maybeTearDown() {
@@ -107,6 +107,6 @@ class StartIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("About to launch Deploy Server on port ${server.httpPort}.")
 
         start(server)
-        waitForBoot(server)
+        ServerUtil.waitForBoot(project)
     }
 }

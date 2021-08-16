@@ -12,11 +12,11 @@ services:
     ports:
       - DEPLOY_SERVER_HTTP_PORT:DEPLOY_SERVER_HTTP_PORT
     volumes:
-      - deploy-10.3.0-816.817:/opt/xebialabs/xl-deploy-server
+      - deploy-DEPLOY_VERSION:/opt/xebialabs/xl-deploy-server
       - ./centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration
       - ./conf:/opt/xebialabs/xl-deploy-server/conf
       - ./hotfix/lib:/opt/xebialabs/xl-deploy-server/hotfix/lib
       - ./hotfix/plugins:/opt/xebialabs/xl-deploy-server/hotfix/plugins
       - ./plugins:/opt/xebialabs/xl-deploy-server/plugins
 volumes:
-  deploy-10.3.0-816.817:
+  deploy-DEPLOY_VERSION:

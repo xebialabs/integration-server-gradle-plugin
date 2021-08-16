@@ -16,7 +16,7 @@ class CopyOverlaysTask extends DefaultTask {
 
     CopyOverlaysTask() {
         def dependencies = [
-                ServerUtil.getServerInstallTaskName(project)
+                DownloadAndExtractServerDistTask.NAME
         ]
         this.configure { ->
             group = PLUGIN_GROUP
@@ -46,7 +46,6 @@ class CopyOverlaysTask extends DefaultTask {
                             copy.into { "${ServerUtil.getServerWorkingDir(project)}/${definition.key}" }
                         }
                     })
-                    project.tasks.getByName(task.name).dependsOn ServerUtil.getServerInstallTaskName(project)
                     this.dependsOn task
                 }
             }
