@@ -30,7 +30,7 @@ class DockerBasedStopDeployTask extends DefaultTask {
 
     @TaskAction
     void run() {
-        project.logger.lifecycle("Starting Deploy Server from a docker image ${ServerUtil.getDockerImageVersion(project)}")
+        project.logger.lifecycle("Stopping Deploy Server from a docker image ${ServerUtil.getDockerImageVersion(project)}")
 
         project.exec {
             it.executable "docker-compose"
