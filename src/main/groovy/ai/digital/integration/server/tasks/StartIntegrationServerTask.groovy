@@ -92,7 +92,7 @@ class StartIntegrationServerTask extends DefaultTask {
         } else {
             project.exec {
                 it.executable "docker-compose"
-                it.args '-f', ServerUtil.getResolvedDockerFile(project).toFile(), '-p', 'deployServer', 'up', '-d'
+                it.args '-f', ServerUtil.getResolvedDockerFile(project).toFile(), 'up', '-d'
             }
         }
     }
