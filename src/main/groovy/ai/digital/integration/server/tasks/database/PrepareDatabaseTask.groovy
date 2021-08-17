@@ -3,26 +3,11 @@ package ai.digital.integration.server.tasks.database
 import ai.digital.integration.server.util.DbUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.tasks.TaskAction
 
-import java.nio.file.Files
-
-import static ai.digital.integration.server.constant.PluginConstant.*
+import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class PrepareDatabaseTask extends DefaultTask {
     static NAME = "prepareDatabase"
-
-    private void copyDatabaseConf() {
-        def from = DbUtil.dbConfigFile(project)
-        def intoDir = project.projectDir.toPath().resolve("src").resolve("test").resolve("resources")
-        if (Files.exists(intoDir)) {
-            def into = intoDir.resolve("deploy-repository.yaml").toFile()
-            into.delete()
-            into.createNewFile()
-            into << from
-            from.close()
-        }
-    }
 
     private static void injectDbDependency(Project project, def dbName) {
         def testCompile = project.configurations.findByName("testCompile")
@@ -57,8 +42,4 @@ class PrepareDatabaseTask extends DefaultTask {
         }
     }
 
-    @TaskAction
-    def prepare() {
-        copyDatabaseConf()
-    }
 }
