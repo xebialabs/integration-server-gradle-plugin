@@ -46,6 +46,11 @@ class ServerUtil {
         getServer(project).dockerImage?.trim()
     }
 
+    static def isServerDefined(Project project) {
+        def ext = project.extensions.getByType(IntegrationServerExtension)
+        ext.servers.size() > 0
+    }
+
     static def isDistDownloadRequired(Project project) {
         getServer(project).runtimeDirectory == null && !isDockerBased(project)
     }

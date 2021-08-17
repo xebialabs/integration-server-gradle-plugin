@@ -96,9 +96,13 @@ class IntegrationServerPlugin implements Plugin<Project> {
         }
 
         project.afterEvaluate {
-            ExtensionUtil.initialize(project)
-            createTasks(project, serverConfig, cliConfig)
-            applyPlugins(project)
+            if (ServerUtil.isServerDefined(project)) {
+                ExtensionUtil.initialize(project)
+                createTasks(project, serverConfig, cliConfig)
+                applyPlugins(project)
+            } else {
+                project.logger.lifecycle("Nothing to do, a configuration for a server has not found.")
+            }
         }
     }
 }
