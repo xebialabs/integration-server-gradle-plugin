@@ -28,9 +28,24 @@ class DockerBasedStopDeployTask extends DefaultTask {
         ServerUtil.getResolvedDockerFile(project).toFile()
     }
 
+    /**
+     * Ignoring an exception as only certain folders and files (which were mounted) belong to a docker user.
+     */
+    def allowToCleanMountedFiles() {
+        project.exec {
+            it.executable 'docker-compose'
+            it.args '-f', getDockerComposeFile(), 'exec', '-T', ServerUtil.getDockerServiceName(project),
+                    'chmod', '777', '-R', '/opt/xebialabs/xl-deploy-server'
+            errorOutput = new ByteArrayOutputStream()
+            ignoreExitValue = true
+        }
+    }
+
     @TaskAction
     void run() {
         project.logger.lifecycle("Stopping Deploy Server from a docker image ${ServerUtil.getDockerImageVersion(project)}")
+
+        allowToCleanMountedFiles()
 
         project.exec {
             it.executable "docker-compose"

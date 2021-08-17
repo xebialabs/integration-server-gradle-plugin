@@ -85,6 +85,11 @@ class ServerUtil {
         "${server.dockerImage}:${server.version}"
     }
 
+    static def getDockerServiceName(Project project) {
+        def server = getServer(project)
+        "deploy-${server.version}"
+    }
+
     static String getServerWorkingDir(Project project) {
         Server server = getServer(project)
 
