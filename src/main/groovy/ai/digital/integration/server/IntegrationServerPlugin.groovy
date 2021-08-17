@@ -70,7 +70,6 @@ class IntegrationServerPlugin implements Plugin<Project> {
     private static applyDerbyPlugin(Project project) {
         def database = DbUtil.getDatabase(project)
 
-        project.plugins.apply('derby-ns')
         def derbyExtension = project.extensions.getByName("derby")
         derbyExtension.dataDir = "${ServerUtil.getServerWorkingDir(project)}/derbydb"
         derbyExtension.port = database.derbyPort

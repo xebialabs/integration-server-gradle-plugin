@@ -1,3 +1,9 @@
+buildscript {
+    dependencies {
+        classpath "com.xebialabs.gradle.plugins:gradle-xl-derby-plugin:$gradleXlDerbyPluginVersion"
+    }
+}
+
 plugins {
     id 'groovy'
     id 'idea'
@@ -6,6 +12,8 @@ plugins {
     id 'nebula.release' version '15.3.1'
     id 'signing'
 }
+
+apply plugin: 'derby-ns'
 
 group = 'com.xebialabs.gradle.plugins'
 defaultTasks 'build'
@@ -17,11 +25,7 @@ sourceCompatibility = languageLevel
 targetCompatibility = languageLevel
 
 repositories {
-    mavenCentral()
     mavenLocal()
-    maven {
-        url 'https://oss.sonatype.org/content/repositories/releases'
-    }
     maven {
         url "https://plugins.gradle.org/m2/"
     }
@@ -183,6 +187,7 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
 }
 
 import com.xebialabs.gradle.release.NebulaRelease
+
 task nebulaRelease(type: NebulaRelease)
 
 task uploadArchives {
