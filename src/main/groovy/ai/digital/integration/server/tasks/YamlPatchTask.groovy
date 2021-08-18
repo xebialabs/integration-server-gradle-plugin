@@ -13,7 +13,8 @@ class YamlPatchTask extends DefaultTask {
 
     YamlPatchTask() {
         def dependencies = [
-                CentralConfigurationTask.NAME
+                CentralConfigurationTask.NAME,
+                CopyOverlaysTask.NAME
         ]
 
         this.configure { ->

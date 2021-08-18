@@ -5,8 +5,21 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
+import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
+
 class CentralConfigurationTask extends DefaultTask {
     static NAME = "centralConfiguration"
+
+    CentralConfigurationTask() {
+        def dependencies = [
+                DownloadAndExtractServerDistTask.NAME
+        ]
+
+        this.configure { ->
+            group = PLUGIN_GROUP
+            dependsOn(dependencies)
+        }
+    }
 
     private void createCentralConfigurationFiles() {
         project.logger.lifecycle("Generating initial central configuration files")

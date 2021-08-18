@@ -23,6 +23,7 @@ class StartIntegrationServerTask extends DefaultTask {
 
     StartIntegrationServerTask() {
         def dependencies = [
+                CentralConfigurationTask.NAME,
                 CheckUILibVersionsTask.NAME,
                 CopyOverlaysTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DatabaseStartTask.NAME,
