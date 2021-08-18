@@ -4,6 +4,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 
 class ProcessUtil {
+
     private static def createRunCommand(String baseCommand) {
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             ["cmd" as String, "/c" as String, "${baseCommand}.cmd" as String]

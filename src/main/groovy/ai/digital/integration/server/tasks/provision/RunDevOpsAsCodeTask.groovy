@@ -6,6 +6,7 @@ import ai.digital.integration.server.tasks.StartIntegrationServerTask
 import ai.digital.integration.server.util.HTTPUtil
 import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
@@ -24,7 +25,7 @@ class RunDevOpsAsCodeTask extends DefaultTask {
         }
     }
 
-    private static void launchDevOpAsCodeScripts(Server server) {
+    private static void launchDevOpAsCodeScripts(Project project, Server server) {
         if (server.getDevOpsAsCodes() != null) {
             server.getDevOpsAsCodes().each { DevOpsAsCode devOpsAsCode ->
                 def http = HTTPUtil.buildRequest("http://localhost:${server.httpPort}/deployit/devops-as-code/apply")
@@ -40,7 +41,7 @@ class RunDevOpsAsCodeTask extends DefaultTask {
                     put("X-Xebialabs-Scm-Filename", devOpsAsCode.scmFile)
                 }
                 http.post([body: devOpsAsCode.devOpAsCodeScript.toPath().text]) { resp, reader ->
-                    logger.info("YAML ${devOpsAsCode.devOpAsCodeScript} has been applied.")
+                    project.logger.info("YAML ${devOpsAsCode.devOpAsCodeScript} has been applied.")
                 }
             }
         }
@@ -49,6 +50,6 @@ class RunDevOpsAsCodeTask extends DefaultTask {
     @TaskAction
     void launch() {
         project.logger.lifecycle("Running Dev Ops as Code provision script on the Deploy server.")
-        launchDevOpAsCodeScripts(ServerUtil.getServer(project))
+        launchDevOpAsCodeScripts(project, ServerUtil.getServer(project))
     }
 }

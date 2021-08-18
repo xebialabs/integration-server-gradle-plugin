@@ -42,6 +42,29 @@ deploy.server:
     }
 
     @Test
+    void fileOverride2Test() {
+        def initialContent = '''\
+deploy:
+  server:
+    hostname: "127.0.0.1"
+    port: 8080
+'''
+        File initialFile = File.createTempFile("deploy-server", "initial")
+        initialFile.write(initialContent)
+        initialFile.deleteOnExit()
+
+        File destinationFile = File.createTempFile("deploy-server", "updated")
+        destinationFile.deleteOnExit()
+
+        YamlFileUtil.overlayFile(initialFile,
+                ["deploy.server.hostname": "localhost"], destinationFile)
+
+        assertEquals("localhost", YamlFileUtil.readFileKey(destinationFile, "deploy.server.hostname"))
+        assertEquals(8080, YamlFileUtil.readFileKey(destinationFile, "deploy.server.port"))
+    }
+
+
+    @Test
     void fileCreateTest() {
         File destinationFile = File.createTempFile("deploy-server", "updated")
         destinationFile.delete()

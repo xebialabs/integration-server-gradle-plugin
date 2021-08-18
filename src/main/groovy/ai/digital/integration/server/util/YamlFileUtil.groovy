@@ -12,10 +12,21 @@ class YamlFileUtil {
 
     static def mapper = new ObjectMapper(new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER))
 
+    // Creates different key chain, depends on what is the first key, contains a dot or not for a first key.
+    private static calcKeyChain(Map<String, Object> objectMap, tokens) {
+        if (objectMap.get(tokens[0] + "." + tokens[1])) {
+            def keyChain = [tokens[0] + "." + tokens[1]]
+            keyChain.plus(tokens.init().drop(2)).flatten()
+        } else {
+            def keyChain = [tokens[0]]
+            keyChain.plus(tokens.init().drop(1)).flatten()
+        }
+    }
+
     private static Tuple getKeyParentAndLastToken(Map<String, Object> objectMap, String key) {
         def tokens = key.split("\\.")
-        def keyChain = [tokens[0] + "." + tokens[1]]
-        keyChain = keyChain.plus(tokens.init().drop(2)).flatten()
+
+        def keyChain = calcKeyChain(objectMap, tokens)
 
         def current = objectMap
         keyChain.each { keyItem ->

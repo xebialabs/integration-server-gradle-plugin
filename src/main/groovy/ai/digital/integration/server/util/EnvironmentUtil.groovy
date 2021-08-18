@@ -10,7 +10,7 @@ class EnvironmentUtil {
 
     static def getEnv(String variableName, Boolean debugSuspend, Integer debugPort, String logFileName) {
         def opts = logFileName ?
-                "-Xmx1024m -DLOGFILE=$logFileName} -Djava.util.logging.manager=org.jboss.logmanager.LogManager" :
+                "-Xmx1024m -DLOGFILE=$logFileName -Djava.util.logging.manager=org.jboss.logmanager.LogManager" :
                 "-Xmx1024m -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
         def suspend = debugSuspend ? 'y' : 'n'
         if (debugPort != null) {
