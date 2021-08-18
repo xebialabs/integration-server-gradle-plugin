@@ -1,6 +1,7 @@
 package ai.digital.integration.server.domain
 
 import ai.digital.integration.server.util.HTTPUtil
+import org.gradle.api.NamedDomainObjectContainer
 
 class Server {
 
@@ -30,7 +31,11 @@ class Server {
 
     List<String> provisionScripts = List.of()
 
-    Integer provisionSocketTimeout = 60000
+    List<String> generateDatasets = List.of()
+
+    NamedDomainObjectContainer<DevOpsAsCode> devOpsAsCodes
+
+    Integer provisionSocketTimeout = 60000 // TODO: add an impl for it
 
     Boolean removeStdoutConfig = false
 
@@ -42,5 +47,9 @@ class Server {
 
     Server(final String name) {
         this.name = name
+    }
+
+    def devOpsAsCodes(final Closure closure) {
+        devOpsAsCodes.configure(closure)
     }
 }

@@ -1,4 +1,4 @@
-package ai.digital.integration.server.tasks.cli
+package ai.digital.integration.server.tasks.provision
 
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.tasks.DownloadAndExtractCliDistTask
@@ -15,14 +15,14 @@ import org.gradle.util.CollectionUtils
 
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
-class RunProvisionScriptTask extends DefaultTask {
+class RunCliProvisionScriptTask extends DefaultTask {
     static NAME = "runProvisionScript"
 
     // In case if you want to create a task directly
     @Input
     List<String> provisionScripts = List.of()
 
-    RunProvisionScriptTask() {
+    RunCliProvisionScriptTask() {
         def dependencies = [
                 StartIntegrationServerTask.NAME,
                 DownloadAndExtractCliDistTask.NAME
@@ -88,7 +88,7 @@ class RunProvisionScriptTask extends DefaultTask {
 
     @TaskAction
     void launch() {
-        project.logger.lifecycle("Running provision script on Deploy server.")
+        project.logger.lifecycle("Running a CLI provision script on the Deploy server.")
         launchProvisionScripts(ServerUtil.getServer(project))
     }
 }

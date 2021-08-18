@@ -24,7 +24,7 @@ class PrepareDatabaseTask extends DefaultTask {
 
         if (compileTestScala) {
             compileTestScala.finalizedBy(NAME)
-            if (dbName == 'derby-network' && test) {
+            if (dbName == DbUtil.DERBY_NETWORK && test) {
                 compileTestScala.dependsOn("derbyStart")
                 test.finalizedBy("derbyStop")
             }

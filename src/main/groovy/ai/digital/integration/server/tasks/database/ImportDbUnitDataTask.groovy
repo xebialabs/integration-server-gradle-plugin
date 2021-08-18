@@ -4,6 +4,7 @@ import ai.digital.integration.server.constant.PluginConstant
 import ai.digital.integration.server.tasks.DownloadAndExtractDbUnitDataDistTask
 import ai.digital.integration.server.util.DbConfigurationUtil
 import ai.digital.integration.server.util.DbUtil
+import ai.digital.integration.server.util.ExtensionUtil
 import ai.digital.integration.server.util.PostgresDbUtil
 import com.fasterxml.jackson.databind.node.TextNode
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
@@ -20,6 +21,9 @@ class ImportDbUnitDataTask extends DefaultTask {
         this.configure {
             group = PluginConstant.PLUGIN_GROUP
             dependsOn(DownloadAndExtractDbUnitDataDistTask.NAME)
+            onlyIf {
+                !DbUtil.isDerby(project) && ExtensionUtil.getExtension(project).xldIsDataVersion != null
+            }
         }
     }
 
@@ -40,14 +44,13 @@ class ImportDbUnitDataTask extends DefaultTask {
         provider.setColumnSensing(true)
         provider.setCaseSensitiveTableNames(true)
         def destinationDir = project.buildDir.toPath().resolve(PluginConstant.DIST_DESTINATION_NAME).toAbsolutePath().toString()
-        def dataFile = Paths.get("${destinationDir}/xld-is-data-${project.xldIsDataVersion}-repository/data.xml")
+        def version = ExtensionUtil.getExtension(project).xldIsDataVersion
+        def dataFile = Paths.get("${destinationDir}/xld-is-data-${version}-repository/data.xml")
         provider.build(new FileInputStream(dataFile.toFile()))
     }
 
     @TaskAction
     def runImport() {
-        DbUtil.assertNotDerby(project, 'import job cannot be executed with Derby in network or in-memory configuration.')
-
         def dbname = DbUtil.databaseName(project)
         def dbDependency = DbUtil.detectDbDependencies(dbname)
         def dbConfig = getConfiguration()

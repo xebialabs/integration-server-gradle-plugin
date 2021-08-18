@@ -2,7 +2,6 @@ package ai.digital.integration.server
 
 import ai.digital.integration.server.tasks.*
 import ai.digital.integration.server.tasks.anonymizer.ExportDatabaseTask
-import ai.digital.integration.server.tasks.cli.RunProvisionScriptTask
 import ai.digital.integration.server.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.tasks.database.ImportDbUnitDataTask
@@ -12,6 +11,9 @@ import ai.digital.integration.server.tasks.gitlab.GitlabStopTask
 import ai.digital.integration.server.tasks.mq.ShutdownMqTask
 import ai.digital.integration.server.tasks.mq.StartMqTask
 import ai.digital.integration.server.tasks.pluginManager.StartPluginManagerTask
+import ai.digital.integration.server.tasks.provision.RunCliProvisionScriptTask
+import ai.digital.integration.server.tasks.provision.RunDatasetGenerationTask
+import ai.digital.integration.server.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.tasks.satellite.CopySatelliteOverlaysTask
 import ai.digital.integration.server.tasks.satellite.DownloadAndExtractSatelliteDistTask
 import ai.digital.integration.server.tasks.satellite.ShutdownSatelliteTask
@@ -39,7 +41,9 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(GitlabStopTask.NAME, GitlabStopTask)
 
         project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask)
-        project.tasks.create(RunProvisionScriptTask.NAME, RunProvisionScriptTask).dependsOn(clicfg)
+        project.tasks.create(RunCliProvisionScriptTask.NAME, RunCliProvisionScriptTask).dependsOn(clicfg)
+        project.tasks.create(RunDatasetGenerationTask.NAME, RunDatasetGenerationTask)
+        project.tasks.create(RunDevOpsAsCodeTask.NAME, RunDevOpsAsCodeTask)
 
         project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)

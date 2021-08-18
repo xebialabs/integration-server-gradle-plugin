@@ -2,8 +2,10 @@ package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.tasks.database.DatabaseStartTask
+import ai.digital.integration.server.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.tasks.mq.StartMqTask
+import ai.digital.integration.server.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.tasks.satellite.StartSatelliteTask
 import ai.digital.integration.server.tasks.worker.StartWorkersTask
 import ai.digital.integration.server.util.*
@@ -45,6 +47,9 @@ class StartIntegrationServerTask extends DefaultTask {
                     finalizedBy(StartSatelliteTask.NAME)
                 }
             }
+
+            finalizedBy(ImportDbUnitDataTask.NAME)
+            finalizedBy(RunDevOpsAsCodeTask.NAME)
         }
     }
 

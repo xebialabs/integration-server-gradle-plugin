@@ -4,7 +4,11 @@ import groovyx.net.http.HTTPBuilder
 
 class HTTPUtil {
     static HTTPBuilder buildRequest(String url) {
+        def timeout = 3 * 60 * 1000 // 3 min
+
         def http = new HTTPBuilder(url)
+        http.getClient().getParams().setParameter("http.connection.timeout", new Integer(timeout))
+        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(timeout))
         http.auth.basic("admin", "admin")
         http
     }
