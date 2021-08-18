@@ -8,6 +8,10 @@ class EnvironmentUtil {
         getEnv("DEPLOYIT_SERVER_OPTS", server.debugSuspend, server.debugPort, null)
     }
 
+    static def getCliEnv(Server server) {
+        getEnv("DEPLOYIT_CLI_OPTS", server.cliDebugSuspend, server.cliDebugPort, null)
+    }
+
     static def getEnv(String variableName, Boolean debugSuspend, Integer debugPort, String logFileName) {
         def opts = logFileName ?
                 "-Xmx1024m -DLOGFILE=$logFileName -Djava.util.logging.manager=org.jboss.logmanager.LogManager" :

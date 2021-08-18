@@ -15,14 +15,11 @@ class CopyOverlaysTask extends DefaultTask {
     static LIB_KEY = "lib"
 
     CopyOverlaysTask() {
-        def dependencies = [
-                DownloadAndExtractServerDistTask.NAME
-        ]
         this.configure { ->
             group = PLUGIN_GROUP
-            dependsOn(dependencies)
-
+            mustRunAfter DownloadAndExtractServerDistTask.NAME
             finalizedBy CheckUILibVersionsTask.NAME
+
             project.afterEvaluate {
                 Server server = ServerUtil.getServer(project)
                 project.logger.lifecycle("Copying overlays on Deploy server ${server.name}")

@@ -25,13 +25,13 @@ class RunCliProvisionScriptTask extends DefaultTask {
     RunCliProvisionScriptTask() {
         def dependencies = [
                 StartIntegrationServerTask.NAME,
-                DownloadAndExtractCliDistTask.NAME
+                DownloadAndExtractCliDistTask.NAME,
+                ImportDbUnitDataTask.NAME
         ]
 
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
-            shouldRunAfter(StartIntegrationServerTask.NAME, ImportDbUnitDataTask.NAME)
         }
     }
 
@@ -46,27 +46,31 @@ class RunCliProvisionScriptTask extends DefaultTask {
                 logger.debug("Provision CLI classpath: \n${classpath}")
                 executeScriptFromClassPath(contextRoot, port, script, classpath)
             } else {
-                executeScript(contextRoot, port, script)
+                executeScript(server, script)
             }
         }
     }
 
-    void executeScript(String contextRoot, Integer port, String script) {
-        project.logger.lifecycle("Running provision script ${script}")
+    void executeScript(Server server, String script) {
         def params = [
-                "-username", "admin",
-                "-password", "admin",
+                "-context", server.contextRoot,
                 "-expose-proxies",
-                "-port", port.toString(),
+                "-password", "admin",
+                "-port", server.httpPort.toString(),
+                "-socketTimeout", server.provisionSocketTimeout.toString(),
                 "-source", script,
-                "-context", contextRoot
+                "-username", "admin",
         ]
 
+        project.logger.lifecycle("Running provision script ${script} with parameters:${params}")
+
         ProcessUtil.exec([
-                command  : "cli",
-                params   : params,
-                workDir  : CliUtil.getCliBin(project),
-                inheritIO: true
+                command    : "cli",
+                environment: EnvironmentUtil.getCliEnv(server),
+                inheritIO  : true,
+                params     : params,
+                wait       : true,
+                workDir    : CliUtil.getCliBin(project)
         ])
     }
 

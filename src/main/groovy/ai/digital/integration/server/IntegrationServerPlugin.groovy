@@ -42,6 +42,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
 
         project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask)
         project.tasks.create(RunCliProvisionScriptTask.NAME, RunCliProvisionScriptTask).dependsOn(clicfg)
+        project.tasks.create(RunCliProvisionOnlyScriptTask.NAME, RunCliProvisionOnlyScriptTask).dependsOn(clicfg)
         project.tasks.create(RunDatasetGenerationTask.NAME, RunDatasetGenerationTask)
         project.tasks.create(RunDevOpsAsCodeTask.NAME, RunDevOpsAsCodeTask)
 

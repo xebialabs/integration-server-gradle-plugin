@@ -7,6 +7,10 @@ class Server {
 
     String contextRoot = "/"
 
+    Integer cliDebugPort
+
+    Boolean cliDebugSuspend = false
+
     Boolean debugSuspend = false
 
     Integer debugPort
@@ -35,7 +39,7 @@ class Server {
 
     NamedDomainObjectContainer<DevOpsAsCode> devOpsAsCodes
 
-    Integer provisionSocketTimeout = 60000 // TODO: add an impl for it
+    Integer provisionSocketTimeout = 60000
 
     Boolean removeStdoutConfig = false
 
