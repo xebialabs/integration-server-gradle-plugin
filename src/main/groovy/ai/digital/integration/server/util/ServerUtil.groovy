@@ -75,6 +75,14 @@ class ServerUtil {
         project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()
     }
 
+    static def getServerLogFile(Project project, String fileName) {
+        def file = Paths.get("${getServerWorkingDir(project)}/log/${fileName}").toFile()
+        if (!file.exists()) {
+            file.createNewFile()
+        }
+        file
+    }
+
     static def getServerDistFolderPath(Project project) {
         Paths.get(getServerDistFolder(project))
     }
@@ -112,7 +120,7 @@ class ServerUtil {
 
     static void grantPermissionsToIntegrationServerFolder(Project project) {
         if (isDockerBased(project)) {
-            def workDir = getServerDistFolder(project);
+            def workDir = getServerDistFolder(project)
             new File(workDir).traverse(type: FileType.ANY) { File it ->
                 FileUtil.grantRWPermissions(it)
             }

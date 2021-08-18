@@ -67,8 +67,8 @@ class RunCliProvisionScriptTask extends DefaultTask {
         ProcessUtil.exec([
                 command    : "cli",
                 environment: EnvironmentUtil.getCliEnv(server),
-                inheritIO  : true,
                 params     : params,
+                redirectTo : ServerUtil.getServerLogFile(project, "cli.log"),
                 wait       : true,
                 workDir    : CliUtil.getCliBin(project)
         ])

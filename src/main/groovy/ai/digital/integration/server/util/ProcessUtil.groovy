@@ -28,6 +28,11 @@ class ProcessUtil {
             processBuilder.inheritIO()
         }
 
+        if (config.redirectTo) {
+            processBuilder.redirectErrorStream(true)
+            processBuilder.redirectOutput(ProcessBuilder.Redirect.to(config.redirectTo as File))
+        }
+
         def process = processBuilder.start()
         if (config.wait) {
             process.waitFor()
