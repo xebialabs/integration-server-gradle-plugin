@@ -1,5 +1,6 @@
 package ai.digital.integration.server.tasks.provision
 
+import ai.digital.integration.server.util.EnvironmentUtil
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.tasks.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.tasks.StartIntegrationServerTask
