@@ -75,6 +75,10 @@ class ServerUtil {
         project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()
     }
 
+    static Path getRelativePathInServerDist(Project project, String relativePath) {
+        Paths.get("${getServerDistFolder(project)}/${relativePath}")
+    }
+
     static def getServerLogFile(Project project, String fileName) {
         def file = Paths.get("${getServerWorkingDir(project)}/log/${fileName}").toFile()
         if (!file.exists()) {
@@ -107,7 +111,7 @@ class ServerUtil {
         Server server = getServer(project)
 
         if (isDockerBased(project)) {
-            def workDir = DockerComposeUtil.dockerComposeFileDestination(project, "deploy")
+            def workDir = getRelativePathInServerDist(project, "deploy")
             workDir.toAbsolutePath().toString()
         } else if (server.runtimeDirectory == null) {
             def targetDir = getServerDistFolderPath(project).toString()

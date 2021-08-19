@@ -1,8 +1,8 @@
 package ai.digital.integration.server.util
 
 import ai.digital.integration.server.IntegrationServerExtension
-import com.fasterxml.jackson.core.TreeNode
 import ai.digital.integration.server.domain.Database
+import com.fasterxml.jackson.core.TreeNode
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
@@ -26,7 +26,7 @@ class DbUtil {
         PropertyUtil.resolveValue(project, "database", DERBY_INMEMORY)
     }
 
-    static def dbConfigFile(Project project) {
+    static def dbConfigStream(Project project) {
         def dbname = databaseName(project)
         DbUtil.class.classLoader.getResourceAsStream("database-conf/deploy-repository.yaml.${dbname}")
     }
@@ -53,7 +53,7 @@ class DbUtil {
     }
 
     static TreeNode dbConfig(Project project) {
-        def from = dbConfigFile(project)
+        def from = dbConfigStream(project)
         TreeNode config = YamlFileUtil.readTree(from)
 
         if (isDerbyNetwork(project)) {

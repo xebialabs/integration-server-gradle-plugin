@@ -1,8 +1,8 @@
 package ai.digital.integration.server.tasks.database
 
 import ai.digital.integration.server.util.DbUtil
-import ai.digital.integration.server.util.DockerComposeUtil
 import ai.digital.integration.server.util.FileUtil
+import ai.digital.integration.server.util.ServerUtil
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -44,7 +44,7 @@ class DatabaseStartTask extends DockerComposeUp {
                 def folderName = "database-compose/$dbName-docker/"
                 if (name.startsWith(folderName) && name != folderName) {
                     def dockerFileName = name.substring(name.indexOf('/') + 1)
-                    FileUtil.copyFile(zip, DockerComposeUtil.dockerfileDestination(project, dockerFileName))
+                    FileUtil.copyFile(zip, ServerUtil.getRelativePathInServerDist(project, dockerFileName))
                 }
             }
         }
