@@ -54,15 +54,7 @@ class DbUtil {
 
     static TreeNode dbConfig(Project project) {
         def from = dbConfigStream(project)
-        TreeNode config = YamlFileUtil.readTree(from)
-
-        if (isDerbyNetwork(project)) {
-            def port = getDatabase(project).derbyPort
-            config.get("xl.repository")
-                    .get("database")
-                    .put("db-url", "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin")
-        }
-        config
+        YamlFileUtil.readTree(from)
     }
 
     private static enrichDatabase(Project project, Database database) {

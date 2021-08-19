@@ -21,14 +21,30 @@ class CentralConfigurationTask extends DefaultTask {
         }
     }
 
+    private void overlayRepositoryConfig(String serverDir) {
+        project.logger.lifecycle("Creating custom deploy-repository.yaml")
+
+        def deployRepositoryYaml = new File("${serverDir}/centralConfiguration/deploy-repository.yaml")
+
+        YamlFileUtil.writeFileValue(deployRepositoryYaml, DbUtil.dbConfig(project))
+
+        if (DbUtil.isDerbyNetwork(project)) {
+            def port = DbUtil.getDatabase(project).derbyPort.toString()
+            def dbUrl = "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin".toString()
+
+            YamlFileUtil.overlayFile(deployRepositoryYaml,
+                    [
+                            "xl.repository.database.db-url": dbUrl
+                    ]
+            )
+        }
+    }
+
     private void createCentralConfigurationFiles() {
         project.logger.lifecycle("Generating initial central configuration files")
         def serverDir = ServerUtil.getServerWorkingDir(project)
 
-        project.logger.lifecycle("Creating custom deploy-repository.yaml")
-        YamlFileUtil.writeFileValue(
-                new File("${serverDir}/centralConfiguration/deploy-repository.yaml"),
-                DbUtil.dbConfig(project))
+        overlayRepositoryConfig(serverDir)
 
         project.logger.lifecycle("Creating custom deploy-server.yaml")
         YamlFileUtil.overlayFile(
