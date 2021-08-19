@@ -21,6 +21,9 @@ repositories {
     maven {
         url "https://plugins.gradle.org/m2/"
     }
+    maven {
+        url 'https://oss.sonatype.org/service/local/repositories/releases/content'
+    }
 }
 
 idea {

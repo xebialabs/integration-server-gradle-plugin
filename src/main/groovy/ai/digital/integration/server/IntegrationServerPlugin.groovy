@@ -77,13 +77,13 @@ class IntegrationServerPlugin implements Plugin<Project> {
 
         project.plugins.apply('derby-ns')
         def derbyExtension = project.extensions.getByName("derby")
-        derbyExtension.dataDir = "${ServerUtil.getServerWorkingDir(project)}/derbydb"
+        derbyExtension.dataDir = "${ServerUtil.getServerWorkingDir(project)}"
         derbyExtension.port = database.derbyPort
         def startDerbyTask = project.tasks.getByName("derbyStart")
         def stopDerbyTask = project.tasks.getByName("derbyStop")
         TaskUtil.dontFailOnException(stopDerbyTask)
         stopDerbyTask.actions.each { startDerbyTask.doFirst { it } }
-        startDerbyTask.mustRunAfter(CopyOverlaysTask.NAME)
+        startDerbyTask.mustRunAfter(ApplicationConfigurationOverrideTask.NAME)
     }
 
     private static void applyPlugins(Project project) {
