@@ -28,6 +28,7 @@ import org.gradle.api.artifacts.Configuration
 class IntegrationServerPlugin implements Plugin<Project> {
 
     private static void createTasks(Project project, Configuration itcfg, Configuration clicfg) {
+        project.tasks.create(ApplicationConfigurationOverrideTask.NAME, ApplicationConfigurationOverrideTask)
         project.tasks.create(CentralConfigurationTask.NAME, CentralConfigurationTask)
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)

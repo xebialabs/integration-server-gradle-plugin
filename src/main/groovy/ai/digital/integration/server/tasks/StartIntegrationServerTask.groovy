@@ -23,6 +23,7 @@ class StartIntegrationServerTask extends DefaultTask {
 
     StartIntegrationServerTask() {
         def dependencies = [
+                ApplicationConfigurationOverrideTask.NAME,
                 CentralConfigurationTask.NAME,
                 CheckUILibVersionsTask.NAME,
                 CopyOverlaysTask.NAME,
