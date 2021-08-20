@@ -2,6 +2,10 @@
 
 Gradle plugin designed to provide Deploy Digital.ai integration server functionality.
 
+## Examples
+
+https://github.com/acierto/xld-hello-world
+
 ## Usage
 
 ### In order to add the plugin
