@@ -4,8 +4,8 @@ Gradle plugin designed to provide Deploy Digital.ai integration server functiona
 
 ## Examples
 
-https://github.com/acierto/xld-hello-world
-https://github.com/xebialabs-community/xld-powercenter-plugin
+* https://github.com/acierto/xld-hello-world
+* https://github.com/xebialabs-community/xld-powercenter-plugin
 
 ## Usage
 
