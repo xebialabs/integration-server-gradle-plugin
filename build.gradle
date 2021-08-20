@@ -42,7 +42,7 @@ dependencies {
     implementation "com.xebialabs.gradle.plugins:gradle-xl-derby-plugin:$gradleXlDerbyPluginVersion"
     implementation "commons-io:commons-io:$commonsIOVersion"
     implementation "de.vandermeer:asciitable:$asciitableVersion"
-    implementation "gradle.plugin.com.palantir.gradle.docker:gradle-docker:$dockerPluginVersion"
+    implementation "com.palantir.gradle.docker:gradle-docker:$dockerPluginVersion"
     implementation "mysql:mysql-connector-java:${project.properties['driverVersions.mysql']}"
     implementation("org.codehaus.groovy.modules.http-builder:http-builder:$httpBuilderVersion") {
         exclude group: 'org.codehaus.groovy', module: 'groovy'
