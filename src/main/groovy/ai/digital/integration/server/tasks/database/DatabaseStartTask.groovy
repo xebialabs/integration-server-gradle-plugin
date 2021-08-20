@@ -1,5 +1,6 @@
 package ai.digital.integration.server.tasks.database
 
+import ai.digital.integration.server.tasks.ApplicationConfigurationOverrideTask
 import ai.digital.integration.server.util.DbUtil
 import ai.digital.integration.server.util.FileUtil
 import ai.digital.integration.server.util.ServerUtil
@@ -15,7 +16,10 @@ class DatabaseStartTask extends DockerComposeUp {
     static NAME = "databaseStart"
 
     DatabaseStartTask() {
-        this.group = PLUGIN_GROUP
+        this.configure { ->
+            group = PLUGIN_GROUP
+            mustRunAfter ApplicationConfigurationOverrideTask.NAME
+        }
     }
 
     @Override

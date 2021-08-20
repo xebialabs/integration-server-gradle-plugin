@@ -18,26 +18,12 @@ class PrepareDatabaseTask extends DefaultTask {
         }
     }
 
-    private static void registerTestCompileHooks(Project project, def dbName) {
-        def compileTestScala = project.tasks.findByName("compileTestScala")
-        def test = project.tasks.findByName("test")
-
-        if (compileTestScala) {
-            compileTestScala.finalizedBy(NAME)
-            if (dbName == DbUtil.DERBY_NETWORK && test) {
-                compileTestScala.dependsOn("derbyStart")
-                test.finalizedBy("derbyStop")
-            }
-        }
-    }
-
     PrepareDatabaseTask() {
         def dbName = DbUtil.databaseName(project)
         this.configure {
             group = PLUGIN_GROUP
             project.afterEvaluate {
                 injectDbDependency(project, dbName)
-                registerTestCompileHooks(project, dbName)
             }
         }
     }
