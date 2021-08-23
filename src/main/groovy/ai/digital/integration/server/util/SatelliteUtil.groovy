@@ -22,7 +22,7 @@ class SatelliteUtil {
 
     private static Satellite enrichSatellite(Project project, Satellite satellite) {
         satellite.setDebugPort(getDebugPort(project, satellite))
-        satellite.setVersion(getServerVersion(project, satellite))
+        satellite.setVersion(getSatelliteVersion(project, satellite))
         satellite
     }
 
@@ -39,7 +39,7 @@ class SatelliteUtil {
         project.file("${getSatelliteWorkingDir(project, satellite)}/log/xl-satellite.log")
     }
 
-    private static String getServerVersion(Project project, Satellite satellite) {
+    private static String getSatelliteVersion(Project project, Satellite satellite) {
         project.hasProperty("xlSatelliteVersion") ? project.property("xlSatelliteVersion") : satellite.version
     }
 

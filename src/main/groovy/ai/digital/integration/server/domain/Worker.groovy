@@ -8,13 +8,13 @@ class Worker {
 
     Boolean debugSuspend = false
 
+    String directory
+
     String[] jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
 
     String name
 
     Integer port = HTTPUtil.findFreePort()
-
-    String directory
 
     Worker(final String name) {
         this.name = name

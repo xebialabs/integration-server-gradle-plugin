@@ -2,11 +2,9 @@
 sidebar_position: 4
 ---
 
-# API
+# Configuration
 
-## Configuration
-
-### The first section level
+## The first section level
 
 ```groovy title=build.gradle
 integrationServer {
@@ -28,7 +26,7 @@ integrationServer {
 |mqDriverVersions|Points to the version of MQ to use, in case you wish to adapt it to your own version.|
 |xldIsDataVersion|**Only for internal use in Digital.ai** Points to the data which is going to be imported after server is booted. To run waste the time to generate a huge amount of test data.|
 
-### Servers section
+## Servers section
 
 ```groovy title=build.gradle
 integrationServer {
@@ -111,7 +109,7 @@ integrationServer {
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlDeployVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
 |yamlPatches|Optional|[:]|[Read about this section below](#yaml-patches)|
 
-#### Dev Ops As Code
+### Dev Ops As Code
 
 Applies Dev Ops as code YAML files with extra metadata applied to it (mocked Git metadata associated with the file).
 
@@ -146,7 +144,7 @@ Read more about devops as code here:
 |scmType|Mandatory|None|SCM type, for example: git, svn, mercury|
 
 
-#### Overlays
+### Overlays
 
 With overlays, you can override any file in any folder in Deploy. <br/>
 Overlay is a map, where key is a path of the folder, and value - the file which going to be added or overwritten.  
@@ -184,7 +182,29 @@ Namely:
  
 :::
 
-### Database section
+
+### YAML patches
+
+Central configuration files are YAML files. There are predefined values there which you might want to custom for your needs,
+before starting the integration server. Though the feature is not limited to central configuration files only.
+You still can point to any folder and create/overwrite any file you wish. The configuration is a map (key -> map),
+where a key is a folder path and value is another map, in which key is the path to the property and value is a value of the property.
+
+For example, if you want to modify in `deploy-client.yaml` file the `automatically-map-all-deployables` to `false`, you have 
+to do:
+
+![Yaml Patch Example](../pics/yaml-patch-example.png)
+
+```groovy
+yamlPatches = [
+   'centralConfiguration/deploy-client.yaml': [
+       'deploy.client.automatically-map-all-deployables': 'false'
+   ]
+]  
+```
+
+
+## Database section
 
 ```groovy title=build.gradle
 integrationServer {
@@ -214,7 +234,7 @@ integrationServer {
 The most important what you have to know regarding the database configuration is, choosing which database to run is happening 
 now on the level of project property `database`. It means that you can specify it in 2 ways:
 
-* adding a parameter via `-P=database`
+* adding a parameter via `-Pdatabase`
 * In the root of your project in `gradle.properties` file
 
 ```properties title=gradle.properties
@@ -223,59 +243,115 @@ database=derby-network
 
 If nothing specified, **derby in memory** is going to be used.
 
-#### YAML patches
+## Workers section
 
-Central configuration files are YAML files. There are predefined values there which you might want to custom for your needs,
-before starting the integration server. Though the feature is not limited to central configuration files only.
-You still can point to any folder and create/overwrite any file you wish. The configuration is a map (key -> map),
-where a key is a folder path and value is another map, in which key is the path to the property and value is a value of the property.
+Whenever you have to distribute the load of your system and parallelize the deployment execution you can configure workers.
+In real case scenario you can run workers as on the same as well as on different VMs.
+There are 3 types of workers: 
+* internal worker which is embedded to a server, when no workers configured.
+* local workers, when extra JVM processed is spanned from the same folder
+* external workers, when you run the worker from another folder on the same or different VM
+ 
+Read more about workers here:
+[https://docs.xebialabs.com/v.10.2/deploy/concept/high-availability-with-master-worker-setup/#preparing-multiple-masters](https://docs.xebialabs.com/v.10.2/deploy/concept/high-availability-with-master-worker-setup/#preparing-multiple-masters)
 
-For example, if you want to modify in `deploy-client.yaml` file the `automatically-map-all-deployables` to `false`, you have 
-to do:
-
-![Yaml Patch Example](../pics/yaml-patch-example.png)
+**Integration Server** currently support running only on the same VM.
 
 ```groovy
-yamlPatches = [
-   'centralConfiguration/deploy-client.yaml': [
-       'deploy.client.automatically-map-all-deployables': 'false'
-   ]
-]  
-```
-
-## Tasks
-
-* `dockerComposeDatabaseStart` - starts containers required by the server
-* `dockerComposeDatabaseStop` - stops containers required by the server
-* `ImportDbUnitDataTask` - imports data files into a database
-* `prepareDatabase` - copies configuration files for the selected database
-* `startIntegrationServer` 
-  - starts an integration server with a provided configuration and a database.
-  - if the integrationServer needs to be started with the external worker ,we need to add the below configuration in build.gradle. if not integration server will start with in-process-worker.
-
-   ```grovvy
-   workers {      
-        worker03 { // name = worker03, worker03 will start from the mentioned directory path(/opt/xl-deploy-worker)
+integrationServer {
+    workers {
+        worker01 { 
+        }
+        worker02 { 
+            debugPort = 5006
+            debugSuspend = true
+            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+        }
+        worker03 { 
             debugPort = 5007
-            directory = "/opt/xl-deploy-worker"
             debugSuspend = false
+            directory = "/opt/xl-deploy-worker"
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
             port = 8182
         }
     }
-    ```
-  
-* `shutdownIntegrationServer` - stops a database server and also stop a database
-* `startSatellite` - starts satellite.
-* `shutdownSatellite` - stops satellite.
+}
+```
 
-## Flags
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|debugPort|Optional|None|Remote Debug Port for a worker.|
+|debugSuspend|Optional|None|Suspend the start of the process before the remoting tool is attached.|
+|directory|Optional|None|If specified, it will run external worker, from the different folder location than server.|
+|jvmArgs|Optional|None|JVM arguments which are going to be used on a worker startup.|
+|port|Optional|None|Port on which worker will start.|
 
-* `-Pdatabase` - sets a database to launch, options: `derby-inmemory`, `derby-network`, `mssql`, `mysql`, `mysql-8`, `oracle-19c-se`, `postgres`
-* `-PderbyPort` - provides Derby port if Derby database is used
-* `-PlogSql` - enables printing of SQL queries executed by the server
-* `-PserverDebugPort` - provides a server debug port for remote debugging
-* `-PsatelliteDebugPort` - provides a satellite debug port for remote debugging
-* `-PserverHttpPort` - provides an http port, overrides a configuration option
+:::caution
 
+Docker based setup currently don't support workers. 
 
+:::
+
+## Satellites section
+
+In comparison with workers, the goal for a satellite is to perform deployments on the different network with Deploy. When
+the connection between networks is not fast and less reliable. <br/>
+
+**Integration Server** at this moment doesn't simulate slow network, but rather allows you to test that the functionality 
+properly works on a satellite. A satellite itself is installed on the same VM. <br/>
+
+You can read more about a satellite here: 
+[https://docs.xebialabs.com/v.10.2/deploy/concept/getting-started-with-the-satellite-module/](https://docs.xebialabs.com/v.10.2/deploy/concept/getting-started-with-the-satellite-module/)
+
+```groovy
+integrationServer {
+    satellites {
+       satellite01 {  // name of the section
+            debugPort = 5008
+            debugSuspend = true
+            overlays = [
+                lib              : [files("src/test/resources/my-library.jar")],
+                ext              : ["src/test/resources/synthetic.xml"]
+            ]       
+            version = "10.2.2"
+       }   
+    }
+}
+```
+
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|debugPort|Optional|None|Remote Debug Port for a satellite.|
+|debugSuspend|Optional|None|Suspend the start of the process before the remoting tool is attached.|
+|overlays|Optional|[:]|Identical to Server overlays, only in a satellite. [Read about this section below](#overlays)|
+|version|Optional|None|It can be specified in several ways. Or as a gradle property `xlSatelliteVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
+
+:::caution
+
+Docker based setup currently don't support satellites. 
+
+:::
+
+## MQ Driver Versions
+
+Message Queue Drivers are by default chosen by the plugin, you can change that, and this is exactly what this section about.
+
+That's how your can override it: 
+
+```groovy
+integrationServer {
+    mqDriverVersions {
+        [
+            'activemq': '5.16.2',
+            'rabbitmq': '2.2.0'
+        ]
+    }
+}
+```
+
+In this sample you can see the default values used in the plugin.
+
+## XLD Integration Server Data Version
+
+Currently, this is used only internally in Digital.ai to point to a package with imported data. <br/>
+Before server starts, database is going to be populated by the imported data, to save the time during test run.
