@@ -208,6 +208,7 @@ java {
 
 yarn_install {
     args = ['--mutex', 'network']
+    workingDir = file("${rootDir}/documentation")
 }
 
 node {
@@ -216,7 +217,23 @@ node {
     download = true
 }
 
-task docRun(type: YarnTask, dependsOn: [yarn_install]) {
+task yarnRunStart(type: YarnTask, dependsOn: [yarn_install]) {
     args = ["run", "start"]
-    workingDir = file("${rootDir}/docs")
+    workingDir = file("${rootDir}/documentation")
+}
+
+task yarnRunBuild(type: YarnTask, dependsOn: [yarn_install]) {
+    args = ["run", "build"]
+    workingDir = file("${rootDir}/documentation")
+}
+
+task docBuild(type: Copy, dependsOn: [yarnRunBuild]) {
+    from file("${rootDir}/documentation/build")
+    into file("${rootDir}/docs")
+}
+
+task docCleanUp(type: Delete) {
+    delete file("${rootDir}/documentation/build")
+    delete file("${rootDir}/documentation/.docusaurus")
+    delete file("${rootDir}/documentation/node_modules")
 }

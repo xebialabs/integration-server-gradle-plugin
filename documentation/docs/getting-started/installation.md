@@ -6,7 +6,7 @@ sidebar_position: 1
 
 ## Requirements
 
-Integration Server based on Gradle and docker images. Therefore you have to have on your machine pre-installed:
+Integration Server based on Gradle and docker images. Therefore, you have to have on your machine pre-installed:
 
 * JDK 11
 * Docker
