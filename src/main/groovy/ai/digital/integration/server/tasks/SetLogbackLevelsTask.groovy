@@ -22,7 +22,8 @@ class SetLogbackLevelsTask extends DefaultTask {
 
     private def getHardCodedLevels() {
         DbUtil.getDatabase(project).logSql ? [
-                "org.hibernate.SQL" : "trace",
+                "org.springframework.jdbc.core.JdbcTemplate" : "trace",
+                "org.hibernate.sql" : "trace",
                 "org.hibernate.type": "all"
         ] : [:]
     }
