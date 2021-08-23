@@ -5,7 +5,7 @@ module.exports = {
     title: 'Integration Server',
     tagline: 'Integration Server Gradle Plugin for Deploy Digital.ai',
     url: 'https://github.com/xebialabs/integration-server-gradle-plugin',
-    baseUrl: '/',
+    baseUrl: '/integration-server-gradle-plugin/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/digital_ai_deploy.svg',
