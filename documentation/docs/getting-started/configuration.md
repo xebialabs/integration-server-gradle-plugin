@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # Configuration
@@ -31,7 +31,7 @@ integrationServer {
 ```groovy title=build.gradle
 integrationServer {
    servers {
-       controlPlane {
+       controlPlane { // Name of server's section
            cliDebugPort = 4004
            cliDebugSuspend = true
            contextRoot = "/custom"
