@@ -1,0 +1,109 @@
+---
+sidebar_position: 4
+---
+
+# API
+
+## Configuration
+
+```groovy
+integrationServer {
+    servers { // for now it can be only one server
+        controlPlane {
+            contextRoot = "/custom" // By default "/", but you can customize it
+            debugPort = 4005 // Debug port, by default it is disabled
+            debugSuspend = true // by default false
+            dockerImage = "xebialabs/xl-deploy" // If that field is filled in, server will be started as a container. Note that container setup has limited features. 
+            httpPort = 4516 // Server HTTP port, by default it is random port
+            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"] // custom Java process arguments, only works if to run the server from runtime directory
+            logLevels = ["com.xebialabs.deployit.plugin.stitch": "debug"] // Log level overwrites
+            overlays = [
+                plugins          : [
+                    "com.xebialabs.deployit.plugins:xld-ci-explorer:${xldCiExplorerVersion}@xldp", 
+                ], // List of plugins to install 
+                stitch           : ["${ciExplorerDataDependency}:stitch@zip"], // Creates a folder "stitch" with copied content of zip archive 
+                conf             : [
+                    "${ciExplorerDataDependency}:configuration@zip",
+                    files("src/test/xld/deployit-license.lic")
+                ], // Additional configuration files, e.g. license or archived configuration files
+                lib              : [project.tasks.getByName("jar").outputs.files], // List of libraries to install in lib directory
+                ext              : ["${ciExplorerDataDependency}:extensions@zip"], // List of extensions to install
+                'derbydb/xldrepo': ["${ciExplorerDataDependency}:repository@zip"], // Derby data files, if Derby is used
+                'build/artifacts': ["${ciExplorerDataDependency}:artifacts@zip"], // List of artifacts to import
+            ]
+            runtimeDirectory = "server-runtime" // If to specify this directory, Deploy will be started from this folder and will not download it from external provider (Nexus)
+            version = '10.2.0' // Version of the Server. By default it takes it from project property `xlDeployVersion`.
+            yamlPatches = [ // Overwrites YAML file properties (create the file if it didn't exist yet)
+                'centralConfiguration/deploy-server.yaml': [
+                    'deploy.server.hostname': 'test.xebialabs.com',
+                    'deploy.server.label': 'XLD'
+                ]
+            ]     
+        }       
+    }   
+    
+    workers {
+        // By default we need only name, debugPort is disabled and port will be auto-generated from free ports
+        // if directory is not specified then we run worker from the xl-deploy-server as local worker.
+        // if directory is specified, then value should be absolute path
+        worker01 { // name = worker01, worker01 will start from the same server directory as local worker(xl-deploy-10.2.0-server)
+        }
+        worker02 { // name = worker02, worker02 will start from the same server directory as local worker (xl-deploy-10.2.0-server)
+            debugPort = 5006  // Debug port, by default it is disabled
+            debugSuspend = true // by default false
+            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+        }
+        worker03 { // name = worker03, worker03 will start from the mentioned directory path(/opt/xl-deploy-worker)
+            debugPort = 5007  // Debug port, by default it is disabled
+            directory = "/opt/xl-deploy-worker"
+            debugSuspend = false
+            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+            port = 8182
+        }
+    }
+
+    satellites {
+       satellite01 {
+            debugPort = 5008  // Debug port, by default it is disabled
+            debugSuspend = true // By default false
+       }   
+    }
+}
+```
+
+## Tasks
+
+* `dockerComposeDatabaseStart` - starts containers required by the server
+* `dockerComposeDatabaseStop` - stops containers required by the server
+* `ImportDbUnitDataTask` - imports data files into a database
+* `prepareDatabase` - copies configuration files for the selected database
+* `startIntegrationServer` 
+  - starts an integration server with a provided configuration and a database.
+  - if the integrationServer needs to be started with the external worker ,we need to add the below configuration in build.gradle. if not integration server will start with in-process-worker.
+
+   ```grovvy
+   workers {      
+        worker03 { // name = worker03, worker03 will start from the mentioned directory path(/opt/xl-deploy-worker)
+            debugPort = 5007
+            directory = "/opt/xl-deploy-worker"
+            debugSuspend = false
+            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+            port = 8182
+        }
+    }
+    ```
+  
+* `shutdownIntegrationServer` - stops a database server and also stop a database
+* `startSatellite` - starts satellite.
+* `shutdownSatellite` - stops satellite.
+
+## Flags
+
+* `-Pdatabase` - sets a database to launch, options: `derby-inmemory`, `derby-network`, `mssql`, `mysql`, `mysql-8`, `oracle-19c-se`, `postgres`
+* `-PderbyPort` - provides Derby port if Derby database is used
+* `-PlogSql` - enables printing of SQL queries executed by the server
+* `-PserverDebugPort` - provides a server debug port for remote debugging
+* `-PsatelliteDebugPort` - provides a satellite debug port for remote debugging
+* `-PserverHttpPort` - provides an http port, overrides a configuration option
+
+
