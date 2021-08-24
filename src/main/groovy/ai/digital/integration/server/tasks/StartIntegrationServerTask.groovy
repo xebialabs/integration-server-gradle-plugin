@@ -31,7 +31,6 @@ class StartIntegrationServerTask extends DefaultTask {
                 DownloadAndExtractServerDistTask.NAME,
                 PrepareDatabaseTask.NAME,
                 PrepareDeployTask.NAME,
-                RemoveStdoutConfigTask.NAME,
                 SetLogbackLevelsTask.NAME,
                 StartMqTask.NAME,
                 YamlPatchTask.NAME

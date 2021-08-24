@@ -97,14 +97,13 @@ integrationServer {
 |devOpsAsCodes|Optional|None|[Read about this section below](#dev-ops-as-code)|
 |dockerImage|Optional|None|When this property is specified, docker based setup will be performed. The name of the docker image, without version. Version is specified in the separate field or dedicated from gradle properties.|
 |httpPort|Optional|Random port|The HTTP port for Deploy server.|
-|generateDatasets|Optional|[]|The HTTP port for Deploy server. The url `"http://localhost:${server.httpPort}/deployit/generate/${dataset}"` is going to be hit. This URL point is not available in Deploy by default. How you can develop it, is going to be described soon in a blog.|
+|generateDatasets|Optional|[]|The url `"http://localhost:${server.httpPort}/deployit/generate/${dataset}"` is going to be hit. This URL point is not available in Deploy by default. How you can develop it, is going to be described soon in a blog.|
 |jvmArgs|Optional|[]|JVM arguments which are going to be used on Server startup|
 |logLevels|Optional|[:]|Custom log levels to be included in logback.xml configuration. Expected format is a map, where the key is the package name and value the log level.|
 |overlays|Optional|[:]|[Read about this section below](#overlays)|
 |pingRetrySleepTime|Optional|10|During the startup of the server we check when it's completely booted. This property configures how long to sleep (in seconds) between retries.|
 |pingTotalTries|Optional|60|During the startup of the server we check when it's completely booted. This property configures how many times to retry.|
 |provisionScripts|Optional|[]|Provision scripts to be executed by task `runProvisionScript`. This subject is up for a change.|
-|removeStdoutConfig|Optional|false|Modifies default logback.xml by removing STDOUT output.| 
 |runtimeDirectory|Optional|None|When this property is specified, runtime directory setup will be performed. Just make sure that you have complete deploy instance present there.|
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlDeployVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
 |yamlPatches|Optional|[:]|[Read about this section below](#yaml-patches)|

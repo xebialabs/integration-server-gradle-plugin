@@ -17,7 +17,7 @@ a configuration section make sense, and we have it in plans to implement.
 
 Parameters/Flags can be defined in 2 ways:
 
-* In a command line: `./gradlew -Pdatabase=postgres-10`
+* In a command line: `./gradlew startIntegrationServer -Pdatabase=postgres-10`
 * In `gradle.properties` in a root of your project, as a key value pair: `database=postgres-10`
 
 :::
@@ -29,7 +29,7 @@ Parameters/Flags can be defined in 2 ways:
 |logSql|true/false|Enables printing of SQL queries executed on the server|
 |satelliteDebugPort|Any available port|Provides a satellite debug port for remote debugging.|
 |serverDebugPort|Any available port|Provides a server debug port for remote debugging.|
-|serverHttpPort|Any available port|Overrides default HTTP port|
+|serverHttpPort|Any available port|Overrides default server HTTP port|
 
 :::info
 

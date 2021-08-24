@@ -12,7 +12,7 @@ import java.nio.file.Paths
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class ShutdownSatelliteTask extends DefaultTask {
-    static NAME = "shutDownSatellite"
+    static NAME = "shutdownSatellite"
     static STOP_SATELLITE_SCRIPT = "stopSatellite.sh"
 
     ShutdownSatelliteTask() {

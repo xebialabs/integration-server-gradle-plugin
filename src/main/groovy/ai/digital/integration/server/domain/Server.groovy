@@ -41,8 +41,6 @@ class Server {
 
     Integer provisionSocketTimeout = 60000
 
-    Boolean removeStdoutConfig = false
-
     String runtimeDirectory
 
     String version

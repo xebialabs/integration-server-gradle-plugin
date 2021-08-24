@@ -29,8 +29,5 @@ defaultOfficialPluginsToExclude = ["terraform", "aws"]
 as these databases are not supported, use old data export format
 
 ## Database Images limitations
-
-* `mssql`, `mysql`, `mysql-8`, `oracle-19c-se`, `postgres` are started in a docker container
-* `derby-inmemory`, `derby-network` are started as a Java process on a host machine
 * Only  `mysql`, `mysql-8`, `postgres` can be started at the moment with the integration server
 * `mssql`, `oracle-19c-se` require building an image at the moment and cannot be started by the integration server

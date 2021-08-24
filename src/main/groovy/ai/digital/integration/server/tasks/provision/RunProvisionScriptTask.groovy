@@ -16,14 +16,14 @@ import org.gradle.util.CollectionUtils
 
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
-class RunCliProvisionScriptTask extends DefaultTask {
+class RunProvisionScriptTask extends DefaultTask {
     static NAME = "runProvisionScript"
 
     // In case if you want to create a task directly
     @Input
     List<String> provisionScripts = List.of()
 
-    RunCliProvisionScriptTask() {
+    RunProvisionScriptTask() {
         def dependencies = [
                 StartIntegrationServerTask.NAME,
                 DownloadAndExtractCliDistTask.NAME,
