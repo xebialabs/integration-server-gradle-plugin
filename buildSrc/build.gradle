@@ -2,5 +2,10 @@ plugins {
     id 'groovy'
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+def projectProperties = new Properties()
+file("${rootDir.parentFile}/gradle.properties").withInputStream { InputStream s ->
+    projectProperties.load(s)
+}
+
+sourceCompatibility = projectProperties['languageLevel']
+targetCompatibility = projectProperties['languageLevel']
