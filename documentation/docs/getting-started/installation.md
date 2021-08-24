@@ -11,6 +11,7 @@ Integration Server based on Gradle and docker images. Therefore, you have to hav
 * JDK 11
 * Docker
 * Docker Compose  
+* Gradle 6+
 
 ## Add the plugin
 

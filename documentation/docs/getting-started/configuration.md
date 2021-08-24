@@ -163,7 +163,7 @@ overlays = [
    lib              : [project.tasks.getByName("jar").outputs.files],
    ext              : ["${ciExplorerDataDependency}:extensions@zip"],
    'build/artifacts': ["${ciExplorerDataDependency}:artifacts@zip"],
-   'xldrepo': ["${ciExplorerDataDependency}:repository@zip"],
+   'xldrepo'        : ["${ciExplorerDataDependency}:repository@zip"],
 ]
 ```
 
