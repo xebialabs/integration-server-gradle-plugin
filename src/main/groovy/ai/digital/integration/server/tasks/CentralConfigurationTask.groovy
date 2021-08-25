@@ -59,6 +59,17 @@ class CentralConfigurationTask extends DefaultTask {
         YamlFileUtil.overlayFile(
                 new File("${serverDir}/centralConfiguration/deploy-task.yaml"),
                 taskConfig(project))
+
+        if (SatelliteUtil.hasSatellites(project)) {
+            project.logger.lifecycle("Creating custom deploy-satellite.yaml")
+
+            YamlFileUtil.overlayFile(
+                    new File("${serverDir}/centralConfiguration/deploy-satellite.yaml"),
+                    [
+                            "deploy.satellite.enabled": true
+                    ]
+            )
+        }
     }
 
     private static def taskConfig(Project project) {
