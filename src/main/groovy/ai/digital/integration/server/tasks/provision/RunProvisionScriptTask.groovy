@@ -1,14 +1,10 @@
 package ai.digital.integration.server.tasks.provision
 
-import ai.digital.integration.server.util.EnvironmentUtil
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.tasks.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.tasks.StartIntegrationServerTask
 import ai.digital.integration.server.tasks.database.ImportDbUnitDataTask
-import ai.digital.integration.server.util.CliUtil
-import ai.digital.integration.server.util.ConfigurationsUtil
-import ai.digital.integration.server.util.ProcessUtil
-import ai.digital.integration.server.util.ServerUtil
+import ai.digital.integration.server.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -42,9 +38,17 @@ class RunProvisionScriptTask extends DefaultTask {
         def contextRoot = server.contextRoot
         scripts.each { String script ->
             if (server.runtimeDirectory != null) {
-                def filtered = project.configurations.getByName(ConfigurationsUtil.DEPLOY_CLI).filter { !it.name.endsWith("-sources.jar") }
-                def classpath = CollectionUtils.join(File.pathSeparator, filtered.getFiles())
-                logger.debug("Provision CLI classpath: \n${classpath}")
+                def jars = project.configurations.getByName(ConfigurationsUtil.DEPLOY_CLI).filter { it.name.endsWith(".jar") }.getFiles()
+                def zip = project.configurations.getByName(ConfigurationsUtil.DEPLOY_CLI).filter { it.name.endsWith(".zip") }.getSingleFile()
+
+                def ant = new AntBuilder()
+                def zipExtracted = "${project.buildDir}/cli/extracted"
+                ant.unzip(src: zip, dest: zipExtracted, overwrite: true)
+
+                def zipJars = project.fileTree(project.file(zipExtracted)).matching { include "**/*.jar" }.getFiles()
+
+                def classpath = CollectionUtils.join(File.pathSeparator, (zipJars + jars).flatten())
+                project.logger.lifecycle("Provision CLI classpath: \n${classpath}")
                 executeScriptFromClassPath(contextRoot, port, script, classpath)
             } else {
                 executeScript(server, script)
