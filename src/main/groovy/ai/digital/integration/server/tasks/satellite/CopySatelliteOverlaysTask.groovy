@@ -19,11 +19,10 @@ class CopySatelliteOverlaysTask extends DefaultTask {
         this.configure { ->
             group = PLUGIN_GROUP
             mustRunAfter DownloadAndExtractSatelliteDistTask.NAME
+
             project.afterEvaluate {
                 SatelliteUtil.getSatellites(project).each { Satellite satellite ->
                     satellite.overlays.each { Map.Entry<String, List<Object>> overlay ->
-                        project.logger.lifecycle("Applying overlay for satellite ${satellite.name}.")
-
                         def configurationName = "satelliteServer${overlay.key.capitalize().replace("/", "")}"
                         def config = project.buildscript.configurations.create(configurationName)
                         overlay.value.each { dependencyNotation ->
@@ -39,7 +38,7 @@ class CopySatelliteOverlaysTask extends DefaultTask {
                                 copy.into { "${SatelliteUtil.getSatelliteWorkingDir(project, satellite)}/${overlay.key}" }
                             }
                         })
-                        project.tasks.getByName(task.name).dependsOn DownloadAndExtractSatelliteDistTask.NAME
+                        project.tasks.getByName(task.name).dependsOn "downloadAndExtractSatellite${satellite.name}"
                         this.dependsOn task
                     }
                 }

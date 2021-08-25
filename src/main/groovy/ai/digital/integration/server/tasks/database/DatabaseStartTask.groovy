@@ -48,7 +48,7 @@ class DatabaseStartTask extends DockerComposeUp {
                 def folderName = "database-compose/$dbName-docker/"
                 if (name.startsWith(folderName) && name != folderName) {
                     def dockerFileName = name.substring(name.indexOf('/') + 1)
-                    FileUtil.copyFile(zip, ServerUtil.getRelativePathInServerDist(project, dockerFileName))
+                    FileUtil.copyFile(zip, ServerUtil.getRelativePathInIntegrationServerDist(project, dockerFileName))
                 }
             }
         }

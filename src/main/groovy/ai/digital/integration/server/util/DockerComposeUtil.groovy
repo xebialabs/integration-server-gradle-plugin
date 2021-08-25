@@ -8,7 +8,7 @@ class DockerComposeUtil {
 
     static Path getResolvedDockerPath(Project project, String relativePath) {
         def dockerComposeStream = DockerComposeUtil.class.classLoader.getResourceAsStream(relativePath)
-        Path resultComposeFilePath = ServerUtil.getRelativePathInServerDist(project, relativePath)
+        Path resultComposeFilePath = ServerUtil.getRelativePathInIntegrationServerDist(project, relativePath)
         FileUtil.copyFile(dockerComposeStream, resultComposeFilePath)
         resultComposeFilePath
     }

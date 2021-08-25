@@ -71,12 +71,12 @@ class ServerUtil {
         return resultComposeFilePath
     }
 
-    static def getServerDistFolder(Project project) {
+    static String getIntegrationServerDist(Project project) {
         project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()
     }
 
-    static Path getRelativePathInServerDist(Project project, String relativePath) {
-        Paths.get("${getServerDistFolder(project)}/${relativePath}")
+    static Path getRelativePathInIntegrationServerDist(Project project, String relativePath) {
+        Paths.get("${getIntegrationServerDist(project)}/${relativePath}")
     }
 
     static def getServerLogFile(Project project, String fileName) {
@@ -88,7 +88,7 @@ class ServerUtil {
     }
 
     static def getServerDistFolderPath(Project project) {
-        Paths.get(getServerDistFolder(project))
+        Paths.get(getIntegrationServerDist(project))
     }
 
     static def waitForBoot(Project project) {
@@ -111,7 +111,7 @@ class ServerUtil {
         Server server = getServer(project)
 
         if (isDockerBased(project)) {
-            def workDir = getRelativePathInServerDist(project, "deploy")
+            def workDir = getRelativePathInIntegrationServerDist(project, "deploy")
             workDir.toAbsolutePath().toString()
         } else if (server.runtimeDirectory == null) {
             def targetDir = getServerDistFolderPath(project).toString()
@@ -124,7 +124,7 @@ class ServerUtil {
 
     static void grantPermissionsToIntegrationServerFolder(Project project) {
         if (isDockerBased(project)) {
-            def workDir = getServerDistFolder(project)
+            def workDir = getIntegrationServerDist(project)
             new File(workDir).traverse(type: FileType.ANY) { File it ->
                 FileUtil.grantRWPermissions(it)
             }

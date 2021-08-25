@@ -14,7 +14,6 @@ class StartSatelliteTask extends DefaultTask {
     static NAME = "startSatellite"
 
     StartSatelliteTask() {
-
         def dependencies = [
                 DownloadAndExtractSatelliteDistTask.NAME,
                 CopySatelliteOverlaysTask.NAME

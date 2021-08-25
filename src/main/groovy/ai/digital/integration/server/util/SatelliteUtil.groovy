@@ -1,12 +1,9 @@
 package ai.digital.integration.server.util
 
-
 import ai.digital.integration.server.domain.Satellite
 import org.gradle.api.Project
 
 import java.nio.file.Paths
-
-import static ai.digital.integration.server.constant.PluginConstant.DIST_DESTINATION_NAME
 
 class SatelliteUtil {
 
@@ -27,8 +24,8 @@ class SatelliteUtil {
     }
 
     static def getSatelliteWorkingDir(Project project, Satellite satellite) {
-        def targetDir = project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()
-        Paths.get(targetDir, "xl-satellite-server-${satellite.version}").toAbsolutePath().toString()
+        def targetDir = ServerUtil.getIntegrationServerDist(project)
+        Paths.get(targetDir, satellite.name, "xl-satellite-server-${satellite.version}").toAbsolutePath().toString()
     }
 
     static def getBinDir(Project project, Satellite satellite) {
