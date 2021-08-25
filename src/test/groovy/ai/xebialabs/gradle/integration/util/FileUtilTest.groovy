@@ -14,7 +14,7 @@ class FileUtilTest {
 
     @Test
     void copyFileTest() {
-        File sourceFile = new File(FileUtilTest.class.classLoader.getResource("deploy-server-test.yaml").getFile())
+        File sourceFile = new File(FileUtilTest.class.classLoader.getResource("centralConfiguration/deploy-server.yaml").getFile())
         String destPath =  "build/resources/test/copyTest"
         FileUtil.copyFile(new FileInputStream(sourceFile), Paths.get(destPath + "/deploy-server-copied.yaml"))
         File destFile = new File(destPath + "/deploy-server-copied.yaml")
