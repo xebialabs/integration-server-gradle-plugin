@@ -42,7 +42,9 @@ class RunCliTask extends DefaultTask {
                     "-username", "admin",
             ]
 
-            project.logger.lifecycle("Running provision script ${scriptSource} with parameters:${params}")
+            def workDir = CliUtil.getCliBin(project)
+
+            project.logger.lifecycle("Running provision script ${scriptSource} from working dir ${workDir} with parameters:${params}")
 
             ProcessUtil.exec([
                     command    : "cli",
@@ -50,7 +52,7 @@ class RunCliTask extends DefaultTask {
                     params     : params,
                     redirectTo : CliUtil.getCliLogFile(project),
                     wait       : true,
-                    workDir    : CliUtil.getCliBin(project)
+                    workDir    : workDir
             ])
         }
     }

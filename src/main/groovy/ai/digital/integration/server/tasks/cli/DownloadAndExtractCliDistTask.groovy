@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks.cli
 
 import ai.digital.integration.server.util.CliUtil
+import ai.digital.integration.server.util.IntegrationServerUtil
 import org.gradle.api.tasks.Copy
 
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
@@ -18,10 +19,10 @@ class DownloadAndExtractCliDistTask extends Copy {
 
             project.buildscript.dependencies.add(
                     SERVER_CLI_DIST,
-                    "com.xebialabs.deployit:deploy-cli:${version}@zip"
+                    "com.xebialabs.deployit:xl-deploy-base:${version}:cli@zip"
             )
             from { project.zipTree(project.buildscript.configurations.getByName(SERVER_CLI_DIST).singleFile) }
-            into { CliUtil.getWorkingDir(project) }
+            into { IntegrationServerUtil.getDist(project) }
         }
     }
 }

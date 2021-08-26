@@ -27,9 +27,8 @@ class CliUtil {
 
     static def getCliLogFile(Project project) {
         def file = Paths.get("${getWorkingDir(project)}/log/${getCliLogName(project)}").toFile()
-        if (!file.exists()) {
-            file.createNewFile()
-        }
+        project.file(file.getParent()).mkdirs()
+        file.createNewFile()
         file
     }
 
