@@ -48,7 +48,7 @@ class RunCliTask extends DefaultTask {
                     command    : "cli",
                     environment: EnvironmentUtil.getCliEnv(cli),
                     params     : params,
-                    redirectTo : ServerUtil.getServerLogFile(project, CliUtil.getCliLogName(project)),
+                    redirectTo : CliUtil.getCliLogFile(project),
                     wait       : true,
                     workDir    : CliUtil.getCliBin(project)
             ])

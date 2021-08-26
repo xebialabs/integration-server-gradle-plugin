@@ -25,7 +25,15 @@ class CliUtil {
         Paths.get(targetDir, "xl-deploy-${version}-cli").toAbsolutePath().toString()
     }
 
-    static def getCliLogName(Project project) {
+    static def getCliLogFile(Project project) {
+        def file = Paths.get("${getWorkingDir(project)}/log/${getCliLogName(project)}").toFile()
+        if (!file.exists()) {
+            file.createNewFile()
+        }
+        file
+    }
+
+    private static def getCliLogName(Project project) {
         String version = getCli(project).version
         "xl-deploy-${version}-cli.log"
     }
