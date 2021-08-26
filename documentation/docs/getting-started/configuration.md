@@ -56,16 +56,16 @@ integrationServer {
            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
            logLevels = ["com.xebialabs.deployit.plugin.stitch": "debug"]
            overlays = [
-               plugins          : [
-                   "com.xebialabs.deployit.plugins:xld-ci-explorer:${xldCiExplorerVersion}@xldp", 
-               ], 
+               'build/artifacts': ["${ciExplorerDataDependency}:artifacts@zip"],
                conf             : [
                    "${ciExplorerDataDependency}:configuration@zip",
                    files("src/test/xld/deployit-license.lic")
                ],
-               lib              : [project.tasks.getByName("jar").outputs.files],
                ext              : ["${ciExplorerDataDependency}:extensions@zip"],
-               'build/artifacts': ["${ciExplorerDataDependency}:artifacts@zip"],
+               lib              : [project.tasks.getByName("jar").outputs.files],
+               'plugins/xld-official': [
+                   "com.xebialabs.deployit.plugins:xld-ci-explorer:${xldCiExplorerVersion}@xldp", 
+               ], 
                'xldrepo': ["${ciExplorerDataDependency}:repository@zip"],
            ]
            pingRetrySleepTime = 5
