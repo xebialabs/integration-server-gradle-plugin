@@ -37,7 +37,7 @@ class RunCliTask extends DefaultTask {
                     "-expose-proxies",
                     "-password", "admin",
                     "-port", server.httpPort.toString(),
-                    "-socketTimeout", cli.cliSocketTimeout.toString(),
+                    "-socketTimeout", cli.socketTimeout.toString(),
                     "-source", scriptSource.absolutePath,
                     "-username", "admin",
             ]

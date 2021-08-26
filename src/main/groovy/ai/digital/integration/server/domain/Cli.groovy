@@ -12,9 +12,9 @@ class Cli {
 
     Map<String, List<Object>> overlays = Map.of()
 
-    String version
+    Integer socketTimeout = 60000
 
-    Integer cliSocketTimeout = 60000
+    String version
 
     Cli(final String name) {
         this.name = name
