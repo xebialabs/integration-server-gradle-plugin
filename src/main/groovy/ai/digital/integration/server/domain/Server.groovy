@@ -5,10 +5,6 @@ import org.gradle.api.NamedDomainObjectContainer
 
 class Server {
 
-    Integer cliDebugPort
-
-    Boolean cliDebugSuspend = false
-
     String contextRoot = "/"
 
     Boolean debugSuspend = false
@@ -36,10 +32,6 @@ class Server {
     Integer pingRetrySleepTime = 10
 
     Integer pingTotalTries = 60
-
-    List<String> provisionScripts = List.of()
-
-    Integer provisionSocketTimeout = 60000
 
     String runtimeDirectory
 

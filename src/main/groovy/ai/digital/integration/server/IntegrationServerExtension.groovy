@@ -1,12 +1,11 @@
 package ai.digital.integration.server
 
-import ai.digital.integration.server.domain.Database
-import ai.digital.integration.server.domain.Satellite
-import ai.digital.integration.server.domain.Server
-import ai.digital.integration.server.domain.Worker
+import ai.digital.integration.server.domain.*
 import org.gradle.api.NamedDomainObjectContainer
 
 class IntegrationServerExtension {
+
+    final NamedDomainObjectContainer<Cli> clis
 
     final NamedDomainObjectContainer<Database> databases
 
@@ -21,14 +20,20 @@ class IntegrationServerExtension {
     String xldIsDataVersion
 
     IntegrationServerExtension(
+            NamedDomainObjectContainer<Cli> clis,
             NamedDomainObjectContainer<Database> databases,
             NamedDomainObjectContainer<Satellite> satellites,
             NamedDomainObjectContainer<Server> servers,
             NamedDomainObjectContainer<Worker> workers) {
+        this.clis = clis
         this.databases = databases
         this.satellites = satellites
         this.servers = servers
         this.workers = workers
+    }
+
+    def clis(Closure closure) {
+        clis.configure(closure)
     }
 
     def databases(Closure closure) {

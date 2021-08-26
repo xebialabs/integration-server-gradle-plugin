@@ -1,5 +1,6 @@
 package ai.digital.integration.server.util
 
+import ai.digital.integration.server.domain.Cli
 import ai.digital.integration.server.domain.Server
 
 class EnvironmentUtil {
@@ -8,8 +9,8 @@ class EnvironmentUtil {
         getEnv("DEPLOYIT_SERVER_OPTS", server.debugSuspend, server.debugPort, null)
     }
 
-    static def getCliEnv(Server server) {
-        getEnv("DEPLOYIT_CLI_OPTS", server.cliDebugSuspend, server.cliDebugPort, null)
+    static def getCliEnv(Cli cli) {
+        getEnv("DEPLOYIT_CLI_OPTS", cli.debugSuspend, cli.debugPort, null)
     }
 
     static def getEnv(String variableName, Boolean debugSuspend, Integer debugPort, String logFileName) {

@@ -16,7 +16,7 @@ class StartSatelliteTask extends DefaultTask {
     StartSatelliteTask() {
         def dependencies = [
                 DownloadAndExtractSatelliteDistTask.NAME,
-                CopySatelliteOverlaysTask.NAME
+                SatelliteOverlaysTask.NAME
         ]
         this.configure {
             group = PLUGIN_GROUP

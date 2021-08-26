@@ -30,7 +30,7 @@ class CopyOverlaysTask extends DefaultTask {
                 addMqDependency(project, server)
 
                 server.overlays.each { Map.Entry<String, List<Object>> definition ->
-                    def configurationName = "${ExtensionUtil.EXTENSION_NAME}${definition.key.capitalize().replace("/", "")}"
+                    def configurationName = "${ExtensionUtil.IS_EXTENSION_NAME}${definition.key.capitalize().replace("/", "")}"
                     def config = project.buildscript.configurations.create(configurationName)
                     definition.value.each { dependencyNotation ->
                         project.buildscript.dependencies.add(configurationName, dependencyNotation)

@@ -8,14 +8,16 @@ import org.gradle.api.tasks.Copy
 
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
-class CopySatelliteOverlaysTask extends DefaultTask {
-    static NAME = "copySatelliteOverlays"
+class SatelliteOverlaysTask extends DefaultTask {
+    static NAME = "satelliteOverlays"
+
+    static PREFIX = "cli"
 
     static boolean shouldUnzip(File file) {
         file.name.endsWith(".zip")
     }
 
-    CopySatelliteOverlaysTask() {
+    SatelliteOverlaysTask() {
         this.configure { ->
             group = PLUGIN_GROUP
             mustRunAfter DownloadAndExtractSatelliteDistTask.NAME
@@ -23,7 +25,7 @@ class CopySatelliteOverlaysTask extends DefaultTask {
             project.afterEvaluate {
                 SatelliteUtil.getSatellites(project).each { Satellite satellite ->
                     satellite.overlays.each { Map.Entry<String, List<Object>> overlay ->
-                        def configurationName = "satelliteServer${overlay.key.capitalize().replace("/", "")}"
+                        def configurationName = "${PREFIX}${overlay.key.capitalize().replace("/", "")}"
                         def config = project.buildscript.configurations.create(configurationName)
                         overlay.value.each { dependencyNotation ->
                             project.buildscript.dependencies.add(configurationName, dependencyNotation)

@@ -8,8 +8,6 @@ import org.gradle.api.Project
 import java.nio.file.Path
 import java.nio.file.Paths
 
-import static ai.digital.integration.server.constant.PluginConstant.DIST_DESTINATION_NAME
-
 class ServerUtil {
 
     static Server getServer(Project project) {

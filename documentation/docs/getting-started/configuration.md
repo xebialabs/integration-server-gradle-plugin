@@ -8,6 +8,7 @@ sidebar_position: 5
 
 ```groovy title=build.gradle
 integrationServer {
+    clis{}
     servers {}
     databases {}
     workers {}
@@ -19,6 +20,7 @@ integrationServer {
 
 |Name|Description|
 | :---: | :---: |
+|clis|CLIs configurations, currently, it's possible to configure only one.|
 |servers|Server configurations, currently, it's possible to configure only one.|
 |databases|Currently supported only 1 running database. For now you can find this section helpful for overriding database driving versions or having more database level logs.|
 |workers|You can configure as many workers as you need here.|
@@ -26,14 +28,45 @@ integrationServer {
 |mqDriverVersions|Points to the version of MQ to use, in case you wish to adapt it to your own version.|
 |xldIsDataVersion|**Only for internal use in Digital.ai** Points to the data which is going to be imported after server is booted. To run waste the time to generate a huge amount of test data.|
 
+## CLIs section
+
+```groovy title=build.gradle
+integrationServer {
+    clis {
+        cli {
+            debugPort = 4005
+            debugSuspend = true
+            filesToExecute = [file("src/main/resources/provision.py")]
+            overlays = [
+                ext: [
+                        files("ext") 
+                ],
+                lib: [
+                        "com.xebialabs.xl-platform.test-utils:py-modules:${testUtilsVersion}@jar"
+                ]
+            ]
+            socketTimeout = 120000
+            version = "10.2.2"
+        }
+    }
+}
+```
+
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|debugPort|Optional|None|Remote Debug Port for Deploy CLI | 
+|debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached.|
+|filesToExecute|Optional|[]|The list of files which will be executed after Deploy Server (workers and satellite if configured) started. You can use it to provision your server with data before running the tests.|
+|overlays|Optional|[:]|[Read about this section below](#overlays)|
+|socketTimeout|Optional|60000|Time is set in ms. Socket timeout means how long the socket will be opened to execute the provided script. If your script takes a time to be executed, consider to increase it.|
+|version|Optional|None|It can be specified in several ways. Or as a gradle property `deployCliVersion`, via parameter or in `gradle.properties` file or explicitly via this field. As a last resource it also checks on `xlDeployVersion`, as usually the version should be the same, but you have a possibility to define different versions. |
+
 ## Servers section
 
 ```groovy title=build.gradle
 integrationServer {
    servers {
        controlPlane { // Name of server's section
-           cliDebugPort = 4004
-           cliDebugSuspend = true
            contextRoot = "/custom"
            debugPort = 4005
            debugSuspend = true
@@ -70,8 +103,6 @@ integrationServer {
            ]
            pingRetrySleepTime = 5
            pingTotalTries = 120
-           provisionSocketTimeout = 120000
-           provisionScripts = []
            removeStdoutConfig = true
            runtimeDirectory = "server-runtime"
            version = '10.2.2'
@@ -88,8 +119,6 @@ integrationServer {
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
-|cliDebugPort|Optional|None|Remote Debug Port for Deploy CLI| 
-|cliDebugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached.| 
 |contextRoot|Optional|/|The context root for Deploy. **Limitation:** *Doesn't work for docker setup*|
 |debugPort|Optional|None|Remote Debug Port for Deploy Server| 
 |debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached.| 
@@ -103,7 +132,6 @@ integrationServer {
 |overlays|Optional|[:]|[Read about this section below](#overlays)|
 |pingRetrySleepTime|Optional|10|During the startup of the server we check when it's completely booted. This property configures how long to sleep (in seconds) between retries.|
 |pingTotalTries|Optional|60|During the startup of the server we check when it's completely booted. This property configures how many times to retry.|
-|provisionScripts|Optional|[]|Provision scripts to be executed by task `runProvisionScript`. This subject is up for a change.|
 |runtimeDirectory|Optional|None|When this property is specified, runtime directory setup will be performed. Just make sure that you have complete deploy instance present there.|
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlDeployVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
 |yamlPatches|Optional|[:]|[Read about this section below](#yaml-patches)|
