@@ -24,7 +24,7 @@ class SatelliteUtil {
     }
 
     static def getSatelliteWorkingDir(Project project, Satellite satellite) {
-        def targetDir = ServerUtil.getIntegrationServerDist(project)
+        def targetDir = IntegrationServerUtil.getDist(project)
         Paths.get(targetDir, satellite.name, "xl-satellite-server-${satellite.version}").toAbsolutePath().toString()
     }
 
