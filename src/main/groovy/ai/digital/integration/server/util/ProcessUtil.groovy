@@ -14,7 +14,7 @@ class ProcessUtil {
     }
 
     static void execAndCheck(Map<String, Object> config, File logFile) {
-        if (!exec(config).exitValue()) {
+        if (exec(config).exitValue() == 1) {
             throw new RuntimeException("Running process was not successfully executed. Check logs [$logFile] for more information.")
         }
     }
