@@ -1,6 +1,8 @@
 package ai.digital.integration.server.util
 
 import ai.digital.integration.server.domain.Cli
+import ai.digital.integration.server.domain.Server
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 
 import java.nio.file.Paths
@@ -25,16 +27,15 @@ class CliUtil {
         Paths.get(targetDir, "xl-deploy-${version}-cli").toAbsolutePath().toString()
     }
 
-    static def getCliLogFile(Project project) {
-        def file = Paths.get("${getWorkingDir(project)}/log/${getCliLogName(project)}").toFile()
+    static File getCliLogFolder(Project project) {
+        new File(getWorkingDir(project), "log")
+    }
+
+    static File getCliLogFile(Project project, File scriptSource) {
+        def file = Paths.get("${getCliLogFolder(project)}/${scriptSource.name}-${IdUtil.shortId()}.log").toFile()
         project.file(file.getParent()).mkdirs()
         file.createNewFile()
         file
-    }
-
-    private static def getCliLogName(Project project) {
-        String version = getCli(project).version
-        "xl-deploy-${version}-cli.log"
     }
 
     static def getCliBin(Project project) {
@@ -53,5 +54,37 @@ class CliUtil {
             System.exit(1)
             return null
         }
+    }
+
+    static def executeScript(Project project, File scriptSource) {
+        Server server = ServerUtil.getServer(project)
+        Cli cli = getCli(project)
+
+        def params = [
+                "-context", server.contextRoot,
+                "-expose-proxies",
+                "-password", "admin",
+                "-port", server.httpPort.toString(),
+                "-socketTimeout", cli.socketTimeout.toString(),
+                "-source", scriptSource.absolutePath,
+                "-username", "admin",
+        ]
+
+        def workDir = getCliBin(project)
+        def scriptLogFile = getCliLogFile(project, scriptSource)
+
+        def ext = Os.isFamily(Os.FAMILY_WINDOWS) ? 'cmd' : 'sh'
+        def commandLine = "${workDir} ./cli.$ext ${params.join(" ")}"
+
+        project.logger.lifecycle("Running this command now: $commandLine, logs can be found in ${scriptLogFile}")
+
+        ProcessUtil.execAndCheck([
+                command    : "cli",
+                environment: EnvironmentUtil.getCliEnv(cli),
+                params     : params,
+                redirectTo : scriptLogFile,
+                wait       : true,
+                workDir    : workDir
+        ], scriptLogFile)
     }
 }

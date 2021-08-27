@@ -34,10 +34,10 @@ class StartPluginManagerTask extends DefaultTask {
     private void startPluginManager(Server server) {
         ProcessUtil.exec([
                 command    : "run",
-                params     : ["plugin-manager-cli"],
+                discardIO  : true,
                 environment: EnvironmentUtil.getServerEnv(server),
+                params     : ["plugin-manager-cli"],
                 workDir    : getBinDir(),
-                inheritIO  : true
         ])
     }
 

@@ -13,7 +13,13 @@ class ProcessUtil {
         }
     }
 
-    static void exec(Map<String, Object> config) {
+    static void execAndCheck(Map<String, Object> config, File logFile) {
+        if (!exec(config).exitValue()) {
+            throw new RuntimeException("Running process was not successfully executed. Check logs [$logFile] for more information.")
+        }
+    }
+
+    static Process exec(Map<String, Object> config) {
         def command = createRunCommand(config.command as String)
         if (config.params) {
             command.addAll(config.params as List<String>)
@@ -28,6 +34,11 @@ class ProcessUtil {
             processBuilder.inheritIO()
         }
 
+        if (config.discardIO) {
+            processBuilder.redirectOutput(ProcessBuilder.Redirect.DISCARD)
+            processBuilder.redirectError(ProcessBuilder.Redirect.DISCARD)
+        }
+
         if (config.redirectTo) {
             processBuilder.redirectErrorStream(true)
             processBuilder.redirectOutput(ProcessBuilder.Redirect.to(config.redirectTo as File))
@@ -37,6 +48,8 @@ class ProcessUtil {
         if (config.wait) {
             process.waitFor()
         }
+
+        process
     }
 
     static void chMod(Project project, String mode, String fileName) {

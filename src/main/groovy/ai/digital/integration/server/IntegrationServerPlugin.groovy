@@ -81,6 +81,9 @@ class IntegrationServerPlugin implements Plugin<Project> {
         //Workers
         project.tasks.create(ShutdownWorkersTask.NAME, ShutdownWorkersTask)
         project.tasks.create(StartWorkersTask.NAME, StartWorkersTask)
+
+        //Tests
+        project.tasks.create(IntegrationTestsTask.NAME, IntegrationTestsTask)
     }
 
     private static applyDerbyPlugin(Project project) {

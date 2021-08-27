@@ -36,6 +36,7 @@ class ExtensionUtil {
                 project.container(Database),
                 project.container(Satellite),
                 servers,
+                project.container(Test),
                 project.container(Worker)
         )
     }

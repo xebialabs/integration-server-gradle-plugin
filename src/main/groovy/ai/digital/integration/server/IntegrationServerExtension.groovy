@@ -13,6 +13,8 @@ class IntegrationServerExtension {
 
     final NamedDomainObjectContainer<Server> servers
 
+    final NamedDomainObjectContainer<Test> tests
+
     final NamedDomainObjectContainer<Worker> workers
 
     Map<String, String> mqDriverVersions = Map.of()
@@ -24,11 +26,13 @@ class IntegrationServerExtension {
             NamedDomainObjectContainer<Database> databases,
             NamedDomainObjectContainer<Satellite> satellites,
             NamedDomainObjectContainer<Server> servers,
+            NamedDomainObjectContainer<Test> tests,
             NamedDomainObjectContainer<Worker> workers) {
         this.clis = clis
         this.databases = databases
         this.satellites = satellites
         this.servers = servers
+        this.tests = tests
         this.workers = workers
     }
 
@@ -46,6 +50,10 @@ class IntegrationServerExtension {
 
     def servers(Closure closure) {
         servers.configure(closure)
+    }
+
+    def tests(Closure closure) {
+        tests.configure(closure)
     }
 
     def workers(Closure closure) {
