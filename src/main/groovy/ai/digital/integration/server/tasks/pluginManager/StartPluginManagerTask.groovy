@@ -37,7 +37,7 @@ class StartPluginManagerTask extends DefaultTask {
                 params     : ["plugin-manager-cli"],
                 environment: EnvironmentUtil.getServerEnv(server),
                 workDir    : getBinDir(),
-                inheritIO  : true
+                discardIO  : true
         ])
     }
 

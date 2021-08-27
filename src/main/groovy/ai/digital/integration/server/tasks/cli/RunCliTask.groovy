@@ -46,14 +46,20 @@ class RunCliTask extends DefaultTask {
 
             project.logger.lifecycle("Running provision script ${scriptSource} from working dir ${workDir} with parameters:${params}")
 
-            ProcessUtil.exec([
+            def process = ProcessUtil.exec([
                     command    : "cli",
                     environment: EnvironmentUtil.getCliEnv(cli),
                     params     : params,
-                    redirectTo : CliUtil.getCliLogFile(project),
+                    redirectTo : CliUtil.getCliLogFile(project, scriptSource.getName()),
                     wait       : true,
                     workDir    : workDir
             ])
+
+            if (process.exitValue() == 0) {
+                project.logger.lifecycle("Running provision script ${scriptSource} SUCCESS")
+            } else {
+                project.logger.lifecycle("Running provision script ${scriptSource} FAILED")
+            }
         }
     }
 

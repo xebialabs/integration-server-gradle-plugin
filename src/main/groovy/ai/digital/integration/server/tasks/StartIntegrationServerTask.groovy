@@ -80,7 +80,7 @@ class StartIntegrationServerTask extends DefaultTask {
                 params     : ["-force-upgrades"],
                 environment: EnvironmentUtil.getServerEnv(server),
                 workDir    : getBinDir(),
-                inheritIO  : true
+                discardIO  : true
         ])
     }
 

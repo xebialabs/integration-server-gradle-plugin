@@ -13,7 +13,7 @@ class ProcessUtil {
         }
     }
 
-    static void exec(Map<String, Object> config) {
+    static Process exec(Map<String, Object> config)  {
         def command = createRunCommand(config.command as String)
         if (config.params) {
             command.addAll(config.params as List<String>)
@@ -33,10 +33,16 @@ class ProcessUtil {
             processBuilder.redirectOutput(ProcessBuilder.Redirect.to(config.redirectTo as File))
         }
 
+        if (config.discardIO) {
+            processBuilder.redirectOutput(ProcessBuilder.Redirect.DISCARD)
+            processBuilder.redirectError(ProcessBuilder.Redirect.DISCARD)
+        }
+
         def process = processBuilder.start()
         if (config.wait) {
             process.waitFor()
         }
+        process
     }
 
     static void chMod(Project project, String mode, String fileName) {
