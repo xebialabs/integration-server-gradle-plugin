@@ -39,11 +39,11 @@ class IntegrationTestsTask extends DefaultTask {
 
             try {
                 filesToExecute.each { File source ->
-                    CliUtil.executeScript(project, source)
+                    CliUtil.executeScript(project, source, test.systemProperties)
                 }
             } finally {
                 tearDownScripts.each { File source ->
-                    CliUtil.executeScript(project, source)
+                    CliUtil.executeScript(project, source, test.systemProperties)
                 }
             }
         }

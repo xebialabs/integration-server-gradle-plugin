@@ -56,9 +56,15 @@ class CliUtil {
         }
     }
 
-    static def executeScript(Project project, File scriptSource) {
+    static def executeScript(Project project, File scriptSource, Map<String, String> extraParams) {
         Server server = ServerUtil.getServer(project)
         Cli cli = getCli(project)
+
+        def extraParamsAsList = extraParams.findAll {
+            it -> it.value != null
+        }.collect {
+            it -> [it.key, it.value]
+        }.flatten()
 
         def params = [
                 "-context", server.contextRoot,
@@ -68,7 +74,7 @@ class CliUtil {
                 "-socketTimeout", cli.socketTimeout.toString(),
                 "-source", scriptSource.absolutePath,
                 "-username", "admin",
-        ]
+        ] + extraParamsAsList
 
         def workDir = getCliBin(project)
         def scriptLogFile = getCliLogFile(project, scriptSource)
@@ -80,7 +86,7 @@ class CliUtil {
 
         ProcessUtil.execAndCheck([
                 command    : "cli",
-                environment: EnvironmentUtil.getCliEnv(cli),
+                environment: EnvironmentUtil.getCliEnv(cli, extraParams),
                 params     : params,
                 redirectTo : scriptLogFile,
                 wait       : true,

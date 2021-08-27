@@ -9,11 +9,15 @@ class EnvironmentUtil {
         getEnv("DEPLOYIT_SERVER_OPTS", server.debugSuspend, server.debugPort, null)
     }
 
-    static def getCliEnv(Cli cli) {
-        getEnv("DEPLOYIT_CLI_OPTS", cli.debugSuspend, cli.debugPort, null)
+    static def getCliEnv(Cli cli, Map<String, String> extraParams) {
+        getEnv("DEPLOYIT_CLI_OPTS", cli.debugSuspend, cli.debugPort, null, extraParams)
     }
 
     static def getEnv(String variableName, Boolean debugSuspend, Integer debugPort, String logFileName) {
+        getEnv(variableName, debugSuspend, debugPort, logFileName, [:])
+    }
+
+    static def getEnv(String variableName, Boolean debugSuspend, Integer debugPort, String logFileName, Map<String, String> extraProps) {
         def opts = logFileName ?
                 "-Xmx1024m -DLOGFILE=$logFileName -Djava.util.logging.manager=org.jboss.logmanager.LogManager" :
                 "-Xmx1024m -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
@@ -21,6 +25,10 @@ class EnvironmentUtil {
         if (debugPort != null) {
             opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${debugPort} "
         }
+        opts += extraProps
+                .findAll { it -> it.value != null }
+                .collect { it -> "-D${it.key}=${it.value}" }
+                .join(" ")
         [(variableName): opts.toString()]
     }
 }
