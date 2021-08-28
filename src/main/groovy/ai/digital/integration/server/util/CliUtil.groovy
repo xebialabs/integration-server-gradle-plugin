@@ -56,7 +56,7 @@ class CliUtil {
         }
     }
 
-    static def executeScript(Project project, File scriptSource, Map<String, String> extraParams) {
+    static def executeScript(Project project, File scriptSource, Map<String, String> extraParams, List<File> extraClassPath) {
         Server server = ServerUtil.getServer(project)
         Cli cli = getCli(project)
 
@@ -86,7 +86,7 @@ class CliUtil {
 
         ProcessUtil.execAndCheck([
                 command    : "cli",
-                environment: EnvironmentUtil.getCliEnv(cli, extraParams),
+                environment: EnvironmentUtil.getCliEnv(cli, extraParams, extraClassPath),
                 params     : params,
                 redirectTo : scriptLogFile,
                 wait       : true,

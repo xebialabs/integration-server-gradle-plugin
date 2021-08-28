@@ -2,6 +2,7 @@ package ai.digital.integration.server.domain
 
 class Test {
     File baseDirectory
+    List<File> extraClassPath = List.of()
     String name
     String scriptPattern = /(.+)[.](py|cli)/
     String excludesPattern = /\/(setup|teardown).py$/
