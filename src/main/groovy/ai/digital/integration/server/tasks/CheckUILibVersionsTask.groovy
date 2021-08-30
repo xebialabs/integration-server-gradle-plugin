@@ -86,11 +86,15 @@ class CheckUILibVersionsTask extends DefaultTask {
     private static def collectPluginMetadata(Project project, List<File> files) {
         project.logger.lifecycle("Collecting plugins metadata")
 
-        files.findAll { it.name.endsWith(".xldp") }.collectMany { plugin ->
+        files.findAll { it.name.endsWith(".xldp") }.collectMany { File plugin ->
             project.logger.lifecycle("Extracting plugin's metadata from the plugin $plugin")
-            def xldpZip = new ZipFile(plugin)
-            def internalJarEntry = xldpZip.entries().toList().find { it.name.endsWith(".jar") }
-            internalJarEntry ? extractPluginMetadata(xldpZip, internalJarEntry) : []
+            if (plugin.size() > 0) {
+                def xldpZip = new ZipFile(plugin)
+                def internalJarEntry = xldpZip.entries().toList().find { it.name.endsWith(".jar") }
+                internalJarEntry ? extractPluginMetadata(xldpZip, internalJarEntry) : []
+            } else {
+                project.logger.lifecycle("Skipping the check of $plugin as the content is empty.")
+            }
         }
     }
 
