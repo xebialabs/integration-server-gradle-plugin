@@ -5,7 +5,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
 class PrepareDeployTask extends DefaultTask {
-    static NAME = "prepareDeployTask"
+    static NAME = "prepareDeploy"
 
     @TaskAction
     void launch() {

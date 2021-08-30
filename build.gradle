@@ -227,13 +227,14 @@ task yarnRunBuild(type: YarnTask, dependsOn: [yarn_install]) {
     workingDir = file("${rootDir}/documentation")
 }
 
-task docBuild(type: Copy, dependsOn: [yarnRunBuild]) {
-    from file("${rootDir}/documentation/build")
-    into file("${rootDir}/docs")
-}
-
 task docCleanUp(type: Delete) {
+    delete file("${rootDir}/docs")
     delete file("${rootDir}/documentation/build")
     delete file("${rootDir}/documentation/.docusaurus")
     delete file("${rootDir}/documentation/node_modules")
+}
+
+task docBuild(type: Copy, dependsOn: [yarnRunBuild, docCleanUp]) {
+    from file("${rootDir}/documentation/build")
+    into file("${rootDir}/docs")
 }

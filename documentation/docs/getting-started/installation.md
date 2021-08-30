@@ -11,24 +11,43 @@ Integration Server based on Gradle and docker images. Therefore, you have to hav
 * JDK 11
 * Docker
 * Docker Compose  
+* Gradle 6+
 
-## Project structure
+## Add the plugin
 
+In the root file **build.gradle** of your project define a plugin dependency like this:
+
+```groovy
+
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal() // Optional, only required if you'll develop changes to the plugin.
+    }
+
+    dependencies {
+        classpath "com.xebialabs.gradle.plugins:integration-server-gradle-plugin:10.3.0-820.1249"
+    }
+}
+
+apply plugin: 'integration.server'
+
+integrationServer {
+    servers {
+        controlPlane {
+            dockerImage = "xebialabs/xl-deploy" // docker hub repository
+            version = "10.2.2" // Here you can point to a version you'd like to run
+        }
+    }
+}
 ```
-my-project
-├── gradle
-│   └── wrapper
-│       ├── gradle-wrapper.jar
-│       └── gradle-wrapper.properties
-├── build.gradle
-├── gradlew
-└── gradlew.bat
-```
 
-* `gradle-wrapper.properties` - points to the version of Gradle.
-* `build.gradle` - contains all configurations, all your changes you have to do here.
-* `gradlew` - executable file for Unix
-* `gradlew.bat` - executable file for Windows
+:::tip
+
+This plugin version works only with Deploy 10.2.x and 10.3.x, you have to match the plugin version with Deploy version. <br/> 
+It might work with one minor version up or down, but there is no guarantee.  
+
+:::
 
 ## Running the integration server
 

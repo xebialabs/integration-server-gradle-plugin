@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class YamlPatchTask extends DefaultTask {
-    static NAME = "yamlPatches"
+    static NAME = "yamlPatch"
 
     YamlPatchTask() {
         def dependencies = [

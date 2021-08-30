@@ -13,7 +13,7 @@ import java.nio.file.Paths
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class StartPluginManagerTask extends DefaultTask {
-    static NAME = "StartPluginManager"
+    static NAME = "startPluginManager"
 
     StartPluginManagerTask() {
         def dependencies = [
@@ -23,6 +23,7 @@ class StartPluginManagerTask extends DefaultTask {
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
+            onlyIf { !ServerUtil.isDockerBased(project) }
         }
     }
 
@@ -33,10 +34,10 @@ class StartPluginManagerTask extends DefaultTask {
     private void startPluginManager(Server server) {
         ProcessUtil.exec([
                 command    : "run",
-                params     : ["plugin-manager-cli"],
+                discardIO  : true,
                 environment: EnvironmentUtil.getServerEnv(server),
+                params     : ["plugin-manager-cli"],
                 workDir    : getBinDir(),
-                inheritIO  : true
         ])
     }
 

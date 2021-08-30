@@ -66,7 +66,8 @@ class StartWorkersTask extends DefaultTask {
                         worker.debugSuspend,
                         worker.debugPort,
                         logFileName(worker.name)),
-                workDir    : getBinDir(worker)
+                workDir    : getBinDir(worker),
+                discardIO  : true,
         ])
 
         waitForBoot(worker)

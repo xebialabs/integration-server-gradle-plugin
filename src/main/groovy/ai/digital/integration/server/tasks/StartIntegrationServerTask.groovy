@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.domain.Server
+import ai.digital.integration.server.tasks.cli.RunCliTask
 import ai.digital.integration.server.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.tasks.database.PrepareDatabaseTask
@@ -31,7 +32,6 @@ class StartIntegrationServerTask extends DefaultTask {
                 DownloadAndExtractServerDistTask.NAME,
                 PrepareDatabaseTask.NAME,
                 PrepareDeployTask.NAME,
-                RemoveStdoutConfigTask.NAME,
                 SetLogbackLevelsTask.NAME,
                 StartMqTask.NAME,
                 YamlPatchTask.NAME
@@ -54,6 +54,7 @@ class StartIntegrationServerTask extends DefaultTask {
             finalizedBy(ImportDbUnitDataTask.NAME)
             finalizedBy(RunDevOpsAsCodeTask.NAME)
             finalizedBy(RunDatasetGenerationTask.NAME)
+            finalizedBy(RunCliTask.NAME)
         }
     }
 
@@ -76,10 +77,10 @@ class StartIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("Launching server")
         ProcessUtil.exec([
                 command    : "run",
-                params     : ["-force-upgrades"],
+                discardIO  : true,
                 environment: EnvironmentUtil.getServerEnv(server),
+                params     : ["-force-upgrades"],
                 workDir    : getBinDir(),
-                inheritIO  : true
         ])
     }
 

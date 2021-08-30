@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks
 
-
+import ai.digital.integration.server.util.CliUtil
+import ai.digital.integration.server.util.IntegrationServerUtil
 import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.tasks.Copy
 
@@ -29,7 +30,7 @@ class DownloadAndExtractServerDistTask extends Copy {
                         "com.xebialabs.deployit:xl-deploy-base:${server.version}:server@zip"
                 )
                 from { project.zipTree(project.buildscript.configurations.getByName(SERVER_DIST).singleFile) }
-                into { ServerUtil.getServerDistFolder(project) }
+                into { IntegrationServerUtil.getDist(project) }
             }
         }
     }

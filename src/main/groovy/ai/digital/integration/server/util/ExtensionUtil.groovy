@@ -1,16 +1,12 @@
 package ai.digital.integration.server.util
 
 import ai.digital.integration.server.IntegrationServerExtension
-import ai.digital.integration.server.domain.Database
-import ai.digital.integration.server.domain.DevOpsAsCode
-import ai.digital.integration.server.domain.Satellite
-import ai.digital.integration.server.domain.Server
-import ai.digital.integration.server.domain.Worker
+import ai.digital.integration.server.domain.*
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 
 class ExtensionUtil {
-    static def EXTENSION_NAME = "integrationServer"
+    static def IS_EXTENSION_NAME = "integrationServer"
 
     private static def resolveValue(Project project, IntegrationServerExtension extension, String propertyName, def defaultValue) {
         if (project.hasProperty(propertyName)) {
@@ -34,11 +30,13 @@ class ExtensionUtil {
             devOpsAsCodes = project.container(DevOpsAsCode)
         }
 
-        project.extensions.create(EXTENSION_NAME,
+        project.extensions.create(IS_EXTENSION_NAME,
                 IntegrationServerExtension,
+                project.container(Cli),
                 project.container(Database),
                 project.container(Satellite),
                 servers,
+                project.container(Test),
                 project.container(Worker)
         )
     }

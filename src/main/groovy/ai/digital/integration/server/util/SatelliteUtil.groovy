@@ -1,12 +1,9 @@
 package ai.digital.integration.server.util
 
-
 import ai.digital.integration.server.domain.Satellite
 import org.gradle.api.Project
 
 import java.nio.file.Paths
-
-import static ai.digital.integration.server.constant.PluginConstant.DIST_DESTINATION_NAME
 
 class SatelliteUtil {
 
@@ -22,13 +19,13 @@ class SatelliteUtil {
 
     private static Satellite enrichSatellite(Project project, Satellite satellite) {
         satellite.setDebugPort(getDebugPort(project, satellite))
-        satellite.setVersion(getServerVersion(project, satellite))
+        satellite.setVersion(getSatelliteVersion(project, satellite))
         satellite
     }
 
     static def getSatelliteWorkingDir(Project project, Satellite satellite) {
-        def targetDir = project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()
-        Paths.get(targetDir, "xl-satellite-server-${satellite.version}").toAbsolutePath().toString()
+        def targetDir = IntegrationServerUtil.getDist(project)
+        Paths.get(targetDir, satellite.name, "xl-satellite-server-${satellite.version}").toAbsolutePath().toString()
     }
 
     static def getBinDir(Project project, Satellite satellite) {
@@ -39,7 +36,7 @@ class SatelliteUtil {
         project.file("${getSatelliteWorkingDir(project, satellite)}/log/xl-satellite.log")
     }
 
-    private static String getServerVersion(Project project, Satellite satellite) {
+    private static String getSatelliteVersion(Project project, Satellite satellite) {
         project.hasProperty("xlSatelliteVersion") ? project.property("xlSatelliteVersion") : satellite.version
     }
 

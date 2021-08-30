@@ -4,6 +4,8 @@ import org.apache.commons.io.IOUtils
 
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 class FileUtil {
 
@@ -34,5 +36,20 @@ class FileUtil {
     static def grantRWPermissions(File file) {
         file.setWritable(true, false)
         file.setReadable(true, false)
+    }
+
+    static def compress(File baseDir, List<File> files, File archive) {
+        FileOutputStream fos = new FileOutputStream(archive)
+        def zos = new ZipOutputStream(fos)
+
+        try {
+            for (file in files) {
+                zos.putNextEntry(new ZipEntry(file.path.minus(baseDir)))
+                zos << file.bytes
+                zos.closeEntry()
+            }
+        } finally {
+            zos.close()
+        }
     }
 }
