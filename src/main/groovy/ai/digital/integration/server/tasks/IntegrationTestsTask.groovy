@@ -29,22 +29,28 @@ class IntegrationTestsTask extends DefaultTask {
         project.logger.lifecycle("Executing test scripts ....")
 
         tests.each { Test test ->
+            project.logger.lifecycle("About to execute test `${test.name}`  ....")
             List<File> filesToExecute = new LinkedList<>()
             List<File> tearDownScripts = new LinkedList<>()
 
-            def basedir = test.baseDirectory.absolutePath
-            filesToExecute.addAll(findFiles(basedir, /\/${test.setupScript}$/))
-            filesToExecute.addAll(findFiles(basedir, test.scriptPattern, test.excludesPattern))
-            tearDownScripts.addAll(findFiles(basedir, /\/${test.tearDownScript}$/))
+            if (test.baseDirectory.exists()) {
+                String basedir = test.baseDirectory.absolutePath
 
-            try {
-                filesToExecute.each { File source ->
-                    CliUtil.executeScript(project, source, test.systemProperties, test.extraClassPath)
+                filesToExecute.addAll(findFiles(basedir, /\/${test.setupScript}$/))
+                filesToExecute.addAll(findFiles(basedir, test.scriptPattern, test.excludesPattern))
+                tearDownScripts.addAll(findFiles(basedir, /\/${test.tearDownScript}$/))
+
+                try {
+                    filesToExecute.each { File source ->
+                        CliUtil.executeScript(project, source, test.systemProperties, test.extraClassPath)
+                    }
+                } finally {
+                    tearDownScripts.each { File source ->
+                        CliUtil.executeScript(project, source, test.systemProperties, test.extraClassPath)
+                    }
                 }
-            } finally {
-                tearDownScripts.each { File source ->
-                    CliUtil.executeScript(project, source, test.systemProperties, test.extraClassPath)
-                }
+            } else {
+                project.logger.lifecycle("Base directory ${test.baseDirectory.absolutePath} doesn't exist. Execution of test `${test.name}` has been skipped.")
             }
         }
     }

@@ -8,13 +8,14 @@ sidebar_position: 5
 
 ```groovy title=build.gradle
 integrationServer {
-    clis{}
+    clis {}
     servers {}
     databases {}
     workers {}
     satellites {}
     mqDriverVersions {}
     xldIsDataVersion {}
+    tests {}
 }
 ```
 
@@ -27,6 +28,7 @@ integrationServer {
 |satellites|You can configure as many satellites as you need here.|
 |mqDriverVersions|Points to the version of MQ to use, in case you wish to adapt it to your own version.|
 |xldIsDataVersion|**Only for internal use in Digital.ai** Points to the data which is going to be imported after server is booted. To run waste the time to generate a huge amount of test data.|
+|tests|You can define Jython based test setups|
 
 ## CLIs section
 
@@ -382,3 +384,42 @@ In this sample you can see the default values used in the plugin.
 
 Currently, this is used only internally in Digital.ai to point to a package with imported data. <br/>
 Before server starts, database is going to be populated by the imported data, to save the time during test run.
+
+## Tests
+
+You can create Jython based tests and communicate with Deploy through CLI.
+
+To run tests you have to run `./gradlew integrationTests`. It is not a part of `startIntegrationServer` intentionally.
+The server start up takes time, especially if also workers and satellites are configured. During development of the tests, you don't want
+to reboot it every time, but rather run tests against the configured instance. 
+
+Therefore first you run the server with `./gradlew clean startIntegrationServer` and the you can run multiple times `./gradlew integrationTests`. 
+
+You can also run both commands in one command as: `./gradlew clean startIntegrationServer integrationTests`.
+
+```groovy
+integrationServer {
+    tests {
+        testGroupO1 {
+            baseDirectory = file("src/test")
+            extraClassPath = [file("src/test/resources")]
+            scriptPattern = /\/jython\/ci\/(.+).py$/
+            setupScript = "provision/setup.py"
+            systemProperties = [
+                    'key1': 'value1',
+                    'key2': 'value2',
+            ]
+            tearDownScript = "provision/teardown.py"
+        }
+    }
+}
+```
+
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|baseDirectory|Mandatory|None|You have to specify here the base directory where your test setup is located.|
+|extraClassPath|Optional|[]|You can point to a folder with your Jython utility scripts which you would like to use in other scripts to eliminate code duplication.|
+|scriptPattern|Optional|/(.+)[.](py|cli)/|The pattern which will filter the tests you want to run. By default it will run all tests which have extension `py` or `cli` and reside inside base directory.|
+|setupScript|Optional|provision/setup.py|Provisional script which will be triggered before running all tests.|
+|systemProperties|Optional|[:]|You can provide system properties inside your tests and then access it like `System.getProperty("key1")`|
+|tearDownScript|Optional|provision/teardown.py|As the best practice to clean everything created by test(s), this script is exactly the place to do it. It will be triggered regardless if test was successful or not.|
