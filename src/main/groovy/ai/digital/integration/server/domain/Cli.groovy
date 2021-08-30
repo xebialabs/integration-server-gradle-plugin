@@ -1,6 +1,7 @@
 package ai.digital.integration.server.domain
 
 class Cli {
+    boolean cleanDefaultExtContent = true
     Integer debugPort
     Boolean debugSuspend = false
     List<File> filesToExecute = List.of()

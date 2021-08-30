@@ -12,8 +12,9 @@ class RunCliTask extends DefaultTask {
 
     RunCliTask() {
         def dependencies = [
+                CliCleanDefaultExtTask.NAME,
+                CliOverlaysTask.NAME,
                 DownloadAndExtractCliDistTask.NAME,
-                CliOverlaysTask.NAME
         ]
 
         this.configure {

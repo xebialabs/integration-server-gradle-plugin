@@ -31,6 +31,10 @@ class CliUtil {
         new File(getWorkingDir(project), "log")
     }
 
+    static File getCliExtFolder(Project project) {
+        new File(getWorkingDir(project), "ext")
+    }
+
     static File getCliLogFile(Project project, File scriptSource) {
         def file = Paths.get("${getCliLogFolder(project)}/${scriptSource.name}-${IdUtil.shortId()}.log").toFile()
         project.file(file.getParent()).mkdirs()

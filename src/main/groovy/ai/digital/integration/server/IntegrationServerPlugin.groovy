@@ -2,6 +2,7 @@ package ai.digital.integration.server
 
 import ai.digital.integration.server.tasks.*
 import ai.digital.integration.server.tasks.anonymizer.ExportDatabaseTask
+import ai.digital.integration.server.tasks.cli.CliCleanDefaultExtTask
 import ai.digital.integration.server.tasks.cli.CliOverlaysTask
 import ai.digital.integration.server.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.tasks.cli.RunCliTask
@@ -32,6 +33,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
     private static void createTasks(Project project, Configuration itcfg) {
 
         //CLI
+        project.tasks.create(CliCleanDefaultExtTask.NAME, CliCleanDefaultExtTask)
         project.tasks.create(CliOverlaysTask.NAME, CliOverlaysTask)
         project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
         project.tasks.create(RunCliTask.NAME, RunCliTask)
