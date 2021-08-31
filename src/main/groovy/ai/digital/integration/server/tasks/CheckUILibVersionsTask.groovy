@@ -24,7 +24,8 @@ class CheckUILibVersionsTask extends DefaultTask {
 
     CheckUILibVersionsTask() {
         def dependencies = [
-                CopyOverlaysTask.NAME
+                CopyOverlaysTask.NAME,
+                CopyBuildArtifactsTask.NAME
         ]
 
         this.configure {

@@ -27,6 +27,7 @@ class StartIntegrationServerTask extends DefaultTask {
                 ApplicationConfigurationOverrideTask.NAME,
                 CentralConfigurationTask.NAME,
                 CheckUILibVersionsTask.NAME,
+                CopyBuildArtifactsTask.NAME,
                 CopyOverlaysTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DatabaseStartTask.NAME,
                 DownloadAndExtractServerDistTask.NAME,

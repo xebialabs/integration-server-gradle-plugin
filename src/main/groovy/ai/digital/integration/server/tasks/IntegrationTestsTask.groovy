@@ -3,6 +3,7 @@ package ai.digital.integration.server.tasks
 import ai.digital.integration.server.domain.Test
 import ai.digital.integration.server.util.CliUtil
 import ai.digital.integration.server.util.ExtensionUtil
+import ai.digital.integration.server.util.FileUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -17,28 +18,20 @@ class IntegrationTestsTask extends DefaultTask {
         }
     }
 
-    static def findFiles(String basedir, String pattern) {
-        new FileNameByRegexFinder().getFileNames(basedir, pattern).collect { new File(it) }
-    }
-
-    static def findFiles(String basedir, String pattern, String excludesPattern) {
-        new FileNameByRegexFinder().getFileNames(basedir, pattern, excludesPattern).collect { new File(it) }
-    }
-
     private def executeScripts(List<Test> tests) {
         project.logger.lifecycle("Executing test scripts ....")
 
         tests.each { Test test ->
-            project.logger.lifecycle("About to execute test `${test.name}`  ....")
+            project.logger.lifecycle("About to execute test `${test.name}` ...")
             List<File> filesToExecute = new LinkedList<>()
             List<File> tearDownScripts = new LinkedList<>()
 
             if (test.baseDirectory.exists()) {
                 String basedir = test.baseDirectory.absolutePath
 
-                filesToExecute.addAll(findFiles(basedir, /\/${test.setupScript}$/))
-                filesToExecute.addAll(findFiles(basedir, test.scriptPattern, test.excludesPattern))
-                tearDownScripts.addAll(findFiles(basedir, /\/${test.tearDownScript}$/))
+                filesToExecute.addAll(FileUtil.findFiles(basedir, /\/${test.setupScript}$/))
+                filesToExecute.addAll(FileUtil.findFiles(basedir, test.scriptPattern, test.excludesPattern))
+                tearDownScripts.addAll(FileUtil.findFiles(basedir, /\/${test.tearDownScript}$/))
 
                 try {
                     filesToExecute.each { File source ->

@@ -46,6 +46,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(ApplicationConfigurationOverrideTask.NAME, ApplicationConfigurationOverrideTask)
         project.tasks.create(CentralConfigurationTask.NAME, CentralConfigurationTask)
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
+        project.tasks.create(CopyBuildArtifactsTask.NAME, CopyBuildArtifactsTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(DockerBasedStopDeployTask.NAME, DockerBasedStopDeployTask)
         project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
