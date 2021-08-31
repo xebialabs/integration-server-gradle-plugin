@@ -430,6 +430,6 @@ integrationServer {
 |baseDirectory|Mandatory|None|You have to specify here the base directory where your test setup is located.|
 |extraClassPath|Optional|[]|You can point to a folder with your Jython utility scripts which you would like to use in other scripts to eliminate code duplication.|
 |scriptPattern|Optional|/(.+)[.](py|cli)/|The pattern which will filter the tests you want to run. By default it will run all tests which have extension `py` or `cli` and reside inside base directory.|
-|setupScript|Optional|provision/setup.py|Provisional script which will be triggered before running all tests.|
+|setupScript|Optional|provision/None|Provisional script which will be triggered before running all tests.|
 |systemProperties|Optional|[:]|You can provide system properties inside your tests and then access it like `System.getProperty("key1")`|
-|tearDownScript|Optional|provision/teardown.py|As the best practice to clean everything created by test(s), this script is exactly the place to do it. It will be triggered regardless if test was successful or not.|
+|tearDownScript|Optional|provision/None|As the best practice to clean everything created by test(s), this script is exactly the place to do it. It will be triggered regardless if test was successful or not.|

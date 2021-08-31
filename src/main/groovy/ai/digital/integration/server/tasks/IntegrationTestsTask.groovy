@@ -18,6 +18,10 @@ class IntegrationTestsTask extends DefaultTask {
         }
     }
 
+    def getTestScriptPattern(Test test) {
+        project.hasProperty("testScriptPattern") ? project.getProperty("testScriptPattern") : test.scriptPattern
+    }
+
     private def executeScripts(List<Test> tests) {
         project.logger.lifecycle("Executing test scripts ....")
 
@@ -29,9 +33,13 @@ class IntegrationTestsTask extends DefaultTask {
             if (test.baseDirectory.exists()) {
                 String basedir = test.baseDirectory.absolutePath
 
-                filesToExecute.addAll(FileUtil.findFiles(basedir, /\/${test.setupScript}$/))
-                filesToExecute.addAll(FileUtil.findFiles(basedir, test.scriptPattern, test.excludesPattern))
-                tearDownScripts.addAll(FileUtil.findFiles(basedir, /\/${test.tearDownScript}$/))
+                if (test.setupScript?.trim()) {
+                    filesToExecute.addAll(FileUtil.findFiles(basedir, /\/${test.setupScript}$/))
+                }
+                filesToExecute.addAll(FileUtil.findFiles(basedir, getTestScriptPattern(test), test.excludesPattern))
+                if (test.tearDownScript?.trim()) {
+                    tearDownScripts.addAll(FileUtil.findFiles(basedir, /\/${test.tearDownScript}$/))
+                }
 
                 try {
                     filesToExecute.each { File source ->

@@ -7,9 +7,9 @@ class Test {
     String name
     String scriptPattern = /(.+)[.](py|cli)/
     String excludesPattern = /\/(setup|teardown).py$/
-    String setupScript = "setup.py"
+    String setupScript
     Map<String, String> systemProperties = Map.of()
-    String tearDownScript = "teardown.py"
+    String tearDownScript
 
     Test(final String name) {
         this.name = name
