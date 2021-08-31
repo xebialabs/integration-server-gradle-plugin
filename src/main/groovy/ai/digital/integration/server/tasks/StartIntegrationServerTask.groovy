@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.domain.Server
+import ai.digital.integration.server.tasks.cli.CopyCliBuildArtifactsTask
 import ai.digital.integration.server.tasks.cli.RunCliTask
 import ai.digital.integration.server.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.tasks.database.ImportDbUnitDataTask
@@ -27,7 +28,8 @@ class StartIntegrationServerTask extends DefaultTask {
                 ApplicationConfigurationOverrideTask.NAME,
                 CentralConfigurationTask.NAME,
                 CheckUILibVersionsTask.NAME,
-                CopyBuildArtifactsTask.NAME,
+                CopyCliBuildArtifactsTask.NAME,
+                CopyServerBuildArtifactsTask.NAME,
                 CopyOverlaysTask.NAME,
                 DbUtil.isDerby(project) ? "derbyStart" : DatabaseStartTask.NAME,
                 DownloadAndExtractServerDistTask.NAME,

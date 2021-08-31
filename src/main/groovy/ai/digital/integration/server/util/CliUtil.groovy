@@ -18,6 +18,10 @@ class CliUtil {
         cli
     }
 
+    static boolean hasCli(Project project) {
+        !ExtensionUtil.getExtension(project).clis.isEmpty()
+    }
+
     private static Integer getDebugPort(Project project, Cli cli) {
         project.hasProperty("cliDebugPort") ? Integer.valueOf(project.property("cliDebugPort").toString()) : cli.debugPort
     }
