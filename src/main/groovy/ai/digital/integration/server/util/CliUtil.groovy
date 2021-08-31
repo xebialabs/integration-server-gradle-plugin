@@ -2,6 +2,7 @@ package ai.digital.integration.server.util
 
 import ai.digital.integration.server.domain.Cli
 import ai.digital.integration.server.domain.Server
+import ai.digital.integration.server.domain.Test
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 
@@ -60,7 +61,21 @@ class CliUtil {
         }
     }
 
-    static def executeScript(Project project, File scriptSource, Map<String, String> extraParams, List<File> extraClassPath) {
+    static def executeScript(Project project, File scriptSource) {
+        runScript(project, scriptSource, [:], [:], [])
+    }
+
+    static def executeScript(Project project,
+                             File scriptSource,
+                             Test test) {
+        runScript(project, scriptSource, test.environments, test.systemProperties, test.extraClassPath)
+    }
+
+    private static def runScript(Project project,
+                                 File scriptSource,
+                                 Map<String, String> extraEnvironments,
+                                 Map<String, String> extraParams,
+                                 List<File> extraClassPath) {
         Server server = ServerUtil.getServer(project)
         Cli cli = getCli(project)
 
@@ -90,7 +105,7 @@ class CliUtil {
 
         ProcessUtil.execAndCheck([
                 command    : "cli",
-                environment: EnvironmentUtil.getCliEnv(cli, extraParams, extraClassPath),
+                environment: extraEnvironments + EnvironmentUtil.getCliEnv(cli, extraParams, extraClassPath),
                 params     : params,
                 redirectTo : scriptLogFile,
                 wait       : true,
