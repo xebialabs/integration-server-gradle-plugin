@@ -46,9 +46,9 @@ class IntegrationTestsTask extends DefaultTask {
                 }
 
                 try {
-                    CliUtil.executeScript(project, filesToExecute, test)
+                    CliUtil.executeScript(project, filesToExecute, "test-", test)
                 } catch (Exception ignored) {
-                    CliUtil.executeScript(project, filesForTeardown, test)
+                    CliUtil.executeScript(project, filesForTeardown, "teardown-", test)
                 }
             } else {
                 project.logger.lifecycle("Base directory ${test.baseDirectory.absolutePath} doesn't exist. Execution of test `${test.name}` has been skipped.")

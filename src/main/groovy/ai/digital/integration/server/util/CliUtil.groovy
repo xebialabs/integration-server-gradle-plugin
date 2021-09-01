@@ -40,8 +40,8 @@ class CliUtil {
         new File(getWorkingDir(project), "ext")
     }
 
-    static File getCliLogFile(Project project) {
-        def file = Paths.get("${getCliLogFolder(project)}/${IdUtil.shortId()}.log").toFile()
+    static File getCliLogFile(Project project, String label) {
+        def file = Paths.get("${getCliLogFolder(project)}/${label}-${IdUtil.shortId()}.log").toFile()
         project.file(file.getParent()).mkdirs()
         file.createNewFile()
         file
@@ -65,18 +65,20 @@ class CliUtil {
         }
     }
 
-    static def executeScript(Project project, List<File> scriptSources) {
-        runScript(project, scriptSources, [:], [:], [])
+    static def executeScript(Project project, List<File> scriptSources, String label) {
+        runScript(project, scriptSources, label, [:], [:], [])
     }
 
     static def executeScript(Project project,
                              List<File> scriptSources,
+                             String label,
                              Test test) {
-        runScript(project, scriptSources, test.environments, test.systemProperties, test.extraClassPath)
+        runScript(project, scriptSources, label, test.environments, test.systemProperties, test.extraClassPath)
     }
 
     private static def runScript(Project project,
                                  List<File> scriptSources,
+                                 String label,
                                  Map<String, String> extraEnvironments,
                                  Map<String, String> extraParams,
                                  List<File> extraClassPath) {
@@ -100,7 +102,7 @@ class CliUtil {
         ] + extraParamsAsList
 
         def workDir = getCliBin(project)
-        def scriptLogFile = getCliLogFile(project)
+        def scriptLogFile = getCliLogFile(project, label)
 
         def ext = Os.isFamily(Os.FAMILY_WINDOWS) ? 'cmd' : 'sh'
         def commandLine = "${workDir} ./cli.$ext ${params.join(" ")}"
