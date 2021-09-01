@@ -37,19 +37,18 @@ class IntegrationTestsTask extends DefaultTask {
                 if (setupScript?.trim()) {
                     filesToExecute.addAll(FileUtil.findFiles(basedir, /\/${setupScript}$/))
                 }
+
                 filesToExecute.addAll(FileUtil.findFiles(basedir, scriptPattern, test.excludesPattern))
+
                 if (teardownScript?.trim()) {
+                    filesToExecute.addAll(FileUtil.findFiles(basedir, /\/${teardownScript}$/))
                     tearDownScripts.addAll(FileUtil.findFiles(basedir, /\/${teardownScript}$/))
                 }
 
                 try {
-                    filesToExecute.each { File source ->
-                        CliUtil.executeScript(project, source, test)
-                    }
-                } finally {
-                    tearDownScripts.each { File source ->
-                        CliUtil.executeScript(project, source, test)
-                    }
+                    CliUtil.executeScript(project, filesToExecute, test)
+                } catch (Exception ignored) {
+                    CliUtil.executeScript(project, tearDownScripts, test)
                 }
             } else {
                 project.logger.lifecycle("Base directory ${test.baseDirectory.absolutePath} doesn't exist. Execution of test `${test.name}` has been skipped.")

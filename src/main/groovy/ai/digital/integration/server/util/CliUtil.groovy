@@ -40,8 +40,8 @@ class CliUtil {
         new File(getWorkingDir(project), "ext")
     }
 
-    static File getCliLogFile(Project project, File scriptSource) {
-        def file = Paths.get("${getCliLogFolder(project)}/${scriptSource.name}-${IdUtil.shortId()}.log").toFile()
+    static File getCliLogFile(Project project) {
+        def file = Paths.get("${getCliLogFolder(project)}/${IdUtil.shortId()}.log").toFile()
         project.file(file.getParent()).mkdirs()
         file.createNewFile()
         file
@@ -65,18 +65,18 @@ class CliUtil {
         }
     }
 
-    static def executeScript(Project project, File scriptSource) {
-        runScript(project, scriptSource, [:], [:], [])
+    static def executeScript(Project project, List<File> scriptSources) {
+        runScript(project, scriptSources, [:], [:], [])
     }
 
     static def executeScript(Project project,
-                             File scriptSource,
+                             List<File> scriptSources,
                              Test test) {
-        runScript(project, scriptSource, test.environments, test.systemProperties, test.extraClassPath)
+        runScript(project, scriptSources, test.environments, test.systemProperties, test.extraClassPath)
     }
 
     private static def runScript(Project project,
-                                 File scriptSource,
+                                 List<File> scriptSources,
                                  Map<String, String> extraEnvironments,
                                  Map<String, String> extraParams,
                                  List<File> extraClassPath) {
@@ -95,12 +95,12 @@ class CliUtil {
                 "-password", "admin",
                 "-port", server.httpPort.toString(),
                 "-socketTimeout", cli.socketTimeout.toString(),
-                "-source", scriptSource.absolutePath,
+                "-source", scriptSources.collect { File source -> source.absolutePath }.join(","),
                 "-username", "admin",
         ] + extraParamsAsList
 
         def workDir = getCliBin(project)
-        def scriptLogFile = getCliLogFile(project, scriptSource)
+        def scriptLogFile = getCliLogFile(project)
 
         def ext = Os.isFamily(Os.FAMILY_WINDOWS) ? 'cmd' : 'sh'
         def commandLine = "${workDir} ./cli.$ext ${params.join(" ")}"
