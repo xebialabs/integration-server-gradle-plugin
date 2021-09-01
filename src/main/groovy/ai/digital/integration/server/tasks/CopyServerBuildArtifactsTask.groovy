@@ -13,7 +13,6 @@ class CopyServerBuildArtifactsTask extends DefaultTask {
 
     CopyServerBuildArtifactsTask() {
         def dependencies = [
-                'build',
                 DownloadAndExtractServerDistTask.NAME
         ]
 

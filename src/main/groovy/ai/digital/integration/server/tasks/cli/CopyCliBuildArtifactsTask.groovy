@@ -13,7 +13,6 @@ class CopyCliBuildArtifactsTask extends DefaultTask {
 
     CopyCliBuildArtifactsTask() {
         def dependencies = [
-                'build',
                 DownloadAndExtractCliDistTask.NAME
         ]
 

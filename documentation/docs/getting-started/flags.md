@@ -30,7 +30,7 @@ Parameters/Flags can be defined in 2 ways:
 |satelliteDebugPort|Any available port|Provides a satellite debug port for remote debugging.|
 |serverDebugPort|Any available port|Provides a server debug port for remote debugging.|
 |serverHttpPort|Any available port|Overrides default server HTTP port|
-|testScriptPattern|Pattern|Example: `-PtestScriptPattern=/\/provision-aws\/provision_aws(.+).py$/`|
+|testScriptPattern|Pattern|Example: `-PtestScriptPattern=provision-aws/provision_aws.py`|
 
 :::info
 
