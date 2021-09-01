@@ -289,17 +289,19 @@ Read more about workers here:
 ```groovy
 integrationServer {
     workers {
-        worker01 { 
+        worker01 {
+            version = "10.2.2"
         }
         worker02 { 
             debugPort = 5006
             debugSuspend = true
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
+            version = "10.2.2"
         }
         worker03 { 
             debugPort = 5007
             debugSuspend = false
-            directory = "/opt/xl-deploy-worker"
+            runtimeDirectory = "/opt/xl-deploy-worker"
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
             port = 8182
         }
@@ -311,9 +313,12 @@ integrationServer {
 | :---: | :---: | :---: | :---: |
 |debugPort|Optional|None|Remote Debug Port for a worker.|
 |debugSuspend|Optional|None|Suspend the start of the process before the remoting tool is attached.|
-|directory|Optional|None|If specified, it will run external worker, from the different folder location than server.|
+|runtimeDirectory|Optional|None|If specified, it will run external worker, from the different folder location than server. It will not try to download released version.|
 |jvmArgs|Optional|None|JVM arguments which are going to be used on a worker startup.|
 |port|Optional|None|Port on which worker will start.|
+|version|Optional|None|It can be specified in several ways. Or as a gradle property `xlWorkerVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
+|logLevels|Optional|[:]|Custom log levels to be included in logback.xml configuration. Expected format is a map, where the key is the package name and value the log level.|
+|overlays|Optional|[:]|[Read about this section below](#overlays)|
 
 :::caution
 

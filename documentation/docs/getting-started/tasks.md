@@ -17,7 +17,7 @@ by specifying `-x *taskName*`.
 |centralConfiguration|Configures certain central configuration files based on provided data by user, like repository config, workers, etc.|
 |checkUILibVersions|Checks that React, Redux and other libraries are of the same version across all UI Deploy modules.|
 |copyOverlays|Overlays the files for the Deploy server. [Read more here](./configuration.md#overlays)|
-|copySatelliteOverlays|Overlays the files for the Satellite.|
+|copyServerDirToWorkerDir|Copy set of files that needs to be same on master and worker.|
 |databaseStart|Starts a database.| 
 |databaseStop|Stops a database| 
 |dockerBasedStopDeploy|If Deploy was started as a docker container, will stop it and clean all created volumes.|
@@ -25,6 +25,7 @@ by specifying `-x *taskName*`.
 |downloadAndExtractDbUnitData|Downloads and extracts DB Unit Data from a private Nexus.|
 |downloadAndExtractSatelliteServer|Downloads and extracts Satellite archive from a private Nexus.|
 |downloadAndExtractServer|Downloads and extracts Deploy Server archive from a private Nexus.|
+|downloadAndExtractWorkerDist|Downloads and extracts Deploy Worker archive from a private Nexus.|
 |exportDatabase|Exports anonymized data of the database with help of DB Unit to XML format. <br/> [Read more here](https://docs.xebialabs.com/v.10.2/deploy/concept/database-anonymizer/)|
 |gitlabStart|Starts the GitLab server in a docker image. Can be used to test [Stitch](https://docs.xebialabs.com/v.10.2/deploy/stitch/introduction-to-stitch/) functionality|
 |gitlabStop|Stops the GitLab server in a docker image.| 
@@ -35,6 +36,8 @@ by specifying `-x *taskName*`.
 |runDevOpsAsCode|[Read about it here](./configuration.md#dev-ops-as-code)|
 |runProvisionScript|Starts the server and runs the provision script. You might need it if you would like to provision the test server prior to running tests.|
 |setLogbackLevels|Modifies the `logback.xml` by amending the levels of logs for specified packages.|
+|setWorkerLogbackLevels|Modifies the `logback.xml` by amending the levels of logs for specified packages.|
+|satelliteOverlays|Overlays the files for the Satellite.|
 |shutdownMq|Shut downs docker image with MQ| 
 |shutdownIntegrationServer|Shutdown a integration server and all dependencies: workers, mq, satellite, etc.|
 |shutdownSatellite|Shutdown a satellite.|
@@ -45,3 +48,4 @@ by specifying `-x *taskName*`.
 |startSatellite|Starts the satellite as JDK process.|
 |startWorkers|Starts the worker as JDK process.|
 |yamlPatch|[Read about it here](./configuration.md#yaml-patches)|
+|workerOverlays|Overlays the files for the Worker.|
