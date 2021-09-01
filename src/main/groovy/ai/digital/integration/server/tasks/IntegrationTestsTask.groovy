@@ -25,30 +25,30 @@ class IntegrationTestsTask extends DefaultTask {
         tests.each { Test test ->
             project.logger.lifecycle("About to execute test `${test.name}` ...")
             List<File> filesToExecute = new LinkedList<>()
-            List<File> tearDownScripts = new LinkedList<>()
+            List<File> filesForTeardown = new LinkedList<>()
 
             if (test.baseDirectory.exists()) {
                 String basedir = TestUtil.getTestBaseDirectory(project, test).absolutePath
 
                 String scriptPattern = TestUtil.getTestScriptPattern(project, test)
-                String setupScript = TestUtil.getTestSetupScript(project, test)
-                String teardownScript = TestUtil.getTestTeardownScript(project, test)
+                List<String> setupScripts = TestUtil.getTestSetupScripts(project, test)
+                List<String> teardownScripts = TestUtil.getTestTeardownScript(project, test)
 
-                if (setupScript?.trim()) {
+                setupScripts.each { setupScript ->
                     filesToExecute.addAll(FileUtil.findFiles(basedir, /\/${setupScript}$/))
                 }
 
                 filesToExecute.addAll(FileUtil.findFiles(basedir, scriptPattern, test.excludesPattern))
 
-                if (teardownScript?.trim()) {
+                teardownScripts.each { teardownScript ->
                     filesToExecute.addAll(FileUtil.findFiles(basedir, /\/${teardownScript}$/))
-                    tearDownScripts.addAll(FileUtil.findFiles(basedir, /\/${teardownScript}$/))
+                    filesForTeardown.addAll(FileUtil.findFiles(basedir, /\/${teardownScript}$/))
                 }
 
                 try {
                     CliUtil.executeScript(project, filesToExecute, test)
                 } catch (Exception ignored) {
-                    CliUtil.executeScript(project, tearDownScripts, test)
+                    CliUtil.executeScript(project, filesForTeardown, test)
                 }
             } else {
                 project.logger.lifecycle("Base directory ${test.baseDirectory.absolutePath} doesn't exist. Execution of test `${test.name}` has been skipped.")

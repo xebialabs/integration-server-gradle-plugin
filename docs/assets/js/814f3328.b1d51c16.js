@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[535],{5641:function(e){e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"run-integration-test","permalink":"/integration-server-gradle-plugin/blog/2021/09/01/run-integration-test"}]}')}}]);

@@ -32,8 +32,8 @@ Parameters/Flags can be defined in 2 ways:
 |serverHttpPort|Any available port|Overrides default server HTTP port|
 |testBaseSubDirectory|String|Example: `-PtestBaseSubDirectory=provision-aws` It points to a subset of tests running in a group of the tests|
 |testScriptPattern|Pattern|Example: `-PtestScriptPattern=provision-aws/provision_aws.py`|
-|testSetupScript|String|Example: `-PtestScriptPattern=setup.py`|
-|testTeardownScript|String|Example: `-PtestTeardownScript=teardown.py`|
+|testSetupScripts|String|Example: `-PtestScriptPatterns=root/setup.py,root/gcp/setup.py`|
+|testTeardownScripts|String|Example: `-PtestTeardownScripts=root/teardown.py,root/gcp/teardown.py`|
 
 :::info
 

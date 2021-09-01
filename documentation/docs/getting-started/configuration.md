@@ -395,7 +395,7 @@ In this sample you can see the default values used in the plugin.
 Currently, this is used only internally in Digital.ai to point to a package with imported data. <br/>
 Before server starts, database is going to be populated by the imported data, to save the time during test run.
 
-## Tests
+## Tests section
 
 You can create Jython based tests and communicate with Deploy through CLI.
 
@@ -414,12 +414,12 @@ integrationServer {
             baseDirectory = file("src/test")
             extraClassPath = [file("src/test/resources")]
             scriptPattern = /\/jython\/ci\/(.+).py$/
-            setupScript = "provision/setup.py"
+            setupScripts = ["provision/setup.py", "provision/azure/setup.py"]
             systemProperties = [
                     'key1': 'value1',
                     'key2': 'value2',
             ]
-            tearDownScript = "provision/teardown.py"
+            tearDownScripts = ["provision/azure/teardown.py", "provision/teardown.py"]
         }
     }
 }
@@ -429,7 +429,7 @@ integrationServer {
 | :---: | :---: | :---: | :---: |
 |baseDirectory|Mandatory|None|You have to specify here the base directory where your test setup is located.|
 |extraClassPath|Optional|[]|You can point to a folder with your Jython utility scripts which you would like to use in other scripts to eliminate code duplication.|
-|scriptPattern|Optional|/(.+)[.](py|cli)/|The pattern which will filter the tests you want to run. By default it will run all tests which have extension `py` or `cli` and reside inside base directory.|
-|setupScript|Optional|provision/None|Provisional script which will be triggered before running all tests.|
+|scriptPattern|Optional|/(.+)[.](py &#124; cli)/|The pattern which will filter the tests you want to run. By default it will run all tests which have extension `py` or `cli` and reside inside base directory.|
+|setupScripts|Optional|[]|Provision scripts which will be triggered before running all tests.|
 |systemProperties|Optional|[:]|You can provide system properties inside your tests and then access it like `System.getProperty("key1")`|
-|tearDownScript|Optional|provision/None|As the best practice to clean everything created by test(s), this script is exactly the place to do it. It will be triggered regardless if test was successful or not.|
+|tearDownScripts|Optional|[]|As the best practice to clean everything created by test(s), these scripts is exactly the place to do it. It will be triggered regardless if test was successful or not.|

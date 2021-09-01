@@ -15,11 +15,11 @@ class TestUtil {
         project.hasProperty("testScriptPattern") ? project.getProperty("testScriptPattern") : test.scriptPattern
     }
 
-    static def getTestSetupScript(Project project, Test test) {
-        project.hasProperty("testSetupScript") ? project.getProperty("testSetupScript") : test.setupScript
+    static List<String> getTestSetupScripts(Project project, Test test) {
+        project.hasProperty("testSetupScripts") ? project.getProperty("testSetupScripts").split(",") : test.setupScripts
     }
 
-    static def getTestTeardownScript(Project project, Test test) {
-        project.hasProperty("testTeardownScript") ? project.getProperty("testTeardownScript") : test.tearDownScript
+    static List<String> getTestTeardownScript(Project project, Test test) {
+        project.hasProperty("testTeardownScripts") ? project.getProperty("testTeardownScripts").split(",") : test.tearDownScripts
     }
 }
