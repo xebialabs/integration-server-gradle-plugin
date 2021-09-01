@@ -16,8 +16,12 @@ by specifying `-x *taskName*`.
 |applicationConfigurationOverride|Makes sure that even in case of overlay for `deployit.conf` certain properties are still what user defined. Like HTTP port or HTTP context root.|
 |centralConfiguration|Configures certain central configuration files based on provided data by user, like repository config, workers, etc.|
 |checkUILibVersions|Checks that React, Redux and other libraries are of the same version across all UI Deploy modules.|
+|cliCleanDefaultExt|Removes all default content from `ext` folder. By default it's enabled. If you rely on those python helper scripts, you have to disable it.|
+|cliOverlays|Overlays the files for CLI. [Read more here](./configuration.md#overlays)|
+|copyCliBuildArtifacts|Copying artifacts produced inside your project (custom plugin) into CLI folders, which you define yourself.|
 |copyOverlays|Overlays the files for the Deploy server. [Read more here](./configuration.md#overlays)|
 |copySatelliteOverlays|Overlays the files for the Satellite.|
+|copyServerBuildArtifacts|Copying artifacts produced inside your project (custom plugin) into Deploy folders, which you define yourself.|
 |databaseStart|Starts a database.| 
 |databaseStop|Stops a database| 
 |dockerBasedStopDeploy|If Deploy was started as a docker container, will stop it and clean all created volumes.|
@@ -29,8 +33,10 @@ by specifying `-x *taskName*`.
 |gitlabStart|Starts the GitLab server in a docker image. Can be used to test [Stitch](https://docs.xebialabs.com/v.10.2/deploy/stitch/introduction-to-stitch/) functionality|
 |gitlabStop|Stops the GitLab server in a docker image.| 
 |importDbUnitData|Imports data into a database|
-|prepareDeployTask|Creates initial folders and `deployit.conf` file| 
-|prepareDatabase|Copies required DB specific driver and configures `deploy-repository.yaml` in `centralConfiguration`| 
+|integrationTests|Runs Jython integration tests via CLI. You can define certain patterns and use Gradle flags to narrow down the scope of running tests.|
+|prepareDeploy|Creates initial folders and `deployit.conf` file| 
+|prepareDatabase|Copies required DB specific driver and configures `deploy-repository.yaml` in `centralConfiguration`|
+|runCli|Runs CLI as a process| 
 |runDatasetGeneration|The url `"http://localhost:${server.httpPort}/deployit/generate/${dataset}"` is going to be hit. This URL point is not available in Deploy by default. How you can develop it, is going to be described soon in a blog.|
 |runDevOpsAsCode|[Read about it here](./configuration.md#dev-ops-as-code)|
 |runProvisionScript|Starts the server and runs the provision script. You might need it if you would like to provision the test server prior to running tests.|
