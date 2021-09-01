@@ -65,23 +65,25 @@ class CliUtil {
         }
     }
 
-    static def executeScript(Project project, List<File> scriptSources, String label) {
-        runScript(project, scriptSources, label, [:], [:], [])
+    static def executeScripts(Project project, List<File> scriptSources, String label) {
+        if (!scriptSources.isEmpty()) {
+            runScripts(project, scriptSources, label, [:], [:], [])
+        }
     }
 
-    static def executeScript(Project project,
-                             List<File> scriptSources,
-                             String label,
-                             Test test) {
-        runScript(project, scriptSources, label, test.environments, test.systemProperties, test.extraClassPath)
+    static def executeScripts(Project project,
+                              List<File> scriptSources,
+                              String label,
+                              Test test) {
+        runScripts(project, scriptSources, label, test.environments, test.systemProperties, test.extraClassPath)
     }
 
-    private static def runScript(Project project,
-                                 List<File> scriptSources,
-                                 String label,
-                                 Map<String, String> extraEnvironments,
-                                 Map<String, String> extraParams,
-                                 List<File> extraClassPath) {
+    private static def runScripts(Project project,
+                                  List<File> scriptSources,
+                                  String label,
+                                  Map<String, String> extraEnvironments,
+                                  Map<String, String> extraParams,
+                                  List<File> extraClassPath) {
         Server server = ServerUtil.getServer(project)
         Cli cli = getCli(project)
 
