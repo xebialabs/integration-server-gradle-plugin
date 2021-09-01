@@ -30,7 +30,10 @@ Parameters/Flags can be defined in 2 ways:
 |satelliteDebugPort|Any available port|Provides a satellite debug port for remote debugging.|
 |serverDebugPort|Any available port|Provides a server debug port for remote debugging.|
 |serverHttpPort|Any available port|Overrides default server HTTP port|
+|testBaseSubDirectory|String|Example: `-PtestBaseSubDirectory=provision-aws` It points to a subset of tests running in a group of the tests|
 |testScriptPattern|Pattern|Example: `-PtestScriptPattern=provision-aws/provision_aws.py`|
+|testSetupScript|String|Example: `-PtestScriptPattern=setup.py`|
+|testTeardownScript|String|Example: `-PtestTeardownScript=teardown.py`|
 
 :::info
 

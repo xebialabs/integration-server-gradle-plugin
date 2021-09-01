@@ -4,6 +4,7 @@ import ai.digital.integration.server.domain.Test
 import ai.digital.integration.server.util.CliUtil
 import ai.digital.integration.server.util.ExtensionUtil
 import ai.digital.integration.server.util.FileUtil
+import ai.digital.integration.server.util.TestUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -18,10 +19,6 @@ class IntegrationTestsTask extends DefaultTask {
         }
     }
 
-    def getTestScriptPattern(Test test) {
-        project.hasProperty("testScriptPattern") ? project.getProperty("testScriptPattern") : test.scriptPattern
-    }
-
     private def executeScripts(List<Test> tests) {
         project.logger.lifecycle("Executing test scripts ....")
 
@@ -31,14 +28,18 @@ class IntegrationTestsTask extends DefaultTask {
             List<File> tearDownScripts = new LinkedList<>()
 
             if (test.baseDirectory.exists()) {
-                String basedir = test.baseDirectory.absolutePath
+                String basedir = TestUtil.getTestBaseDirectory(project, test).absolutePath
 
-                if (test.setupScript?.trim()) {
-                    filesToExecute.addAll(FileUtil.findFiles(basedir, /\/${test.setupScript}$/))
+                String scriptPattern = TestUtil.getTestScriptPattern(project, test)
+                String setupScript = TestUtil.getTestSetupScript(project, test)
+                String teardownScript = TestUtil.getTestTeardownScript(project, test)
+
+                if (setupScript?.trim()) {
+                    filesToExecute.addAll(FileUtil.findFiles(basedir, /\/${setupScript}$/))
                 }
-                filesToExecute.addAll(FileUtil.findFiles(basedir, getTestScriptPattern(test), test.excludesPattern))
-                if (test.tearDownScript?.trim()) {
-                    tearDownScripts.addAll(FileUtil.findFiles(basedir, /\/${test.tearDownScript}$/))
+                filesToExecute.addAll(FileUtil.findFiles(basedir, scriptPattern, test.excludesPattern))
+                if (teardownScript?.trim()) {
+                    tearDownScripts.addAll(FileUtil.findFiles(basedir, /\/${teardownScript}$/))
                 }
 
                 try {
