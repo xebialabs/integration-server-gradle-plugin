@@ -32,13 +32,14 @@ class StartPluginManagerTask extends DefaultTask {
     }
 
     private void startPluginManager(Server server) {
-        ProcessUtil.exec([
+        Process process = ProcessUtil.exec([
                 command    : "run",
                 discardIO  : true,
                 environment: EnvironmentUtil.getServerEnv(server),
                 params     : ["plugin-manager-cli"],
                 workDir    : getBinDir(),
         ])
+        project.logger.lifecycle("Launched Plugin Manager on Deploy server $server.name with: [${process.pid()}] [${process.info().commandLine().orElse("")}].")
     }
 
     @TaskAction

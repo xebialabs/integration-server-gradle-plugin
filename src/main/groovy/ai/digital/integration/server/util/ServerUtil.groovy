@@ -85,10 +85,10 @@ class ServerUtil {
         Paths.get(IntegrationServerUtil.getDist(project))
     }
 
-    static def waitForBoot(Project project) {
+    static def waitForBoot(Project project, Process process) {
         def server = getServer(project)
         def url = "http://localhost:${server.httpPort}${server.contextRoot}/deployit/metadata/type"
-        WaitForBootUtil.byPort(project, "Deploy", url, server.httpPort)
+        WaitForBootUtil.byPort(project, "Deploy", url, server.httpPort, process)
     }
 
     static def getDockerImageVersion(Project project) {

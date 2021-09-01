@@ -1,8 +1,6 @@
 package ai.digital.integration.server.util
 
-
 import ai.digital.integration.server.domain.Worker
-import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 
 import java.nio.file.Paths
@@ -13,24 +11,45 @@ class WorkerUtil {
         ExtensionUtil.getExtension(project).workers.size() > 0
     }
 
-    static def getWorkerDir(Worker worker, Project project) {
-        worker.directory != null && !worker.directory.isEmpty() ? worker.directory : ServerUtil.getServerWorkingDir(project)
+    static List<Worker> getWorkers(Project project) {
+        ExtensionUtil.getExtension(project).workers.collect { Worker worker ->
+            enrichWorker(project, worker)
+        }
     }
 
-    static void copyServerDirToWorkerDir(Worker worker, Project project) {
-        def sourceDir = Paths.get(ServerUtil.getServerWorkingDir(project)).toFile()
-        def destinationDir = Paths.get(worker.directory).toFile()
-        destinationDir.setExecutable(true)
-        FileUtils.copyDirectory(sourceDir, destinationDir)
-        ProcessUtil.chMod(project, "755", "${destinationDir.getAbsolutePath().toString()}")
+    private static Worker enrichWorker(Project project, Worker worker) {
+        worker.setDebugPort(getDebugPort(project, worker))
+        worker.setVersion(getWorkerVersion(project, worker))
+        worker
     }
 
-    static def isExternalWorker(Worker worker) {
-        worker.directory != null && !worker.directory.isEmpty()
+    static def getWorkerWorkingDir(Worker worker, Project project) {
+        if (worker.runtimeDirectory == null) {
+            def targetDir = IntegrationServerUtil.getDist(project)
+            Paths.get(targetDir, worker.name, "deploy-task-engine-${worker.version}").toAbsolutePath().toString()
+        } else {
+            def target = project.projectDir.toString()
+            Paths.get(target, worker.runtimeDirectory).toAbsolutePath().toString()
+        }
     }
 
-    static def hasRuntimeDirectory(Project project) {
-        ServerUtil.getServer(project).runtimeDirectory != null
+    static def isExternalRuntimeWorker(Worker worker, Project project) {
+        worker.runtimeDirectory != null && !worker.runtimeDirectory.isEmpty() && worker.runtimeDirectory != ServerUtil.getServerWorkingDir(project)
     }
 
+    static def isDistDownloadRequired(Worker worker) {
+        worker.runtimeDirectory == null
+    }
+
+    static def hasRuntimeDirectory(Worker worker) {
+        worker.runtimeDirectory != null
+    }
+
+    private static String getWorkerVersion(Project project, Worker worker) {
+        project.hasProperty("xlWorkerVersion") ? project.property("xlWorkerVersion") : worker.version
+    }
+
+    private static Integer getDebugPort(Project project, Worker worker) {
+        project.hasProperty("workerDebugPort") ? Integer.valueOf(project.property("workerDebugPort").toString()) : worker.debugPort
+    }
 }

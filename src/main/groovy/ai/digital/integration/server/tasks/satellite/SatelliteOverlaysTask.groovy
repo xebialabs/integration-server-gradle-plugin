@@ -11,7 +11,7 @@ import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 class SatelliteOverlaysTask extends DefaultTask {
     static NAME = "satelliteOverlays"
 
-    static PREFIX = "cli"
+    static PREFIX = "satellite"
 
     static boolean shouldUnzip(File file) {
         file.name.endsWith(".zip")

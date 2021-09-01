@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 
 class WaitForBootUtil {
 
-    static void byPort(Project project, String name, String url, Integer port) {
+    static void byPort(Project project, String name, String url, Integer port, Process process) {
         project.logger.lifecycle("Waiting for $name to start.")
 
         def server = ServerUtil.getServer(project)
@@ -24,7 +24,13 @@ class WaitForBootUtil {
             }
             if (!success) {
                 project.logger.lifecycle("Retrying after ${server.pingRetrySleepTime} second(s). ($triesLeft)")
-                TimeUnit.SECONDS.sleep(server.pingRetrySleepTime)
+                if (process != null) {
+                    if (process.waitFor(server.pingRetrySleepTime, TimeUnit.SECONDS)) {
+                        triesLeft = -1
+                    }
+                } else {
+                    TimeUnit.SECONDS.sleep(server.pingRetrySleepTime)
+                }
                 triesLeft -= 1
             }
         }
@@ -33,7 +39,7 @@ class WaitForBootUtil {
         }
     }
 
-    static def byLog(Project project, String name, File logFile, String containsLine) {
+    static def byLog(Project project, String name, File logFile, String containsLine, Process process) {
         project.logger.lifecycle("Waiting for $name to start.")
         def server = ServerUtil.getServer(project)
         int triesLeft = server.pingTotalTries
@@ -51,7 +57,13 @@ class WaitForBootUtil {
             }
             if (!success) {
                 project.logger.lifecycle("Retrying after ${server.pingRetrySleepTime} second(s). ($triesLeft)")
-                TimeUnit.SECONDS.sleep(server.pingRetrySleepTime)
+                if (process != null) {
+                    if (process.waitFor(server.pingRetrySleepTime, TimeUnit.SECONDS)) {
+                        triesLeft = -1
+                    }
+                } else {
+                    TimeUnit.SECONDS.sleep(server.pingRetrySleepTime)
+                }
                 triesLeft -= 1
             }
         }

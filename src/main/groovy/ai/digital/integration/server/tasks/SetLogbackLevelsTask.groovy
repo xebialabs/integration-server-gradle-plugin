@@ -1,9 +1,11 @@
 package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.util.DbUtil
+import ai.digital.integration.server.util.FileUtil
 import ai.digital.integration.server.util.ServerUtil
 import groovy.xml.QName
 import groovy.xml.XmlUtil
+import kotlin.jvm.internal.markers.KMappedMarker
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -23,6 +25,7 @@ class SetLogbackLevelsTask extends DefaultTask {
     private def getHardCodedLevels() {
         DbUtil.getDatabase(project).logSql ? [
                 "org.springframework.jdbc.core.JdbcTemplate": "trace",
+                "com.xebialabs.deployit.core.sql.batch"     : "debug",
                 "org.hibernate.sql"                         : "trace",
                 "org.hibernate.type"                        : "all"
         ] : [:]
@@ -43,7 +46,7 @@ class SetLogbackLevelsTask extends DefaultTask {
             logLevels.each { Map.Entry<String, String> logLevel ->
                 configuration.appendNode(new QName("logger"), [name: logLevel.key, level: logLevel.value])
             }
-            XmlUtil.serialize(xml, new FileWriter(project.file(logbackConfig)))
+            FileUtil.removeEmptyLines(XmlUtil.serialize(xml), project.file(logbackConfig))
         }
     }
 }

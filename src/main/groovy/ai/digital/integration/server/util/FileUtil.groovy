@@ -1,5 +1,6 @@
 package ai.digital.integration.server.util
 
+import groovy.xml.XmlUtil
 import org.apache.commons.io.IOUtils
 
 import java.nio.file.Path
@@ -50,6 +51,15 @@ class FileUtil {
             }
         } finally {
             zos.close()
+        }
+    }
+
+    static def removeEmptyLines(String data, File output) {
+        output.withWriter {writer ->
+            data.lines()
+                .map {line -> line.stripTrailing() }
+                .filter {line -> !line.empty }
+                .forEach {line -> writer.append(line).append('\n') }
         }
     }
 }

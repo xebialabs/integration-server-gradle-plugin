@@ -24,6 +24,10 @@ class StartWorkersTask extends DefaultTask {
 
     StartWorkersTask() {
         def dependencies = [
+                DownloadAndExtractWorkerDistTask.NAME,
+                CopyServerDirToWorkerDirTask.NAME,
+                SetWorkersLogbackLevelsTask.NAME,
+                WorkerOverlaysTask.NAME,
                 StartMqTask.NAME,
                 YamlPatchTask.NAME
         ]
@@ -38,7 +42,7 @@ class StartWorkersTask extends DefaultTask {
     }
 
     private def getBinDir(Worker worker) {
-        Paths.get(WorkerUtil.getWorkerDir(worker, project), "bin").toFile()
+        Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), "bin").toFile()
     }
 
     private static def logFileName(String workerName) {
@@ -49,10 +53,9 @@ class StartWorkersTask extends DefaultTask {
         project.logger.lifecycle("Launching worker $worker.name")
         def server = ServerUtil.getServer(project)
 
-        ProcessUtil.exec([
+        Process process = ProcessUtil.exec([
                 command    : "run",
                 params     : [
-                        "worker",
                         "-master",
                         "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
                         "-api",
@@ -70,7 +73,9 @@ class StartWorkersTask extends DefaultTask {
                 discardIO  : true,
         ])
 
-        waitForBoot(worker)
+        project.logger.lifecycle("Worker '${worker.name}' successfully started: [${process.pid()}] [${process.info().commandLine().orElse("")}].")
+
+        waitForBoot(worker, process)
     }
 
     void startWorkerFromClasspath(Worker worker) {
@@ -83,7 +88,7 @@ class StartWorkersTask extends DefaultTask {
 
         def params = [
                 classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper",
-                dir      : WorkerUtil.getWorkerDir(worker, project),
+                dir      : WorkerUtil.getWorkerWorkingDir(worker, project),
                 fork     : true,
                 spawn    : true
         ]
@@ -122,16 +127,14 @@ class StartWorkersTask extends DefaultTask {
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${worker.debugPort}")
             }
         }
-        waitForBoot(worker)
+        waitForBoot(worker, null)
     }
 
     @TaskAction
     void launch() {
         def workers = ExtensionUtil.getExtension(project).workers
         workers.each { Worker worker ->
-            if (WorkerUtil.isExternalWorker(worker))
-                WorkerUtil.copyServerDirToWorkerDir(worker, project)
-            if (WorkerUtil.hasRuntimeDirectory(project)) {
+            if (WorkerUtil.hasRuntimeDirectory(worker)) {
                 startWorkerFromClasspath(worker)
             } else {
                 startWorker(worker)
@@ -139,9 +142,9 @@ class StartWorkersTask extends DefaultTask {
         }
     }
 
-    private void waitForBoot(Worker worker) {
-        def workerLog = project.file("${WorkerUtil.getWorkerDir(worker, project)}/log/${logFileName(worker.name)}.log")
+    private void waitForBoot(Worker worker, Process process) {
+        def workerLog = project.file("${WorkerUtil.getWorkerWorkingDir(worker, project)}/log/${logFileName(worker.name)}.log")
         def containsLine = "Registered successfully with Actor[akka://task-sys@127.0.0.1"
-        WaitForBootUtil.byLog(project, "worker ${worker.name}", workerLog, containsLine)
+        WaitForBootUtil.byLog(project, "worker ${worker.name}", workerLog, containsLine, process)
     }
 }
