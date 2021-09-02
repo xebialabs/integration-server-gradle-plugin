@@ -1,7 +1,6 @@
 package ai.digital.integration.server.util
 
 import ai.digital.integration.server.domain.Cli
-import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.domain.Test
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
@@ -84,7 +83,6 @@ class CliUtil {
                                   Map<String, String> extraEnvironments,
                                   Map<String, String> extraParams,
                                   List<File> extraClassPath) {
-        Server server = ServerUtil.getServer(project)
         Cli cli = getCli(project)
 
         def extraParamsAsList = extraParams.findAll {
@@ -94,10 +92,10 @@ class CliUtil {
         }.flatten()
 
         def params = [
-                "-context", server.contextRoot,
+                "-context", ServerUtil.readDeployitConfProperty(project, "http.context.root"),
                 "-expose-proxies",
                 "-password", "admin",
-                "-port", server.httpPort.toString(),
+                "-port", ServerUtil.readDeployitConfProperty(project, "http.port"),
                 "-socketTimeout", cli.socketTimeout.toString(),
                 "-source", scriptSources.collect { File source -> source.absolutePath }.join(","),
                 "-username", "admin",

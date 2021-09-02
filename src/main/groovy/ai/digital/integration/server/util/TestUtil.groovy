@@ -57,6 +57,10 @@ class TestUtil {
         !ExtensionUtil.getExtension(project).tests.findAll { Test test -> test.base }.isEmpty()
     }
 
+    static boolean hasTests(Project project) {
+        !ExtensionUtil.getExtension(project).tests.isEmpty()
+    }
+
     static Test getBaseTest(Project project) {
         ExtensionUtil.getExtension(project).tests.find { Test test -> test.base }
     }

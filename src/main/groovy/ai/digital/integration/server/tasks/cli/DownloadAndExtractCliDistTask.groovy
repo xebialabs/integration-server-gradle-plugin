@@ -2,6 +2,7 @@ package ai.digital.integration.server.tasks.cli
 
 import ai.digital.integration.server.util.CliUtil
 import ai.digital.integration.server.util.IntegrationServerUtil
+import ai.digital.integration.server.util.TestUtil
 import org.gradle.api.tasks.Copy
 
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
@@ -14,7 +15,7 @@ class DownloadAndExtractCliDistTask extends Copy {
         this.configure {
             group = PLUGIN_GROUP
 
-            if (CliUtil.hasCli(project)) {
+            if (CliUtil.hasCli(project) || TestUtil.hasTests(project)) {
                 def version = CliUtil.getCli(project).version
                 project.logger.lifecycle("Downloading and extracting the CLI ${version}.")
 

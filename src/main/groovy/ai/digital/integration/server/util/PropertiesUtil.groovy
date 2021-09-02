@@ -13,6 +13,10 @@ class PropertiesUtil {
         properties
     }
 
+    static String readProperty(File file, String key) {
+        readPropertiesFile(file).get(key)
+    }
+
     static void writePropertiesFile(File file, Properties properties) {
         properties.store(file.newWriter(), null)
     }
