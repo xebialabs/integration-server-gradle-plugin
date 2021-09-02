@@ -12,6 +12,6 @@
         <id>How to run a simple integration test</id>
         <link href="https://github.com/xebialabs/integration-server-gradle-plugin/integration-server-gradle-plugin/blog/2021/09/02/run-integration-test"/>
         <updated>2021-09-02T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Documentation is applicable for a version 10.3.0-902.1243 or later.]]></summary>
+        <summary type="html"><![CDATA[Requirements]]></summary>
     </entry>
 </feed>

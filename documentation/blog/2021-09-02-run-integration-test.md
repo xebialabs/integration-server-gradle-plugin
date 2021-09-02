@@ -3,6 +3,8 @@ title: How to run a simple integration test
 tags: [integration-test]
 ---
 
+### Requirements
+
 Documentation is applicable for a version **10.3.0-902.1243** or later.
 
 The version of the plugin contains not random values, but you can read it next way
@@ -11,6 +13,8 @@ The version of the plugin contains not random values, but you can read it next w
 After minus the information of the time when it was released: <br/>
 902 - 2d of September <br/>
 1020 - 10:20 AM <br/>
+
+### Introduction
 
 I expect that you are the beginner of using this plugin, and your intention is to create your first integration test
 for your custom plugin in against running Deploy instance. 
@@ -43,6 +47,8 @@ integrationServer {
 In CLI section we specify the version which is available publicly. It can mismatch with Deploy server. 
 Most of the time it is backward compatible. Specially for the usage of it inside of integration server CLI was changed,
 therefore you can't use CLI with a lower version than `10.3.0-902.1430`. 
+
+### Test section explanation
 
 In tests section, you can create multiple test sections. At this blog we will take a look at the simplest configuration required.
 First of all, you have to define where are your all tests resides, what is the base directory of it.
@@ -89,9 +95,12 @@ tearDownScripts = ['teardown.py']
 For a full version of this configuration file (and the project), have look at an example:
  [https://github.com/acierto/xld-simple-itest](https://github.com/acierto/xld-simple-itest)
  
+
+## Under the hood
+ 
 Great, we set it up. Let's figure out how it works.
 
-### The first step
+### Downloading flow
 
 We download a server and CLI to a build folder. As you can see it on the picture: 
 
@@ -100,7 +109,7 @@ We download a server and CLI to a build folder. As you can see it on the picture
 As we didn't apply any modification sections as `overlays`, `copyBuildArtifacts`, etc. the structure and content there 
 would be same as from Nexus/Docker image.
 
-### The second step
+### Test execution and troubleshooting
 
 Test runner is looking at the configurations, searching for a base folder to scan there files and then creates a sequence of them to execute.
 As we have only 1 test and 1 teardown script we will see as a source for CLI 2 tests. I'll refer to the available logs produced
