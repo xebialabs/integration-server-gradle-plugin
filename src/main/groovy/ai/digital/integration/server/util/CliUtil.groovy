@@ -56,8 +56,8 @@ class CliUtil {
             project.getProperty("deployCliVersion")
         } else if (cli.version?.trim()) {
             cli.version
-        } else if (project.hasProperty("xlDeployVersion")) {
-            project.getProperty("xlDeployVersion")
+        } else if (ServerUtil.getServer(project).version) {
+            ServerUtil.getServer(project).version
         } else {
             project.logger.error("CLI Version is not specified")
             System.exit(1)
