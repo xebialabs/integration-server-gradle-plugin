@@ -25,6 +25,7 @@ module.exports = {
                     position: 'left',
                     label: 'Tutorial',
                 },
+
                 {
                     href: 'https://github.com/xebialabs/integration-server-gradle-plugin',
                     label: 'GitHub',
@@ -46,6 +47,10 @@ module.exports = {
                         {
                             label: 'Tutorial',
                             to: '/docs/intro',
+                        },
+                        {
+                            label: 'Blog',
+                            to: '/blog',
                         },
                         {
                             label: 'GitHub',
