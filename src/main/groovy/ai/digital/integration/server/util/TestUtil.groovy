@@ -63,6 +63,11 @@ class TestUtil {
 
     static List<Test> getExecutableTests(Project project) {
         ExtensionUtil.getExtension(project).tests
+                .findAll { Test test ->
+                    project.hasProperty("testName") ?
+                            test.name.equals(project.getProperty("testName")) :
+                            true
+                }
                 .findAll { Test test -> !test.base }
                 .collect { Test test ->
                     test.setBaseDirectory(getTestBaseDirectory(project, test))

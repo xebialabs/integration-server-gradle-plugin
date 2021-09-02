@@ -410,10 +410,15 @@ You can also run both commands in one command as: `./gradlew clean startIntegrat
 ```groovy
 integrationServer {
     tests {
-        testGroupO1 { // The name of the section, you can name it as you with
-            baseDirectory = file("src/test")
+        base {
+            base = true
             extraClassPath = [file("src/test/resources")]
             scriptPattern = /\/jython\/ci\/(.+).py$/
+        }
+        testGroupO1 { // The name of the section, you can name it as you with
+            baseDirectory = file("src/test")
+            extraClassPath = [file("src/test/resources/group-01")]
+            scriptPattern = /\/jython\/ci\/group-01\/(.+).py$/
             setupScripts = ["provision/setup.py", "provision/azure/setup.py"]
             systemProperties = [
                     'key1': 'value1',
@@ -427,6 +432,7 @@ integrationServer {
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
+|base|Optional|`false`|If to define `base` test section, it will be not executable, but sharing the same configuration across all executable test sections. If same property is defined in test section itself, it overrides base defined property.|
 |baseDirectory|Mandatory|None|You have to specify here the base directory where your test setup is located.|
 |extraClassPath|Optional|[]|You can point to a folder with your Jython utility scripts which you would like to use in other scripts to eliminate code duplication.|
 |scriptPattern|Optional|/(.+)[.](py &#124; cli)/|The pattern which will filter the tests you want to run. By default it will run all tests which have extension `py` or `cli` and reside inside base directory.|
