@@ -33,7 +33,7 @@ class CopyServerDirToWorkerDirTask extends DefaultTask {
 
         if (!WorkerUtil.isExternalRuntimeWorker(worker, project)) {
 
-            def sourceDir = ServerUtil.getServerWorkingDir(project);
+            def sourceDir = ServerUtil.getServerWorkingDir(project)
             def destinationDir = Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project)).toFile()
             destinationDir.setExecutable(true)
             ProcessUtil.chMod(project, "755", "${destinationDir.getAbsolutePath().toString()}")
