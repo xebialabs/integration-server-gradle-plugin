@@ -25,7 +25,7 @@ class RunCliTask extends DefaultTask {
 
     private def executeScripts(Cli cli) {
         project.logger.lifecycle("Executing cli scripts ....")
-        cli.getFilesToExecute().each { File scriptSource -> CliUtil.executeScript(project, scriptSource) }
+        CliUtil.executeScripts(project, cli.getFilesToExecute(), "cli")
     }
 
     @TaskAction

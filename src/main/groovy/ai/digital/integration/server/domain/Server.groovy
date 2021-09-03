@@ -4,6 +4,7 @@ import ai.digital.integration.server.util.HTTPUtil
 import org.gradle.api.NamedDomainObjectContainer
 
 class Server {
+    Map<String, String> copyBuildArtifacts = new HashMap<>()
     String contextRoot = "/"
     Boolean debugSuspend = false
     Integer debugPort

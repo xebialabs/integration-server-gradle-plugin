@@ -20,6 +20,7 @@ class CopyOverlaysTask extends DefaultTask {
             group = PLUGIN_GROUP
             mustRunAfter DownloadAndExtractServerDistTask.NAME
             mustRunAfter CentralConfigurationTask.NAME
+            mustRunAfter CopyServerBuildArtifactsTask.NAME
             finalizedBy CheckUILibVersionsTask.NAME
 
             project.afterEvaluate {

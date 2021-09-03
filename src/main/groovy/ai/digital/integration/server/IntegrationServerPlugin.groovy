@@ -4,6 +4,7 @@ import ai.digital.integration.server.tasks.*
 import ai.digital.integration.server.tasks.anonymizer.ExportDatabaseTask
 import ai.digital.integration.server.tasks.cli.CliCleanDefaultExtTask
 import ai.digital.integration.server.tasks.cli.CliOverlaysTask
+import ai.digital.integration.server.tasks.cli.CopyCliBuildArtifactsTask
 import ai.digital.integration.server.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.tasks.cli.RunCliTask
 import ai.digital.integration.server.tasks.database.DatabaseStartTask
@@ -38,6 +39,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
 
         //CLI
         project.tasks.create(CliCleanDefaultExtTask.NAME, CliCleanDefaultExtTask)
+        project.tasks.create(CopyCliBuildArtifactsTask.NAME, CopyCliBuildArtifactsTask)
         project.tasks.create(CliOverlaysTask.NAME, CliOverlaysTask)
         project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask)
         project.tasks.create(RunCliTask.NAME, RunCliTask)
@@ -50,6 +52,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(ApplicationConfigurationOverrideTask.NAME, ApplicationConfigurationOverrideTask)
         project.tasks.create(CentralConfigurationTask.NAME, CentralConfigurationTask)
         project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask)
+        project.tasks.create(CopyServerBuildArtifactsTask.NAME, CopyServerBuildArtifactsTask)
         project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask)
         project.tasks.create(DockerBasedStopDeployTask.NAME, DockerBasedStopDeployTask)
         project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)

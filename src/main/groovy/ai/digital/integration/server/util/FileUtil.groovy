@@ -1,6 +1,5 @@
 package ai.digital.integration.server.util
 
-import groovy.xml.XmlUtil
 import org.apache.commons.io.IOUtils
 
 import java.nio.file.Path
@@ -52,6 +51,14 @@ class FileUtil {
         } finally {
             zos.close()
         }
+    }
+
+    static List<File> findFiles(String basedir, String pattern) {
+        new FileNameByRegexFinder().getFileNames(basedir, pattern).collect { new File(it) }
+    }
+
+    static List<File> findFiles(String basedir, String pattern, String excludesPattern) {
+        new FileNameByRegexFinder().getFileNames(basedir, pattern, excludesPattern).collect { new File(it) }
     }
 
     static def removeEmptyLines(String data, File output) {

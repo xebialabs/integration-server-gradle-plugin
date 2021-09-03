@@ -1,7 +1,6 @@
 package ai.digital.integration.server.util
 
 import ai.digital.integration.server.domain.Cli
-import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.domain.Test
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
@@ -16,6 +15,10 @@ class CliUtil {
         cli.setVersion(getCliVersion(project, cli))
         cli.setDebugPort(getDebugPort(project, cli))
         cli
+    }
+
+    static boolean hasCli(Project project) {
+        !ExtensionUtil.getExtension(project).clis.isEmpty()
     }
 
     private static Integer getDebugPort(Project project, Cli cli) {
@@ -36,8 +39,8 @@ class CliUtil {
         new File(getWorkingDir(project), "ext")
     }
 
-    static File getCliLogFile(Project project, File scriptSource) {
-        def file = Paths.get("${getCliLogFolder(project)}/${scriptSource.name}-${IdUtil.shortId()}.log").toFile()
+    static File getCliLogFile(Project project, String label) {
+        def file = Paths.get("${getCliLogFolder(project)}/${label}-${IdUtil.shortId()}.log").toFile()
         project.file(file.getParent()).mkdirs()
         file.createNewFile()
         file
@@ -52,8 +55,8 @@ class CliUtil {
             project.getProperty("deployCliVersion")
         } else if (cli.version?.trim()) {
             cli.version
-        } else if (project.hasProperty("xlDeployVersion")) {
-            project.getProperty("xlDeployVersion")
+        } else if (ServerUtil.getServer(project).version) {
+            ServerUtil.getServer(project).version
         } else {
             project.logger.error("CLI Version is not specified")
             System.exit(1)
@@ -61,22 +64,25 @@ class CliUtil {
         }
     }
 
-    static def executeScript(Project project, File scriptSource) {
-        runScript(project, scriptSource, [:], [:], [])
+    static def executeScripts(Project project, List<File> scriptSources, String label) {
+        if (!scriptSources.isEmpty()) {
+            runScripts(project, scriptSources, label, [:], [:], [])
+        }
     }
 
-    static def executeScript(Project project,
-                             File scriptSource,
-                             Test test) {
-        runScript(project, scriptSource, test.environments, test.systemProperties, test.extraClassPath)
+    static def executeScripts(Project project,
+                              List<File> scriptSources,
+                              String label,
+                              Test test) {
+        runScripts(project, scriptSources, label, test.environments, test.systemProperties, test.extraClassPath)
     }
 
-    private static def runScript(Project project,
-                                 File scriptSource,
-                                 Map<String, String> extraEnvironments,
-                                 Map<String, String> extraParams,
-                                 List<File> extraClassPath) {
-        Server server = ServerUtil.getServer(project)
+    private static def runScripts(Project project,
+                                  List<File> scriptSources,
+                                  String label,
+                                  Map<String, String> extraEnvironments,
+                                  Map<String, String> extraParams,
+                                  List<File> extraClassPath) {
         Cli cli = getCli(project)
 
         def extraParamsAsList = extraParams.findAll {
@@ -86,17 +92,17 @@ class CliUtil {
         }.flatten()
 
         def params = [
-                "-context", server.contextRoot,
+                "-context", ServerUtil.readDeployitConfProperty(project, "http.context.root"),
                 "-expose-proxies",
                 "-password", "admin",
-                "-port", server.httpPort.toString(),
+                "-port", ServerUtil.readDeployitConfProperty(project, "http.port"),
                 "-socketTimeout", cli.socketTimeout.toString(),
-                "-source", scriptSource.absolutePath,
+                "-source", scriptSources.collect { File source -> source.absolutePath }.join(","),
                 "-username", "admin",
         ] + extraParamsAsList
 
         def workDir = getCliBin(project)
-        def scriptLogFile = getCliLogFile(project, scriptSource)
+        def scriptLogFile = getCliLogFile(project, label)
 
         def ext = Os.isFamily(Os.FAMILY_WINDOWS) ? 'cmd' : 'sh'
         def commandLine = "${workDir} ./cli.$ext ${params.join(" ")}"
