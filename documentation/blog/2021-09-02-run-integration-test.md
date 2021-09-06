@@ -11,7 +11,7 @@ The version of the plugin contains not random values, but you can read it next w
 10.3.0 means that it works for Deploy 10.3.0
 
 After minus the information of the time when it was released: <br/>
-902 - 2d of September <br/>
+902 - 2nd of September <br/>
 1020 - 10:20 AM <br/>
 
 ### Introduction
@@ -90,7 +90,10 @@ This configuration is exactly for this purpose:
 
 ```groovy
 tearDownScripts = ['teardown.py']
-``` 
+```
+
+Full set of options for this section you can find here: 
+[https://xebialabs.github.io/integration-server-gradle-plugin/docs/getting-started/configuration#tests-section](https://xebialabs.github.io/integration-server-gradle-plugin/docs/getting-started/configuration#tests-section) 
 
 For a full version of this configuration file (and the project), have look at an example:
  [https://github.com/acierto/xld-simple-itest](https://github.com/acierto/xld-simple-itest)
