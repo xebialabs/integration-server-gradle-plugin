@@ -56,7 +56,6 @@ class CopyServerDirToWorkerDirTask extends DefaultTask {
             }
 
             def confFiles = [
-                "deployit.conf",
                 "deployit-license.lic"
             ]
             confFiles.forEach { confFile ->
