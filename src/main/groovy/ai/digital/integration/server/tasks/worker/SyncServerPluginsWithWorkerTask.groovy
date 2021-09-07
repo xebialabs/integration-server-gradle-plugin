@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks.worker
 
 import ai.digital.integration.server.domain.Worker
+import ai.digital.integration.server.util.FileUtil
 import ai.digital.integration.server.util.ProcessUtil
 import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.WorkerUtil
@@ -23,47 +24,44 @@ class SyncServerPluginsWithWorkerTask extends DefaultTask {
         this.configure { ->
             group = PLUGIN_GROUP
             dependsOn(dependencies)
+            onlyIf {
+                WorkerUtil.hasWorkers(project)
+            }
         }
     }
 
     @TaskAction
     def copyToWorkers() {
-        WorkerUtil.getWorkers(project).forEach { Worker worker ->
-            copyServerDirToWorkerDir(worker)
-        }
+        WorkerUtil.getWorkers(project)
+            .findAll {worker -> !worker.slimDistribution}
+            .forEach { worker ->
+                    copyServerDirToWorkerDir(worker)
+            }
     }
 
     void copyServerDirToWorkerDir(Worker worker) {
-        if (!WorkerUtil.isExternalRuntimeWorker(worker, project)) {
+        if (!WorkerUtil.isExternalRuntimeWorker(project, worker)) {
             def sourceDir = ServerUtil.getServerWorkingDir(project)
-            def destinationDir = Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project)).toFile()
-            destinationDir.setExecutable(true)
-            ProcessUtil.chMod(project, "755", "${destinationDir.getAbsolutePath().toString()}")
+            def destinationDir = Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker)).toFile()
+            ProcessUtil.chMod(project, "755", "${Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "bin").toAbsolutePath().toString()}")
 
-            project.logger.lifecycle("Copy Worker ${worker.name} runtime from ${sourceDir} to ${destinationDir}")
+            project.logger.lifecycle("Copy plugins from directory ${sourceDir} to Worker ${worker.name} in directory ${destinationDir}")
 
             // delete plugins from zip
-            FileUtils.deleteDirectory(Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), "plugins").toFile())
+            FileUtils.deleteDirectory(Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "plugins").toFile())
 
-            [
-                    "hotfix",
-                    "plugins"
-            ].forEach { String dir ->
-                FileUtils.copyDirectory(
-                        Paths.get(ServerUtil.getServerWorkingDir(project), dir).toFile(),
-                        Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), dir).toFile()
-                )
-            }
+            FileUtil.copyDirs(ServerUtil.getServerWorkingDir(project), WorkerUtil.getWorkerWorkingDir(project, worker), [
+                "hotfix",
+                "plugins"
+            ])
 
-            [
+            FileUtil.copyFiles(
+                Paths.get(ServerUtil.getServerWorkingDir(project), "conf").toAbsolutePath().toString(),
+                Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "conf").toAbsolutePath().toString(),
+                [
                     "deployit-license.lic"
-            ].forEach { confFile ->
-                FileUtils.copyFileToDirectory(
-                        Paths.get(ServerUtil.getServerWorkingDir(project), "conf", confFile).toFile(),
-                        Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), "conf").toFile()
-                )
-            }
+                ]
+            )
         }
     }
-
 }

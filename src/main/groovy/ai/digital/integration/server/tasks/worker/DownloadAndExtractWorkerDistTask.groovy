@@ -15,26 +15,31 @@ class DownloadAndExtractWorkerDistTask extends Copy {
     DownloadAndExtractWorkerDistTask() {
         this.configure {
             group = PLUGIN_GROUP
-
-            WorkerUtil.getWorkers(project).each { Worker worker ->
-
-                if (WorkerUtil.isDistDownloadRequired(worker)) {
-                    project.buildscript.dependencies.add(
-                        WORKER_DIST,
-                        "ai.digital.deploy.task-engine:deploy-task-engine:${worker.version}@zip"
-                    )
-
-                    def taskName = "downloadAndExtractWorkerServer${worker.name}"
-                    def task = project.getTasks().register(taskName, Copy.class, new Action<Copy>() {
-                      @Override
-                      void execute(Copy copy) {
-                        copy.from { project.zipTree(project.buildscript.configurations.getByName(WORKER_DIST).singleFile) }
-                        copy.into { ServerUtil.getRelativePathInIntegrationServerDist(project, worker.name) }
-                      }
-                    })
-                    this.dependsOn task
-                }
+            onlyIf {
+              WorkerUtil.hasWorkers(project)
             }
+
+            WorkerUtil.getWorkers(project)
+                .findAll {worker -> !worker.slimDistribution}
+                .each { Worker worker ->
+
+                    if (WorkerUtil.isDistDownloadRequired(worker)) {
+                        project.buildscript.dependencies.add(
+                            WORKER_DIST,
+                            "ai.digital.deploy.task-engine:deploy-task-engine:${worker.version}@zip"
+                        )
+
+                        def taskName = "downloadAndExtractWorkerServer${worker.name}"
+                        def task = project.getTasks().register(taskName, Copy.class, new Action<Copy>() {
+                          @Override
+                          void execute(Copy copy) {
+                            copy.from { project.zipTree(project.buildscript.configurations.getByName(WORKER_DIST).singleFile) }
+                            copy.into { ServerUtil.getRelativePathInIntegrationServerDist(project, worker.name) }
+                          }
+                        })
+                        this.dependsOn task
+                    }
+                }
         }
     }
 }

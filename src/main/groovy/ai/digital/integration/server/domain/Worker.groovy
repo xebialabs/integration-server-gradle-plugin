@@ -11,7 +11,9 @@ class Worker {
     Map<String, List<Object>> overlays = new HashMap<>()
     Integer port = HTTPUtil.findFreePort()
     String runtimeDirectory
+    String outputFilename
     String version
+    Boolean slimDistribution = true
 
     Worker(final String name) {
         this.name = name

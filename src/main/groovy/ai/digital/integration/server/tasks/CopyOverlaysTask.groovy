@@ -2,10 +2,8 @@ package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.util.*
-import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.tasks.Copy
 
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
@@ -30,30 +28,11 @@ class CopyOverlaysTask extends DefaultTask {
                 addDatabaseDependency(project, server)
                 addMqDependency(project, server)
 
-                server.overlays.each { Map.Entry<String, List<Object>> definition ->
-                    def configurationName = "${ExtensionUtil.IS_EXTENSION_NAME}${definition.key.capitalize().replace("/", "")}"
-                    def config = project.buildscript.configurations.create(configurationName)
-                    definition.value.each { dependencyNotation ->
-                        project.buildscript.dependencies.add(configurationName, dependencyNotation)
-                    }
-
-                    def task = project.getTasks().register("copy${configurationName.capitalize()}", Copy.class, new Action<Copy>() {
-                        @Override
-                        void execute(Copy copy) {
-                            config.files.each { File file ->
-                                copy.from { shouldUnzip(file) ? project.zipTree(file) : file }
-                            }
-                            copy.into { "${ServerUtil.getServerWorkingDir(project)}/${definition.key}" }
-                        }
-                    })
-                    this.dependsOn task
+                server.overlays.each { Map.Entry<String, List<Object>> overlay ->
+                    OverlaysUtil.defineOverlay(project, this, ServerUtil.getServerWorkingDir(project), ExtensionUtil.IS_EXTENSION_NAME, overlay, [])
                 }
             }
         }
-    }
-
-    private static boolean shouldUnzip(File file) {
-        file.name.endsWith(".zip")
     }
 
     private static def overlayDependency(String version, Project project, Server server, List<Object> libOverlays, Object dependency) {

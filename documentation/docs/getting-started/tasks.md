@@ -22,7 +22,7 @@ by specifying `-x *taskName*`.
 |copyOverlays|Overlays the files for the Deploy server. [Read more here](./configuration.md#overlays)|
 |copySatelliteOverlays|Overlays the files for the Satellite.|
 |copyServerBuildArtifacts|Copying artifacts produced inside your project (custom plugin) into Deploy folders, which you define yourself.|
-|copyServerDirToWorkerDir|Copy set of files that needs to be same on master and worker.|
+|copyIntegrationServer|Copy configured integration server to the worker directory.|
 |databaseStart|Starts a database.| 
 |databaseStop|Stops a database| 
 |dockerBasedStopDeploy|If Deploy was started as a docker container, will stop it and clean all created volumes.|
@@ -30,7 +30,7 @@ by specifying `-x *taskName*`.
 |downloadAndExtractDbUnitData|Downloads and extracts DB Unit Data from a private Nexus.|
 |downloadAndExtractSatelliteServer|Downloads and extracts Satellite archive from a private Nexus.|
 |downloadAndExtractServer|Downloads and extracts Deploy Server archive from a private Nexus.|
-|downloadAndExtractWorkerDist|Downloads and extracts Deploy Worker archive from a private Nexus.|
+|downloadAndExtractWorkerServer|Downloads and extracts Deploy Worker archive from a private Nexus.|
 |exportDatabase|Exports anonymized data of the database with help of DB Unit to XML format. <br/> [Read more here](https://docs.xebialabs.com/v.10.2/deploy/concept/database-anonymizer/)|
 |gitlabStart|Starts the GitLab server in a docker image. Can be used to test [Stitch](https://docs.xebialabs.com/v.10.2/deploy/stitch/introduction-to-stitch/) functionality|
 |gitlabStop|Stops the GitLab server in a docker image.| 
@@ -54,5 +54,6 @@ by specifying `-x *taskName*`.
 |startPluginManager|Starts the plugin manager. You have to have a CLI for that.|
 |startSatellite|Starts the satellite as JDK process.|
 |startWorkers|Starts the worker as JDK process.|
+|syncServerPluginsWithWorker|Copy all plugins from the xl-deploy to the worker runtime directory.|
 |yamlPatch|[Read about it here](./configuration.md#yaml-patches)|
 |workerOverlays|Overlays the files for the Worker.|

@@ -1,5 +1,6 @@
 package ai.digital.integration.server.util
 
+import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 
 import java.nio.file.Path
@@ -8,6 +9,24 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 class FileUtil {
+
+    static def copyDirs(String srcBaseDir, String targetBaseDir, List<String> dirs) {
+        dirs.forEach { String dir ->
+            FileUtils.copyDirectory(
+                Paths.get(srcBaseDir, dir).toFile(),
+                Paths.get(targetBaseDir, dir).toFile()
+            )
+        }
+    }
+
+    static def copyFiles(String srcDir, String targetDir, List<String> files) {
+        files.forEach { file ->
+            FileUtils.copyFileToDirectory(
+                Paths.get(srcDir, file).toFile(),
+                Paths.get(targetDir).toFile()
+            )
+        }
+    }
 
     static def copyFile(InputStream source, Path dest) {
         def parentDir = dest.getParent().toFile()

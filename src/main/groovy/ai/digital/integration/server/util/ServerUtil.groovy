@@ -152,6 +152,9 @@ class ServerUtil {
                 jvmarg(value: "-Xdebug")
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${server.debugPort}")
             }
+            if (server.outputServerFilename) {
+                output(value: "log/${server.outputServerFilename}")
+            }
         }
     }
 }

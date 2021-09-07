@@ -11,6 +11,18 @@ class WorkerUtil {
         ExtensionUtil.getExtension(project).workers.size() > 0
     }
 
+    static def hasSlimWorkers(Project project) {
+        getWorkers(project).any {worker ->
+            worker.slimDistribution
+        }
+    }
+
+    static def hasNonSlimWorkers(Project project) {
+        getWorkers(project).any {worker ->
+            !worker.slimDistribution
+        }
+    }
+
     static List<Worker> getWorkers(Project project) {
         ExtensionUtil.getExtension(project).workers.collect { Worker worker ->
             enrichWorker(project, worker)
@@ -23,17 +35,18 @@ class WorkerUtil {
         worker
     }
 
-    static def getWorkerWorkingDir(Worker worker, Project project) {
+    static def getWorkerWorkingDir(Project project, Worker worker) {
         if (worker.runtimeDirectory == null) {
             def targetDir = IntegrationServerUtil.getDist(project)
-            Paths.get(targetDir, worker.name, "deploy-task-engine-${worker.version}").toAbsolutePath().toString()
+            String prefix = worker.slimDistribution ? "xl-deploy-worker" : "deploy-task-engine"
+            Paths.get(targetDir, worker.name, "${prefix}-${worker.version}").toAbsolutePath().toString()
         } else {
             def target = project.projectDir.toString()
             Paths.get(target, worker.runtimeDirectory).toAbsolutePath().toString()
         }
     }
 
-    static def isExternalRuntimeWorker(Worker worker, Project project) {
+    static def isExternalRuntimeWorker(Project project, Worker worker) {
         worker.runtimeDirectory != null && !worker.runtimeDirectory.isEmpty() && worker.runtimeDirectory != ServerUtil.getServerWorkingDir(project)
     }
 

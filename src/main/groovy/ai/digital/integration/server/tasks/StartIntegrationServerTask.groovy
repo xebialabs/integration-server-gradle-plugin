@@ -65,14 +65,16 @@ class StartIntegrationServerTask extends DefaultTask {
         Paths.get(ServerUtil.getServerWorkingDir(project), "bin").toFile()
     }
 
-    private void initialize() {
+    private void initialize(Server server) {
         project.logger.lifecycle("Initializing Deploy")
 
         Process process = ProcessUtil.exec([
-                command: "run",
-                params : ["-setup", "-reinitialize", "-force", "-setup-defaults", "-force-upgrades", "conf/deployit.conf"],
-                workDir: getBinDir(),
-                wait   : true
+                command   : "run",
+                discardIO : server.outputInitFilename ? false : true,
+                redirectTo: server.outputInitFilename ? "log/${server.outputInitFilename}" : null,
+                params    : ["-setup", "-reinitialize", "-force", "-setup-defaults", "-force-upgrades", "conf/deployit.conf"],
+                workDir   : getBinDir(),
+                wait      : true
         ])
         project.logger.lifecycle("Initilized Deploy: [${process.pid()}] [${process.info().commandLine().orElse("")}].")
     }
@@ -81,7 +83,8 @@ class StartIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("Launching server")
         Process process = ProcessUtil.exec([
                 command    : "run",
-                discardIO  : true,
+                discardIO  : server.outputServerFilename ? false : true,
+                redirectTo : server.outputServerFilename ? "log/${server.outputServerFilename}" : null,
                 environment: EnvironmentUtil.getServerEnv(server),
                 params     : ["-force-upgrades"],
                 workDir    : getBinDir(),
@@ -98,7 +101,7 @@ class StartIntegrationServerTask extends DefaultTask {
         if (!ServerUtil.isDockerBased(project)) {
             maybeTearDown()
             if (!hasToBeStartedFromClasspath(server)) {
-                initialize()
+                initialize(server)
             }
             if (hasToBeStartedFromClasspath(server)) {
                 ServerUtil.startServerFromClasspath(project)
