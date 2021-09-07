@@ -316,6 +316,7 @@ integrationServer {
             debugSuspend = false
             outputFilename = 'worker.log'
             runtimeDirectory = "/opt/xl-deploy-worker"
+            slimDistribution = false 
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
             port = 8182
         }
@@ -331,6 +332,7 @@ integrationServer {
 |runtimeDirectory|Optional|None|If specified, it will run external worker, from the different folder location than server. It will not try to download released version.|
 |jvmArgs|Optional|None|JVM arguments which are going to be used on a worker startup.|
 |port|Optional|None|Port on which worker will start.|
+|slimDistribution|Optional|true|When true runs worker within cloned xl-deploy directory. If false runs worker from downloaded deploy-task-engine. Default is true. |
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlWorkerVersion`, via parameter or in `gradle.properties` file or explicitly via this field. If not specified, it will take the same version as Server.|
 |logLevels|Optional|[:]|Custom log levels to be included in logback.xml configuration. Expected format is a map, where the key is the package name and value the log level.|
 |overlays|Optional|[:]|[Read about this section below](#overlays)|
