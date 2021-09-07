@@ -86,7 +86,7 @@ class StartIntegrationServerTask extends DefaultTask {
                 params     : ["-force-upgrades"],
                 workDir    : getBinDir(),
         ])
-        project.logger.lifecycle("Launched server with: [${process.pid()}] [${process.info().commandLine().orElse("")}].")
+        project.logger.lifecycle("Launched server on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
         process
     }
 

@@ -39,7 +39,7 @@ class StartPluginManagerTask extends DefaultTask {
                 params     : ["plugin-manager-cli"],
                 workDir    : getBinDir(),
         ])
-        project.logger.lifecycle("Launched Plugin Manager on Deploy server $server.name with: [${process.pid()}] [${process.info().commandLine().orElse("")}].")
+        project.logger.lifecycle("Launched Plugin Manager on Deploy server $server.name on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
     }
 
     @TaskAction

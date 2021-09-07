@@ -24,7 +24,7 @@ class CopyServerDirToWorkerDirTask extends DefaultTask {
 
     @TaskAction
     def copyToWorkers() {
-        WorkerUtil.getWorkers(project).forEach { worker ->
+        WorkerUtil.getWorkers(project).forEach { Worker worker ->
             copyServerDirToWorkerDir(worker)
         }
     }
@@ -32,7 +32,6 @@ class CopyServerDirToWorkerDirTask extends DefaultTask {
     void copyServerDirToWorkerDir(Worker worker) {
 
         if (!WorkerUtil.isExternalRuntimeWorker(worker, project)) {
-
             def sourceDir = ServerUtil.getServerWorkingDir(project)
             def destinationDir = Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project)).toFile()
             destinationDir.setExecutable(true)
@@ -44,24 +43,24 @@ class CopyServerDirToWorkerDirTask extends DefaultTask {
             FileUtils.deleteDirectory(Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), "plugins").toFile())
 
             def dirs = [
-                "hotfix",
-                "plugins",
-                "importablePackages",
+                    "hotfix",
+                    "plugins",
+                    "importablePackages",
             ]
             dirs.forEach { dir ->
                 FileUtils.copyDirectory(
-                    Paths.get(ServerUtil.getServerWorkingDir(project), dir).toFile(),
-                    Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), dir).toFile()
+                        Paths.get(ServerUtil.getServerWorkingDir(project), dir).toFile(),
+                        Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), dir).toFile()
                 )
             }
 
             def confFiles = [
-                "deployit-license.lic"
+                    "deployit-license.lic"
             ]
             confFiles.forEach { confFile ->
                 FileUtils.copyFileToDirectory(
-                    Paths.get(ServerUtil.getServerWorkingDir(project), "conf", confFile).toFile(),
-                    Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), "conf").toFile()
+                        Paths.get(ServerUtil.getServerWorkingDir(project), "conf", confFile).toFile(),
+                        Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), "conf").toFile()
                 )
             }
         }

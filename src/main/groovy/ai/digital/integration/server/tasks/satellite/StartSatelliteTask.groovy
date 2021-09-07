@@ -39,7 +39,7 @@ class StartSatelliteTask extends DefaultTask {
                     ),
                     workDir    : binDir
             ])
-            project.logger.lifecycle("Satellite '${satellite.name}' successfully started: [${process.pid()}] [${process.info().commandLine().orElse("")}].")
+            project.logger.lifecycle("Satellite '${satellite.name}' successfully started on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
             WaitForBootUtil.byLog(project, "Satellite ${satellite.name}", SatelliteUtil.getSatelliteLog(project, satellite), "XL Satellite has started", process)
         }
     }

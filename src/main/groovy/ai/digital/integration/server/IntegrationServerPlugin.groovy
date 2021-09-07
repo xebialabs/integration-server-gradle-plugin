@@ -88,12 +88,12 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
 
         //Workers
-        project.tasks.create(DownloadAndExtractWorkerDistTask.NAME, DownloadAndExtractWorkerDistTask)
         project.tasks.create(CopyServerDirToWorkerDirTask.NAME, CopyServerDirToWorkerDirTask)
+        project.tasks.create(DownloadAndExtractWorkerDistTask.NAME, DownloadAndExtractWorkerDistTask)
         project.tasks.create(SetWorkersLogbackLevelsTask.NAME, SetWorkersLogbackLevelsTask)
-        project.tasks.create(WorkerOverlaysTask.NAME, WorkerOverlaysTask)
         project.tasks.create(ShutdownWorkersTask.NAME, ShutdownWorkersTask)
         project.tasks.create(StartWorkersTask.NAME, StartWorkersTask)
+        project.tasks.create(WorkerOverlaysTask.NAME, WorkerOverlaysTask)
 
         //Tests
         project.tasks.create(IntegrationTestsTask.NAME, IntegrationTestsTask)

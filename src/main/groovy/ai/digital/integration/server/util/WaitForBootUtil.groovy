@@ -7,6 +7,10 @@ import java.util.concurrent.TimeUnit
 
 class WaitForBootUtil {
 
+    static void byPort(Project project, String name, String url, Integer port) {
+        byPort(project, name, url, port, null)
+    }
+
     static void byPort(Project project, String name, String url, Integer port, Process process) {
         project.logger.lifecycle("Waiting for $name to start.")
 

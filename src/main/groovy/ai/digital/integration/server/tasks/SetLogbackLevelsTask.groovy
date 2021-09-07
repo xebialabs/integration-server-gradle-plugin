@@ -2,6 +2,7 @@ package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.util.DbUtil
 import ai.digital.integration.server.util.FileUtil
+import ai.digital.integration.server.util.LogbackConfigs
 import ai.digital.integration.server.util.ServerUtil
 import groovy.xml.QName
 import groovy.xml.XmlUtil
@@ -23,12 +24,7 @@ class SetLogbackLevelsTask extends DefaultTask {
     }
 
     private def getHardCodedLevels() {
-        DbUtil.getDatabase(project).logSql ? [
-                "org.springframework.jdbc.core.JdbcTemplate": "trace",
-                "com.xebialabs.deployit.core.sql.batch"     : "debug",
-                "org.hibernate.sql"                         : "trace",
-                "org.hibernate.type"                        : "all"
-        ] : [:]
+        DbUtil.getDatabase(project).logSql ? LogbackConfigs.toLogSql() : [:]
     }
 
     @TaskAction
