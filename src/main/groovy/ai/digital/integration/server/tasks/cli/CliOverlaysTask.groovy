@@ -20,6 +20,8 @@ class CliOverlaysTask extends DefaultTask {
         this.configure { ->
             group = PLUGIN_GROUP
             mustRunAfter DownloadAndExtractCliDistTask.NAME
+            mustRunAfter CliCleanDefaultExtTask.NAME
+            mustRunAfter CopyCliBuildArtifactsTask.NAME
 
             project.afterEvaluate {
                 CliUtil.getCli(project).overlays.each { Map.Entry<String, List<Object>> overlay ->

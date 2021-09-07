@@ -73,14 +73,6 @@ class ServerUtil {
         Paths.get("${IntegrationServerUtil.getDist(project)}/${relativePath}")
     }
 
-    static def getServerLogFile(Project project, String fileName) {
-        def file = Paths.get("${getServerWorkingDir(project)}/log/${fileName}").toFile()
-        if (!file.exists()) {
-            file.createNewFile()
-        }
-        file
-    }
-
     static def getServerDistFolderPath(Project project) {
         Paths.get(IntegrationServerUtil.getDist(project))
     }
@@ -123,6 +115,11 @@ class ServerUtil {
                 FileUtil.grantRWPermissions(it)
             }
         }
+    }
+
+    static def readDeployitConfProperty(Project project, String key) {
+        def deployitConf = Paths.get("${getServerWorkingDir(project)}/conf/deployit.conf").toFile()
+        PropertiesUtil.readProperty(deployitConf, key)
     }
 
     static def startServerFromClasspath(Project project) {

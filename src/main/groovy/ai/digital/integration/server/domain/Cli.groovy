@@ -1,6 +1,8 @@
 package ai.digital.integration.server.domain
 
 class Cli {
+    Map<String, String> copyBuildArtifacts = new HashMap<>()
+    boolean cleanDefaultExtContent = true
     Integer debugPort
     Boolean debugSuspend = false
     List<File> filesToExecute = List.of()

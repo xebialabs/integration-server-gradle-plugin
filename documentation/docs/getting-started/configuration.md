@@ -8,13 +8,14 @@ sidebar_position: 5
 
 ```groovy title=build.gradle
 integrationServer {
-    clis{}
+    clis {}
     servers {}
     databases {}
     workers {}
     satellites {}
     mqDriverVersions {}
     xldIsDataVersion {}
+    tests {}
 }
 ```
 
@@ -27,13 +28,18 @@ integrationServer {
 |satellites|You can configure as many satellites as you need here.|
 |mqDriverVersions|Points to the version of MQ to use, in case you wish to adapt it to your own version.|
 |xldIsDataVersion|**Only for internal use in Digital.ai** Points to the data which is going to be imported after server is booted. To run waste the time to generate a huge amount of test data.|
+|tests|You can define Jython based test setups|
 
 ## CLIs section
 
 ```groovy title=build.gradle
 integrationServer {
     clis {
-        cli {
+        cli { // The name of the section, you can name it as you with
+            cleanDefaultExtContent = false
+            copyBuildArtifacts = [
+               lib: /(.+)[.](jar)/
+            ]
             debugPort = 4005
             debugSuspend = true
             filesToExecute = [file("src/main/resources/provision.py")]
@@ -54,6 +60,8 @@ integrationServer {
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
+|cleanDefaultExtContent|Optional|true|By default in CLI there are 3 files included in the ext with some helper functions. In integration tests by default we remove it, to not clash with existing scripts.|
+|copyBuildArtifacts|Optional|[:]|Here you can define what would you like to include to integration server from the build process itself. For example you run: `./gradlew build integrationServer` and you create `*.jar` of your plugin which you would like to include to integration server. You have to specify it here. As for overlay it won't work. With overlay to make it work you have to run 2 commands: `./gradlew build` and then `./gradlew startIntegrationServer`. Key is a relative folder name from CLI base, and a value is a pattern to all files located in `build` folder except `integration-server` sub-folder. This one is excluded.|
 |debugPort|Optional|None|Remote Debug Port for Deploy CLI | 
 |debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached.|
 |filesToExecute|Optional|[]|The list of files which will be executed after Deploy Server (workers and satellite if configured) started. You can use it to provision your server with data before running the tests.|
@@ -66,8 +74,11 @@ integrationServer {
 ```groovy title=build.gradle
 integrationServer {
    servers {
-       controlPlane { // Name of server's section
+       controlPlane { // The name of the section, you can name it as you with
            contextRoot = "/custom"
+           copyBuildArtifacts = [
+                "plugins/xld-official": /(.+)[.](xldp)/
+           ]
            debugPort = 4005
            debugSuspend = true
            defaultOfficialPluginsToExclude = ["xld-terraform-plugin-10.1.0", "xld-aws-plugin-10.2.1"]
@@ -119,6 +130,7 @@ integrationServer {
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
+|copyBuildArtifacts|Optional|[:]|Here you can define what would you like to include to integration server from the build process itself. For example you run: `./gradlew build integrationServer` and you create `*.xldp` of your plugin which you would like to include to integration server. You have to specify it here. As for overlay it won't work. With overlay to make it work you have to run 2 commands: `./gradlew build` and then `./gradlew startIntegrationServer`. Key is a relative folder name from Deploy base, and a value is a pattern to all files located in `build` folder except `integration-server` sub-folder. This one is excluded.|
 |contextRoot|Optional|/|The context root for Deploy. **Limitation:** *Doesn't work for docker setup*|
 |debugPort|Optional|None|Remote Debug Port for Deploy Server| 
 |debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached.| 
@@ -235,8 +247,8 @@ yamlPatches = [
 
 ```groovy title=build.gradle
 integrationServer {
-   databases {
-     database01 {
+   databases { 
+     database01 { // The name of the section, you can name it as you with
         derbyPort = 10000
         driverVersions = [
              'mssql'        : '8.4.1.jre8',
@@ -287,14 +299,14 @@ Read more about workers here:
 ```groovy
 integrationServer {
     workers {
-        worker01 { 
+        worker01 {  // The name of the section, you can name it as you with
         }
-        worker02 { 
+        worker02 {  // The name of the section, you can name it as you with
             debugPort = 5006
             debugSuspend = true
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
         }
-        worker03 { 
+        worker03 {  // The name of the section, you can name it as you with
             debugPort = 5007
             debugSuspend = false
             directory = "/opt/xl-deploy-worker"
@@ -333,7 +345,7 @@ You can read more about a satellite here:
 ```groovy
 integrationServer {
     satellites {
-       satellite01 {  // name of the section
+       satellite01 {  // The name of the section, you can name it as you with
             debugPort = 5008
             debugSuspend = true
             overlays = [
@@ -382,3 +394,48 @@ In this sample you can see the default values used in the plugin.
 
 Currently, this is used only internally in Digital.ai to point to a package with imported data. <br/>
 Before server starts, database is going to be populated by the imported data, to save the time during test run.
+
+## Tests section
+
+You can create Jython based tests and communicate with Deploy through CLI.
+
+To run tests you have to run `./gradlew integrationTests`. It is not a part of `startIntegrationServer` intentionally.
+The server start up takes time, especially if also workers and satellites are configured. During development of the tests, you don't want
+to reboot it every time, but rather run tests against the configured instance. 
+
+Therefore first you run the server with `./gradlew clean startIntegrationServer` and the you can run multiple times `./gradlew integrationTests`. 
+
+You can also run both commands in one command as: `./gradlew clean startIntegrationServer integrationTests`.
+
+```groovy
+integrationServer {
+    tests {
+        base {
+            base = true
+            extraClassPath = [file("src/test/resources")]
+            scriptPattern = /\/jython\/ci\/(.+).py$/
+        }
+        testGroupO1 { // The name of the section, you can name it as you with
+            baseDirectory = file("src/test")
+            extraClassPath = [file("src/test/resources/group-01")]
+            scriptPattern = /\/jython\/ci\/group-01\/(.+).py$/
+            setupScripts = ["provision/setup.py", "provision/azure/setup.py"]
+            systemProperties = [
+                    'key1': 'value1',
+                    'key2': 'value2',
+            ]
+            tearDownScripts = ["provision/azure/teardown.py", "provision/teardown.py"]
+        }
+    }
+}
+```
+
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|base|Optional|`false`|If to define `base` test section, it will be not executable, but sharing the same configuration across all executable test sections. If same property is defined in test section itself, it overrides base defined property.|
+|baseDirectory|Mandatory|None|You have to specify here the base directory where your test setup is located.|
+|extraClassPath|Optional|[]|You can point to a folder with your Jython utility scripts which you would like to use in other scripts to eliminate code duplication.|
+|scriptPattern|Optional|/(.+)[.](py &#124; cli)/|The pattern which will filter the tests you want to run. By default it will run all tests which have extension `py` or `cli` and reside inside base directory.|
+|setupScripts|Optional|[]|Provision scripts which will be triggered before running all tests.|
+|systemProperties|Optional|[:]|You can provide system properties inside your tests and then access it like `System.getProperty("key1")`|
+|tearDownScripts|Optional|[]|As the best practice to clean everything created by test(s), these scripts is exactly the place to do it. It will be triggered regardless if test was successful or not.|

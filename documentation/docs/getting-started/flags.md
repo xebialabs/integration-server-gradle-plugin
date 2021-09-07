@@ -30,6 +30,11 @@ Parameters/Flags can be defined in 2 ways:
 |satelliteDebugPort|Any available port|Provides a satellite debug port for remote debugging.|
 |serverDebugPort|Any available port|Provides a server debug port for remote debugging.|
 |serverHttpPort|Any available port|Overrides default server HTTP port|
+|testBaseSubDirectory|String|Example: `-PtestBaseSubDirectory=provision-aws` It points to a subset of tests running in a group of the tests|
+|testName|String|Example: `-PtestName=azure`. If to specify this parameter, only 1 test section will be executed. It can be helpful, if you run in your CI pipeline tests in parallel and define in each the group of tests to run.|
+|testScriptPattern|Pattern|Example: `-PtestScriptPattern=provision-aws/provision_aws.py`|
+|testSetupScripts|String|Example: `-PtestScriptPatterns=root/setup.py,root/gcp/setup.py`|
+|testTeardownScripts|String|Example: `-PtestTeardownScripts=root/teardown.py,root/gcp/teardown.py`|
 
 :::info
 

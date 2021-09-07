@@ -52,4 +52,12 @@ class FileUtil {
             zos.close()
         }
     }
+
+    static List<File> findFiles(String basedir, String pattern) {
+        new FileNameByRegexFinder().getFileNames(basedir, pattern).collect { new File(it) }
+    }
+
+    static List<File> findFiles(String basedir, String pattern, String excludesPattern) {
+        new FileNameByRegexFinder().getFileNames(basedir, pattern, excludesPattern).collect { new File(it) }
+    }
 }
