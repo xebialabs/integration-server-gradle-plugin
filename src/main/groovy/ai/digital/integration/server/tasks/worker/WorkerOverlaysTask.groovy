@@ -20,7 +20,7 @@ class WorkerOverlaysTask extends DefaultTask {
     WorkerOverlaysTask() {
         this.configure { ->
             group = PLUGIN_GROUP
-            mustRunAfter DownloadAndExtractWorkerDistTask.NAME, CopyServerDirToWorkerDirTask.NAME, SetWorkersLogbackLevelsTask.NAME
+            mustRunAfter DownloadAndExtractWorkerDistTask.NAME, SyncServerPluginsWithWorkerTask.NAME, SetWorkersLogbackLevelsTask.NAME
 
             project.afterEvaluate {
                 WorkerUtil.getWorkers(project).each { Worker worker ->
@@ -44,7 +44,7 @@ class WorkerOverlaysTask extends DefaultTask {
                                     copy.into { "${WorkerUtil.getWorkerWorkingDir(worker, project)}/${overlay.key}" }
                                 }
                             })
-                            project.tasks.getByName(task.name).dependsOn "downloadAndExtractWorker${worker.name}", CopyServerDirToWorkerDirTask.NAME, SetWorkersLogbackLevelsTask.NAME
+                            project.tasks.getByName(task.name).dependsOn "downloadAndExtractWorker${worker.name}", SyncServerPluginsWithWorkerTask.NAME, SetWorkersLogbackLevelsTask.NAME
                             this.dependsOn task
                         }
                     }

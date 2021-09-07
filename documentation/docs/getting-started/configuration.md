@@ -300,13 +300,12 @@ Read more about workers here:
 integrationServer {
     workers {
         worker01 {  // The name of the section, you can name it as you with
-            version = "10.2.2"
+            version = "10.2.2" // Optional, if not specified will use same version as Server
         }
         worker02 {  // The name of the section, you can name it as you with
             debugPort = 5006
             debugSuspend = true
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
-            version = "10.2.2"
         }
         worker03 {  // The name of the section, you can name it as you with
             debugPort = 5007
@@ -326,7 +325,7 @@ integrationServer {
 |runtimeDirectory|Optional|None|If specified, it will run external worker, from the different folder location than server. It will not try to download released version.|
 |jvmArgs|Optional|None|JVM arguments which are going to be used on a worker startup.|
 |port|Optional|None|Port on which worker will start.|
-|version|Optional|None|It can be specified in several ways. Or as a gradle property `xlWorkerVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
+|version|Optional|None|It can be specified in several ways. Or as a gradle property `xlWorkerVersion`, via parameter or in `gradle.properties` file or explicitly via this field. If not specified, it will take the same version as Server.|
 |logLevels|Optional|[:]|Custom log levels to be included in logback.xml configuration. Expected format is a map, where the key is the package name and value the log level.|
 |overlays|Optional|[:]|[Read about this section below](#overlays)|
 

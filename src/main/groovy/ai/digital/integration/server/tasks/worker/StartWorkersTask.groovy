@@ -25,7 +25,7 @@ class StartWorkersTask extends DefaultTask {
     StartWorkersTask() {
         def dependencies = [
                 DownloadAndExtractWorkerDistTask.NAME,
-                CopyServerDirToWorkerDirTask.NAME,
+                SyncServerPluginsWithWorkerTask.NAME,
                 SetWorkersLogbackLevelsTask.NAME,
                 WorkerOverlaysTask.NAME,
                 StartMqTask.NAME,

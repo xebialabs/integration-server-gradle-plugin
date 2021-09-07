@@ -12,13 +12,17 @@ import java.nio.file.Paths
 
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
-class CopyServerDirToWorkerDirTask extends DefaultTask {
-    static NAME = "copyServerDirToWorkerDir"
+class SyncServerPluginsWithWorkerTask extends DefaultTask {
+    static NAME = "syncServerPluginsWithWorker"
 
-    CopyServerDirToWorkerDirTask() {
+    def dependencies = [
+            DownloadAndExtractWorkerDistTask.NAME
+    ]
+
+    SyncServerPluginsWithWorkerTask() {
         this.configure { ->
             group = PLUGIN_GROUP
-            mustRunAfter DownloadAndExtractWorkerDistTask.NAME
+            dependsOn(dependencies)
         }
     }
 
@@ -30,7 +34,6 @@ class CopyServerDirToWorkerDirTask extends DefaultTask {
     }
 
     void copyServerDirToWorkerDir(Worker worker) {
-
         if (!WorkerUtil.isExternalRuntimeWorker(worker, project)) {
             def sourceDir = ServerUtil.getServerWorkingDir(project)
             def destinationDir = Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project)).toFile()
@@ -42,22 +45,19 @@ class CopyServerDirToWorkerDirTask extends DefaultTask {
             // delete plugins from zip
             FileUtils.deleteDirectory(Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), "plugins").toFile())
 
-            def dirs = [
+            [
                     "hotfix",
-                    "plugins",
-                    "importablePackages",
-            ]
-            dirs.forEach { dir ->
+                    "plugins"
+            ].forEach { String dir ->
                 FileUtils.copyDirectory(
                         Paths.get(ServerUtil.getServerWorkingDir(project), dir).toFile(),
                         Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), dir).toFile()
                 )
             }
 
-            def confFiles = [
+            [
                     "deployit-license.lic"
-            ]
-            confFiles.forEach { confFile ->
+            ].forEach { confFile ->
                 FileUtils.copyFileToDirectory(
                         Paths.get(ServerUtil.getServerWorkingDir(project), "conf", confFile).toFile(),
                         Paths.get(WorkerUtil.getWorkerWorkingDir(worker, project), "conf").toFile()

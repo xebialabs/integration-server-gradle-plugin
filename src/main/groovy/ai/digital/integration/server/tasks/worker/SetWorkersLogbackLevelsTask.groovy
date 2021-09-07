@@ -18,7 +18,7 @@ class SetWorkersLogbackLevelsTask extends DefaultTask {
     SetWorkersLogbackLevelsTask() {
         this.configure { ->
             group = PLUGIN_GROUP
-            mustRunAfter DownloadAndExtractWorkerDistTask.NAME, CopyServerDirToWorkerDirTask.NAME
+            mustRunAfter DownloadAndExtractWorkerDistTask.NAME, SyncServerPluginsWithWorkerTask.NAME
         }
     }
 

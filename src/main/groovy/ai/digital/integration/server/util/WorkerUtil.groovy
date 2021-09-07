@@ -46,7 +46,17 @@ class WorkerUtil {
     }
 
     private static String getWorkerVersion(Project project, Worker worker) {
-        project.hasProperty("xlWorkerVersion") ? project.property("xlWorkerVersion") : worker.version
+        if (project.hasProperty("xlWorkerVersion")) {
+            project.getProperty("xlWorkerVersion")
+        } else if (worker.version?.trim()) {
+            worker.version
+        } else if (ServerUtil.getServer(project).version) {
+            ServerUtil.getServer(project).version
+        } else {
+            project.logger.error("Worker Version is not specified")
+            System.exit(1)
+            return null
+        }
     }
 
     private static Integer getDebugPort(Project project, Worker worker) {

@@ -22,7 +22,7 @@ import ai.digital.integration.server.tasks.satellite.DownloadAndExtractSatellite
 import ai.digital.integration.server.tasks.satellite.SatelliteOverlaysTask
 import ai.digital.integration.server.tasks.satellite.ShutdownSatelliteTask
 import ai.digital.integration.server.tasks.satellite.StartSatelliteTask
-import ai.digital.integration.server.tasks.worker.CopyServerDirToWorkerDirTask
+import ai.digital.integration.server.tasks.worker.SyncServerPluginsWithWorkerTask
 import ai.digital.integration.server.tasks.worker.DownloadAndExtractWorkerDistTask
 import ai.digital.integration.server.tasks.worker.SetWorkersLogbackLevelsTask
 import ai.digital.integration.server.tasks.worker.ShutdownWorkersTask
@@ -88,7 +88,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
 
         //Workers
-        project.tasks.create(CopyServerDirToWorkerDirTask.NAME, CopyServerDirToWorkerDirTask)
+        project.tasks.create(SyncServerPluginsWithWorkerTask.NAME, SyncServerPluginsWithWorkerTask)
         project.tasks.create(DownloadAndExtractWorkerDistTask.NAME, DownloadAndExtractWorkerDistTask)
         project.tasks.create(SetWorkersLogbackLevelsTask.NAME, SetWorkersLogbackLevelsTask)
         project.tasks.create(ShutdownWorkersTask.NAME, ShutdownWorkersTask)
