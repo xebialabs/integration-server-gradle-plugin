@@ -34,34 +34,33 @@ class SyncServerPluginsWithWorkerTask extends DefaultTask {
     def copyToWorkers() {
         WorkerUtil.getWorkers(project)
             .findAll {worker -> !worker.slimDistribution}
+            .findAll {worker -> !WorkerUtil.isExternalRuntimeWorker(project, worker)}
             .forEach { worker ->
                     copyServerDirToWorkerDir(worker)
             }
     }
 
     void copyServerDirToWorkerDir(Worker worker) {
-        if (!WorkerUtil.isExternalRuntimeWorker(project, worker)) {
-            def sourceDir = ServerUtil.getServerWorkingDir(project)
-            def destinationDir = Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker)).toFile()
-            ProcessUtil.chMod(project, "755", "${Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "bin").toAbsolutePath().toString()}")
+        def sourceDir = ServerUtil.getServerWorkingDir(project)
+        def destinationDir = Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker)).toFile()
+        ProcessUtil.chMod(project, "755", "${Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "bin").toAbsolutePath().toString()}")
 
-            project.logger.lifecycle("Copy plugins from directory ${sourceDir} to Worker ${worker.name} in directory ${destinationDir}")
+        project.logger.lifecycle("Copy plugins from directory ${sourceDir} to Worker ${worker.name} in directory ${destinationDir}")
 
-            // delete plugins from zip
-            FileUtils.deleteDirectory(Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "plugins").toFile())
+        // delete plugins from zip
+        FileUtils.deleteDirectory(Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "plugins").toFile())
 
-            FileUtil.copyDirs(ServerUtil.getServerWorkingDir(project), WorkerUtil.getWorkerWorkingDir(project, worker), [
-                "hotfix",
-                "plugins"
-            ])
+        FileUtil.copyDirs(ServerUtil.getServerWorkingDir(project), WorkerUtil.getWorkerWorkingDir(project, worker), [
+            "hotfix",
+            "plugins"
+        ])
 
-            FileUtil.copyFiles(
-                Paths.get(ServerUtil.getServerWorkingDir(project), "conf").toAbsolutePath().toString(),
-                Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "conf").toAbsolutePath().toString(),
-                [
-                    "deployit-license.lic"
-                ]
-            )
-        }
+        FileUtil.copyFiles(
+            Paths.get(ServerUtil.getServerWorkingDir(project), "conf").toAbsolutePath().toString(),
+            Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "conf").toAbsolutePath().toString(),
+            [
+                "deployit-license.lic"
+            ]
+        )
     }
 }

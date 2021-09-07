@@ -122,6 +122,10 @@ class ServerUtil {
         PropertiesUtil.readProperty(deployitConf, key)
     }
 
+    static def getLogDir(Project project) {
+        Paths.get(getServerWorkingDir(project), "log").toFile()
+    }
+
     static def startServerFromClasspath(Project project) {
         project.logger.lifecycle("startServerFromClasspath.")
         Server server = getServer(project)
@@ -153,7 +157,7 @@ class ServerUtil {
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${server.debugPort}")
             }
             if (server.outputServerFilename) {
-                output(value: "log/${server.outputServerFilename}")
+                output(value: "${getLogDir(project)}/${server.outputServerFilename}")
             }
         }
     }

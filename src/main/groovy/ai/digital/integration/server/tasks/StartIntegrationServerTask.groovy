@@ -71,8 +71,8 @@ class StartIntegrationServerTask extends DefaultTask {
         Process process = ProcessUtil.exec([
                 command   : "run",
                 discardIO : server.outputInitFilename ? false : true,
-                redirectTo: server.outputInitFilename ? "log/${server.outputInitFilename}" : null,
-                params    : ["-setup", "-reinitialize", "-force", "-setup-defaults", "-force-upgrades", "conf/deployit.conf"],
+                redirectTo: server.outputInitFilename ? "${ServerUtil.getLogDir(project)}/${server.outputInitFilename}" : null,
+                params    : ["-setup", "-reinitialize", "-force", "-force-upgrades"],
                 workDir   : getBinDir(),
                 wait      : true
         ])
@@ -84,7 +84,7 @@ class StartIntegrationServerTask extends DefaultTask {
         Process process = ProcessUtil.exec([
                 command    : "run",
                 discardIO  : server.outputServerFilename ? false : true,
-                redirectTo : server.outputServerFilename ? "log/${server.outputServerFilename}" : null,
+                redirectTo : server.outputServerFilename ? "${ServerUtil.getLogDir(project)}/${server.outputServerFilename}" : null,
                 environment: EnvironmentUtil.getServerEnv(server),
                 params     : ["-force-upgrades"],
                 workDir    : getBinDir(),

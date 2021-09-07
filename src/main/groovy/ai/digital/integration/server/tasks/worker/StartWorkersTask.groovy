@@ -53,6 +53,10 @@ class StartWorkersTask extends DefaultTask {
         Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "bin").toFile()
     }
 
+    private def getLogDir(Worker worker) {
+        Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "log").toFile()
+    }
+
     private static def logFileName(String workerName) {
         "deploy-worker-${workerName}"
     }
@@ -61,25 +65,31 @@ class StartWorkersTask extends DefaultTask {
         project.logger.lifecycle("Launching worker $worker.name")
         def server = ServerUtil.getServer(project)
 
+        def params = [
+            "-master",
+            "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
+            "-api",
+            "http://localhost:${server.httpPort}".toString(),
+            "-name",
+            worker.name,
+            "-port",
+            worker.port.toString()
+        ]
+
+        if (worker.slimDistribution) {
+            params = [ "worker" ] + params
+        }
+
         Process process = ProcessUtil.exec([
                 command    : "run",
-                params     : [
-                        "-master",
-                        "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
-                        "-api",
-                        "http://localhost:${server.httpPort}".toString(),
-                        "-name",
-                        worker.name,
-                        "-port",
-                        worker.port.toString()
-                ],
+                params     : params,
                 environment: EnvironmentUtil.getEnv("DEPLOYIT_SERVER_OPTS",
                         worker.debugSuspend,
                         worker.debugPort,
                         logFileName(worker.name)),
                 workDir    : getBinDir(worker),
                 discardIO  : worker.outputFilename ? false : true,
-                redirectTo : worker.outputFilename ? "log/${worker.outputFilename}" : null,
+                redirectTo : worker.outputFilename ? "${getLogDir(worker)}/${worker.outputFilename}" : null,
         ])
 
         project.logger.lifecycle("Worker '${worker.name}' successfully started: [${process.pid()}] [${process.info().commandLine().orElse("")}].")
@@ -117,6 +127,9 @@ class StartWorkersTask extends DefaultTask {
                 jvmarg(value: it)
             }
             jvmarg(value: "-DLOGFILE=${logFileName(worker.name)}")
+            if (worker.slimDistribution) {
+                arg(value: "worker")
+            }
             arg(value: "-master")
             arg(value: "${hostName}:${port}")
             arg(value: "-api")
@@ -137,7 +150,7 @@ class StartWorkersTask extends DefaultTask {
             }
 
             if (worker.outputFilename) {
-                output(value: "log/${worker.outputServerFilename}")
+                output(value: "${getLogDir(worker)}/${worker.outputFilename}")
             }
         }
         waitForBoot(worker, null)

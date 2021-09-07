@@ -34,7 +34,7 @@ class CopyIntegrationServerTask extends DefaultTask {
     def copyServer() {
         WorkerUtil.getWorkers(project)
             .findAll {worker -> worker.slimDistribution }
-            .findAll {worker -> WorkerUtil.isExternalRuntimeWorker(project, worker) }
+            .findAll {worker -> !WorkerUtil.isExternalRuntimeWorker(project, worker) }
             .forEach { worker -> copyServerDirToWorkerDir(worker) }
     }
 
@@ -45,6 +45,6 @@ class CopyIntegrationServerTask extends DefaultTask {
         FileUtils.copyDirectory(sourceDir, destinationDir)
         ProcessUtil.chMod(project, "755", Paths.get(destinationDir.getAbsolutePath(), "bin").toString())
         // delete log dir
-        FileUtils.deleteDirectory(Paths.get(destinationDir.getAbsolutePath(), "log").toFile())
+        FileUtils.cleanDirectory(Paths.get(destinationDir.getAbsolutePath(), "log").toFile())
     }
 }
