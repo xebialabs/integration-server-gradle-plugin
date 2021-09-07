@@ -10,7 +10,7 @@ class YamlFileUtilTest {
 
     @Test
     void resourceOverrideTest() {
-        URL resource = YamlFileUtilTest.class.classLoader.getResource("deploy-server-test.yaml")
+        URL resource = YamlFileUtilTest.class.classLoader.getResource("centralConfiguration/deploy-server.yaml")
         File destinationFile = File.createTempFile("deploy-server", "updated")
         destinationFile.deleteOnExit()
 
