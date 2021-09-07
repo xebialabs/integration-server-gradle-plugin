@@ -134,14 +134,18 @@ class ServerUtil {
         project.logger.lifecycle("Launching Deploy Server from classpath ${classpath}.")
         project.logger.lifecycle("Starting integration test server on port ${server.httpPort} from runtime dir ${server.runtimeDirectory}")
 
-        def params = [fork: true, dir: server.runtimeDirectory, spawn: true, classname: "com.xebialabs.deployit.DeployitBootstrapper"]
+        def params = [
+            fork: true,
+            dir: server.runtimeDirectory,
+            spawn: server.outputServerFilename == null,
+            classname: "com.xebialabs.deployit.DeployitBootstrapper"
+        ]
         String jvmPath = project.properties['integrationServerJVMPath']
         if (jvmPath) {
             jvmPath = jvmPath + '/bin/java'
             params['jvm'] = jvmPath
             project.logger.lifecycle("Using JVM from location: ${jvmPath}")
         }
-
 
         project.ant.java(params) {
             arg(value: '-force-upgrades')
@@ -151,13 +155,16 @@ class ServerUtil {
 
             env(key: "CLASSPATH", value: classpath)
 
+            if (server.outputServerFilename) {
+                redirector(
+                    output: "${getLogDir(project)}/${server.outputServerFilename}"
+                )
+            }
+
             if (server.debugPort != null) {
                 project.logger.lifecycle("Enabled debug mode on port ${server.debugPort}")
                 jvmarg(value: "-Xdebug")
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${server.debugPort}")
-            }
-            if (server.outputServerFilename) {
-                output(value: "${getLogDir(project)}/${server.outputServerFilename}")
             }
         }
     }

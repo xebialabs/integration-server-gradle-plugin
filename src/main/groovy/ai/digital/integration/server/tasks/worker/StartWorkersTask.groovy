@@ -109,7 +109,7 @@ class StartWorkersTask extends DefaultTask {
                 classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper",
                 dir      : WorkerUtil.getWorkerWorkingDir(project, worker),
                 fork     : true,
-                spawn    : true
+                spawn    : worker.outputFilename == null
         ]
 
         String jvmPath = project.properties['integrationServerJVMPath']
@@ -122,14 +122,14 @@ class StartWorkersTask extends DefaultTask {
         def port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
         def hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
 
+        def logDir = "${getLogDir(worker)}/${worker.outputFilename}"
+
         ant.java(params) {
             worker.jvmArgs.each {
                 jvmarg(value: it)
             }
             jvmarg(value: "-DLOGFILE=${logFileName(worker.name)}")
-            if (worker.slimDistribution) {
-                arg(value: "worker")
-            }
+
             arg(value: "-master")
             arg(value: "${hostName}:${port}")
             arg(value: "-api")
@@ -143,14 +143,16 @@ class StartWorkersTask extends DefaultTask {
 
             env(key: "CLASSPATH", value: classpath)
 
+            if (worker.outputFilename) {
+                redirector(
+                    output: logDir
+                )
+            }
+
             if (worker.debugPort != null) {
                 project.logger.lifecycle("Enabled debug mode on port ${worker.debugPort}")
                 jvmarg(value: "-Xdebug")
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${worker.debugPort}")
-            }
-
-            if (worker.outputFilename) {
-                output(value: "${getLogDir(worker)}/${worker.outputFilename}")
             }
         }
         waitForBoot(worker, null)
@@ -160,7 +162,7 @@ class StartWorkersTask extends DefaultTask {
     void launch() {
         def workers = ExtensionUtil.getExtension(project).workers
         workers.each { Worker worker ->
-            if (WorkerUtil.hasRuntimeDirectory(worker)) {
+            if (WorkerUtil.hasRuntimeDirectory(project, worker)) {
                 startWorkerFromClasspath(worker)
             } else {
                 startWorker(worker)

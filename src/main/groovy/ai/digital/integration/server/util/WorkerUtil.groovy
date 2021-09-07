@@ -36,38 +36,44 @@ class WorkerUtil {
     }
 
     static def getWorkerWorkingDir(Project project, Worker worker) {
-        if (worker.runtimeDirectory == null) {
+        if (getRuntimeDirectory(project, worker) == null) {
             def targetDir = IntegrationServerUtil.getDist(project)
             String prefix = worker.slimDistribution ? "xl-deploy-worker" : "deploy-task-engine"
             Paths.get(targetDir, worker.name, "${prefix}-${worker.version}").toAbsolutePath().toString()
         } else {
             def target = project.projectDir.toString()
-            Paths.get(target, worker.runtimeDirectory).toAbsolutePath().toString()
+            Paths.get(target, getRuntimeDirectory(project, worker)).toAbsolutePath().toString()
         }
     }
 
     static def isExternalRuntimeWorker(Project project, Worker worker) {
-        worker.runtimeDirectory != null && !worker.runtimeDirectory.isEmpty() && worker.runtimeDirectory != ServerUtil.getServerWorkingDir(project)
+        getRuntimeDirectory(project, worker) != null && !getRuntimeDirectory(project, worker).isEmpty() && getRuntimeDirectory(project, worker) != ServerUtil.getServerWorkingDir(project)
     }
 
-    static def isDistDownloadRequired(Worker worker) {
-        worker.runtimeDirectory == null
+    static def isDistDownloadRequired(Project project, Worker worker) {
+        getRuntimeDirectory(project, worker) == null
     }
 
-    static def hasRuntimeDirectory(Worker worker) {
-        worker.runtimeDirectory != null
+    static def hasRuntimeDirectory(Project project, Worker worker) {
+        getRuntimeDirectory(project, worker) != null
+    }
+
+    static def getRuntimeDirectory(Project project, Worker worker) {
+        worker.runtimeDirectory ? worker.runtimeDirectory : ServerUtil.getServer(project).runtimeDirectory
     }
 
     private static String getWorkerVersion(Project project, Worker worker) {
         if (project.hasProperty("xlWorkerVersion")) {
-            project.getProperty("xlWorkerVersion")
+            return project.getProperty("xlWorkerVersion")
         } else if (worker.version?.trim()) {
-            worker.version
+            return worker.version
         } else if (ServerUtil.getServer(project).version) {
-            ServerUtil.getServer(project).version
-        } else {
+            return ServerUtil.getServer(project).version
+        } else if (!hasRuntimeDirectory(project, worker)) {
             project.logger.error("Worker Version is not specified")
             System.exit(1)
+            return null
+        } else {
             return null
         }
     }

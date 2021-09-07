@@ -23,7 +23,7 @@ class DownloadAndExtractWorkerDistTask extends Copy {
                 .findAll {worker -> !worker.slimDistribution}
                 .each { Worker worker ->
 
-                    if (WorkerUtil.isDistDownloadRequired(worker)) {
+                    if (WorkerUtil.isDistDownloadRequired(project, worker)) {
                         project.buildscript.dependencies.add(
                             WORKER_DIST,
                             "ai.digital.deploy.task-engine:deploy-task-engine:${worker.version}@zip"
