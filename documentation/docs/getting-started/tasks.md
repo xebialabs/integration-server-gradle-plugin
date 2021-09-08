@@ -42,9 +42,9 @@ by specifying `-x *taskName*`.
 |runDatasetGeneration|The url `"http://localhost:${server.httpPort}/deployit/generate/${dataset}"` is going to be hit. This URL point is not available in Deploy by default. How you can develop it, is going to be described soon in a blog.|
 |runDevOpsAsCode|[Read about it here](./configuration.md#dev-ops-as-code)|
 |runProvisionScript|Starts the server and runs the provision script. You might need it if you would like to provision the test server prior to running tests.|
+|satelliteOverlays|Overlays the files for the Satellite.|
 |setLogbackLevels|Modifies the `logback.xml` by amending the levels of logs for specified packages.|
 |setWorkerLogbackLevels|Modifies the `logback.xml` by amending the levels of logs for specified packages.|
-|satelliteOverlays|Overlays the files for the Satellite.|
 |shutdownMq|Shut downs docker image with MQ| 
 |shutdownIntegrationServer|Shutdown a integration server and all dependencies: workers, mq, satellite, etc.|
 |shutdownSatellite|Shutdown a satellite.|

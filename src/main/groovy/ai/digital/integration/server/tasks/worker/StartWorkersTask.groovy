@@ -3,14 +3,7 @@ package ai.digital.integration.server.tasks.worker
 import ai.digital.integration.server.domain.Worker
 import ai.digital.integration.server.tasks.YamlPatchTask
 import ai.digital.integration.server.tasks.mq.StartMqTask
-import ai.digital.integration.server.util.CentralConfigurationUtil
-import ai.digital.integration.server.util.ConfigurationsUtil
-import ai.digital.integration.server.util.EnvironmentUtil
-import ai.digital.integration.server.util.ExtensionUtil
-import ai.digital.integration.server.util.ProcessUtil
-import ai.digital.integration.server.util.ServerUtil
-import ai.digital.integration.server.util.WaitForBootUtil
-import ai.digital.integration.server.util.WorkerUtil
+import ai.digital.integration.server.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -66,18 +59,18 @@ class StartWorkersTask extends DefaultTask {
         def server = ServerUtil.getServer(project)
 
         def params = [
-            "-master",
-            "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
-            "-api",
-            "http://localhost:${server.httpPort}".toString(),
-            "-name",
-            worker.name,
-            "-port",
-            worker.port.toString()
+                "-master",
+                "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
+                "-api",
+                "http://localhost:${server.httpPort}".toString(),
+                "-name",
+                worker.name,
+                "-port",
+                worker.port.toString()
         ]
 
         if (worker.slimDistribution) {
-            params = [ "worker" ] + params
+            params = ["worker"] + params
         }
 
         Process process = ProcessUtil.exec([
@@ -88,11 +81,11 @@ class StartWorkersTask extends DefaultTask {
                         worker.debugPort,
                         logFileName(worker.name)),
                 workDir    : getBinDir(worker),
-                discardIO  : worker.outputFilename ? false : true,
-                redirectTo : worker.outputFilename ? "${getLogDir(worker)}/${worker.outputFilename}" : null,
+                discardIO  : worker.stdoutFileNameForWorkerRuntime ? false : true,
+                redirectTo : worker.stdoutFileNameForWorkerRuntime ? "${getLogDir(worker)}/${worker.stdoutFileNameForWorkerRuntime}" : null,
         ])
 
-        project.logger.lifecycle("Worker '${worker.name}' successfully started: [${process.pid()}] [${process.info().commandLine().orElse("")}].")
+        project.logger.lifecycle("Worker '${worker.name}' successfully started on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
 
         waitForBoot(worker, process)
     }
@@ -109,7 +102,7 @@ class StartWorkersTask extends DefaultTask {
                 classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper",
                 dir      : WorkerUtil.getWorkerWorkingDir(project, worker),
                 fork     : true,
-                spawn    : worker.outputFilename == null
+                spawn    : worker.stdoutFileNameForWorkerRuntime == null
         ]
 
         String jvmPath = project.properties['integrationServerJVMPath']
@@ -122,7 +115,7 @@ class StartWorkersTask extends DefaultTask {
         def port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
         def hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
 
-        def logDir = "${getLogDir(worker)}/${worker.outputFilename}"
+        def logDir = "${getLogDir(worker)}/${worker.stdoutFileNameForWorkerRuntime}"
 
         ant.java(params) {
             worker.jvmArgs.each {
@@ -143,9 +136,9 @@ class StartWorkersTask extends DefaultTask {
 
             env(key: "CLASSPATH", value: classpath)
 
-            if (worker.outputFilename) {
+            if (worker.stdoutFileNameForWorkerRuntime) {
                 redirector(
-                    output: logDir
+                        output: logDir
                 )
             }
 

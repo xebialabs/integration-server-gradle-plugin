@@ -16,11 +16,11 @@ class SetWorkersLogbackLevelsTask extends DefaultTask {
         this.configure { ->
 
             def slimMustRunAfter = WorkerUtil.hasSlimWorkers(project) ? [
-                CopyIntegrationServerTask.NAME
+                    CopyIntegrationServerTask.NAME
             ] : []
 
             def nonSlimMustRunAfter = WorkerUtil.hasNonSlimWorkers(project) ? [
-                DownloadAndExtractWorkerDistTask.NAME, SyncServerPluginsWithWorkerTask.NAME
+                    DownloadAndExtractWorkerDistTask.NAME, SyncServerPluginsWithWorkerTask.NAME
             ] : []
 
             group = PLUGIN_GROUP
@@ -40,12 +40,10 @@ class SetWorkersLogbackLevelsTask extends DefaultTask {
 
     def setWorkerLevels(Worker worker) {
         if (DbUtil.getDatabase(project).logSql || !worker.logLevels.isEmpty()) {
-
             if (!worker.logLevels.isEmpty() && !WorkerUtil.isExternalRuntimeWorker(project, worker)) {
                 logger.warn("Log levels settings on the worker ${worker.name} are ignored because worker's runtime directory is same to the master.")
             } else {
                 project.logger.lifecycle("Setting logback level on worker ${worker.name}.")
-
                 LogbackUtil.setLogLevels(project, WorkerUtil.getWorkerWorkingDir(project, worker), worker.logLevels)
             }
         }

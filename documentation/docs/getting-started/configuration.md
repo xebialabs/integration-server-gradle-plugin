@@ -99,8 +99,6 @@ integrationServer {
            generateDatasets = []
            jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
            logLevels = ["com.xebialabs.deployit.plugin.stitch": "debug"]
-           outputInitFilename = 'server-init.log'
-           outputServerFilename = 'server-run.log' 
            overlays = [
                'build/artifacts': ["${ciExplorerDataDependency}:artifacts@zip"],
                conf             : [
@@ -118,6 +116,8 @@ integrationServer {
            pingTotalTries = 120
            removeStdoutConfig = true
            runtimeDirectory = "server-runtime"
+           stdoutFileNameForServerInit = 'deploy-server-init.log'
+           stdoutFileNameForServerRuntime = 'deploy-server-runtime.log'
            version = '10.2.2'
            yamlPatches = [
                'centralConfiguration/deploy-server.yaml': [
@@ -314,9 +314,9 @@ integrationServer {
         worker03 {  // The name of the section, you can name it as you with
             debugPort = 5007
             debugSuspend = false
-            outputFilename = 'worker.log'
             runtimeDirectory = "/opt/xl-deploy-worker"
             slimDistribution = false 
+            stdoutFileNameForWorkerRuntime = 'worker.log'
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
             port = 8182
         }
@@ -328,14 +328,14 @@ integrationServer {
 | :---: | :---: | :---: | :---: |
 |debugPort|Optional|None|Remote Debug Port for a worker.|
 |debugSuspend|Optional|None|Suspend the start of the process before the remoting tool is attached.|
-|outputFilename|Optional|None|The filename that stores standard output and error for worker runtime. If not present output is discarded. Note: it should be used only for debugging purposes: if used with class loaded runtime (runtimeDirectory) it will block execution after startup because, for that case, limitations in process spawning |
-|runtimeDirectory|Optional|None|If specified, it will run external worker, from the different folder location than server. It will not try to download released version.|
 |jvmArgs|Optional|None|JVM arguments which are going to be used on a worker startup.|
-|port|Optional|None|Port on which worker will start.|
-|slimDistribution|Optional|true|When true runs worker within cloned xl-deploy directory. If false runs worker from downloaded deploy-task-engine. Default is true. |
-|version|Optional|None|It can be specified in several ways. Or as a gradle property `xlWorkerVersion`, via parameter or in `gradle.properties` file or explicitly via this field. If not specified, it will take the same version as Server.|
 |logLevels|Optional|[:]|Custom log levels to be included in logback.xml configuration. Expected format is a map, where the key is the package name and value the log level.|
 |overlays|Optional|[:]|[Read about this section below](#overlays)|
+|port|Optional|None|Port on which worker will start.|
+|runtimeDirectory|Optional|None|If specified, it will run external worker, from the different folder location than server. It will not try to download released version.|
+|slimDistribution|Optional|true|When true runs worker within cloned xl-deploy directory. If false runs worker from downloaded deploy-task-engine. Default is true. |
+|stdoutFileNameForWorkerRuntime|Optional|None|The filename that stores standard output and error for worker runtime. If not present output is discarded. Note: it should be used only for debugging purposes: if used with class loaded runtime (runtimeDirectory) it will block execution after startup because, for that case, limitations in process spawning |
+|version|Optional|None|It can be specified in several ways. Or as a gradle property `xlWorkerVersion`, via parameter or in `gradle.properties` file or explicitly via this field. If not specified, it will take the same version as Server.|
 
 :::caution
 
