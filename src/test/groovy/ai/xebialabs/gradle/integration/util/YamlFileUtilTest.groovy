@@ -3,6 +3,8 @@ package ai.xebialabs.gradle.integration.util
 import ai.digital.integration.server.util.YamlFileUtil
 import org.junit.jupiter.api.Test
 
+import java.nio.charset.StandardCharsets
+
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 
@@ -10,11 +12,13 @@ class YamlFileUtilTest {
 
     @Test
     void resourceOverrideTest() {
-        URL resource = YamlFileUtilTest.class.classLoader.getResource("centralConfiguration/deploy-server.yaml")
+        File deployServerYaml = new File(URLDecoder.decode(YamlFileUtilTest.class.classLoader.getResource(
+                "centralConfiguration/deploy-server.yaml").getFile(), StandardCharsets.UTF_8))
+
         File destinationFile = File.createTempFile("deploy-server", "updated")
         destinationFile.deleteOnExit()
 
-        YamlFileUtil.overlayResource(resource,
+        YamlFileUtil.overlayResource(deployServerYaml.toURI().toURL(),
                 ["deploy.server.port": 15000], destinationFile)
 
         assertEquals(15000, YamlFileUtil.readFileKey(destinationFile, "deploy.server.port"))
