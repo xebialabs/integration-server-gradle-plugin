@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-import java.nio.file.Paths
 
 import static org.junit.jupiter.api.Assertions.assertFalse
 import static org.junit.jupiter.api.Assertions.assertTrue
@@ -18,18 +18,22 @@ class FileUtilTest {
 
     @Test
     void copyFileTest() {
-        File sourceFile = new File(FileUtilTest.class.classLoader.getResource("centralConfiguration/deploy-server.yaml").getFile())
-        String destPath = new File("build/resources/test/copyTest").getAbsolutePath()
+        File sourceFile = new File(URLDecoder.decode(FileUtilTest.class.classLoader.getResource("centralConfiguration/deploy-server.yaml").getFile(),
+                StandardCharsets.UTF_8))
+        File destPath = new File("build/resources/test/copyTest")
 
-        logger.info("Source file path is: ${sourceFile.getAbsolutePath()}")
-        logger.info("Destination file path is: $destPath")
-        new File(destPath).mkdirs()
+        try {
+            logger.info("Source file path is: ${sourceFile.getAbsolutePath()}")
+            logger.info("Destination file path is: ${destPath.getAbsolutePath()}")
 
-        FileUtil.copyFile(new FileInputStream(sourceFile), Paths.get(destPath + "/deploy-server-copied.yaml"))
-        File destFile = new File(destPath + "/deploy-server-copied.yaml")
-        assertTrue(destFile.exists())
-        assertTrue(FileUtils.contentEquals(sourceFile, destFile));
-        new File(destPath).deleteDir()
+            File destFile = new File(destPath, "deploy-server-copied.yaml")
+            FileUtil.copyFile(new FileInputStream(sourceFile), destFile.toPath())
+            assertTrue(destFile.exists())
+            assertTrue(FileUtils.contentEquals(sourceFile, destFile))
+        } finally {
+            sourceFile.delete()
+            destPath.deleteDir()
+        }
     }
 
     @Test
