@@ -31,7 +31,6 @@ class FileUtilTest {
             assertTrue(destFile.exists())
             assertTrue(FileUtils.contentEquals(sourceFile, destFile))
         } finally {
-            sourceFile.delete()
             destPath.deleteDir()
         }
     }

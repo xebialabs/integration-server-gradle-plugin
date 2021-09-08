@@ -13,7 +13,8 @@ class YamlFileUtilTest {
     @Test
     void resourceOverrideTest() {
         File deployServerYaml = new File(URLDecoder.decode(YamlFileUtilTest.class.classLoader.getResource(
-                "centralConfiguration/deploy-server.yaml").getFile(), StandardCharsets.UTF_8))
+                "centralConfiguration/deploy-server.yaml").getFile(),
+                StandardCharsets.UTF_8))
 
         File destinationFile = File.createTempFile("deploy-server", "updated")
         destinationFile.deleteOnExit()
