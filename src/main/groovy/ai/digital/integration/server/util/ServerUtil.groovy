@@ -33,7 +33,11 @@ class ServerUtil {
     }
 
     private static Integer getDebugPort(Project project, Server server) {
-        project.hasProperty("serverDebugPort") ? Integer.valueOf(project.property("serverDebugPort").toString()) : server.debugPort
+        if (PropertyUtil.resolveBooleanValue(project, "debug", true)) {
+            PropertyUtil.resolveIntValue(project, "serverDebugPort", server.debugPort)
+        } else {
+            null
+        }
     }
 
     private static def dockerServerRelativePath() {
@@ -126,6 +130,11 @@ class ServerUtil {
         Paths.get(getServerWorkingDir(project), "log").toFile()
     }
 
+    static def createDebugString(Boolean debugSuspend, Integer debugPort) {
+        def suspend = debugSuspend ? 'y' : 'n'
+        "-Xrunjdwp:transport=dt_socket,server=y,suspend=${suspend},address=${debugPort}"
+    }
+
     static def startServerFromClasspath(Project project) {
         project.logger.lifecycle("startServerFromClasspath.")
         Server server = getServer(project)
@@ -164,7 +173,7 @@ class ServerUtil {
             if (server.debugPort != null) {
                 project.logger.lifecycle("Enabled debug mode on port ${server.debugPort}")
                 jvmarg(value: "-Xdebug")
-                jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=${server.debugSuspend},address=${server.debugPort}")
+                jvmarg(value: createDebugString(server.debugSuspend, server.debugPort))
             }
         }
     }

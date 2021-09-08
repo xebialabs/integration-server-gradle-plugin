@@ -25,6 +25,7 @@ Parameters/Flags can be defined in 2 ways:
 |Flag name|Options|Description|
 | :---: | :---: | :---: |
 |database|`derby`<br/> `derby-inmemory`<br/> `derby-network`<br/> `mssql`<br/> `mysql`<br/> `mysql-8`<br/> `oracle-19c-se`<br/> `postgres-10`<br/> `postgres-12`|Type of database. [More details](#database-flag)|
+|debug|Boolean|Enables or disables starting processes in debug mode. It overrides any debug setting in configuration. If not set debugging is enabled.|
 |derbyPort|Any available port|Provides a Derby port if Derby database is used|
 |logSql|true/false|Enables printing of SQL queries executed on the server|
 |satelliteDebugPort|Any available port|Provides a satellite debug port for remote debugging.|

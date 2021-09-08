@@ -79,6 +79,10 @@ class WorkerUtil {
     }
 
     private static Integer getDebugPort(Project project, Worker worker) {
-        project.hasProperty("workerDebugPort") ? Integer.valueOf(project.property("workerDebugPort").toString()) : worker.debugPort
+        if (PropertyUtil.resolveBooleanValue(project, "debug", true)) {
+            PropertyUtil.resolveIntValue(project, "workerDebugPort", worker.debugPort)
+        } else {
+            null
+        }
     }
 }

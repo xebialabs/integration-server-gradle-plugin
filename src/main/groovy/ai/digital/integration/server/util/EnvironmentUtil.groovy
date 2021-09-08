@@ -22,9 +22,8 @@ class EnvironmentUtil {
     static def getEnv(String variableName, Boolean debugSuspend, Integer debugPort, String logFileName, Map<String, String> extraProps) {
         def opts = logFileName ?
                 "-Xmx1024m -DLOGFILE=$logFileName" : "-Xmx1024m"
-        def suspend = debugSuspend ? 'y' : 'n'
         if (debugPort != null) {
-            opts = "${opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=${debugPort} "
+            opts = "${opts} ${ServerUtil.createDebugString(debugSuspend, debugPort)} "
         }
         opts += extraProps
                 .findAll { it -> it.value != null }
