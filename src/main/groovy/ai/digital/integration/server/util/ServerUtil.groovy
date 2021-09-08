@@ -77,10 +77,10 @@ class ServerUtil {
         Paths.get(IntegrationServerUtil.getDist(project))
     }
 
-    static def waitForBoot(Project project) {
+    static def waitForBoot(Project project, Process process) {
         def server = getServer(project)
         def url = "http://localhost:${server.httpPort}${server.contextRoot}/deployit/metadata/type"
-        WaitForBootUtil.byPort(project, "Deploy", url, server.httpPort)
+        WaitForBootUtil.byPort(project, "Deploy", url, server.httpPort, process)
     }
 
     static def getDockerImageVersion(Project project) {
@@ -122,6 +122,10 @@ class ServerUtil {
         PropertiesUtil.readProperty(deployitConf, key)
     }
 
+    static def getLogDir(Project project) {
+        Paths.get(getServerWorkingDir(project), "log").toFile()
+    }
+
     static def startServerFromClasspath(Project project) {
         project.logger.lifecycle("startServerFromClasspath.")
         Server server = getServer(project)
@@ -130,14 +134,18 @@ class ServerUtil {
         project.logger.lifecycle("Launching Deploy Server from classpath ${classpath}.")
         project.logger.lifecycle("Starting integration test server on port ${server.httpPort} from runtime dir ${server.runtimeDirectory}")
 
-        def params = [fork: true, dir: server.runtimeDirectory, spawn: true, classname: "com.xebialabs.deployit.DeployitBootstrapper"]
+        def params = [
+            fork: true,
+            dir: server.runtimeDirectory,
+            spawn: server.stdoutFileNameForServerRuntime == null,
+            classname: "com.xebialabs.deployit.DeployitBootstrapper"
+        ]
         String jvmPath = project.properties['integrationServerJVMPath']
         if (jvmPath) {
             jvmPath = jvmPath + '/bin/java'
             params['jvm'] = jvmPath
             project.logger.lifecycle("Using JVM from location: ${jvmPath}")
         }
-
 
         project.ant.java(params) {
             arg(value: '-force-upgrades')
@@ -146,6 +154,12 @@ class ServerUtil {
             }
 
             env(key: "CLASSPATH", value: classpath)
+
+            if (server.stdoutFileNameForServerRuntime) {
+                redirector(
+                    output: "${getLogDir(project)}/${server.stdoutFileNameForServerRuntime}"
+                )
+            }
 
             if (server.debugPort != null) {
                 project.logger.lifecycle("Enabled debug mode on port ${server.debugPort}")

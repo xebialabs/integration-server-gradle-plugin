@@ -20,6 +20,8 @@ class Server {
     Integer pingRetrySleepTime = 10
     Integer pingTotalTries = 60
     String runtimeDirectory
+    String stdoutFileNameForServerInit
+    String stdoutFileNameForServerRuntime
     String version
     Map<String, Map<String, Object>> yamlPatches = new HashMap<>()
 

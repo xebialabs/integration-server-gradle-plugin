@@ -3,8 +3,10 @@ package ai.digital.integration.server.tasks.provision
 import ai.digital.integration.server.domain.DevOpsAsCode
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.tasks.StartIntegrationServerTask
+import ai.digital.integration.server.tasks.worker.StartWorkersTask
 import ai.digital.integration.server.util.HTTPUtil
 import ai.digital.integration.server.util.ServerUtil
+import ai.digital.integration.server.util.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
@@ -19,9 +21,11 @@ class RunDevOpsAsCodeTask extends DefaultTask {
                 StartIntegrationServerTask.NAME
         ]
 
+        def workerDependencies = WorkerUtil.hasWorkers(project) ? [ StartWorkersTask.NAME ] : []
+
         this.configure {
             group = PLUGIN_GROUP
-            dependsOn(dependencies)
+            dependsOn(dependencies + workerDependencies)
         }
     }
 

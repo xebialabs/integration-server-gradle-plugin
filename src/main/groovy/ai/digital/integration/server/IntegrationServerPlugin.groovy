@@ -22,8 +22,13 @@ import ai.digital.integration.server.tasks.satellite.DownloadAndExtractSatellite
 import ai.digital.integration.server.tasks.satellite.SatelliteOverlaysTask
 import ai.digital.integration.server.tasks.satellite.ShutdownSatelliteTask
 import ai.digital.integration.server.tasks.satellite.StartSatelliteTask
+import ai.digital.integration.server.tasks.worker.CopyIntegrationServerTask
+import ai.digital.integration.server.tasks.worker.SyncServerPluginsWithWorkerTask
+import ai.digital.integration.server.tasks.worker.DownloadAndExtractWorkerDistTask
+import ai.digital.integration.server.tasks.worker.SetWorkersLogbackLevelsTask
 import ai.digital.integration.server.tasks.worker.ShutdownWorkersTask
 import ai.digital.integration.server.tasks.worker.StartWorkersTask
+import ai.digital.integration.server.tasks.worker.WorkerOverlaysTask
 import ai.digital.integration.server.util.*
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -84,8 +89,13 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
 
         //Workers
+        project.tasks.create(CopyIntegrationServerTask.NAME, CopyIntegrationServerTask)
+        project.tasks.create(SyncServerPluginsWithWorkerTask.NAME, SyncServerPluginsWithWorkerTask)
+        project.tasks.create(DownloadAndExtractWorkerDistTask.NAME, DownloadAndExtractWorkerDistTask)
+        project.tasks.create(SetWorkersLogbackLevelsTask.NAME, SetWorkersLogbackLevelsTask)
         project.tasks.create(ShutdownWorkersTask.NAME, ShutdownWorkersTask)
         project.tasks.create(StartWorkersTask.NAME, StartWorkersTask)
+        project.tasks.create(WorkerOverlaysTask.NAME, WorkerOverlaysTask)
 
         //Tests
         project.tasks.create(IntegrationTestsTask.NAME, IntegrationTestsTask)

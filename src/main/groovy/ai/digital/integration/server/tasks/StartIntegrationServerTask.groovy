@@ -65,48 +65,56 @@ class StartIntegrationServerTask extends DefaultTask {
         Paths.get(ServerUtil.getServerWorkingDir(project), "bin").toFile()
     }
 
-    private void initialize() {
+    private void initialize(Server server) {
         project.logger.lifecycle("Initializing Deploy")
 
-        ProcessUtil.exec([
-                command: "run",
-                params : ["-setup", "-reinitialize", "-force", "-setup-defaults", "-force-upgrades", "conf/deployit.conf"],
-                workDir: getBinDir(),
-                wait   : true
+        Process process = ProcessUtil.exec([
+                command   : "run",
+                discardIO : server.stdoutFileNameForServerInit ? false : true,
+                redirectTo: server.stdoutFileNameForServerInit ? "${ServerUtil.getLogDir(project)}/${server.stdoutFileNameForServerInit}" : null,
+                params    : ["-setup", "-reinitialize", "-force", "-force-upgrades"],
+                workDir   : getBinDir(),
+                wait      : true
         ])
+        project.logger.lifecycle("Initilized Deploy: [${process.pid()}] [${process.info().commandLine().orElse("")}].")
     }
 
-    private void startServer(Server server) {
+    private Process startServer(Server server) {
         project.logger.lifecycle("Launching server")
-        ProcessUtil.exec([
+        Process process = ProcessUtil.exec([
                 command    : "run",
-                discardIO  : true,
+                discardIO  : server.stdoutFileNameForServerRuntime ? false : true,
+                redirectTo : server.stdoutFileNameForServerRuntime ? "${ServerUtil.getLogDir(project)}/${server.stdoutFileNameForServerRuntime}" : null,
                 environment: EnvironmentUtil.getServerEnv(server),
                 params     : ["-force-upgrades"],
                 workDir    : getBinDir(),
         ])
+        project.logger.lifecycle("Launched server on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
+        process
     }
 
     private static def hasToBeStartedFromClasspath(Server server) {
         server.runtimeDirectory != null
     }
 
-    private def start(Server server) {
+    private Process start(Server server) {
         if (!ServerUtil.isDockerBased(project)) {
             maybeTearDown()
             if (!hasToBeStartedFromClasspath(server)) {
-                initialize()
+                initialize(server)
             }
             if (hasToBeStartedFromClasspath(server)) {
                 ServerUtil.startServerFromClasspath(project)
+                return null
             } else {
-                startServer(server)
+                return startServer(server)
             }
         } else {
             project.exec {
                 it.executable "docker-compose"
                 it.args '-f', ServerUtil.getResolvedDockerFile(project).toFile(), 'up', '-d'
             }
+            return null
         }
     }
 
@@ -124,7 +132,7 @@ class StartIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("About to launch Deploy Server on port ${server.httpPort}.")
         allowToWriteMountedHostFolders()
 
-        start(server)
-        ServerUtil.waitForBoot(project)
+        Process process = start(server)
+        ServerUtil.waitForBoot(project, process)
     }
 }

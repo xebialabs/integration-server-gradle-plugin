@@ -3,14 +3,7 @@ package ai.digital.integration.server.tasks.worker
 import ai.digital.integration.server.domain.Worker
 import ai.digital.integration.server.tasks.YamlPatchTask
 import ai.digital.integration.server.tasks.mq.StartMqTask
-import ai.digital.integration.server.util.CentralConfigurationUtil
-import ai.digital.integration.server.util.ConfigurationsUtil
-import ai.digital.integration.server.util.EnvironmentUtil
-import ai.digital.integration.server.util.ExtensionUtil
-import ai.digital.integration.server.util.ProcessUtil
-import ai.digital.integration.server.util.ServerUtil
-import ai.digital.integration.server.util.WaitForBootUtil
-import ai.digital.integration.server.util.WorkerUtil
+import ai.digital.integration.server.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -23,7 +16,19 @@ class StartWorkersTask extends DefaultTask {
     static NAME = "startWorkers"
 
     StartWorkersTask() {
-        def dependencies = [
+
+        def slimDependencies = WorkerUtil.hasSlimWorkers(project) ? [
+                CopyIntegrationServerTask.NAME
+        ] : []
+
+        def nonSlimDependencies = WorkerUtil.hasNonSlimWorkers(project) ? [
+                DownloadAndExtractWorkerDistTask.NAME,
+                SyncServerPluginsWithWorkerTask.NAME
+        ] : []
+
+        def dependencies = slimDependencies + nonSlimDependencies + [
+                SetWorkersLogbackLevelsTask.NAME,
+                WorkerOverlaysTask.NAME,
                 StartMqTask.NAME,
                 YamlPatchTask.NAME
         ]
@@ -38,7 +43,11 @@ class StartWorkersTask extends DefaultTask {
     }
 
     private def getBinDir(Worker worker) {
-        Paths.get(WorkerUtil.getWorkerDir(worker, project), "bin").toFile()
+        Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "bin").toFile()
+    }
+
+    private def getLogDir(Worker worker) {
+        Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "log").toFile()
     }
 
     private static def logFileName(String workerName) {
@@ -49,28 +58,36 @@ class StartWorkersTask extends DefaultTask {
         project.logger.lifecycle("Launching worker $worker.name")
         def server = ServerUtil.getServer(project)
 
-        ProcessUtil.exec([
+        def params = [
+                "-master",
+                "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
+                "-api",
+                "http://localhost:${server.httpPort}".toString(),
+                "-name",
+                worker.name,
+                "-port",
+                worker.port.toString()
+        ]
+
+        if (worker.slimDistribution) {
+            params = ["worker"] + params
+        }
+
+        Process process = ProcessUtil.exec([
                 command    : "run",
-                params     : [
-                        "worker",
-                        "-master",
-                        "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
-                        "-api",
-                        "http://localhost:${server.httpPort}".toString(),
-                        "-name",
-                        worker.name,
-                        "-port",
-                        worker.port.toString()
-                ],
+                params     : params,
                 environment: EnvironmentUtil.getEnv("DEPLOYIT_SERVER_OPTS",
                         worker.debugSuspend,
                         worker.debugPort,
                         logFileName(worker.name)),
                 workDir    : getBinDir(worker),
-                discardIO  : true,
+                discardIO  : worker.stdoutFileNameForWorkerRuntime ? false : true,
+                redirectTo : worker.stdoutFileNameForWorkerRuntime ? "${getLogDir(worker)}/${worker.stdoutFileNameForWorkerRuntime}" : null,
         ])
 
-        waitForBoot(worker)
+        project.logger.lifecycle("Worker '${worker.name}' successfully started on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
+
+        waitForBoot(worker, process)
     }
 
     void startWorkerFromClasspath(Worker worker) {
@@ -83,9 +100,9 @@ class StartWorkersTask extends DefaultTask {
 
         def params = [
                 classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper",
-                dir      : WorkerUtil.getWorkerDir(worker, project),
+                dir      : WorkerUtil.getWorkerWorkingDir(project, worker),
                 fork     : true,
-                spawn    : true
+                spawn    : worker.stdoutFileNameForWorkerRuntime == null
         ]
 
         String jvmPath = project.properties['integrationServerJVMPath']
@@ -98,11 +115,14 @@ class StartWorkersTask extends DefaultTask {
         def port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
         def hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
 
+        def logDir = "${getLogDir(worker)}/${worker.stdoutFileNameForWorkerRuntime}"
+
         ant.java(params) {
             worker.jvmArgs.each {
                 jvmarg(value: it)
             }
             jvmarg(value: "-DLOGFILE=${logFileName(worker.name)}")
+
             arg(value: "-master")
             arg(value: "${hostName}:${port}")
             arg(value: "-api")
@@ -116,22 +136,26 @@ class StartWorkersTask extends DefaultTask {
 
             env(key: "CLASSPATH", value: classpath)
 
+            if (worker.stdoutFileNameForWorkerRuntime) {
+                redirector(
+                        output: logDir
+                )
+            }
+
             if (worker.debugPort != null) {
                 project.logger.lifecycle("Enabled debug mode on port ${worker.debugPort}")
                 jvmarg(value: "-Xdebug")
                 jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${worker.debugPort}")
             }
         }
-        waitForBoot(worker)
+        waitForBoot(worker, null)
     }
 
     @TaskAction
     void launch() {
         def workers = ExtensionUtil.getExtension(project).workers
         workers.each { Worker worker ->
-            if (WorkerUtil.isExternalWorker(worker))
-                WorkerUtil.copyServerDirToWorkerDir(worker, project)
-            if (WorkerUtil.hasRuntimeDirectory(project)) {
+            if (WorkerUtil.hasRuntimeDirectory(project, worker)) {
                 startWorkerFromClasspath(worker)
             } else {
                 startWorker(worker)
@@ -139,9 +163,9 @@ class StartWorkersTask extends DefaultTask {
         }
     }
 
-    private void waitForBoot(Worker worker) {
-        def workerLog = project.file("${WorkerUtil.getWorkerDir(worker, project)}/log/${logFileName(worker.name)}.log")
+    private void waitForBoot(Worker worker, Process process) {
+        def workerLog = project.file("${WorkerUtil.getWorkerWorkingDir(project, worker)}/log/${logFileName(worker.name)}.log")
         def containsLine = "Registered successfully with Actor[akka://task-sys@127.0.0.1"
-        WaitForBootUtil.byLog(project, "worker ${worker.name}", workerLog, containsLine)
+        WaitForBootUtil.byLog(project, "worker ${worker.name}", workerLog, containsLine, process)
     }
 }

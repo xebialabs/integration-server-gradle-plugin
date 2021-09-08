@@ -29,7 +29,7 @@ class StartSatelliteTask extends DefaultTask {
         SatelliteUtil.getSatellites(project).each { Satellite satellite ->
             def binDir = SatelliteUtil.getBinDir(project, satellite)
             project.logger.lifecycle("Launching Satellite '${satellite.name} from ${binDir}'.")
-            ProcessUtil.exec([
+            Process process = ProcessUtil.exec([
                     command    : "run",
                     environment: EnvironmentUtil.getEnv(
                             "SATELLITE_OPTS",
@@ -39,8 +39,8 @@ class StartSatelliteTask extends DefaultTask {
                     ),
                     workDir    : binDir
             ])
-            project.logger.lifecycle("Satellite '${satellite.name}' successfully started.")
-            WaitForBootUtil.byLog(project, "Satellite ${satellite.name}", SatelliteUtil.getSatelliteLog(project, satellite), "XL Satellite has started")
+            project.logger.lifecycle("Satellite '${satellite.name}' successfully started on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
+            WaitForBootUtil.byLog(project, "Satellite ${satellite.name}", SatelliteUtil.getSatelliteLog(project, satellite), "XL Satellite has started", process)
         }
     }
 }

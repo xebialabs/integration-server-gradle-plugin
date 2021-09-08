@@ -116,6 +116,8 @@ integrationServer {
            pingTotalTries = 120
            removeStdoutConfig = true
            runtimeDirectory = "server-runtime"
+           stdoutFileNameForServerInit = 'deploy-server-init.log'
+           stdoutFileNameForServerRuntime = 'deploy-server-runtime.log'
            version = '10.2.2'
            yamlPatches = [
                'centralConfiguration/deploy-server.yaml': [
@@ -141,6 +143,8 @@ integrationServer {
 |generateDatasets|Optional|[]|The url `"http://localhost:${server.httpPort}/deployit/generate/${dataset}"` is going to be hit. This URL point is not available in Deploy by default. How you can develop it, is going to be described soon in a blog.|
 |jvmArgs|Optional|[]|JVM arguments which are going to be used on Server startup|
 |logLevels|Optional|[:]|Custom log levels to be included in logback.xml configuration. Expected format is a map, where the key is the package name and value the log level.|
+|outputInitFilename|Optional|None|The filename that stores standard output and error for init process. If not present output is discarded. Not used in case of class loaded runtime (runtimeDirectory). |
+|outputServerFilename|Optional|None|The filename that stores standard output and error for server runtime. If not present output is discarded. Note: it should be used only for debugging purposes: if used with class loaded runtime (runtimeDirectory) it will block execution after startup because, for that case, limitations in process spawning |
 |overlays|Optional|[:]|[Read about this section below](#overlays)|
 |pingRetrySleepTime|Optional|10|During the startup of the server we check when it's completely booted. This property configures how long to sleep (in seconds) between retries.|
 |pingTotalTries|Optional|60|During the startup of the server we check when it's completely booted. This property configures how many times to retry.|
@@ -300,6 +304,7 @@ Read more about workers here:
 integrationServer {
     workers {
         worker01 {  // The name of the section, you can name it as you with
+            version = "10.2.2" // Optional, if not specified will use same version as Server
         }
         worker02 {  // The name of the section, you can name it as you with
             debugPort = 5006
@@ -309,7 +314,9 @@ integrationServer {
         worker03 {  // The name of the section, you can name it as you with
             debugPort = 5007
             debugSuspend = false
-            directory = "/opt/xl-deploy-worker"
+            runtimeDirectory = "/opt/xl-deploy-worker"
+            slimDistribution = false 
+            stdoutFileNameForWorkerRuntime = 'worker.log'
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
             port = 8182
         }
@@ -321,9 +328,14 @@ integrationServer {
 | :---: | :---: | :---: | :---: |
 |debugPort|Optional|None|Remote Debug Port for a worker.|
 |debugSuspend|Optional|None|Suspend the start of the process before the remoting tool is attached.|
-|directory|Optional|None|If specified, it will run external worker, from the different folder location than server.|
 |jvmArgs|Optional|None|JVM arguments which are going to be used on a worker startup.|
+|logLevels|Optional|[:]|Custom log levels to be included in logback.xml configuration. Expected format is a map, where the key is the package name and value the log level.|
+|overlays|Optional|[:]|[Read about this section below](#overlays)|
 |port|Optional|None|Port on which worker will start.|
+|runtimeDirectory|Optional|None|If specified, it will run external worker, from the different folder location than server. It will not try to download released version.|
+|slimDistribution|Optional|true|When true runs worker within cloned xl-deploy directory. If false runs worker from downloaded deploy-task-engine. Default is true. |
+|stdoutFileNameForWorkerRuntime|Optional|None|The filename that stores standard output and error for worker runtime. If not present output is discarded. Note: it should be used only for debugging purposes: if used with class loaded runtime (runtimeDirectory) it will block execution after startup because, for that case, limitations in process spawning |
+|version|Optional|None|It can be specified in several ways. Or as a gradle property `xlWorkerVersion`, via parameter or in `gradle.properties` file or explicitly via this field. If not specified, it will take the same version as Server.|
 
 :::caution
 

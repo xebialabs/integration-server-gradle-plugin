@@ -1,5 +1,6 @@
 package ai.digital.integration.server.util
 
+import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 
 import java.nio.file.Path
@@ -8,6 +9,24 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 class FileUtil {
+
+    static def copyDirs(String srcBaseDir, String targetBaseDir, List<String> dirs) {
+        dirs.forEach { String dir ->
+            FileUtils.copyDirectory(
+                Paths.get(srcBaseDir, dir).toFile(),
+                Paths.get(targetBaseDir, dir).toFile()
+            )
+        }
+    }
+
+    static def copyFiles(String srcDir, String targetDir, List<String> files) {
+        files.forEach { file ->
+            FileUtils.copyFileToDirectory(
+                Paths.get(srcDir, file).toFile(),
+                Paths.get(targetDir).toFile()
+            )
+        }
+    }
 
     static def copyFile(InputStream source, Path dest) {
         def parentDir = dest.getParent().toFile()
@@ -59,5 +78,14 @@ class FileUtil {
 
     static List<File> findFiles(String basedir, String pattern, String excludesPattern) {
         new FileNameByRegexFinder().getFileNames(basedir, pattern, excludesPattern).collect { new File(it) }
+    }
+
+    static def removeEmptyLines(String data, File output) {
+        output.withWriter {writer ->
+            data.lines()
+                .map {line -> line.stripTrailing() }
+                .filter {line -> !line.empty }
+                .forEach {line -> writer.append(line).append('\n') }
+        }
     }
 }

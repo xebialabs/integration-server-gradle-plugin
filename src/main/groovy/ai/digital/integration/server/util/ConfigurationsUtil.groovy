@@ -8,6 +8,7 @@ class ConfigurationsUtil {
     static def SERVER_DATA_DIST = "serverDataDist"
     static def SATELLITE_DIST = "satelliteDist"
     static def CENTRAL_CONFIG_DIST = "centralConfigDist"
+    static def WORKER_DIST = "workerDist"
 
     static def DEPLOY_SERVER = "integrationTestServer" // TODO: review and refactor
 
@@ -17,6 +18,7 @@ class ConfigurationsUtil {
         project.buildscript.configurations.create(SERVER_DATA_DIST)
         project.buildscript.configurations.create(SATELLITE_DIST)
         project.buildscript.configurations.create(CENTRAL_CONFIG_DIST)
+        project.buildscript.configurations.create(WORKER_DIST)
     }
 }
 
