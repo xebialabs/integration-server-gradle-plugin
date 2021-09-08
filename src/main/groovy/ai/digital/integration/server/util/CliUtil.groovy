@@ -22,7 +22,11 @@ class CliUtil {
     }
 
     private static Integer getDebugPort(Project project, Cli cli) {
-        project.hasProperty("cliDebugPort") ? Integer.valueOf(project.property("cliDebugPort").toString()) : cli.debugPort
+        if (PropertyUtil.resolveBooleanValue(project, "debug", true)) {
+            PropertyUtil.resolveIntValue(project, "cliDebugPort", cli.debugPort)
+        } else {
+            null
+        }
     }
 
     static def getWorkingDir(Project project) {

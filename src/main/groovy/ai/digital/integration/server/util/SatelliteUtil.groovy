@@ -41,6 +41,10 @@ class SatelliteUtil {
     }
 
     private static Integer getDebugPort(Project project, Satellite satellite) {
-        project.hasProperty("satelliteDebugPort") ? Integer.valueOf(project.property("satelliteDebugPort").toString()) : satellite.debugPort
+        if (PropertyUtil.resolveBooleanValue(project, "debug", true)) {
+            PropertyUtil.resolveIntValue(project, "satelliteDebugPort", satellite.debugPort)
+        } else {
+            null
+        }
     }
 }
