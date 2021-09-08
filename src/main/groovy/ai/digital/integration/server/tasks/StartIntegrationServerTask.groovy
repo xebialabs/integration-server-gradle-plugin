@@ -65,20 +65,6 @@ class StartIntegrationServerTask extends DefaultTask {
         Paths.get(ServerUtil.getServerWorkingDir(project), "bin").toFile()
     }
 
-    private void initialize(Server server) {
-        project.logger.lifecycle("Initializing Deploy")
-
-        Process process = ProcessUtil.exec([
-                command   : "run",
-                discardIO : server.stdoutFileNameForServerInit ? false : true,
-                redirectTo: server.stdoutFileNameForServerInit ? "${ServerUtil.getLogDir(project)}/${server.stdoutFileNameForServerInit}" : null,
-                params    : ["-setup", "-reinitialize", "-force", "-force-upgrades"],
-                workDir   : getBinDir(),
-                wait      : true
-        ])
-        project.logger.lifecycle("Initilized Deploy: [${process.pid()}] [${process.info().commandLine().orElse("")}].")
-    }
-
     private Process startServer(Server server) {
         project.logger.lifecycle("Launching server")
         Process process = ProcessUtil.exec([
@@ -100,9 +86,6 @@ class StartIntegrationServerTask extends DefaultTask {
     private Process start(Server server) {
         if (!ServerUtil.isDockerBased(project)) {
             maybeTearDown()
-            if (!hasToBeStartedFromClasspath(server)) {
-                initialize(server)
-            }
             if (hasToBeStartedFromClasspath(server)) {
                 ServerUtil.startServerFromClasspath(project)
                 return null
