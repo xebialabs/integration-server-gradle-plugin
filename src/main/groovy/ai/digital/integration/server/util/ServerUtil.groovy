@@ -164,7 +164,7 @@ class ServerUtil {
             if (server.debugPort != null) {
                 project.logger.lifecycle("Enabled debug mode on port ${server.debugPort}")
                 jvmarg(value: "-Xdebug")
-                jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${server.debugPort}")
+                jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=${server.debugSuspend},address=${server.debugPort}")
             }
         }
     }
