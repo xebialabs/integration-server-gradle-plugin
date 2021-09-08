@@ -20,14 +20,14 @@ class EnvironmentUtilTest {
         envMap = EnvironmentUtil.getEnv(
                 "DEPLOYIT_SERVER_OPTS", false, 5005, null)
         assertEquals(1, envMap.size())
-        assertEquals("-Xmx1024m -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 ",
+        assertEquals("-Xmx1024m -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 ",
                 envMap.get("DEPLOYIT_SERVER_OPTS"))
 
         // environment with variableName, debugSuspend and debugPort
         envMap = EnvironmentUtil.getEnv(
                 "DEPLOYIT_SERVER_OPTS", true, 5005, null)
         assertEquals(1, envMap.size())
-        assertEquals("-Xmx1024m -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 ",
+        assertEquals("-Xmx1024m -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 ",
                 envMap.get("DEPLOYIT_SERVER_OPTS"))
 
         // environment with variableName and logFileName
