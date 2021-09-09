@@ -33,11 +33,11 @@ class SyncServerPluginsWithWorkerTask extends DefaultTask {
     @TaskAction
     def copyToWorkers() {
         WorkerUtil.getWorkers(project)
-            .findAll {worker -> worker.slimDistribution}
-            .findAll {worker -> !WorkerUtil.isExternalRuntimeWorker(project, worker)}
-            .forEach { worker ->
+                .findAll { worker -> worker.slimDistribution }
+                .findAll { worker -> !WorkerUtil.isExternalRuntimeWorker(project, worker) }
+                .forEach { worker ->
                     copyServerDirToWorkerDir(worker)
-            }
+                }
     }
 
     void copyServerDirToWorkerDir(Worker worker) {
@@ -51,16 +51,17 @@ class SyncServerPluginsWithWorkerTask extends DefaultTask {
         FileUtils.deleteDirectory(Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "plugins").toFile())
 
         FileUtil.copyDirs(ServerUtil.getServerWorkingDir(project), WorkerUtil.getWorkerWorkingDir(project, worker), [
-            "hotfix",
-            "plugins"
+                "ext",
+                "hotfix",
+                "plugins"
         ])
 
         FileUtil.copyFiles(
-            Paths.get(ServerUtil.getServerWorkingDir(project), "conf").toAbsolutePath().toString(),
-            Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "conf").toAbsolutePath().toString(),
-            [
-                "deployit-license.lic"
-            ]
+                Paths.get(ServerUtil.getServerWorkingDir(project), "conf").toAbsolutePath().toString(),
+                Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "conf").toAbsolutePath().toString(),
+                [
+                        "deployit-license.lic"
+                ]
         )
     }
 }
