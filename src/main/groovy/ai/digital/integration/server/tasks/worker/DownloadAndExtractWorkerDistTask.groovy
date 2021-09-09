@@ -16,7 +16,7 @@ class DownloadAndExtractWorkerDistTask extends Copy {
         this.configure {
             group = PLUGIN_GROUP
             onlyIf {
-              WorkerUtil.hasWorkers(project)
+              WorkerUtil.hasSlimWorkers(project)
             }
 
             WorkerUtil.getWorkers(project)

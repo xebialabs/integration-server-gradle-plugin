@@ -17,11 +17,11 @@ class StartWorkersTask extends DefaultTask {
 
     StartWorkersTask() {
 
-        def slimDependencies = WorkerUtil.hasSlimWorkers(project) ? [
+        def nonSlimDependencies = WorkerUtil.hasNonSlimWorkers(project) ? [
                 CopyIntegrationServerTask.NAME
         ] : []
 
-        def nonSlimDependencies = WorkerUtil.hasNonSlimWorkers(project) ? [
+        def slimDependencies = WorkerUtil.hasSlimWorkers(project) ? [
                 DownloadAndExtractWorkerDistTask.NAME,
                 SyncServerPluginsWithWorkerTask.NAME
         ] : []
