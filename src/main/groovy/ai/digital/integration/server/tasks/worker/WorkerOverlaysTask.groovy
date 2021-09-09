@@ -1,5 +1,6 @@
 package ai.digital.integration.server.tasks.worker
 
+
 import ai.digital.integration.server.domain.Worker
 import ai.digital.integration.server.util.OverlaysUtil
 import ai.digital.integration.server.util.WorkerUtil
@@ -16,11 +17,11 @@ class WorkerOverlaysTask extends DefaultTask {
         this.configure { ->
 
             def slimMustRunAfter = WorkerUtil.hasSlimWorkers(project) ? [
-                CopyIntegrationServerTask.NAME, SetWorkersLogbackLevelsTask.NAME
+                    DownloadAndExtractWorkerDistTask.NAME, SyncServerPluginsWithWorkerTask.NAME, SetWorkersLogbackLevelsTask.NAME
             ] : []
 
             def nonSlimMustRunAfter = WorkerUtil.hasNonSlimWorkers(project) ? [
-                DownloadAndExtractWorkerDistTask.NAME, SyncServerPluginsWithWorkerTask.NAME, SetWorkersLogbackLevelsTask.NAME
+                    CopyIntegrationServerTask.NAME, SetWorkersLogbackLevelsTask.NAME
             ] : []
 
             group = PLUGIN_GROUP
@@ -31,6 +32,11 @@ class WorkerOverlaysTask extends DefaultTask {
 
             project.afterEvaluate {
                 WorkerUtil.getWorkers(project).each { Worker worker ->
+
+                    if (worker.slimDistribution) {
+                        OverlaysUtil.addDatabaseDependency(project, worker)
+                        OverlaysUtil.addMqDependency(project, worker)
+                    }
 
                     if (!worker.overlays.isEmpty() && !WorkerUtil.isExternalRuntimeWorker(project, worker)) {
                         logger.warn("Overlays on the worker ${worker.name} are ignored because worker's runtime directory is same to the master.")
@@ -44,4 +50,6 @@ class WorkerOverlaysTask extends DefaultTask {
             }
         }
     }
+
+
 }

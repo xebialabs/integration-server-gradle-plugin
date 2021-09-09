@@ -69,8 +69,8 @@ class StartIntegrationServerTask extends DefaultTask {
         project.logger.lifecycle("Launching server")
         Process process = ProcessUtil.exec([
                 command    : "run",
-                discardIO  : server.stdoutFileNameForServerRuntime ? false : true,
-                redirectTo : server.stdoutFileNameForServerRuntime ? "${ServerUtil.getLogDir(project)}/${server.stdoutFileNameForServerRuntime}" : null,
+                discardIO  : server.stdoutFileName ? false : true,
+                redirectTo : server.stdoutFileName ? "${ServerUtil.getLogDir(project)}/${server.stdoutFileName}" : null,
                 environment: EnvironmentUtil.getServerEnv(server),
                 params     : ["-force-upgrades"],
                 workDir    : getBinDir(),

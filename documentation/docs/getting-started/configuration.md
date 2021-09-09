@@ -116,7 +116,7 @@ integrationServer {
            pingTotalTries = 120
            removeStdoutConfig = true
            runtimeDirectory = "server-runtime"
-           stdoutFileNameForServerRuntime = 'deploy-server-runtime.log'
+           stdoutFileName = 'deploy-server-runtime.log'
            version = '10.2.2'
            yamlPatches = [
                'centralConfiguration/deploy-server.yaml': [
@@ -146,7 +146,7 @@ integrationServer {
 |pingRetrySleepTime|Optional|10|During the startup of the server we check when it's completely booted. This property configures how long to sleep (in seconds) between retries.|
 |pingTotalTries|Optional|60|During the startup of the server we check when it's completely booted. This property configures how many times to retry.|
 |runtimeDirectory|Optional|None|When this property is specified, runtime directory setup will be performed. Just make sure that you have complete deploy instance present there.|
-|stdoutFileNameForServerRuntime|Optional|None|The filename that stores standard output and error for server runtime. If not present output is discarded. Note: it should be used only for debugging purposes: if used with class loaded runtime (runtimeDirectory) it will block execution after startup because, for that case, limitations in process spawning |
+|stdoutFileName|Optional|None|The filename that stores standard output and error for server runtime. If not present output is discarded. Note: it should be used only for debugging purposes: if used with class loaded runtime (runtimeDirectory) it will block execution after startup because, for that case, limitations in process spawning |
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlDeployVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
 |yamlPatches|Optional|[:]|[Read about this section below](#yaml-patches)|
 
@@ -314,7 +314,7 @@ integrationServer {
             debugSuspend = false
             runtimeDirectory = "/opt/xl-deploy-worker"
             slimDistribution = true 
-            stdoutFileNameForWorkerRuntime = 'worker.log'
+            stdoutFileName = 'worker.log'
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
             port = 8182
         }
@@ -332,7 +332,7 @@ integrationServer {
 |port|Optional|None|Port on which worker will start.|
 |runtimeDirectory|Optional|None|If specified, it will run external worker, from the different folder location than server. It will not try to download released version.|
 |slimDistribution|Optional|false|When false runs worker within cloned xl-deploy directory. If true runs worker from downloaded deploy-task-engine. Default is false. |
-|stdoutFileNameForWorkerRuntime|Optional|None|The filename that stores standard output and error for worker runtime. If not present output is discarded. Note: it should be used only for debugging purposes: if used with class loaded runtime (runtimeDirectory) it will block execution after startup because, for that case, limitations in process spawning |
+|stdoutFileName|Optional|None|The filename that stores standard output and error for worker runtime. If not present output is discarded. Note: it should be used only for debugging purposes: if used with class loaded runtime (runtimeDirectory) it will block execution after startup because, for that case, limitations in process spawning |
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlWorkerVersion`, via parameter or in `gradle.properties` file or explicitly via this field. If not specified, it will take the same version as Server.|
 
 :::caution

@@ -69,7 +69,7 @@ class StartWorkersTask extends DefaultTask {
                 worker.port.toString()
         ]
 
-        if (worker.slimDistribution) {
+        if (!worker.slimDistribution) {
             params = ["worker"] + params
         }
 
@@ -81,8 +81,8 @@ class StartWorkersTask extends DefaultTask {
                         worker.debugPort,
                         logFileName(worker.name)),
                 workDir    : getBinDir(worker),
-                discardIO  : worker.stdoutFileNameForWorkerRuntime ? false : true,
-                redirectTo : worker.stdoutFileNameForWorkerRuntime ? "${getLogDir(worker)}/${worker.stdoutFileNameForWorkerRuntime}" : null,
+                discardIO  : worker.stdoutFileName ? false : true,
+                redirectTo : worker.stdoutFileName ? "${getLogDir(worker)}/${worker.stdoutFileName}" : null,
         ])
 
         project.logger.lifecycle("Worker '${worker.name}' successfully started on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
@@ -102,7 +102,7 @@ class StartWorkersTask extends DefaultTask {
                 classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper",
                 dir      : WorkerUtil.getWorkerWorkingDir(project, worker),
                 fork     : true,
-                spawn    : worker.stdoutFileNameForWorkerRuntime == null
+                spawn    : worker.stdoutFileName == null
         ]
 
         String jvmPath = project.properties['integrationServerJVMPath']
@@ -115,7 +115,7 @@ class StartWorkersTask extends DefaultTask {
         def port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
         def hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
 
-        def logDir = "${getLogDir(worker)}/${worker.stdoutFileNameForWorkerRuntime}"
+        def logDir = "${getLogDir(worker)}/${worker.stdoutFileName}"
 
         ant.java(params) {
             worker.jvmArgs.each {

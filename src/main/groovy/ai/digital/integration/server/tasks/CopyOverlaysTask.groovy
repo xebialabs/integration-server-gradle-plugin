@@ -1,17 +1,15 @@
 package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.domain.Server
-import ai.digital.integration.server.util.*
+import ai.digital.integration.server.util.ExtensionUtil
+import ai.digital.integration.server.util.OverlaysUtil
+import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
 
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class CopyOverlaysTask extends DefaultTask {
     static NAME = "copyOverlays"
-
-    // We locate libraries to hotfix/lib, as "lib" is not mounted in a docker setup.
-    static HOTFIX_LIB_KEY = "hotfix/lib"
 
     CopyOverlaysTask() {
         this.configure { ->
@@ -25,46 +23,14 @@ class CopyOverlaysTask extends DefaultTask {
                 Server server = ServerUtil.getServer(project)
                 project.logger.lifecycle("Copying overlays on Deploy server ${server.name}")
 
-                addDatabaseDependency(project, server)
-                addMqDependency(project, server)
+                OverlaysUtil.addDatabaseDependency(project, server)
+                OverlaysUtil.addMqDependency(project, server)
 
                 server.overlays.each { Map.Entry<String, List<Object>> overlay ->
                     OverlaysUtil.defineOverlay(project, this, ServerUtil.getServerWorkingDir(project), ExtensionUtil.IS_EXTENSION_NAME, overlay, [])
                 }
             }
         }
-    }
-
-    private static def overlayDependency(String version, Project project, Server server, List<Object> libOverlays, Object dependency) {
-        if (version != null && !version.isEmpty()) {
-            if (server.runtimeDirectory != null) {
-                def configuration = project.getConfigurations().getByName(ConfigurationsUtil.DEPLOY_SERVER)
-                configuration.dependencies.add(
-                        project.dependencies.create("${dependency.driverDependency}:${version}")
-                )
-            }
-            libOverlays.add("${dependency.driverDependency}:${version}")
-            server.overlays.put(HOTFIX_LIB_KEY, libOverlays)
-        }
-    }
-
-    private static def addDatabaseDependency(Project project, Server server) {
-        def dbname = DbUtil.databaseName(project)
-        def dbDependencies = DbUtil.detectDbDependencies(dbname)
-        def libOverlay = server.overlays.getOrDefault(HOTFIX_LIB_KEY, new ArrayList<Object>())
-        def version = DbUtil.getDatabase(project).driverVersions[dbname]
-
-        overlayDependency(version, project, server, libOverlay, dbDependencies)
-    }
-
-    private static def addMqDependency(Project project, Server server) {
-        def mqName = MqUtil.mqName(project)
-        def mqDependency = MqUtil.detectMqDependency(mqName)
-        def ext = ExtensionUtil.getExtension(project)
-        def libOverlay = server.overlays.getOrDefault(HOTFIX_LIB_KEY, new ArrayList<Object>())
-        String version = ext.mqDriverVersions[mqName]
-
-        overlayDependency(version, project, server, libOverlay, mqDependency)
     }
 
 }

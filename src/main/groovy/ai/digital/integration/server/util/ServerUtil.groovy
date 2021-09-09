@@ -146,7 +146,7 @@ class ServerUtil {
         def params = [
             fork: true,
             dir: server.runtimeDirectory,
-            spawn: server.stdoutFileNameForServerRuntime == null,
+            spawn: server.stdoutFileName == null,
             classname: "com.xebialabs.deployit.DeployitBootstrapper"
         ]
         String jvmPath = project.properties['integrationServerJVMPath']
@@ -164,9 +164,9 @@ class ServerUtil {
 
             env(key: "CLASSPATH", value: classpath)
 
-            if (server.stdoutFileNameForServerRuntime) {
+            if (server.stdoutFileName) {
                 redirector(
-                    output: "${getLogDir(project)}/${server.stdoutFileNameForServerRuntime}"
+                    output: "${getLogDir(project)}/${server.stdoutFileName}"
                 )
             }
 
