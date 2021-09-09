@@ -136,7 +136,7 @@ class StartWorkersTask extends DefaultTask {
 
             env(key: "CLASSPATH", value: classpath)
 
-            if (worker.stdoutFileNameForWorkerRuntime) {
+            if (worker.stdoutFileName) {
                 redirector(
                         output: logDir
                 )
