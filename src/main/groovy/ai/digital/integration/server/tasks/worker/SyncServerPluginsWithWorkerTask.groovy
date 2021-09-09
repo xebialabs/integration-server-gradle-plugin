@@ -33,7 +33,7 @@ class SyncServerPluginsWithWorkerTask extends DefaultTask {
     @TaskAction
     def copyToWorkers() {
         WorkerUtil.getWorkers(project)
-            .findAll {worker -> !worker.slimDistribution}
+            .findAll {worker -> worker.slimDistribution}
             .findAll {worker -> !WorkerUtil.isExternalRuntimeWorker(project, worker)}
             .forEach { worker ->
                     copyServerDirToWorkerDir(worker)

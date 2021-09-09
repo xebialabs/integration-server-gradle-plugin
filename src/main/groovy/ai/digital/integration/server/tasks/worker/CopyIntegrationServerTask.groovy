@@ -33,7 +33,7 @@ class CopyIntegrationServerTask extends DefaultTask {
     @TaskAction
     def copyServer() {
         WorkerUtil.getWorkers(project)
-            .findAll {worker -> worker.slimDistribution }
+            .findAll {worker -> !worker.slimDistribution }
             .findAll {worker -> !WorkerUtil.isExternalRuntimeWorker(project, worker) }
             .forEach { worker -> copyServerDirToWorkerDir(worker) }
     }

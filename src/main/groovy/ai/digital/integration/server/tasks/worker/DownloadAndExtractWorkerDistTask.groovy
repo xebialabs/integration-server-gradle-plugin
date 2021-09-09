@@ -20,7 +20,7 @@ class DownloadAndExtractWorkerDistTask extends Copy {
             }
 
             WorkerUtil.getWorkers(project)
-                .findAll {worker -> !worker.slimDistribution}
+                .findAll {worker -> worker.slimDistribution}
                 .each { Worker worker ->
 
                     if (WorkerUtil.isDistDownloadRequired(project, worker)) {

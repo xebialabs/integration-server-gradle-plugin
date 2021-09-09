@@ -12,13 +12,13 @@ class WorkerUtil {
     }
 
     static def hasSlimWorkers(Project project) {
-        getWorkers(project).any {worker ->
+        getWorkers(project).any { worker ->
             worker.slimDistribution
         }
     }
 
     static def hasNonSlimWorkers(Project project) {
-        getWorkers(project).any {worker ->
+        getWorkers(project).any { worker ->
             !worker.slimDistribution
         }
     }
@@ -38,7 +38,7 @@ class WorkerUtil {
     static def getWorkerWorkingDir(Project project, Worker worker) {
         if (getRuntimeDirectory(project, worker) == null) {
             def targetDir = IntegrationServerUtil.getDist(project)
-            String prefix = worker.slimDistribution ? "xl-deploy-worker" : "deploy-task-engine"
+            String prefix = worker.slimDistribution ? "deploy-task-engine" : "xl-deploy-worker"
             Paths.get(targetDir, worker.name, "${prefix}-${worker.version}").toAbsolutePath().toString()
         } else {
             def target = project.projectDir.toString()
