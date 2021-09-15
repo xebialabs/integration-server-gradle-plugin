@@ -4,7 +4,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 module.exports = {
     title: 'Integration Server',
     tagline: 'Integration Server Gradle Plugin for Deploy Digital.ai',
-    url: 'https://github.com/xebialabs/integration-server-gradle-plugin',
+    url: 'https://xebialabs.github.io/',
     baseUrl: '/integration-server-gradle-plugin/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
