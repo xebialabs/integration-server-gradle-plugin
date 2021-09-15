@@ -36,7 +36,7 @@ integrationServer {
 integrationServer {
     clis {
         cli { // The name of the section, you can name it as you with
-            cleanDefaultExtContent = false
+            cleanDefaultExtContent = true
             copyBuildArtifacts = [
                lib: /(.+)[.](jar)/
             ]
@@ -60,7 +60,7 @@ integrationServer {
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
-|cleanDefaultExtContent|Optional|true|By default in CLI there are 3 files included in the ext with some helper functions. In integration tests by default we remove it, to not clash with existing scripts.|
+|cleanDefaultExtContent|Optional|false|By default in CLI there are 3 files included in the ext with some helper functions. You can remove it if it clashes with your scripts.|
 |copyBuildArtifacts|Optional|[:]|Here you can define what would you like to include to integration server from the build process itself. For example you run: `./gradlew build integrationServer` and you create `*.jar` of your plugin which you would like to include to integration server. You have to specify it here. As for overlay it won't work. With overlay to make it work you have to run 2 commands: `./gradlew build` and then `./gradlew startIntegrationServer`. Key is a relative folder name from CLI base, and a value is a pattern to all files located in `build` folder except `integration-server` sub-folder. This one is excluded.|
 |debugPort|Optional|None|Remote Debug Port for Deploy CLI | 
 |debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached.|
