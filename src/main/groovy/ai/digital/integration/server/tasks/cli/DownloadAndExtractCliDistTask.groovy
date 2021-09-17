@@ -21,7 +21,7 @@ class DownloadAndExtractCliDistTask extends Copy {
 
                 project.buildscript.dependencies.add(
                         SERVER_CLI_DIST,
-                        "com.xebialabs.deployit:xl-deploy-base:${version}:cli@zip"
+                        "ai.digital.deploy:deploy-cli:${version}@zip"
                 )
                 from { project.zipTree(project.buildscript.configurations.getByName(SERVER_CLI_DIST).singleFile) }
                 into { IntegrationServerUtil.getDist(project) }
