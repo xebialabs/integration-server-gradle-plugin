@@ -333,7 +333,7 @@ integrationServer {
 |runtimeDirectory|Optional|None|If specified, it will run external worker, from the different folder location than server. It will not try to download released version.|
 |slimDistribution|Optional|false|When false runs worker within cloned xl-deploy directory. If true runs worker from downloaded deploy-task-engine. Default is false. |
 |stdoutFileName|Optional|None|The filename that stores standard output and error for worker runtime. If not present output is discarded. Note: it should be used only for debugging purposes: if used with class loaded runtime (runtimeDirectory) it will block execution after startup because, for that case, limitations in process spawning |
-|version|Optional|None|It can be specified in several ways. Or as a gradle property `xlWorkerVersion`, via parameter or in `gradle.properties` file or explicitly via this field. If not specified, it will take the same version as Server.|
+|version|Optional|None|It can be specified in several ways. Or as a gradle property `deployTaskEngineVersion`, via parameter or in `gradle.properties` file or explicitly via this field. If not specified, it will take the same version as Server.|
 
 :::caution
 

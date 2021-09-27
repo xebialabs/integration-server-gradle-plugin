@@ -63,8 +63,8 @@ class WorkerUtil {
     }
 
     private static String getWorkerVersion(Project project, Worker worker) {
-        if (project.hasProperty("xlWorkerVersion")) {
-            return project.getProperty("xlWorkerVersion")
+        if (project.hasProperty("deployTaskEngineVersion")) {
+            return project.getProperty("deployTaskEngineVersion")
         } else if (worker.version?.trim()) {
             return worker.version
         } else if (ServerUtil.getServer(project).version) {
