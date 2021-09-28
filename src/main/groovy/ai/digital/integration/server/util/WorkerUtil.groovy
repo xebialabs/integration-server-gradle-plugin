@@ -47,7 +47,9 @@ class WorkerUtil {
     }
 
     static def isExternalRuntimeWorker(Project project, Worker worker) {
-        getRuntimeDirectory(project, worker) != null && !getRuntimeDirectory(project, worker).isEmpty() && getRuntimeDirectory(project, worker) != ServerUtil.getServerWorkingDir(project)
+        getRuntimeDirectory(project, worker) == null ||
+            (getRuntimeDirectory(project, worker) != null && !getRuntimeDirectory(project, worker).isEmpty() &&
+                getWorkerWorkingDir(project, worker) != ServerUtil.getServerWorkingDir(project))
     }
 
     static def isDistDownloadRequired(Project project, Worker worker) {

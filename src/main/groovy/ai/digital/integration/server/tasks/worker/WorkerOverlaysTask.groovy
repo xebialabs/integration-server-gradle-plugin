@@ -43,7 +43,7 @@ class WorkerOverlaysTask extends DefaultTask {
                     } else {
                         worker.overlays.each { Map.Entry<String, List<Object>> overlay ->
                             OverlaysUtil.defineOverlay(project, this, WorkerUtil.getWorkerWorkingDir(project, worker), PREFIX, overlay,
-                                    ["downloadAndExtractWorker${worker.name}", SyncServerPluginsWithWorkerTask.NAME, SetWorkersLogbackLevelsTask.NAME])
+                                    ["${DownloadAndExtractWorkerDistTask.NAME}${worker.name}", SyncServerPluginsWithWorkerTask.NAME, SetWorkersLogbackLevelsTask.NAME])
                         }
                     }
                 }
