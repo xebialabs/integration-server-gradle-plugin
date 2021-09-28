@@ -20,7 +20,12 @@ class SatelliteOverlaysTask extends DefaultTask {
             project.afterEvaluate {
                 SatelliteUtil.getSatellites(project).each { Satellite satellite ->
                     satellite.overlays.each { Map.Entry<String, List<Object>> overlay ->
-                        OverlaysUtil.defineOverlay(project, this, SatelliteUtil.getSatelliteWorkingDir(project, satellite), PREFIX, overlay, ["downloadAndExtractSatellite${satellite.name}"])
+                        OverlaysUtil.defineOverlay(project, this,
+                                SatelliteUtil.getSatelliteWorkingDir(project, satellite),
+                                PREFIX,
+                                overlay,
+                                ["downloadAndExtractSatellite${satellite.name}"]
+                        )
                     }
                 }
             }

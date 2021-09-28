@@ -16,6 +16,7 @@ class StartSatelliteTask extends DefaultTask {
     StartSatelliteTask() {
         def dependencies = [
                 DownloadAndExtractSatelliteDistTask.NAME,
+                PrepareSatellitesTask.NAME,
                 SatelliteOverlaysTask.NAME
         ]
         this.configure {
