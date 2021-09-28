@@ -38,6 +38,7 @@ by specifying `-x *taskName*`.
 |integrationTests|Runs Jython integration tests via CLI. You can define certain patterns and use Gradle flags to narrow down the scope of running tests.|
 |prepareDeploy|Creates initial folders and `deployit.conf` file| 
 |prepareDatabase|Copies required DB specific driver and configures `deploy-repository.yaml` in `centralConfiguration`|
+|prepareSatellites|Changes ports in satellite.conf specified by the user|
 |runCli|Runs CLI as a process| 
 |runDatasetGeneration|The url `"http://localhost:${server.httpPort}/deployit/generate/${dataset}"` is going to be hit. This URL point is not available in Deploy by default. How you can develop it, is going to be described soon in a blog.|
 |runDevOpsAsCode|[Read about it here](./configuration.md#dev-ops-as-code)|

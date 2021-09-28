@@ -40,6 +40,7 @@ dependencies {
 
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
+    implementation "com.typesafe:config:$typesafeConfigVersion"
     implementation "com.xebialabs.gradle.plugins:gradle-xl-derby-plugin:$gradleXlDerbyPluginVersion"
     implementation "commons-io:commons-io:$commonsIOVersion"
     implementation "de.vandermeer:asciitable:$asciitableVersion"

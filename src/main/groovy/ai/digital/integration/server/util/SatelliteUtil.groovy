@@ -36,6 +36,10 @@ class SatelliteUtil {
         project.file("${getSatelliteWorkingDir(project, satellite)}/log/xl-satellite.log")
     }
 
+    static def getSatelliteConf(Project project, Satellite satellite) {
+        project.file("${getSatelliteWorkingDir(project, satellite)}/conf/satellite.conf")
+    }
+
     private static String getSatelliteVersion(Project project, Satellite satellite) {
         project.hasProperty("xlSatelliteVersion") ? project.property("xlSatelliteVersion") : satellite.version
     }

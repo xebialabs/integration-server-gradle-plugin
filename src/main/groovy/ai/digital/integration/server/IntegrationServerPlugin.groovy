@@ -19,6 +19,7 @@ import ai.digital.integration.server.tasks.pluginManager.StartPluginManagerTask
 import ai.digital.integration.server.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.tasks.satellite.DownloadAndExtractSatelliteDistTask
+import ai.digital.integration.server.tasks.satellite.PrepareSatellitesTask
 import ai.digital.integration.server.tasks.satellite.SatelliteOverlaysTask
 import ai.digital.integration.server.tasks.satellite.ShutdownSatelliteTask
 import ai.digital.integration.server.tasks.satellite.StartSatelliteTask
@@ -84,6 +85,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
 
         //Satellite
         project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
+        project.tasks.create(PrepareSatellitesTask.NAME, PrepareSatellitesTask)
         project.tasks.create(SatelliteOverlaysTask.NAME, SatelliteOverlaysTask)
         project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
