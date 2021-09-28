@@ -38,7 +38,9 @@ class StartSatelliteTask extends DefaultTask {
                             satellite.debugPort,
                             "xl-satellite.log"
                     ),
-                    workDir    : binDir
+                    workDir    : binDir,
+                    discardIO  : satellite.stdoutFileName ? false : true,
+                    redirectTo : satellite.stdoutFileName ? "${SatelliteUtil.getSatelliteLog(project, satellite)}/${satellite.stdoutFileName}" : null,
             ])
             project.logger.lifecycle("Satellite '${satellite.name}' successfully started on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
             WaitForBootUtil.byLog(project, "Satellite ${satellite.name}", SatelliteUtil.getSatelliteLog(project, satellite), "XL Satellite has started", process)
