@@ -373,6 +373,7 @@ integrationServer {
 |debugPort|Optional|None|Remote Debug Port for a satellite.|
 |debugSuspend|Optional|None|Suspend the start of the process before the remoting tool is attached.|
 |overlays|Optional|[:]|Identical to Server overlays, only in a satellite. [Read about this section below](#overlays)|
+|stdoutFileName|Optional|None|The filename that stores standard output and error for server runtime. If not present output is discarded. |
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlSatelliteVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
 
 :::caution
