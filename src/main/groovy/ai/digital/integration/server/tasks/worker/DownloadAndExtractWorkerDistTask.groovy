@@ -29,7 +29,7 @@ class DownloadAndExtractWorkerDistTask extends Copy {
                             "ai.digital.deploy.task-engine:deploy-task-engine:${worker.version}@zip"
                         )
 
-                        def taskName = "downloadAndExtractWorkerServer${worker.name}"
+                        def taskName = "${NAME}${worker.name}"
                         def task = project.getTasks().register(taskName, Copy.class, new Action<Copy>() {
                           @Override
                           void execute(Copy copy) {
