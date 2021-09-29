@@ -11,7 +11,7 @@ plugins {
 group = 'com.xebialabs.gradle.plugins'
 defaultTasks 'build'
 
-def releasedVersion = "10.3.0-${(new Date().format('Mdd.Hmm'))}"
+def releasedVersion = "10.4.0-${(new Date().format('Mdd.Hmm'))}"
 project.ext.set("releasedVersion", releasedVersion)
 
 sourceCompatibility = languageLevel
