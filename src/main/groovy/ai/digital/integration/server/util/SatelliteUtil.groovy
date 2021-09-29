@@ -41,7 +41,17 @@ class SatelliteUtil {
     }
 
     private static String getSatelliteVersion(Project project, Satellite satellite) {
-        project.hasProperty("xlSatelliteVersion") ? project.property("xlSatelliteVersion") : satellite.version
+        if (project.hasProperty("xlSatelliteVersion")) {
+            return project.getProperty("xlSatelliteVersion")
+        } else if (satellite.version?.trim()) {
+            return satellite.version
+        } else if (ServerUtil.getServer(project).version) {
+            return ServerUtil.getServer(project).version
+        } else {
+            project.logger.error("Satellite Version is not specified")
+            System.exit(1)
+            return null
+        }
     }
 
     private static Integer getDebugPort(Project project, Satellite satellite) {
