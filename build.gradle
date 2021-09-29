@@ -1,3 +1,13 @@
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath "nl.acierto.gradle.plugins:gradle-commit:0.0.1"
+    }
+}
+
 plugins {
     id "com.github.node-gradle.node" version "3.1.0"
     id 'groovy'
@@ -7,6 +17,8 @@ plugins {
     id 'nebula.release' version '15.3.1'
     id 'signing'
 }
+
+apply plugin: 'nl.acierto.gradle-commit'
 
 group = 'com.xebialabs.gradle.plugins'
 defaultTasks 'build'

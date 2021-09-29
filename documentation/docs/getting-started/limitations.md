@@ -16,7 +16,7 @@ What docker setup doesn't support:
 
 Docker image contains all plugins which are defined in Deploy Server Trial distribution.
 If you want to exclude some of them you can use property `defaultOfficialPluginsToExclude`.
-For example if you want to exclude terraform and aws plugin, you have to configure as: 
+For example if you want to exclude terraform and aws plugin, you have to configure it as: 
 
 ```groovy
 defaultOfficialPluginsToExclude = ["terraform", "aws"]

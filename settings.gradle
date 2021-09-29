@@ -1,1 +1,8 @@
-rootProject.name="integration-server-gradle-plugin"
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = "integration-server-gradle-plugin"
