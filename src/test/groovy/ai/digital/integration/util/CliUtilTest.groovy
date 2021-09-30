@@ -1,4 +1,4 @@
-package ai.xebialabs.gradle.integration.util
+package ai.digital.integration.util
 
 import ai.digital.integration.server.IntegrationServerExtension
 import ai.digital.integration.server.IntegrationServerPlugin

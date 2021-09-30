@@ -1,4 +1,4 @@
-package ai.xebialabs.gradle.integration.util
+package ai.digital.integration.util
 
 import ai.digital.integration.server.util.HTTPUtil
 import org.junit.jupiter.api.Assertions

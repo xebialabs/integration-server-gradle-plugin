@@ -9,13 +9,14 @@ buildscript {
 }
 
 plugins {
+    kotlin("jvm") version "1.4.20"
+
     id("com.github.node-gradle.node") version "3.1.0"
     id("groovy")
     id("idea")
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
     id("maven-publish")
     id("nebula.release") version "15.3.1"
-    id("org.jetbrains.kotlin.jvm") version "1.4.20"
     id("signing")
 }
 
@@ -68,8 +69,8 @@ dependencies {
     implementation("org.postgresql:postgresql:${properties["driverVersions.postgres"]}")
 
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.0")
 }
 
 java {
@@ -248,4 +249,9 @@ node {
     version.set("14.17.5")
     yarnVersion.set("1.22.11")
     download.set(true)
+}
+
+tasks.named<Test>("test") {
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    println("±±±±±${testClassesDirs.files}")
 }
