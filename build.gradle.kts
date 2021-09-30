@@ -190,9 +190,7 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
 }
 
 tasks {
-    withType(NebulaRelease::class.java) {
-        named("nebulaRelease")
-    }
+    register<NebulaRelease>("nebulaRelease")
 
     register("dumpVersion") {
         file(buildDir).mkdirs()
