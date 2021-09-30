@@ -251,5 +251,5 @@ task docBuild(type: Copy, dependsOn: [yarnRunBuild, docCleanUp]) {
 import com.xebialabs.gradle.release.GenerateDocumentation
 import com.xebialabs.gradle.release.NebulaRelease
 
-task updateDocs(type: GenerateDocumentation)
+task updateDocs(type: GenerateDocumentation, dependsOn: [docBuild])
 task nebulaRelease(type: NebulaRelease, dependsOn: [updateDocs])
