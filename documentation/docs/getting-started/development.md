@@ -28,7 +28,7 @@ buildscript {
 
 ## Where documentation resides
 
-You can find the documentation to edit in documentation/docs folder. The `docs` folder contains built documentation 
+You can find the documentation to edit in documentation/docs folder. The `docs` folder contains a built documentation 
 which is served on GitHub Pages.
 
 ## How to run documentation site locally

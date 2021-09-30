@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "nl.acierto.gradle.plugins:gradle-commit:0.0.1"
+        classpath "nl.acierto.gradle.plugins:gradle-commit:1.0.0-930.930"
     }
 }
 
