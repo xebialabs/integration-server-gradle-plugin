@@ -17,8 +17,8 @@ class GenerateDocumentation extends DefaultTask {
                 execSpec.executable('./gradlew')
                 execSpec.args('commitChanges',
                         "-PgitBranchName=master",
-                        "-PgitMessage=\"Regenerated a documentation\"",
-                        "-PgitFileContent=\"docs/*\"")
+                        "-PgitMessage=Regenerated a documentation",
+                        "-PgitFileContent=docs/*")
             }
         })
     }
