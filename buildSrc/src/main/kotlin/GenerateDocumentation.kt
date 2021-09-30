@@ -12,7 +12,7 @@ abstract class GenerateDocumentation : DefaultTask() {
             args(
                 "commitChanges",
                 "-PgitBranchName=master",
-                "-PgitMessage=Regenerated a documentation",
+                "-PgitMessage=Documentation has been updated",
                 "-PgitFileContent=docs/*"
             )
         }
