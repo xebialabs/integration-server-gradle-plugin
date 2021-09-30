@@ -250,8 +250,3 @@ node {
     yarnVersion.set("1.22.11")
     download.set(true)
 }
-
-tasks.named<Test>("test") {
-    testClassesDirs = sourceSets["test"].output.classesDirs
-    println("±±±±±${testClassesDirs.files}")
-}

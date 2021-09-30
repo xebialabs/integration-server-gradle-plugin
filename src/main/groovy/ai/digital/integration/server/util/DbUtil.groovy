@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.TreeNode
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
+import static ai.digital.integration.server.util.HTTPUtil.findFreePort
+
 class DbUtil {
 
     static def POSTGRES = 'postgres-10'
@@ -18,7 +20,7 @@ class DbUtil {
     static def DERBY_NETWORK = 'derby-network'
     static def DERBY_INMEMORY = 'derby-inmemory'
 
-    static randomDerbyPort = HTTPUtil.findFreePort()
+    static randomDerbyPort = findFreePort()
 
     private DbUtil() {}
 
