@@ -2,6 +2,12 @@ import com.github.gradle.node.yarn.task.YarnTask
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+buildscript {
+    dependencies {
+        classpath("com.xebialabs.gradle.plugins:gradle-commit:${properties["gradleCommitPluginVersion"]}")
+    }
+}
+
 plugins {
     id("com.github.node-gradle.node") version "3.1.0"
     id("groovy")
@@ -12,6 +18,8 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.4.20"
     id("signing")
 }
+
+apply(plugin = "ai.digital.gradle-commit")
 
 group = "com.xebialabs.gradle.plugins"
 project.defaultTasks = listOf("build")
@@ -183,8 +191,6 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
 }
 
 tasks {
-    register<NebulaRelease>("nebulaRelease")
-
     register("dumpVersion") {
         doLast {
             file(buildDir).mkdirs()
@@ -228,6 +234,13 @@ tasks {
         classpath = sourceSets.main.get().compileClasspath + files(compileKotlin.get().destinationDir)
     }
 
+    register<GenerateDocumentation>("updateDocs") {
+        dependsOn(named("docBuild"))
+    }
+
+    register<NebulaRelease>("nebulaRelease") {
+        dependsOn(named("updateDocs"))
+    }
 }
 
 node {
