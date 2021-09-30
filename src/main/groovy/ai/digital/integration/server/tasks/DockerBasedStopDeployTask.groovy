@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class DockerBasedStopDeployTask extends DefaultTask {
-    static NAME = "dockerBasedStopDeploy"
+    public static String NAME = "dockerBasedStopDeploy"
 
     DockerBasedStopDeployTask() {
 

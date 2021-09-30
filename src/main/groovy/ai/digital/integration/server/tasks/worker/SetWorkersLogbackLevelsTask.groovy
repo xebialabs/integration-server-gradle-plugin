@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class SetWorkersLogbackLevelsTask extends DefaultTask {
-    static NAME = "setWorkerLogbackLevels"
+    public static String NAME = "setWorkerLogbackLevels"
 
     SetWorkersLogbackLevelsTask() {
         this.configure { ->

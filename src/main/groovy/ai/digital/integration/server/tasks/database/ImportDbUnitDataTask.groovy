@@ -15,7 +15,7 @@ import org.gradle.api.tasks.TaskAction
 import java.nio.file.Paths
 
 class ImportDbUnitDataTask extends DefaultTask {
-    static NAME = "importDbUnitData"
+    public static String NAME = "importDbUnitData"
 
     ImportDbUnitDataTask() {
         this.configure {

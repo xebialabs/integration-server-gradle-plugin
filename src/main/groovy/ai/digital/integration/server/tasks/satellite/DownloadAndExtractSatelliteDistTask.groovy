@@ -10,7 +10,7 @@ import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 import static ai.digital.integration.server.util.ConfigurationsUtil.SATELLITE_DIST
 
 class DownloadAndExtractSatelliteDistTask extends Copy {
-    static NAME = "downloadAndExtractSatelliteServer"
+    public static String NAME = "downloadAndExtractSatelliteServer"
 
     DownloadAndExtractSatelliteDistTask() {
         this.configure {

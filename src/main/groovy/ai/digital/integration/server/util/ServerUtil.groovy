@@ -48,7 +48,7 @@ class ServerUtil {
         getServer(project).dockerImage?.trim()
     }
 
-    static def isServerDefined(Project project) {
+    static Boolean isServerDefined(Project project) {
         def ext = project.extensions.getByType(IntegrationServerExtension)
         ext.servers.size() > 0
     }

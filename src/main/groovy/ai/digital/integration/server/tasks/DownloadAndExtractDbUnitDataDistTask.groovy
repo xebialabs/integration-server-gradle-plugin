@@ -8,7 +8,7 @@ import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 import static ai.digital.integration.server.util.ConfigurationsUtil.SERVER_DATA_DIST
 
 class DownloadAndExtractDbUnitDataDistTask extends Copy {
-    static NAME = "downloadAndExtractDbUnitData"
+    public static String NAME = "downloadAndExtractDbUnitData"
 
     DownloadAndExtractDbUnitDataDistTask() {
         this.configure {

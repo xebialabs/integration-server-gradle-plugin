@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class CopyServerBuildArtifactsTask extends DefaultTask {
-    static NAME = "copyServerBuildArtifacts"
+    public static String NAME = "copyServerBuildArtifacts"
 
     CopyServerBuildArtifactsTask() {
         def dependencies = [

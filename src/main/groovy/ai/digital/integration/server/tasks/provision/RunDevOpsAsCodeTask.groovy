@@ -14,7 +14,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class RunDevOpsAsCodeTask extends DefaultTask {
-    static NAME = "runDevOpsAsCode"
+    public static String NAME = "runDevOpsAsCode"
 
     RunDevOpsAsCodeTask() {
         def dependencies = [

@@ -9,7 +9,7 @@ import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 import static ai.digital.integration.server.util.ConfigurationsUtil.SERVER_CLI_DIST
 
 class DownloadAndExtractCliDistTask extends Copy {
-    static NAME = "downloadAndExtractCli"
+    public static String NAME = "downloadAndExtractCli"
 
     DownloadAndExtractCliDistTask() {
         this.configure {

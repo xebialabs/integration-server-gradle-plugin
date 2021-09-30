@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 
 class ExportDatabaseTask extends DefaultTask {
 
-    static NAME = "exportDatabase"
+    public static String NAME = "exportDatabase"
 
     private void startFromClasspath(Server server) {
         def classpath = project.configurations.getByName(ConfigurationsUtil.DEPLOY_SERVER).filter { !it.name.endsWith("-sources.jar") }.asPath

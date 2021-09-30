@@ -13,7 +13,7 @@ import java.nio.file.Paths
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class StartPluginManagerTask extends DefaultTask {
-    static NAME = "startPluginManager"
+    public static String NAME = "startPluginManager"
 
     StartPluginManagerTask() {
         def dependencies = [

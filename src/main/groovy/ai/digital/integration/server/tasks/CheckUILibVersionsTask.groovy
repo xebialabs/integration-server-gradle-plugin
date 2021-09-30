@@ -20,7 +20,7 @@ import java.util.zip.ZipInputStream
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class CheckUILibVersionsTask extends DefaultTask {
-    static NAME = "checkUILibVersions"
+    public static String NAME = "checkUILibVersions"
 
     CheckUILibVersionsTask() {
         def dependencies = [

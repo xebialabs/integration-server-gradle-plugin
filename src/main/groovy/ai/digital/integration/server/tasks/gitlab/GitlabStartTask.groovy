@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class GitlabStartTask extends DockerComposeUp {
-    static NAME = "gitlabStart"
+    public static String NAME = "gitlabStart"
 
     GitlabStartTask() {
         this.group = PLUGIN_GROUP

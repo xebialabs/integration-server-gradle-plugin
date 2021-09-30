@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class ApplicationConfigurationOverrideTask extends DefaultTask {
-    static NAME = "applicationConfigurationOverride"
+    public static String NAME = "applicationConfigurationOverride"
 
     ApplicationConfigurationOverrideTask() {
         this.configure { ->

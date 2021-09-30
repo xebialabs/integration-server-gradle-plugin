@@ -10,7 +10,7 @@ class ConfigurationsUtil {
     static def CENTRAL_CONFIG_DIST = "centralConfigDist"
     static def WORKER_DIST = "workerDist"
 
-    static def DEPLOY_SERVER = "integrationTestServer" // TODO: review and refactor
+    public static String DEPLOY_SERVER = "integrationTestServer" // TODO: review and refactor
 
     static void registerConfigurations(Project project) {
         project.buildscript.configurations.create(SERVER_DIST)

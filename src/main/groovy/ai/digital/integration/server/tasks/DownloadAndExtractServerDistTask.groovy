@@ -9,7 +9,7 @@ import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 import static ai.digital.integration.server.util.ConfigurationsUtil.SERVER_DIST
 
 class DownloadAndExtractServerDistTask extends Copy {
-    static NAME = "downloadAndExtractServer"
+    public static String NAME = "downloadAndExtractServer"
 
 
     DownloadAndExtractServerDistTask() {

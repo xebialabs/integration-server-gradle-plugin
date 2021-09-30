@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class StartMqTask extends DockerComposeUp {
-    static NAME = "startMq"
+    public static String NAME = "startMq"
 
     StartMqTask() {
         this.configure {

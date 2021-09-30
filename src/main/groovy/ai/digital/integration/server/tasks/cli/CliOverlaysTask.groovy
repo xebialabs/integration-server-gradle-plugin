@@ -10,8 +10,8 @@ import org.gradle.api.tasks.Copy
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class CliOverlaysTask extends DefaultTask {
-    static NAME = "cliOverlays"
-    static PREFIX = "cli"
+    public static String NAME = "cliOverlays"
+    public static String PREFIX = "cli"
 
     CliOverlaysTask() {
         this.configure { ->

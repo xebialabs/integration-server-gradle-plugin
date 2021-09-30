@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class RunCliTask extends DefaultTask {
-    static NAME = "runCli"
+    public static String NAME = "runCli"
 
     RunCliTask() {
         def dependencies = [

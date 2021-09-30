@@ -10,7 +10,7 @@ import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 import static ai.digital.integration.server.util.ConfigurationsUtil.WORKER_DIST
 
 class DownloadAndExtractWorkerDistTask extends Copy {
-    static NAME = "downloadAndExtractWorkerServer"
+    public static String NAME = "downloadAndExtractWorkerServer"
 
     DownloadAndExtractWorkerDistTask() {
         this.configure {

@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class StartSatelliteTask extends DefaultTask {
-    static NAME = "startSatellite"
+    public static String NAME = "startSatellite"
 
     StartSatelliteTask() {
         def dependencies = [

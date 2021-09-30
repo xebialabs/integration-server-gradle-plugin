@@ -7,7 +7,7 @@ import org.gradle.api.Project
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class PrepareDatabaseTask extends DefaultTask {
-    static NAME = "prepareDatabase"
+    public static String NAME = "prepareDatabase"
 
     private static void injectDbDependency(Project project, def dbName) {
         def testCompile = project.configurations.findByName("testCompile")

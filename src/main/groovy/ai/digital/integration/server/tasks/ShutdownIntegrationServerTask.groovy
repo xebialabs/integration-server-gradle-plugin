@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class ShutdownIntegrationServerTask extends DefaultTask {
-    static NAME = "shutdownIntegrationServer"
+    public static String NAME = "shutdownIntegrationServer"
 
     ShutdownIntegrationServerTask() {
         def dependencies = []

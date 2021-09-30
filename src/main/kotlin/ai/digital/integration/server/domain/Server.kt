@@ -13,7 +13,7 @@ open class Server(name: String) : Engine(name) {
     var httpPort: Int = HTTPUtil.findFreePort()
     var generateDatasets: List<String> = listOf()
     var pingRetrySleepTime: Int = 10
-    var pingTotalTries: Int = 10
+    var pingTotalTries: Int = 60
     var yamlPatches: Map<String, Map<String, Any>> = mapOf()
     var devOpsAsCodes: NamedDomainObjectContainer<DevOpsAsCode>? = null
 

@@ -14,7 +14,7 @@ import java.nio.file.Paths
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class CopyIntegrationServerTask extends DefaultTask {
-    static NAME = "copyIntegrationServer"
+    public static String NAME = "copyIntegrationServer"
 
     def dependencies = [
         YamlPatchTask.NAME

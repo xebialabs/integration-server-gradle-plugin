@@ -13,7 +13,7 @@ import java.util.zip.ZipInputStream
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class DatabaseStartTask extends DockerComposeUp {
-    static NAME = "databaseStart"
+    public static String NAME = "databaseStart"
 
     DatabaseStartTask() {
         this.configure { ->

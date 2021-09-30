@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class GitlabStopTask extends DefaultTask {
-    static NAME = 'gitlabStop'
+    public static String NAME = 'gitlabStop'
 
     GitlabStopTask() {
         this.group = PLUGIN_GROUP

@@ -8,9 +8,9 @@ import org.gradle.api.DefaultTask
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class SatelliteOverlaysTask extends DefaultTask {
-    static NAME = "satelliteOverlays"
 
-    static PREFIX = "satellite"
+    public static String NAME = "satelliteOverlays"
+    public static String PREFIX = "satellite"
 
     SatelliteOverlaysTask() {
         this.configure { ->

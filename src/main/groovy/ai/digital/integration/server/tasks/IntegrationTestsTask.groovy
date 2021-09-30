@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class IntegrationTestsTask extends DefaultTask {
-    static NAME = "integrationTests"
+    public static String NAME = "integrationTests"
 
     IntegrationTestsTask() {
         this.configure {

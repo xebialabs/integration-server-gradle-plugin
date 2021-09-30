@@ -21,7 +21,7 @@ import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 import static ai.digital.integration.server.util.ShutdownUtil.shutdownServer
 
 class StartIntegrationServerTask extends DefaultTask {
-    static NAME = "startIntegrationServer"
+    public static String NAME = "startIntegrationServer"
 
     StartIntegrationServerTask() {
         def dependencies = [

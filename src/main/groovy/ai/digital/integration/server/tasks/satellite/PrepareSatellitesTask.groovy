@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class PrepareSatellitesTask extends DefaultTask {
-    static NAME = "prepareSatellites"
+    public static String NAME = "prepareSatellites"
 
     PrepareSatellitesTask() {
         def dependencies = [

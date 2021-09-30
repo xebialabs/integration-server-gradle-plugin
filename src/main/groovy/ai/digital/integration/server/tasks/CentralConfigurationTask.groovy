@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class CentralConfigurationTask extends DefaultTask {
-    static NAME = "centralConfiguration"
+    public static String NAME = "centralConfiguration"
 
     CentralConfigurationTask() {
         def dependencies = [

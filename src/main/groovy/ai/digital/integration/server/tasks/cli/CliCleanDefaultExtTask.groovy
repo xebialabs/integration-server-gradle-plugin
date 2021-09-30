@@ -7,7 +7,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class CliCleanDefaultExtTask extends DefaultTask {
-    static NAME = "cliCleanDefaultExt"
+    public static String NAME = "cliCleanDefaultExt"
 
     CliCleanDefaultExtTask() {
         this.configure { ->

@@ -13,7 +13,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class RunDatasetGenerationTask extends DefaultTask {
-    static NAME = "runDatasetGeneration"
+    public static String NAME = "runDatasetGeneration"
 
     RunDatasetGenerationTask() {
         def dependencies = [

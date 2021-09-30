@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class ShutdownWorkersTask extends DefaultTask {
-    static NAME = "shutdownWorkers"
+    public static String NAME = "shutdownWorkers"
 
     ShutdownWorkersTask() {
         def dependencies = [

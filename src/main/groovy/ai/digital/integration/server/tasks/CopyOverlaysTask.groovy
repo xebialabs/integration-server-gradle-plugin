@@ -9,7 +9,7 @@ import org.gradle.api.DefaultTask
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class CopyOverlaysTask extends DefaultTask {
-    static NAME = "copyOverlays"
+    public static String NAME = "copyOverlays"
 
     CopyOverlaysTask() {
         this.configure { ->

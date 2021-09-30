@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class DatabaseStopTask extends DefaultTask {
-    static NAME = 'databaseStop'
+    public static String NAME = 'databaseStop'
 
     DatabaseStopTask() {
         this.group = PLUGIN_GROUP

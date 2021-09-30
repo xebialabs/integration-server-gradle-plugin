@@ -8,7 +8,7 @@ import org.gradle.api.DefaultTask
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class WorkerOverlaysTask extends DefaultTask {
-    static NAME = "workerOverlays"
+    public static String NAME = "workerOverlays"
 
     static PREFIX = "worker"
 

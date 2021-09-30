@@ -14,7 +14,7 @@ import java.nio.file.Paths
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class SyncServerPluginsWithWorkerTask extends DefaultTask {
-    static NAME = "syncServerPluginsWithWorker"
+    public static String NAME = "syncServerPluginsWithWorker"
 
     def dependencies = [
             DownloadAndExtractWorkerDistTask.NAME

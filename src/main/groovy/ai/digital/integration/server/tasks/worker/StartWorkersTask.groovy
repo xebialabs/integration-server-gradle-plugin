@@ -13,7 +13,7 @@ import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 
 class StartWorkersTask extends DefaultTask {
 
-    static NAME = "startWorkers"
+    public static String NAME = "startWorkers"
 
     StartWorkersTask() {
 
