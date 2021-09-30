@@ -1,5 +1,4 @@
 import com.github.gradle.node.yarn.task.YarnTask
-import com.xebialabs.gradle.release.NebulaRelease
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -18,7 +17,7 @@ group = "com.xebialabs.gradle.plugins"
 project.defaultTasks = listOf("build")
 
 val releasedVersion = "10.4.0-${LocalDateTime.now().format(DateTimeFormatter.ofPattern("Mdd.Hmm"))}"
-project.extensions.add("releasedVersion", releasedVersion)
+project.extra.set("releasedVersion", releasedVersion)
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
