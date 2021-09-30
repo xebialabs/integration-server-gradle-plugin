@@ -1,3 +1,13 @@
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath "nl.acierto.gradle.plugins:gradle-commit:0.0.1"
+    }
+}
+
 plugins {
     id "com.github.node-gradle.node" version "3.1.0"
     id 'groovy'
@@ -7,6 +17,8 @@ plugins {
     id 'nebula.release' version '15.3.1'
     id 'signing'
 }
+
+apply plugin: 'nl.acierto.gradle-commit'
 
 group = 'com.xebialabs.gradle.plugins'
 defaultTasks 'build'
@@ -186,10 +198,6 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     }
 }
 
-import com.xebialabs.gradle.release.NebulaRelease
-
-task nebulaRelease(type: NebulaRelease)
-
 task uploadArchives {
     dependsOn publish
 }
@@ -239,3 +247,12 @@ task docBuild(type: Copy, dependsOn: [yarnRunBuild, docCleanUp]) {
     from file("${rootDir}/documentation/build")
     into file("${rootDir}/docs")
 }
+
+task updateDocs(dependsOn: [docBuild]) {
+    environment 'gitBranchName', 'master'
+    environment 'gitMessage', 'Uploaded a new documentation'
+    environment 'gitFileContent', 'docs/*'
+}
+
+import com.xebialabs.gradle.release.NebulaRelease
+task nebulaRelease(type: NebulaRelease, dependsOn: [updateDocs])
