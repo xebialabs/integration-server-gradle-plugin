@@ -28,7 +28,7 @@ buildscript {
 
 ## Where documentation resides
 
-You can find the documentation to edit in documentation/docs folder. The `docs` folder contains built documentation 
+You can find the documentation to edit in documentation/docs folder. The `docs` folder contains a built documentation 
 which is served on GitHub Pages.
 
 ## How to run documentation site locally
@@ -39,7 +39,8 @@ The site will be opened automatically in your default browser on page: [http://l
 
 ## How to generate the documentation for GitHub
 
-`./gradlew docBuild` and commit all modified files in docs folder.
+`./gradlew docBuild` and commit all modified files in docs folder. Keep in mind that during the release this job will be executed and 
+automatically committed and pushed. That process prevents stale changes between markdown files and served information on GitHub Pages. 
 
 ## Troubleshooting
 
