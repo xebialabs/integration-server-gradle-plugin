@@ -11,7 +11,7 @@ class EnvironmentUtil {
 
     static def getCliEnv(Cli cli, Map<String, String> extraParams, List<File> extraClassPath) {
         def env = getEnv("DEPLOYIT_CLI_OPTS", cli.debugSuspend, cli.debugPort, null, extraParams)
-        env.put("EXTRA_DEPLOYIT_CLI_CLASSPATH", extraClassPath.join(OsUtil.pathSeparator))
+        env.put("EXTRA_DEPLOYIT_CLI_CLASSPATH", extraClassPath.join(OsUtil.getPathSeparator()))
         env
     }
 
