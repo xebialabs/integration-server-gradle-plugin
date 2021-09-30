@@ -1,6 +1,5 @@
 package ai.digital.integration.server.tasks.worker
 
-
 import ai.digital.integration.server.domain.Worker
 import ai.digital.integration.server.util.OverlaysUtil
 import ai.digital.integration.server.util.WorkerUtil
