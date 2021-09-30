@@ -19,11 +19,6 @@ project.defaultTasks = listOf("build")
 val releasedVersion = "10.4.0-${LocalDateTime.now().format(DateTimeFormatter.ofPattern("Mdd.Hmm"))}"
 project.extra.set("releasedVersion", releasedVersion)
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
-
 repositories {
     mavenLocal()
     gradlePluginPortal()
@@ -70,6 +65,8 @@ dependencies {
 }
 
 java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
     withSourcesJar()
     withJavadocJar()
 }
@@ -153,6 +150,19 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
             }
         }
     }
+
+    signing {
+        sign(publishing.publications["mavenJava"])
+    }
+
+    nexusPublishing {
+        repositories {
+            sonatype {
+                username.set(project.property("sonatypeUsername").toString())
+                password.set(project.property("sonatypePassword").toString())
+            }
+        }
+    }
 } else {
     publishing {
         publications {
@@ -167,22 +177,6 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
                     username = project.property("nexusUserName").toString()
                     password = project.property("nexusPassword").toString()
                 }
-            }
-        }
-    }
-}
-
-
-if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
-    signing {
-        sign(publishing.publications["mavenJava"])
-    }
-
-    nexusPublishing {
-        repositories {
-            sonatype {
-                username.set(project.property("sonatypeUsername").toString())
-                password.set(project.property("sonatypePassword").toString())
             }
         }
     }
