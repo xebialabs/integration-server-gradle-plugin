@@ -248,11 +248,8 @@ task docBuild(type: Copy, dependsOn: [yarnRunBuild, docCleanUp]) {
     into file("${rootDir}/docs")
 }
 
-task updateDocs(dependsOn: [docBuild]) {
-    environment 'gitBranchName', 'master'
-    environment 'gitMessage', 'Uploaded a new documentation'
-    environment 'gitFileContent', 'docs/*'
-}
-
+import com.xebialabs.gradle.release.GenerateDocumentation
 import com.xebialabs.gradle.release.NebulaRelease
+
+task updateDocs(type: GenerateDocumentation)
 task nebulaRelease(type: NebulaRelease, dependsOn: [updateDocs])
