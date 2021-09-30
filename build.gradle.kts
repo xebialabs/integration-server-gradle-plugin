@@ -192,8 +192,10 @@ tasks {
     register<NebulaRelease>("nebulaRelease")
 
     register("dumpVersion") {
-        file(buildDir).mkdirs()
-        file("$buildDir/version.dump").writeText("version=${releasedVersion}")
+        doLast {
+            file(buildDir).mkdirs()
+            file("$buildDir/version.dump").writeText("version=${releasedVersion}")
+        }
     }
 
     named<YarnTask>("yarn_install") {
