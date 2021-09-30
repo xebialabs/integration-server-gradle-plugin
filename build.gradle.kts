@@ -223,8 +223,9 @@ tasks {
     }
 
     register<Copy>("docBuild") {
-        dependsOn(named("yarn_install"), named("docCleanUp"))
+        dependsOn(named("yarnRunBuild"), named("docCleanUp"))
         from(file("${rootDir}/documentation/build"))
+        into(file("${rootDir}/docs"))
     }
 
     named<AbstractCompile>("compileGroovy") {

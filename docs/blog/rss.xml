@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Integration Server Blog</title>
+        <link>https://xebialabs.github.io/integration-server-gradle-plugin/blog</link>
+        <description>Integration Server Blog</description>
+        <lastBuildDate>Thu, 02 Sep 2021 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[How to run a simple integration test]]></title>
+            <link>https://xebialabs.github.io/integration-server-gradle-plugin/blog/2021/09/02/run-integration-test</link>
+            <guid>How to run a simple integration test</guid>
+            <pubDate>Thu, 02 Sep 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[Requirements]]></description>
+        </item>
+    </channel>
+</rss>
