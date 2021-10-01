@@ -29,7 +29,7 @@ class ShutdownWorkersTask extends DefaultTask {
     private void shutdownWorkers() {
         try {
             project.logger.lifecycle("About to shutdown all workers")
-            def http = new HTTPBuilder("http://localhost:${ServerUtil.getServer(project).httpPort}/deployit/workers")
+            def http = new HTTPBuilder("${ServerUtil.getUrl(project)}/deployit/workers")
             http.auth.basic("admin", "admin")
             http.request(Method.DELETE) {}
             project.logger.lifecycle("Workers shutdown successfully")

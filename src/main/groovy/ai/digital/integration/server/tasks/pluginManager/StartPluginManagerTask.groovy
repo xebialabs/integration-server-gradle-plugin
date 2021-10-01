@@ -2,6 +2,7 @@ package ai.digital.integration.server.tasks.pluginManager
 
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.tasks.StartIntegrationServerTask
+import ai.digital.integration.server.tasks.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.util.EnvironmentUtil
 import ai.digital.integration.server.util.ProcessUtil
 import ai.digital.integration.server.util.ServerUtil
@@ -20,6 +21,10 @@ class StartPluginManagerTask extends DefaultTask {
                 StartIntegrationServerTask.NAME
         ]
 
+        if (ServerUtil.isTls(project)) {
+            dependencies += [TlsApplicationConfigurationOverrideTask.NAME ]
+        }
+
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
@@ -35,7 +40,7 @@ class StartPluginManagerTask extends DefaultTask {
         Process process = ProcessUtil.exec([
                 command    : "run",
                 discardIO  : true,
-                environment: EnvironmentUtil.getServerEnv(server),
+                environment: EnvironmentUtil.getServerEnv(project, server),
                 params     : ["plugin-manager-cli"],
                 workDir    : getBinDir(),
         ])

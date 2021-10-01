@@ -21,6 +21,10 @@ class ServerUtil {
             server.setRuntimeDirectory(null)
         }
 
+        if (!server.contextRoot.startsWith("/")) {
+            server.contextRoot = "/$server.contextRoot"
+        }
+
         server
     }
 
@@ -46,6 +50,28 @@ class ServerUtil {
 
     static def isDockerBased(Project project) {
         getServer(project).dockerImage?.trim()
+    }
+
+    static String getHttpHost() {
+        "localhost"
+    }
+
+    static String getUrl(Project project) {
+        def server = getServer(project)
+        def hostName = getHttpHost()
+        if (isTls(project)) {
+            "https://$hostName:${server.httpPort}${server.contextRoot}"
+        } else {
+            "http://$hostName:${server.httpPort}${server.contextRoot}"
+        }
+    }
+
+    static boolean isTls(Project project) {
+        getServer(project).tls
+    }
+
+    static boolean isAkkaSecured(Project project) {
+        getServer(project).akkaSecured
     }
 
     static Boolean isServerDefined(Project project) {
@@ -83,7 +109,7 @@ class ServerUtil {
 
     static def waitForBoot(Project project, Process process) {
         def server = getServer(project)
-        def url = "http://localhost:${server.httpPort}${server.contextRoot}/deployit/metadata/type"
+        def url = "${getUrl(project)}/deployit/metadata/type"
         WaitForBootUtil.byPort(project, "Deploy", url, server.httpPort, process)
     }
 

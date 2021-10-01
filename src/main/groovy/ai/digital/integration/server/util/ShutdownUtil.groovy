@@ -14,7 +14,7 @@ class ShutdownUtil {
         boolean success = false
         while (triesLeft > 0 && !success) {
             try {
-                def http = HTTPUtil.buildRequest("http://localhost:${server.httpPort}${server.contextRoot}")
+                def http = HTTPUtil.buildRequest("${ServerUtil.getUrl(project)}${server.contextRoot}")
                 http.handler.failure = {
                     project.logger.lifecycle("XL Deploy server successfully shutdown")
                     success = true
@@ -39,7 +39,7 @@ class ShutdownUtil {
         try {
             def port = server.httpPort
             project.logger.lifecycle("Trying to shutdown integration server on port ${port}")
-            def http = HTTPUtil.buildRequest("http://localhost:$port/deployit/server/shutdown")
+            def http = HTTPUtil.buildRequest("${ServerUtil.getUrl(project)}/deployit/server/shutdown")
 
             http.post([:]) { resp, reader ->
                 waitForShutdown(project)

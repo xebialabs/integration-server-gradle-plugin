@@ -1,6 +1,10 @@
 package ai.digital.integration.server.tasks.worker
 
+import ai.digital.integration.server.domain.AkkaSecured
+import ai.digital.integration.server.domain.Tls
 import ai.digital.integration.server.domain.Worker
+import ai.digital.integration.server.tasks.GenerateSecureAkkaKeysTask
+import ai.digital.integration.server.tasks.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.tasks.YamlPatchTask
 import ai.digital.integration.server.tasks.mq.StartMqTask
 import ai.digital.integration.server.util.*
@@ -33,6 +37,14 @@ class StartWorkersTask extends DefaultTask {
                 YamlPatchTask.NAME
         ]
 
+        if (ServerUtil.isAkkaSecured(project)) {
+            dependencies += [GenerateSecureAkkaKeysTask.NAME ]
+        }
+
+        if (ServerUtil.isTls(project)) {
+            dependencies += [TlsApplicationConfigurationOverrideTask.NAME ]
+        }
+
         this.configure {
             dependsOn(dependencies)
             group = PLUGIN_GROUP
@@ -56,13 +68,16 @@ class StartWorkersTask extends DefaultTask {
 
     void startWorker(Worker worker) {
         project.logger.lifecycle("Launching worker $worker.name")
-        def server = ServerUtil.getServer(project)
+
+        def hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
 
         def params = [
                 "-master",
                 "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
                 "-api",
-                "http://localhost:${server.httpPort}".toString(),
+                "${ServerUtil.getUrl(project)}".toString(),
+                "-hostname",
+                hostName,
                 "-name",
                 worker.name,
                 "-port",
@@ -73,13 +88,38 @@ class StartWorkersTask extends DefaultTask {
             params = ["worker"] + params
         }
 
+        if (ServerUtil.isAkkaSecured(project)) {
+            def secured = SslUtil.getAkkaSecured(project, ServerUtil.getServerWorkingDir(project))
+            def key = secured.keys[AkkaSecured.WORKER_KEY_NAME + worker.name]
+            params += [
+                "-keyStore",
+                key.keyStoreFile().absolutePath,
+                "-keyStorePassword",
+                key.keyStorePassword,
+                "-trustStore",
+                secured.trustStoreFile().absolutePath,
+                "-trustStorePassword",
+                secured.truststorePassword,
+            ]
+            if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
+                params += [
+                    "-keyPassword",
+                    key.keyPassword,
+                ]
+            }
+        }
+
+        def environment = EnvironmentUtil.getEnv(
+            project,
+            "DEPLOYIT_SERVER_OPTS",
+            worker.debugSuspend,
+            worker.debugPort,
+            logFileName(worker.name))
+        project.logger.info("Starting worker with environment: $environment")
         Process process = ProcessUtil.exec([
                 command    : "run",
                 params     : params,
-                environment: EnvironmentUtil.getEnv("DEPLOYIT_SERVER_OPTS",
-                        worker.debugSuspend,
-                        worker.debugPort,
-                        logFileName(worker.name)),
+                environment: environment,
                 workDir    : getBinDir(worker),
                 discardIO  : worker.stdoutFileName ? false : true,
                 redirectTo : worker.stdoutFileName ? "${getLogDir(worker)}/${worker.stdoutFileName}" : null,
@@ -126,13 +166,31 @@ class StartWorkersTask extends DefaultTask {
             arg(value: "-master")
             arg(value: "${hostName}:${port}")
             arg(value: "-api")
-            arg(value: "http://${hostName}:${ServerUtil.getServer(project).httpPort}")
+            arg(value: ServerUtil.getUrl(project))
             arg(value: "-hostname")
             arg(value: "${hostName}")
             arg(value: "-port")
             arg(value: worker.port)
             arg(value: "-work")
             arg(value: worker.name)
+
+            if (ServerUtil.isAkkaSecured(project)) {
+                def secured = SslUtil.getAkkaSecured(project, ServerUtil.getServerWorkingDir(project))
+                def key = secured.keys[AkkaSecured.WORKER_KEY_NAME + worker.name]
+
+                arg(value: "-keyStore")
+                arg(value: key.keyStoreFile().absolutePath)
+                if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
+                    arg(value: "-keyPassword")
+                    arg(value: key.keyPassword)
+                }
+                arg(value: "-keyStorePassword")
+                arg(value: key.keyStorePassword)
+                arg(value: "-trustStore")
+                arg(value: secured.trustStoreFile().absolutePath)
+                arg(value: "-trustStorePassword")
+                arg(value: secured.truststorePasswor)
+            }
 
             env(key: "CLASSPATH", value: classpath)
 

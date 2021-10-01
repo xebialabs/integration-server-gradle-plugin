@@ -99,11 +99,18 @@ class CliUtil {
                 "-context", ServerUtil.readDeployitConfProperty(project, "http.context.root"),
                 "-expose-proxies",
                 "-password", "admin",
+                "-host", ServerUtil.getHttpHost(),
                 "-port", ServerUtil.readDeployitConfProperty(project, "http.port"),
                 "-socketTimeout", cli.socketTimeout.toString(),
                 "-source", scriptSources.collect { File source -> source.absolutePath }.join(","),
                 "-username", "admin",
         ] + extraParamsAsList
+
+        if (ServerUtil.isTls(project)) {
+            params += [
+                "-secure"
+            ]
+        }
 
         def workDir = getCliBin(project)
         def scriptLogFile = getCliLogFile(project, label)
@@ -113,9 +120,11 @@ class CliUtil {
 
         project.logger.lifecycle("Running this command now: $commandLine, logs can be found in ${scriptLogFile}")
 
+        def environment = extraEnvironments + EnvironmentUtil.getCliEnv(project, cli, extraParams, extraClassPath)
+        project.logger.info("Starting worker with environment: $environment")
         ProcessUtil.execAndCheck([
                 command    : "cli",
-                environment: extraEnvironments + EnvironmentUtil.getCliEnv(cli, extraParams, extraClassPath),
+                environment: environment,
                 params     : params,
                 redirectTo : scriptLogFile,
                 wait       : true,

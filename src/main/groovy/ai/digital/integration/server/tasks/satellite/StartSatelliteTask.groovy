@@ -1,9 +1,11 @@
 package ai.digital.integration.server.tasks.satellite
 
 import ai.digital.integration.server.domain.Satellite
+import ai.digital.integration.server.tasks.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.util.EnvironmentUtil
 import ai.digital.integration.server.util.ProcessUtil
 import ai.digital.integration.server.util.SatelliteUtil
+import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.WaitForBootUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -19,6 +21,11 @@ class StartSatelliteTask extends DefaultTask {
                 PrepareSatellitesTask.NAME,
                 SatelliteOverlaysTask.NAME
         ]
+
+        if (ServerUtil.isTls(project)) {
+            dependencies += [TlsApplicationConfigurationOverrideTask.NAME ]
+        }
+
         this.configure {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
@@ -30,14 +37,18 @@ class StartSatelliteTask extends DefaultTask {
         SatelliteUtil.getSatellites(project).each { Satellite satellite ->
             def binDir = SatelliteUtil.getBinDir(project, satellite)
             project.logger.lifecycle("Launching Satellite '${satellite.name} from ${binDir}'.")
+
+            def environment = EnvironmentUtil.getEnv(
+                project,
+                "SATELLITE_OPTS",
+                satellite.debugSuspend,
+                satellite.debugPort,
+                "xl-satellite.log"
+            )
+            project.logger.info("Starting worker with environment: $environment")
             Process process = ProcessUtil.exec([
                     command    : "run",
-                    environment: EnvironmentUtil.getEnv(
-                            "SATELLITE_OPTS",
-                            satellite.debugSuspend,
-                            satellite.debugPort,
-                            "xl-satellite.log"
-                    ),
+                    environment: environment,
                     workDir    : binDir,
                     discardIO  : satellite.stdoutFileName ? false : true,
                     redirectTo : satellite.stdoutFileName ? "${SatelliteUtil.getSatelliteLog(project, satellite)}/${satellite.stdoutFileName}" : null,

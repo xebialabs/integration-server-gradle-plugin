@@ -41,6 +41,14 @@ class StartIntegrationServerTask extends DefaultTask {
         ]
 
         this.configure {
+            if (ServerUtil.isTls(project)) {
+                dependencies += [ TlsApplicationConfigurationOverrideTask.NAME ]
+            }
+
+            if (ServerUtil.isAkkaSecured(project)) {
+                dependencies += [ GenerateSecureAkkaKeysTask.NAME ]
+            }
+
             group = PLUGIN_GROUP
             dependsOn(dependencies)
 
@@ -67,11 +75,13 @@ class StartIntegrationServerTask extends DefaultTask {
 
     private Process startServer(Server server) {
         project.logger.lifecycle("Launching server")
+        def environment = EnvironmentUtil.getServerEnv(project, server)
+        project.logger.info("Starting server with environment: $environment")
         Process process = ProcessUtil.exec([
                 command    : "run",
                 discardIO  : server.stdoutFileName ? false : true,
                 redirectTo : server.stdoutFileName ? "${ServerUtil.getLogDir(project)}/${server.stdoutFileName}" : null,
-                environment: EnvironmentUtil.getServerEnv(server),
+                environment: environment,
                 params     : ["-force-upgrades"],
                 workDir    : getBinDir(),
         ])
