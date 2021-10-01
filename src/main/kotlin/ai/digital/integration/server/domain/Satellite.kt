@@ -9,7 +9,7 @@ open class Satellite(val name: String) {
     var serverAkkaPort: Int = 8380
     var serverAkkaHostname: String = "127.0.0.1"
     var serverAkkaBindHostName: String = "0.0.0.0"
-    var overlays: Map<String, List<Any>> = mapOf()
+    var overlays: Map<String, List<Any>> = mutableMapOf()
     var version: String? = null
     var stdoutFileName: String? = null
 }

@@ -6,15 +6,15 @@ import groovy.lang.Closure
 import org.gradle.api.NamedDomainObjectContainer
 
 open class Server(name: String) : Engine(name) {
-    var copyBuildArtifacts = mapOf<String, String>()
+    var copyBuildArtifacts = mutableMapOf<String, String>()
     var contextRoot: String = "/"
-    var defaultOfficialPluginsToExclude: List<String> = listOf()
+    var defaultOfficialPluginsToExclude: List<String> = mutableListOf()
     var dockerImage: String? = null
     var httpPort: Int = HTTPUtil.findFreePort()
-    var generateDatasets: List<String> = listOf()
+    var generateDatasets: List<String> = mutableListOf()
     var pingRetrySleepTime: Int = 10
     var pingTotalTries: Int = 60
-    var yamlPatches: Map<String, Map<String, Any>> = mapOf()
+    var yamlPatches: Map<String, Map<String, Any>> = mutableMapOf()
     var devOpsAsCodes: NamedDomainObjectContainer<DevOpsAsCode>? = null
 
     fun devOpsAsCodes(closure: Closure<NamedDomainObjectContainer<DevOpsAsCode>>) {
