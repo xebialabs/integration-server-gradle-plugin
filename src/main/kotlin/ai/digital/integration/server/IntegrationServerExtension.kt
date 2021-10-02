@@ -13,7 +13,7 @@ open class IntegrationServerExtension(
     val workers: NamedDomainObjectContainer<Worker>
 ) {
 
-    var mqDriverVersions: Map<String, String> = mapOf()
+    var mqDriverVersions: MutableMap<String, String> = mutableMapOf()
 
     var xldIsDataVersion: String? = null
 
