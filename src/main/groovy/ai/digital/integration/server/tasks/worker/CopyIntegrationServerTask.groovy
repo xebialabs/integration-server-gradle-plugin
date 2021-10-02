@@ -2,6 +2,7 @@ package ai.digital.integration.server.tasks.worker
 
 import ai.digital.integration.server.domain.Worker
 import ai.digital.integration.server.tasks.YamlPatchTask
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.ProcessUtil
 import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.WorkerUtil
@@ -39,7 +40,7 @@ class CopyIntegrationServerTask extends DefaultTask {
     }
 
     void copyServerDirToWorkerDir(Worker worker) {
-        def sourceDir = Paths.get(ServerUtil.getServerWorkingDir(project)).toFile()
+        def sourceDir = Paths.get(DeployServerUtil.getServerWorkingDir(project)).toFile()
         def destinationDir = Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker)).toFile()
 
         FileUtils.copyDirectory(sourceDir, destinationDir)

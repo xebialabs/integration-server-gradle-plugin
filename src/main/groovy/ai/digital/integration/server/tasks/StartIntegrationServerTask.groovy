@@ -44,7 +44,7 @@ class StartIntegrationServerTask extends DefaultTask {
             group = PLUGIN_GROUP
             dependsOn(dependencies)
 
-            if (!ServerUtil.isDockerBased(project)) {
+            if (!DeployServerUtil.isDockerBased(project)) {
                 if (WorkerUtil.hasWorkers(project)) {
                     finalizedBy(StartWorkersTask.NAME)
                 }
@@ -62,7 +62,7 @@ class StartIntegrationServerTask extends DefaultTask {
     }
 
     private def getBinDir() {
-        Paths.get(ServerUtil.getServerWorkingDir(project), "bin").toFile()
+        Paths.get(DeployServerUtil.getServerWorkingDir(project), "bin").toFile()
     }
 
     private Process startServer(Server server) {
@@ -84,7 +84,7 @@ class StartIntegrationServerTask extends DefaultTask {
     }
 
     private Process start(Server server) {
-        if (!ServerUtil.isDockerBased(project)) {
+        if (!DeployServerUtil.isDockerBased(project)) {
             maybeTearDown()
             if (hasToBeStartedFromClasspath(server)) {
                 ServerUtil.startServerFromClasspath(project)
@@ -111,7 +111,7 @@ class StartIntegrationServerTask extends DefaultTask {
 
     @TaskAction
     void launch() {
-        def server = ServerUtil.getServer(project)
+        def server = DeployServerUtil.getServer(project)
         project.logger.lifecycle("About to launch Deploy Server on port ${server.httpPort}.")
         allowToWriteMountedHostFolders()
 

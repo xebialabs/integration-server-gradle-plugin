@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks
 
-import ai.digital.integration.server.util.CliUtil
+
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.IntegrationServerUtil
 import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.tasks.Copy
@@ -18,7 +19,7 @@ class DownloadAndExtractServerDistTask extends Copy {
         ]
 
         this.configure {
-            def server = ServerUtil.getServer(project)
+            def server = DeployServerUtil.getServer(project)
 
             group = PLUGIN_GROUP
             dependsOn(dependencies)

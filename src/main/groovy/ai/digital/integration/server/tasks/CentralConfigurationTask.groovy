@@ -42,7 +42,7 @@ class CentralConfigurationTask extends DefaultTask {
 
     private void createCentralConfigurationFiles() {
         project.logger.lifecycle("Generating initial central configuration files")
-        def serverDir = ServerUtil.getServerWorkingDir(project)
+        def serverDir = DeployServerUtil.getServerWorkingDir(project)
 
         overlayRepositoryConfig(serverDir)
 

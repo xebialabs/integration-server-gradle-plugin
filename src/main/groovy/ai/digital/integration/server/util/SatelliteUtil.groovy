@@ -45,8 +45,8 @@ class SatelliteUtil {
             return project.getProperty("xlSatelliteVersion")
         } else if (satellite.version?.trim()) {
             return satellite.version
-        } else if (ServerUtil.getServer(project).version) {
-            return ServerUtil.getServer(project).version
+        } else if (DeployServerUtil.getServer(project).version) {
+            return DeployServerUtil.getServer(project).version
         } else {
             project.logger.error("Satellite Version is not specified")
             System.exit(1)

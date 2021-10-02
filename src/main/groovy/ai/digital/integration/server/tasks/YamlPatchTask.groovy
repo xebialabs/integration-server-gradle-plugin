@@ -1,6 +1,6 @@
 package ai.digital.integration.server.tasks
 
-
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.YamlFileUtil
 import org.gradle.api.DefaultTask
@@ -25,11 +25,11 @@ class YamlPatchTask extends DefaultTask {
 
     @TaskAction
     def yamlPatches() {
-        def server = ServerUtil.getServer(project)
+        def server = DeployServerUtil.getServer(project)
         project.logger.lifecycle("Applying patches on YAML files for ${server.name}.")
 
         server.yamlPatches.each { Map.Entry<String, Map<String, Object>> yamlPatch ->
-            def file = new File("${ServerUtil.getServerWorkingDir(project)}/${yamlPatch.key}")
+            def file = new File("${DeployServerUtil.getServerWorkingDir(project)}/${yamlPatch.key}")
             YamlFileUtil.overlayFile(file, yamlPatch.value)
         }
     }

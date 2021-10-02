@@ -2,6 +2,7 @@ package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.util.CopyBuildArtifactsUtil
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -24,7 +25,7 @@ class CopyServerBuildArtifactsTask extends DefaultTask {
 
     @TaskAction
     void launch() {
-        Server server = ServerUtil.getServer(project)
-        CopyBuildArtifactsUtil.execute(project, server.copyBuildArtifacts, ServerUtil.getServerWorkingDir(project))
+        Server server = DeployServerUtil.getServer(project)
+        CopyBuildArtifactsUtil.execute(project, server.copyBuildArtifacts, DeployServerUtil.getServerWorkingDir(project))
     }
 }

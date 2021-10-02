@@ -56,7 +56,7 @@ class StartWorkersTask extends DefaultTask {
 
     void startWorker(Worker worker) {
         project.logger.lifecycle("Launching worker $worker.name")
-        def server = ServerUtil.getServer(project)
+        def server = DeployServerUtil.getServer(project)
 
         def params = [
                 "-master",
@@ -126,7 +126,7 @@ class StartWorkersTask extends DefaultTask {
             arg(value: "-master")
             arg(value: "${hostName}:${port}")
             arg(value: "-api")
-            arg(value: "http://${hostName}:${ServerUtil.getServer(project).httpPort}")
+            arg(value: "http://${hostName}:${DeployServerUtil.getServer(project).httpPort}")
             arg(value: "-hostname")
             arg(value: "${hostName}")
             arg(value: "-port")

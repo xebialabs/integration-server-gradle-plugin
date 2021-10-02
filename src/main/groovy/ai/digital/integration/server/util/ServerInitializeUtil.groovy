@@ -9,7 +9,7 @@ class ServerInitializeUtil {
         project.logger.lifecycle("Preparing server destination folders.")
 
         ["centralConfiguration", "conf", "hotfix/plugins", "hotfix/lib", "plugins"].each { String folderName ->
-            def folderPath = "${ServerUtil.getServerWorkingDir(project)}/${folderName}"
+            def folderPath = "${DeployServerUtil.getServerWorkingDir(project)}/${folderName}"
             def folder = new File(folderPath)
             folder.mkdirs()
             project.logger.lifecycle("Folder $folderPath has created.")
@@ -19,7 +19,7 @@ class ServerInitializeUtil {
     private static void createConfFile(Project project, Server server) {
         project.logger.lifecycle("Creating deployit.conf file")
 
-        def file = project.file("${ServerUtil.getServerWorkingDir(project)}/conf/deployit.conf")
+        def file = project.file("${DeployServerUtil.getServerWorkingDir(project)}/conf/deployit.conf")
         file.createNewFile()
         file.withWriter { BufferedWriter w ->
             w.write("http.port=${server.httpPort}\n")
@@ -31,7 +31,7 @@ class ServerInitializeUtil {
     }
 
     static def prepare(Project project) {
-        Server server = ServerUtil.getServer(project)
+        Server server = DeployServerUtil.getServer(project)
         project.logger.lifecycle("Preparing serve ${server.name} before launching it.")
         createFolders(project)
         createConfFile(project, server)

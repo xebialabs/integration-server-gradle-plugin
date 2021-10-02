@@ -14,15 +14,15 @@ class PropertyUtil {
         }
 
         @JvmStatic
-        fun resolveIntValue(project: Project, propertyName: String, defaultValue: Any?): Any? {
+        fun resolveIntValue(project: Project, propertyName: String, defaultValue: Any?): Int? {
             val value = resolveValue(project, propertyName, defaultValue)
             return value?.toString()?.toInt()
         }
 
         @JvmStatic
-        fun resolveBooleanValue(project: Project, propertyName: String, defaultValue: Any?): Any? {
+        fun resolveBooleanValue(project: Project, propertyName: String, defaultValue: Any?): Boolean {
             val value = resolveValue(project, propertyName, defaultValue)
-            return value?.toString()?.toBoolean()
+            return value?.toString().toBoolean()
         }
     }
 }

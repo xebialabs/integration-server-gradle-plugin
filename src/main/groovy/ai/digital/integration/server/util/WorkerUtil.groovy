@@ -48,8 +48,8 @@ class WorkerUtil {
 
     static def isExternalRuntimeWorker(Project project, Worker worker) {
         getRuntimeDirectory(project, worker) == null ||
-            (getRuntimeDirectory(project, worker) != null && !getRuntimeDirectory(project, worker).isEmpty() &&
-                getWorkerWorkingDir(project, worker) != ServerUtil.getServerWorkingDir(project))
+                (getRuntimeDirectory(project, worker) != null && !getRuntimeDirectory(project, worker).isEmpty() &&
+                        getWorkerWorkingDir(project, worker) != DeployServerUtil.getServerWorkingDir(project))
     }
 
     static def isDistDownloadRequired(Project project, Worker worker) {
@@ -61,7 +61,7 @@ class WorkerUtil {
     }
 
     static def getRuntimeDirectory(Project project, Worker worker) {
-        worker.runtimeDirectory ? worker.runtimeDirectory : ServerUtil.getServer(project).runtimeDirectory
+        worker.runtimeDirectory ? worker.runtimeDirectory : DeployServerUtil.getServer(project).runtimeDirectory
     }
 
     private static String getWorkerVersion(Project project, Worker worker) {
@@ -69,8 +69,8 @@ class WorkerUtil {
             return project.getProperty("deployTaskEngineVersion")
         } else if (worker.version?.trim()) {
             return worker.version
-        } else if (ServerUtil.getServer(project).version) {
-            return ServerUtil.getServer(project).version
+        } else if (DeployServerUtil.getServer(project).version) {
+            return DeployServerUtil.getServer(project).version
         } else if (!hasRuntimeDirectory(project, worker)) {
             project.logger.error("Worker Version is not specified")
             System.exit(1)
