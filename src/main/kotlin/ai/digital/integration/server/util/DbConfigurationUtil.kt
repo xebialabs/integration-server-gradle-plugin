@@ -13,16 +13,16 @@ class DbConfigurationUtil {
         @JvmStatic
         fun connectionProperties(username: String, password: String): Properties {
             val properties = Properties()
-            properties.put("user", username)
-            properties.put("password", password)
+            properties["user"] = username
+            properties["password"] = password
             return properties
         }
 
         @JvmStatic
         fun createDriverConnection(driverClass: String, url: String, properties: Properties): Connection {
-            val driver = Class.forName(driverClass).newInstance() as Driver
+            val driver = Class.forName(driverClass).getDeclaredConstructor().newInstance() as Driver
             val driverConnection = driver.connect(url, properties)
-            driverConnection.setAutoCommit(true)
+            driverConnection.autoCommit = true
             return driverConnection
         }
 
@@ -34,12 +34,12 @@ class DbConfigurationUtil {
             config.setProperty(DatabaseConfig.FEATURE_QUALIFIED_TABLE_NAMES, true)
             config.setProperty(DatabaseConfig.PROPERTY_ESCAPE_PATTERN, dbDependency.escapePattern)
 
-            val dataTypeFactory = Class.forName(dbDependency.dataFactory).newInstance()
+            val dataTypeFactory = Class.forName(dbDependency.dataFactory).getDeclaredConstructor().newInstance()
             config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, dataTypeFactory)
 
             val metaFactory = dbDependency.metaFactory
             if (metaFactory != null && !metaFactory.isEmpty()) {
-                val metadataHandler = Class.forName(metaFactory).newInstance()
+                val metadataHandler = Class.forName(metaFactory).getDeclaredConstructor().newInstance()
                 config.setProperty(DatabaseConfig.PROPERTY_METADATA_HANDLER, metadataHandler)
             }
 

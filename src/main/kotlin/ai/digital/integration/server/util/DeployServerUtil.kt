@@ -28,15 +28,19 @@ class DeployServerUtil {
         fun getServerWorkingDir(project: Project): String {
             val server = getServer(project)
 
-            return if (isDockerBased(project)) {
-                val workDir = getRelativePathInIntegrationServerDist(project, "deploy")
-                workDir.toAbsolutePath().toString()
-            } else if (server.runtimeDirectory == null) {
-                val targetDir = getServerDistFolderPath(project).toString()
-                Paths.get(targetDir, "xl-deploy-${server.version}-server").toAbsolutePath().toString()
-            } else {
-                val target = project.projectDir.toString()
-                Paths.get(target, server.runtimeDirectory).toAbsolutePath().toString()
+            return when {
+                isDockerBased(project) -> {
+                    val workDir = getRelativePathInIntegrationServerDist(project, "deploy")
+                    workDir.toAbsolutePath().toString()
+                }
+                server.runtimeDirectory == null -> {
+                    val targetDir = getServerDistFolderPath(project).toString()
+                    Paths.get(targetDir, "xl-deploy-${server.version}-server").toAbsolutePath().toString()
+                }
+                else -> {
+                    val target = project.projectDir.toString()
+                    Paths.get(target, server.runtimeDirectory).toAbsolutePath().toString()
+                }
             }
         }
 

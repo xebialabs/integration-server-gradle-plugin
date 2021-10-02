@@ -79,7 +79,7 @@ class FileUtil {
         fun removeEmptyLines(data: String, output: File) {
             output.writeText("")
             data
-                .lines().map { line -> line.stripTrailing() }
+                .lines().map { line -> line.trimEnd() }
                 .filter { line -> line.isNotEmpty() }
                 .forEach { line -> output.appendText("$line\n") }
         }

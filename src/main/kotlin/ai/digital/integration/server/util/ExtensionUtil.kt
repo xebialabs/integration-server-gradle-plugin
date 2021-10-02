@@ -53,6 +53,7 @@ class ExtensionUtil {
         }
 
         @JvmStatic
+        @Suppress("UNCHECKED_CAST")
         private fun getMqDriverVersions(project: Project): MutableMap<String, String> {
             return if (project.hasProperty("mqDriverVersions"))
                 project.property("mqDriverVersions") as MutableMap<String, String>
