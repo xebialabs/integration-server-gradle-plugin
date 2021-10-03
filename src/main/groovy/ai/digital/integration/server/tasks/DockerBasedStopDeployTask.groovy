@@ -26,7 +26,7 @@ class DockerBasedStopDeployTask extends DefaultTask {
 
     @InputFiles
     File getDockerComposeFile() {
-        ServerUtil.getResolvedDockerFile(project).toFile()
+        DeployServerUtil.getResolvedDockerFile(project).toFile()
     }
 
     /**
@@ -35,7 +35,7 @@ class DockerBasedStopDeployTask extends DefaultTask {
     def allowToCleanMountedFiles() {
         project.exec {
             it.executable 'docker-compose'
-            it.args '-f', getDockerComposeFile(), 'exec', '-T', ServerUtil.getDockerServiceName(project),
+            it.args '-f', getDockerComposeFile(), 'exec', '-T', DeployServerUtil.getDockerServiceName(project),
                     'chmod', '777', '-R', '/opt/xebialabs/xl-deploy-server'
             errorOutput = new ByteArrayOutputStream()
             ignoreExitValue = true
@@ -44,7 +44,7 @@ class DockerBasedStopDeployTask extends DefaultTask {
 
     @TaskAction
     void run() {
-        project.logger.lifecycle("Stopping Deploy Server from a docker image ${ServerUtil.getDockerImageVersion(project)}")
+        project.logger.lifecycle("Stopping Deploy Server from a docker image ${DeployServerUtil.getDockerImageVersion(project)}")
 
         allowToCleanMountedFiles()
 

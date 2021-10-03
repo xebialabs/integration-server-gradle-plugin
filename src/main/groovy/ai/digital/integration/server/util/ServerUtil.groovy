@@ -1,71 +1,14 @@
 package ai.digital.integration.server.util
 
-
 import ai.digital.integration.server.domain.Server
-import groovy.io.FileType
 import org.gradle.api.Project
 
-import java.nio.file.Path
-import java.nio.file.Paths
-
 class ServerUtil {
-
-    private static def dockerServerRelativePath() {
-        "deploy/server-docker-compose.yaml"
-    }
-
-    static Path getResolvedDockerFile(Project project) {
-        def server = DeployServerUtil.getServer(project)
-        def resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, dockerServerRelativePath())
-
-        def serverTemplate = resultComposeFilePath.toFile()
-
-        def configuredTemplate = serverTemplate.text
-                .replace('DEPLOY_SERVER_HTTP_PORT', server.httpPort.toString())
-                .replace('DEPLOY_IMAGE_VERSION', getDockerImageVersion(project))
-                .replace('DEPLOY_PLUGINS_TO_EXCLUDE', server.defaultOfficialPluginsToExclude.join(","))
-                .replace('DEPLOY_VERSION', server.version)
-        serverTemplate.text = configuredTemplate
-
-        return resultComposeFilePath
-    }
-
-    static def getServerDistFolderPath(Project project) {
-        Paths.get(IntegrationServerUtil.getDist(project))
-    }
 
     static def waitForBoot(Project project, Process process) {
         def server = DeployServerUtil.getServer(project)
         def url = "http://localhost:${server.httpPort}${server.contextRoot}/deployit/metadata/type"
         WaitForBootUtil.byPort(project, "Deploy", url, server.httpPort, process)
-    }
-
-    static def getDockerImageVersion(Project project) {
-        def server = DeployServerUtil.getServer(project)
-        "${server.dockerImage}:${server.version}"
-    }
-
-    static def getDockerServiceName(Project project) {
-        def server = DeployServerUtil.getServer(project)
-        "deploy-${server.version}"
-    }
-
-    static void grantPermissionsToIntegrationServerFolder(Project project) {
-        if (DeployServerUtil.isDockerBased(project)) {
-            def workDir = IntegrationServerUtil.getDist(project)
-            new File(workDir).traverse(type: FileType.ANY) { File it ->
-                FileUtil.grantRWPermissions(it)
-            }
-        }
-    }
-
-    static def readDeployitConfProperty(Project project, String key) {
-        def deployitConf = Paths.get("${DeployServerUtil.getServerWorkingDir(project)}/conf/deployit.conf").toFile()
-        PropertiesUtil.readProperty(deployitConf, key)
-    }
-
-    static def getLogDir(Project project) {
-        Paths.get(DeployServerUtil.getServerWorkingDir(project), "log").toFile()
     }
 
     static def startServerFromClasspath(Project project) {

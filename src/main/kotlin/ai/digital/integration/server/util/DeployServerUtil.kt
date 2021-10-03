@@ -3,6 +3,7 @@ package ai.digital.integration.server.util
 import ai.digital.integration.server.IntegrationServerExtension
 import ai.digital.integration.server.domain.Server
 import org.gradle.api.Project
+import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -99,6 +100,65 @@ class DeployServerUtil {
         @JvmStatic
         fun isDistDownloadRequired(project: Project): Boolean {
             return getServer(project).runtimeDirectory == null && !isDockerBased(project)
+        }
+
+        @JvmStatic
+        fun readDeployitConfProperty(project: Project, key: String): String {
+            val deployitConf = Paths.get("${getServerWorkingDir(project)}/conf/deployit.conf").toFile()
+            return PropertiesUtil.readProperty(deployitConf, key)
+        }
+
+        @JvmStatic
+        fun getLogDir(project: Project): File {
+            return Paths.get(getServerWorkingDir(project), "log").toFile()
+        }
+
+        @JvmStatic
+        fun grantPermissionsToIntegrationServerFolder(project: Project) {
+            if (isDockerBased(project)) {
+                val workDir = IntegrationServerUtil.getDist(project)
+
+                File(workDir).walk().forEach {
+                    FileUtil.grantRWPermissions(it)
+                }
+            }
+        }
+
+        @JvmStatic
+        fun getDockerImageVersion(project: Project): String {
+            val server = getServer(project)
+            return "${server.dockerImage}:${server.version}"
+        }
+
+        @JvmStatic
+        fun getDockerServiceName(project: Project): String {
+            val server = getServer(project)
+            return "deploy-${server.version}"
+        }
+
+        @JvmStatic
+        fun getResolvedDockerFile(project: Project): Path {
+            val server = getServer(project)
+            val resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, dockerServerRelativePath())
+
+            val serverTemplate = resultComposeFilePath.toFile()
+
+            val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
+                .replace("DEPLOY_SERVER_HTTP_PORT", server.httpPort.toString())
+                .replace("DEPLOY_IMAGE_VERSION", getDockerImageVersion(project))
+                .replace(
+                    "DEPLOY_PLUGINS_TO_EXCLUDE",
+                    server.defaultOfficialPluginsToExclude.joinToString(separator = ",")
+                )
+                .replace("DEPLOY_VERSION", server.version.toString())
+            serverTemplate.writeText(configuredTemplate)
+
+            return resultComposeFilePath
+        }
+
+        @JvmStatic
+        private fun dockerServerRelativePath(): String {
+            return "deploy/server-docker-compose.yaml"
         }
 
     }
