@@ -17,7 +17,7 @@ class DeployServerUtil {
             server.httpPort = getHttpPort(project, server)
             server.version = getServerVersion(project, server)
 
-            if (!server.dockerImage.isNullOrEmpty()) {
+            server.dockerImage?.let {
                 server.runtimeDirectory = null
             }
 
