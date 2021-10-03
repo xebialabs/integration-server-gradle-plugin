@@ -1,6 +1,6 @@
 package ai.digital.integration.server.util
 
-import ai.digital.integration.server.IntegrationServerExtension
+
 import ai.digital.integration.server.domain.Server
 import groovy.io.FileType
 import org.gradle.api.Project
@@ -12,15 +12,6 @@ class ServerUtil {
 
     private static def dockerServerRelativePath() {
         "deploy/server-docker-compose.yaml"
-    }
-
-    static Boolean isServerDefined(Project project) {
-        def ext = project.extensions.getByType(IntegrationServerExtension)
-        ext.servers.size() > 0
-    }
-
-    static def isDistDownloadRequired(Project project) {
-        DeployServerUtil.getServer(project).runtimeDirectory == null && !DeployServerUtil.isDockerBased(project)
     }
 
     static Path getResolvedDockerFile(Project project) {
@@ -77,11 +68,6 @@ class ServerUtil {
         Paths.get(DeployServerUtil.getServerWorkingDir(project), "log").toFile()
     }
 
-    static def createDebugString(Boolean debugSuspend, Integer debugPort) {
-        def suspend = debugSuspend ? 'y' : 'n'
-        "-Xrunjdwp:transport=dt_socket,server=y,suspend=${suspend},address=${debugPort}"
-    }
-
     static def startServerFromClasspath(Project project) {
         project.logger.lifecycle("startServerFromClasspath.")
         Server server = DeployServerUtil.getServer(project)
@@ -120,7 +106,7 @@ class ServerUtil {
             if (server.debugPort != null) {
                 project.logger.lifecycle("Enabled debug mode on port ${server.debugPort}")
                 jvmarg(value: "-Xdebug")
-                jvmarg(value: createDebugString(server.debugSuspend, server.debugPort))
+                jvmarg(value: DeployServerUtil.createDebugString(server.debugSuspend, server.debugPort))
             }
         }
     }

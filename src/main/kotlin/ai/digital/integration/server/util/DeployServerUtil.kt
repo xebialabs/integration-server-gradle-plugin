@@ -83,5 +83,23 @@ class DeployServerUtil {
                 null
             }
         }
+
+        @JvmStatic
+        fun createDebugString(debugSuspend: Boolean, debugPort: Int): String {
+            val suspend = if (debugSuspend) "y" else "n"
+            return "-Xrunjdwp:transport=dt_socket,server=y,suspend=${suspend},address=${debugPort}"
+        }
+
+        @JvmStatic
+        fun isServerDefined(project: Project): Boolean {
+            val ext = project.extensions.getByType(IntegrationServerExtension::class.java)
+            return ext.servers.size > 0
+        }
+
+        @JvmStatic
+        fun isDistDownloadRequired(project: Project): Boolean {
+            return getServer(project).runtimeDirectory == null && !isDockerBased(project)
+        }
+
     }
 }

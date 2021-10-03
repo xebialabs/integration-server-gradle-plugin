@@ -145,7 +145,7 @@ class StartWorkersTask extends DefaultTask {
             if (worker.debugPort != null) {
                 project.logger.lifecycle("Enabled debug mode on port ${worker.debugPort}")
                 jvmarg(value: "-Xdebug")
-                jvmarg(value: ServerUtil.createDebugString(worker.debugSuspend, worker.debugPort))
+                jvmarg(value: DeployServerUtil.createDebugString(worker.debugSuspend, worker.debugPort))
             }
         }
         waitForBoot(worker, null)

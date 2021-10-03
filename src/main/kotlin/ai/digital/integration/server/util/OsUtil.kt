@@ -3,9 +3,9 @@ package ai.digital.integration.server.util
 class OsUtil {
     companion object {
         @JvmStatic
-        fun getPathSeparator() {
+        fun getPathSeparator(): String {
             val properties = System.getProperties()
-            properties.getProperty("path.separator")
+            return properties.getProperty("path.separator")
         }
     }
 }
