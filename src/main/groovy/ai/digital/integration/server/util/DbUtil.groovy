@@ -2,6 +2,7 @@ package ai.digital.integration.server.util
 
 import ai.digital.integration.server.IntegrationServerExtension
 import ai.digital.integration.server.domain.Database
+import ai.digital.integration.server.domain.DbParameters
 import com.fasterxml.jackson.core.TreeNode
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -138,25 +139,5 @@ class DbUtil {
             case [POSTGRES, POSTGRES12]: return postgresParams
             default: return derbyNetworkParams
         }
-    }
-}
-
-class DbParameters {
-    String driverDependency
-    String driverClass
-    String dataFactory
-    String metaFactory
-    String escapePattern
-
-    DbParameters(String driverDependency,
-                 String driverClass,
-                 String dataFactory,
-                 String metaFactory,
-                 String escapePattern) {
-        this.driverDependency = driverDependency
-        this.driverClass = driverClass
-        this.dataFactory = dataFactory
-        this.metaFactory = metaFactory
-        this.escapePattern = escapePattern
     }
 }

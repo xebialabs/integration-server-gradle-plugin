@@ -37,14 +37,6 @@ class StartWorkersTask extends DefaultTask {
                 YamlPatchTask.NAME
         ]
 
-        if (ServerUtil.isAkkaSecured(project)) {
-            dependencies += [GenerateSecureAkkaKeysTask.NAME ]
-        }
-
-        if (ServerUtil.isTls(project)) {
-            dependencies += [TlsApplicationConfigurationOverrideTask.NAME ]
-        }
-
         this.configure {
             dependsOn(dependencies)
             group = PLUGIN_GROUP

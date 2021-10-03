@@ -2,7 +2,7 @@ package ai.digital.integration.server.tasks.anonymizer
 
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.util.ConfigurationsUtil
-import ai.digital.integration.server.util.ServerUtil
+import ai.digital.integration.server.util.DeployServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -25,7 +25,7 @@ class ExportDatabaseTask extends DefaultTask {
 
     @TaskAction
     def startup() {
-        def server = ServerUtil.getServer(project)
+        def server = DeployServerUtil.getServer(project)
         project.logger.lifecycle("Exporting database for Deploy server.")
 
         if (server.runtimeDirectory != null) {

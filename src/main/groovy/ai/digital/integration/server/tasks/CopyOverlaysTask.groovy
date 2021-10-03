@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.domain.Server
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.ExtensionUtil
 import ai.digital.integration.server.util.OverlaysUtil
 import ai.digital.integration.server.util.ServerUtil
@@ -20,14 +21,14 @@ class CopyOverlaysTask extends DefaultTask {
             finalizedBy CheckUILibVersionsTask.NAME
 
             project.afterEvaluate {
-                Server server = ServerUtil.getServer(project)
+                Server server = DeployServerUtil.getServer(project)
                 project.logger.lifecycle("Copying overlays on Deploy server ${server.name}")
 
                 OverlaysUtil.addDatabaseDependency(project, server)
                 OverlaysUtil.addMqDependency(project, server)
 
                 server.overlays.each { Map.Entry<String, List<Object>> overlay ->
-                    OverlaysUtil.defineOverlay(project, this, ServerUtil.getServerWorkingDir(project), ExtensionUtil.IS_EXTENSION_NAME, overlay, [])
+                    OverlaysUtil.defineOverlay(project, this, DeployServerUtil.getServerWorkingDir(project), ExtensionUtil.IS_EXTENSION_NAME, overlay, [])
                 }
             }
         }

@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks.worker
 
 import ai.digital.integration.server.tasks.mq.ShutdownMqTask
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.WorkerUtil
 import groovyx.net.http.HTTPBuilder

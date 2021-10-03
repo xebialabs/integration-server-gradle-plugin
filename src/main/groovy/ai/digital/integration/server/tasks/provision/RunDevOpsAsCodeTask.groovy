@@ -4,8 +4,8 @@ import ai.digital.integration.server.domain.DevOpsAsCode
 import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.tasks.StartIntegrationServerTask
 import ai.digital.integration.server.tasks.worker.StartWorkersTask
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.HTTPUtil
-import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -21,7 +21,7 @@ class RunDevOpsAsCodeTask extends DefaultTask {
                 StartIntegrationServerTask.NAME
         ]
 
-        def workerDependencies = WorkerUtil.hasWorkers(project) ? [ StartWorkersTask.NAME ] : []
+        def workerDependencies = WorkerUtil.hasWorkers(project) ? [StartWorkersTask.NAME] : []
 
         this.configure {
             group = PLUGIN_GROUP
@@ -54,6 +54,6 @@ class RunDevOpsAsCodeTask extends DefaultTask {
     @TaskAction
     void launch() {
         project.logger.lifecycle("Running Dev Ops as Code provision script on the Deploy server.")
-        launchDevOpAsCodeScripts(project, ServerUtil.getServer(project))
+        launchDevOpAsCodeScripts(project, DeployServerUtil.getServer(project))
     }
 }

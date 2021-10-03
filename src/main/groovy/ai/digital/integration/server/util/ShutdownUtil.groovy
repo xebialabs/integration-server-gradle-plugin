@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 class ShutdownUtil {
     private static void waitForShutdown(Project project) {
-        def server = ServerUtil.getServer(project)
+        def server = DeployServerUtil.getServer(project)
         int triesLeft = server.pingTotalTries
 
         boolean success = false
@@ -35,7 +35,7 @@ class ShutdownUtil {
     }
 
     static void shutdownServer(Project project) {
-        def server = ServerUtil.getServer(project)
+        def server = DeployServerUtil.getServer(project)
         try {
             def port = server.httpPort
             project.logger.lifecycle("Trying to shutdown integration server on port ${port}")

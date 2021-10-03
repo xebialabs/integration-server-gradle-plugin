@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks.worker
 
 import ai.digital.integration.server.domain.Worker
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.FileUtil
 import ai.digital.integration.server.util.ProcessUtil
 import ai.digital.integration.server.util.ServerUtil
@@ -41,7 +42,7 @@ class SyncServerPluginsWithWorkerTask extends DefaultTask {
     }
 
     void copyServerDirToWorkerDir(Worker worker) {
-        def sourceDir = ServerUtil.getServerWorkingDir(project)
+        def sourceDir = DeployServerUtil.getServerWorkingDir(project)
         def destinationDir = Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker)).toFile()
         ProcessUtil.chMod(project, "755", "${Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "bin").toAbsolutePath().toString()}")
 
@@ -50,14 +51,14 @@ class SyncServerPluginsWithWorkerTask extends DefaultTask {
         // delete plugins from zip
         FileUtils.deleteDirectory(Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "plugins").toFile())
 
-        FileUtil.copyDirs(ServerUtil.getServerWorkingDir(project), WorkerUtil.getWorkerWorkingDir(project, worker), [
+        FileUtil.copyDirs(DeployServerUtil.getServerWorkingDir(project), WorkerUtil.getWorkerWorkingDir(project, worker), [
                 "ext",
                 "hotfix",
                 "plugins"
         ])
 
         FileUtil.copyFiles(
-                Paths.get(ServerUtil.getServerWorkingDir(project), "conf").toAbsolutePath().toString(),
+                Paths.get(DeployServerUtil.getServerWorkingDir(project), "conf").toAbsolutePath().toString(),
                 Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "conf").toAbsolutePath().toString(),
                 [
                         "deployit-license.lic"

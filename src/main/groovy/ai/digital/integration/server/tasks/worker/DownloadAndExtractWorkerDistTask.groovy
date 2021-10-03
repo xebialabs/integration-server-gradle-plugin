@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks.worker
 
 import ai.digital.integration.server.domain.Worker
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.WorkerUtil
 import org.gradle.api.Action
@@ -34,7 +35,7 @@ class DownloadAndExtractWorkerDistTask extends Copy {
                           @Override
                           void execute(Copy copy) {
                             copy.from { project.zipTree(project.buildscript.configurations.getByName(WORKER_DIST).singleFile) }
-                            copy.into { ServerUtil.getRelativePathInIntegrationServerDist(project, worker.name) }
+                            copy.into { DeployServerUtil.getRelativePathInIntegrationServerDist(project, worker.name) }
                           }
                         })
                         this.dependsOn task

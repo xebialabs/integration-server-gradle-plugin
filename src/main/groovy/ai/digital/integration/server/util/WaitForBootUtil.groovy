@@ -14,7 +14,7 @@ class WaitForBootUtil {
     static void byPort(Project project, String name, String url, Integer port, Process process) {
         project.logger.lifecycle("Waiting for $name to start.")
 
-        def server = ServerUtil.getServer(project)
+        def server = DeployServerUtil.getServer(project)
         int triesLeft = server.pingTotalTries
         boolean success = false
         while (triesLeft > 0 && !success) {
@@ -45,7 +45,7 @@ class WaitForBootUtil {
 
     static def byLog(Project project, String name, File logFile, String containsLine, Process process) {
         project.logger.lifecycle("Waiting for $name to start.")
-        def server = ServerUtil.getServer(project)
+        def server = DeployServerUtil.getServer(project)
         int triesLeft = server.pingTotalTries
         boolean success = false
 
