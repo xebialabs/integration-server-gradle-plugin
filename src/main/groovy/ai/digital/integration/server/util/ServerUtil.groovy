@@ -69,12 +69,12 @@ class ServerUtil {
     }
 
     static def readDeployitConfProperty(Project project, String key) {
-        def deployitConf = Paths.get("${getServerWorkingDir(project)}/conf/deployit.conf").toFile()
+        def deployitConf = Paths.get("${DeployServerUtil.getServerWorkingDir(project)}/conf/deployit.conf").toFile()
         PropertiesUtil.readProperty(deployitConf, key)
     }
 
     static def getLogDir(Project project) {
-        Paths.get(getServerWorkingDir(project), "log").toFile()
+        Paths.get(DeployServerUtil.getServerWorkingDir(project), "log").toFile()
     }
 
     static def createDebugString(Boolean debugSuspend, Integer debugPort) {
@@ -84,7 +84,7 @@ class ServerUtil {
 
     static def startServerFromClasspath(Project project) {
         project.logger.lifecycle("startServerFromClasspath.")
-        Server server = getServer(project)
+        Server server = DeployServerUtil.getServer(project)
         def classpath = project.configurations.getByName(ConfigurationsUtil.DEPLOY_SERVER).filter { !it.name.endsWith("-sources.jar") }.asPath
 
         project.logger.lifecycle("Launching Deploy Server from classpath ${classpath}.")
