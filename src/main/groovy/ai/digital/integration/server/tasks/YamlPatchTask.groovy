@@ -1,7 +1,6 @@
 package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.util.DeployServerUtil
-import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.YamlFileUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
