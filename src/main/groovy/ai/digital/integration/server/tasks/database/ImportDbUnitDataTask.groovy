@@ -62,7 +62,7 @@ class ImportDbUnitDataTask extends DefaultTask {
             def dataSet = configureDataSet()
             DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet)
             if (dbname == DbUtil.POSTGRES) {
-                PostgresDbUtil.resetSequences(project.logger, driverConnection)
+                PostgresDbUtil.resetSequences(project, driverConnection)
             }
         } finally {
             connection.close()

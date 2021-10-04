@@ -42,10 +42,8 @@ class FileUtil {
             destFile.createNewFile()
             val os = FileOutputStream(destFile)
 
-            try {
-                IOUtils.copy(source, os)
-            } finally {
-                os.close()
+            os.use {
+                IOUtils.copy(source, it)
             }
         }
 

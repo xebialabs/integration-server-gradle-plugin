@@ -96,9 +96,10 @@ class CliUtil {
         }.flatten()
 
         def params = [
-                "-context", ServerUtil.readDeployitConfProperty(project, "http.context.root"),
+                "-context", DeployServerUtil.readDeployitConfProperty(project, "http.context.root"),
                 "-expose-proxies",
                 "-password", "admin",
+                "-port", DeployServerUtil.readDeployitConfProperty(project, "http.port"),
                 "-host", ServerUtil.getHttpHost(),
                 "-port", ServerUtil.readDeployitConfProperty(project, "http.port"),
                 "-socketTimeout", cli.socketTimeout.toString(),

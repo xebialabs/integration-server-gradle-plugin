@@ -2,11 +2,7 @@ package ai.digital.integration.server
 
 import ai.digital.integration.server.tasks.*
 import ai.digital.integration.server.tasks.anonymizer.ExportDatabaseTask
-import ai.digital.integration.server.tasks.cli.CliCleanDefaultExtTask
-import ai.digital.integration.server.tasks.cli.CliOverlaysTask
-import ai.digital.integration.server.tasks.cli.CopyCliBuildArtifactsTask
-import ai.digital.integration.server.tasks.cli.DownloadAndExtractCliDistTask
-import ai.digital.integration.server.tasks.cli.RunCliTask
+import ai.digital.integration.server.tasks.cli.*
 import ai.digital.integration.server.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.tasks.database.ImportDbUnitDataTask
@@ -18,18 +14,8 @@ import ai.digital.integration.server.tasks.mq.StartMqTask
 import ai.digital.integration.server.tasks.pluginManager.StartPluginManagerTask
 import ai.digital.integration.server.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.tasks.provision.RunDevOpsAsCodeTask
-import ai.digital.integration.server.tasks.satellite.DownloadAndExtractSatelliteDistTask
-import ai.digital.integration.server.tasks.satellite.PrepareSatellitesTask
-import ai.digital.integration.server.tasks.satellite.SatelliteOverlaysTask
-import ai.digital.integration.server.tasks.satellite.ShutdownSatelliteTask
-import ai.digital.integration.server.tasks.satellite.StartSatelliteTask
-import ai.digital.integration.server.tasks.worker.CopyIntegrationServerTask
-import ai.digital.integration.server.tasks.worker.SyncServerPluginsWithWorkerTask
-import ai.digital.integration.server.tasks.worker.DownloadAndExtractWorkerDistTask
-import ai.digital.integration.server.tasks.worker.SetWorkersLogbackLevelsTask
-import ai.digital.integration.server.tasks.worker.ShutdownWorkersTask
-import ai.digital.integration.server.tasks.worker.StartWorkersTask
-import ai.digital.integration.server.tasks.worker.WorkerOverlaysTask
+import ai.digital.integration.server.tasks.satellite.*
+import ai.digital.integration.server.tasks.worker.*
 import ai.digital.integration.server.util.*
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -133,7 +119,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         }
 
         project.afterEvaluate {
-            if (ServerUtil.isServerDefined(project)) {
+            if (DeployServerUtil.isServerDefined(project)) {
                 ExtensionUtil.initialize(project)
                 createTasks(project, serverConfig)
                 applyPlugins(project)

@@ -80,7 +80,7 @@ class StartIntegrationServerTask extends DefaultTask {
         Process process = ProcessUtil.exec([
                 command    : "run",
                 discardIO  : server.stdoutFileName ? false : true,
-                redirectTo : server.stdoutFileName ? "${ServerUtil.getLogDir(project)}/${server.stdoutFileName}" : null,
+                redirectTo : server.stdoutFileName ? "${DeployServerUtil.getLogDir(project)}/${server.stdoutFileName}" : null,
                 environment: environment,
                 params     : ["-force-upgrades"],
                 workDir    : getBinDir(),
@@ -105,7 +105,7 @@ class StartIntegrationServerTask extends DefaultTask {
         } else {
             project.exec {
                 it.executable "docker-compose"
-                it.args '-f', ServerUtil.getResolvedDockerFile(project).toFile(), 'up', '-d'
+                it.args '-f', DeployServerUtil.getResolvedDockerFile(project).toFile(), 'up', '-d'
             }
             return null
         }
@@ -116,7 +116,7 @@ class StartIntegrationServerTask extends DefaultTask {
     }
 
     private def allowToWriteMountedHostFolders() {
-        ServerUtil.grantPermissionsToIntegrationServerFolder(project)
+        DeployServerUtil.grantPermissionsToIntegrationServerFolder(project)
     }
 
     @TaskAction

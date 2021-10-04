@@ -2,7 +2,6 @@ package ai.digital.integration.server.util
 
 import ai.digital.integration.server.IntegrationServerExtension
 import ai.digital.integration.server.domain.Server
-import groovy.io.FileType
 import org.gradle.api.Project
 
 import java.nio.file.Path
@@ -71,39 +70,6 @@ class ServerUtil {
         WaitForBootUtil.byPort(project, "Deploy", url, server.httpPort, process)
     }
 
-    static def getDockerImageVersion(Project project) {
-        def server = DeployServerUtil.getServer(project)
-        "${server.dockerImage}:${server.version}"
-    }
-
-    static def getDockerServiceName(Project project) {
-        def server = DeployServerUtil.getServer(project)
-        "deploy-${server.version}"
-    }
-
-    static void grantPermissionsToIntegrationServerFolder(Project project) {
-        if (DeployServerUtil.isDockerBased(project)) {
-            def workDir = IntegrationServerUtil.getDist(project)
-            new File(workDir).traverse(type: FileType.ANY) { File it ->
-                FileUtil.grantRWPermissions(it)
-            }
-        }
-    }
-
-    static def readDeployitConfProperty(Project project, String key) {
-        def deployitConf = Paths.get("${DeployServerUtil.getServerWorkingDir(project)}/conf/deployit.conf").toFile()
-        PropertiesUtil.readProperty(deployitConf, key)
-    }
-
-    static def getLogDir(Project project) {
-        Paths.get(DeployServerUtil.getServerWorkingDir(project), "log").toFile()
-    }
-
-    static def createDebugString(Boolean debugSuspend, Integer debugPort) {
-        def suspend = debugSuspend ? 'y' : 'n'
-        "-Xrunjdwp:transport=dt_socket,server=y,suspend=${suspend},address=${debugPort}"
-    }
-
     static def startServerFromClasspath(Project project) {
         project.logger.lifecycle("startServerFromClasspath.")
         Server server = DeployServerUtil.getServer(project)
@@ -142,7 +108,7 @@ class ServerUtil {
             if (server.debugPort != null) {
                 project.logger.lifecycle("Enabled debug mode on port ${server.debugPort}")
                 jvmarg(value: "-Xdebug")
-                jvmarg(value: createDebugString(server.debugSuspend, server.debugPort))
+                jvmarg(value: DeployServerUtil.createDebugString(server.debugSuspend, server.debugPort))
             }
         }
     }

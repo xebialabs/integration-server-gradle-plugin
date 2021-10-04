@@ -1,5 +1,6 @@
 package ai.digital.integration.server.util
 
+import ai.digital.integration.server.config.LogbackConfigs
 import groovy.xml.QName
 import groovy.xml.XmlUtil
 import org.gradle.api.Project
@@ -7,7 +8,7 @@ import org.gradle.api.Project
 class LogbackUtil {
 
     private static def getHardCodedLevels(Project project) {
-        DbUtil.getDatabase(project).logSql ? LogbackConfigs.toLogSql() : [:]
+        DbUtil.getDatabase(project).logSql ? LogbackConfigs.toLogSql : [:]
     }
 
     static def setLogLevels(Project project, String workingDir, Map<String, String> customLogLevels) {

@@ -12,7 +12,7 @@ class MqUtil {
     private MqUtil() {}
 
     static String getMqDirectory(Project project) {
-        FileUtil.toPathString(ServerUtil.getServerDistFolderPath(project), "mq")
+        FileUtil.toPathString(DeployServerUtil.getServerDistFolderPath(project), "mq")
     }
 
     static def mqName(project) {

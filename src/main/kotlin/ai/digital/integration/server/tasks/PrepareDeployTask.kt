@@ -4,11 +4,15 @@ import ai.digital.integration.server.util.ServerInitializeUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-class PrepareDeployTask extends DefaultTask {
-    public static String NAME = "prepareDeploy"
+abstract class PrepareDeployTask : DefaultTask() {
 
     @TaskAction
-    void launch() {
+    fun launch() {
         ServerInitializeUtil.prepare(project)
+    }
+
+    companion object {
+        @JvmStatic
+        val NAME = "prepareDeploy"
     }
 }
