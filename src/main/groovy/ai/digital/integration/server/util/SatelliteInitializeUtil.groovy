@@ -23,7 +23,7 @@ class SatelliteInitializeUtil {
 
 
         if (ServerUtil.isAkkaSecured(project)) {
-            def secured = SslUtil.getAkkaSecured(project, ServerUtil.getServerWorkingDir(project))
+            def secured = SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
             def key = secured.keys[AkkaSecured.SATELLITE_KEY_NAME + satellite.name]
 
             newConfiguration = newConfiguration

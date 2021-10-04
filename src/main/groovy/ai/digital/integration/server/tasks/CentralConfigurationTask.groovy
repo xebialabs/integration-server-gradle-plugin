@@ -63,8 +63,8 @@ class CentralConfigurationTask extends DefaultTask {
         ]
 
         if (ServerUtil.isAkkaSecured(project)) {
-            def secured = SslUtil.getAkkaSecured(project, ServerUtil.getServerWorkingDir(project))
-            def key = secured.keys[AkkaSecured.MASTER_KEY_NAME + ServerUtil.getServer(project).name]
+            def secured = SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
+            def key = secured.keys[AkkaSecured.MASTER_KEY_NAME + DeployServerUtil.getServer(project).name]
             serverYaml += [
                 'deploy.server.ssl.enabled': true,
                 'deploy.server.ssl.key-store': key.keyStoreFile().absolutePath,

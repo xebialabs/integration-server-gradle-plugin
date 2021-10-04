@@ -9,7 +9,7 @@ class CentralConfigurationUtil {
     }
 
     static def readCCValue(Project project, String fileName, String key) {
-        def file = new File("${ServerUtil.getServerWorkingDir(project)}/centralConfiguration/$fileName")
+        def file = new File("${DeployServerUtil.getServerWorkingDir(project)}/centralConfiguration/$fileName")
         YamlFileUtil.readFileKey(file, key)
     }
 }

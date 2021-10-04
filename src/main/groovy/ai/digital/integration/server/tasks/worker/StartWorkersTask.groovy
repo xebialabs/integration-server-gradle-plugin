@@ -81,7 +81,7 @@ class StartWorkersTask extends DefaultTask {
         }
 
         if (ServerUtil.isAkkaSecured(project)) {
-            def secured = SslUtil.getAkkaSecured(project, ServerUtil.getServerWorkingDir(project))
+            def secured = SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
             def key = secured.keys[AkkaSecured.WORKER_KEY_NAME + worker.name]
             params += [
                 "-keyStore",
@@ -167,7 +167,7 @@ class StartWorkersTask extends DefaultTask {
             arg(value: worker.name)
 
             if (ServerUtil.isAkkaSecured(project)) {
-                def secured = SslUtil.getAkkaSecured(project, ServerUtil.getServerWorkingDir(project))
+                def secured = SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
                 def key = secured.keys[AkkaSecured.WORKER_KEY_NAME + worker.name]
 
                 arg(value: "-keyStore")

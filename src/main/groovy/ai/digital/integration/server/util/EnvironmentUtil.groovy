@@ -28,7 +28,7 @@ class EnvironmentUtil {
         }
 
         if (ServerUtil.isTls(project)) {
-            def tls = SslUtil.getTls(project, ServerUtil.getServerWorkingDir(project))
+            def tls = SslUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
             opts = "${opts} -Djavax.net.ssl.trustStore=${tls.trustStoreFile()} -Djavax.net.ssl.trustStorePassword=$tls.truststorePassword "
         }
 

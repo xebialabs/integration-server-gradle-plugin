@@ -5,6 +5,7 @@ import ai.digital.integration.server.domain.Tls
 import ai.digital.integration.server.tasks.ssl.KeytoolExportKeyToCertTask
 import ai.digital.integration.server.tasks.ssl.KeytoolGenKeyTask
 import ai.digital.integration.server.tasks.ssl.KeytoolImportKeyToTruststoreTask
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.SatelliteUtil
 import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.SslUtil
@@ -22,11 +23,11 @@ class GenerateSecureAkkaKeysTask extends DefaultTask {
     this.configure { ->
       group = PLUGIN_GROUP
 
-      def server = ServerUtil.getServer(project)
+      def server = DeployServerUtil.getServer(project)
       def workers = WorkerUtil.getWorkers(project)
       def satellites = SatelliteUtil.getSatellites(project)
 
-      def akkaSecured = SslUtil.getAkkaSecured(project, ServerUtil.getServerWorkingDir(project))
+      def akkaSecured = SslUtil.getAkkaSecured(project,  DeployServerUtil.getServerWorkingDir(project))
 
       def masterName = "${AkkaSecured.MASTER_KEY_NAME}${server.name}".toString()
       def masterKeyMeta = new AkkaSecured.KeyMeta(akkaSecured.confWorkDir(), masterName)

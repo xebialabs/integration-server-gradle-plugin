@@ -15,7 +15,7 @@ class ServerUtil {
     }
 
     static String getUrl(Project project) {
-        def server = getServer(project)
+        def server = DeployServerUtil.getServer(project)
         def hostName = getHttpHost()
         if (isTls(project)) {
             "https://$hostName:${server.httpPort}${server.contextRoot}"
@@ -25,11 +25,11 @@ class ServerUtil {
     }
 
     static boolean isTls(Project project) {
-        getServer(project).tls
+        DeployServerUtil.getServer(project).tls
     }
 
     static boolean isAkkaSecured(Project project) {
-        getServer(project).akkaSecured
+        DeployServerUtil.getServer(project).akkaSecured
     }
 
     private static def dockerServerRelativePath() {

@@ -4,6 +4,7 @@ import ai.digital.integration.server.domain.Tls
 import ai.digital.integration.server.tasks.ssl.KeytoolExportKeyToCertTask
 import ai.digital.integration.server.tasks.ssl.KeytoolGenKeyTask
 import ai.digital.integration.server.tasks.ssl.KeytoolImportKeyToTruststoreTask
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.PropertiesUtil
 import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.SslUtil
@@ -22,7 +23,7 @@ class TlsApplicationConfigurationOverrideTask extends DefaultTask {
       group = PLUGIN_GROUP
       mustRunAfter CopyOverlaysTask.NAME, ApplicationConfigurationOverrideTask.NAME
 
-      def tls = SslUtil.getTls(project, ServerUtil.getServerWorkingDir(project))
+      def tls = SslUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
 
       def genKeyStore = project.getTasks().register("tls${KeytoolGenKeyTask.NAME.capitalize()}", KeytoolGenKeyTask.class) {
         keyname = Tls.KEY_NAME
@@ -60,7 +61,7 @@ class TlsApplicationConfigurationOverrideTask extends DefaultTask {
 
   @TaskAction
   def run() {
-    def tls = SslUtil.getTls(project, ServerUtil.getServerWorkingDir(project))
+    def tls = SslUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
     updateDeployitConf(tls)
     updateWrapperConf(tls)
   }
