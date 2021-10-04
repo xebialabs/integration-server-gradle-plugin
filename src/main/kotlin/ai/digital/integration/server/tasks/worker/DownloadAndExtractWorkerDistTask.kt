@@ -18,7 +18,6 @@ abstract class DownloadAndExtractWorkerDistTask : DefaultTask() {
         WorkerUtil.getWorkers(project)
             .filter { worker -> worker.slimDistribution }
             .forEach { worker ->
-
                 if (WorkerUtil.isDistDownloadRequired(project, worker)) {
                     project.buildscript.dependencies.add(
                         WORKER_DIST,
