@@ -1,6 +1,6 @@
 package ai.digital.integration.util
 
-import ai.digital.integration.server.util.DbParameters
+import ai.digital.integration.server.domain.DbParameters
 import ai.digital.integration.server.util.DbUtil
 import org.junit.jupiter.api.Test
 
@@ -30,7 +30,7 @@ class DbUtilTest {
         detectDbDependenciesDerbyNetwork("default")
     }
 
-    private void detectDbDependenciesDerbyNetwork(dbName) {
+    private static void detectDbDependenciesDerbyNetwork(dbName) {
         DbParameters dbParameters = DbUtil.detectDbDependencies(dbName)
         assertEquals("org.apache.derby:derbyclient", dbParameters.getDriverDependency())
         assertEquals(null, dbParameters.getDriverClass())
@@ -38,6 +38,7 @@ class DbUtilTest {
         assertEquals(null, dbParameters.getMetaFactory())
         assertEquals("\"?\"", dbParameters.getEscapePattern())
     }
+
     private void detectDbDependenciesDerby() {
         DbParameters dbParameters = DbUtil.detectDbDependencies("derby-inmemory")
         assertEquals("org.apache.derby:derby", dbParameters.getDriverDependency())
@@ -46,6 +47,7 @@ class DbUtilTest {
         assertEquals(null, dbParameters.getMetaFactory())
         assertEquals("\"?\"", dbParameters.getEscapePattern())
     }
+
     private void detectDbDependenciesMssql() {
         DbParameters dbParameters = DbUtil.detectDbDependencies("mssql")
         assertEquals("com.microsoft.sqlserver:mssql-jdbc", dbParameters.getDriverDependency())
@@ -54,6 +56,7 @@ class DbUtilTest {
         assertEquals(null, dbParameters.getMetaFactory())
         assertEquals("\"?\"", dbParameters.getEscapePattern())
     }
+
     private void detectDbDependenciesMySql(dbName) {
         DbParameters dbParameters = DbUtil.detectDbDependencies(dbName)
         assertEquals("mysql:mysql-connector-java", dbParameters.getDriverDependency())
@@ -62,6 +65,7 @@ class DbUtilTest {
         assertEquals("org.dbunit.ext.mysql.MySqlMetadataHandler", dbParameters.getMetaFactory())
         assertEquals("`?`", dbParameters.getEscapePattern())
     }
+
     private void detectDbDependenciesOracle() {
         DbParameters dbParameters = DbUtil.detectDbDependencies("oracle-19c-se")
         assertEquals("com.oracle.database.jdbc:ojdbc11", dbParameters.getDriverDependency())
@@ -70,6 +74,7 @@ class DbUtilTest {
         assertEquals(null, dbParameters.getMetaFactory())
         assertEquals("\"?\"", dbParameters.getEscapePattern())
     }
+
     private void detectDbDependenciesPostgres(dbName) {
         DbParameters dbParameters = DbUtil.detectDbDependencies(dbName)
         assertEquals("org.postgresql:postgresql", dbParameters.getDriverDependency())
