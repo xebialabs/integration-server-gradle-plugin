@@ -5,5 +5,5 @@ data class MqParameters(
     val driverClass: String,
     val url: String?,
     val userName: String,
-    val sword: String
+    val password: String
 )

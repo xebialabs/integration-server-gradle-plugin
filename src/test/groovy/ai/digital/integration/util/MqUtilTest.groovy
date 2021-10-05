@@ -1,6 +1,6 @@
 package ai.digital.integration.util
 
-import ai.digital.integration.server.util.MqParameters
+import ai.digital.integration.server.domain.MqParameters
 import ai.digital.integration.server.util.MqUtil
 import org.junit.jupiter.api.Test
 
@@ -11,17 +11,17 @@ class MqUtilTest {
     @Test
     void detectMqDependencyTest() {
         MqParameters mqParams = MqUtil.detectMqDependency("rabbitmq")
-        assertEquals("com.rabbitmq.jms:rabbitmq-jms", mqParams.getDriverDependency())
-        assertEquals("com.rabbitmq.jms.admin.RMQConnectionFactory", mqParams.getDriverClass())
-        assertEquals(null, mqParams.getUrl())
-        assertEquals("guest", mqParams.getUserName())
-        assertEquals("guest", mqParams.getPassword())
+        assertEquals("com.rabbitmq.jms:rabbitmq-jms", mqParams.driverDependency)
+        assertEquals("com.rabbitmq.jms.admin.RMQConnectionFactory", mqParams.driverClass)
+        assertEquals(null, mqParams.url)
+        assertEquals("guest", mqParams.userName)
+        assertEquals("guest", mqParams.password)
 
         mqParams = MqUtil.detectMqDependency("activemq")
-        assertEquals("org.apache.activemq:activemq-client", mqParams.getDriverDependency())
-        assertEquals("org.apache.activemq.ActiveMQConnectionFactory", mqParams.getDriverClass())
-        assertEquals(null, mqParams.getUrl())
-        assertEquals("admin", mqParams.getUserName())
-        assertEquals("admin", mqParams.getPassword())
+        assertEquals("org.apache.activemq:activemq-client", mqParams.driverDependency)
+        assertEquals("org.apache.activemq.ActiveMQConnectionFactory", mqParams.driverClass)
+        assertEquals(null, mqParams.url)
+        assertEquals("admin", mqParams.userName)
+        assertEquals("admin", mqParams.password)
     }
 }
