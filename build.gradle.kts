@@ -175,7 +175,7 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
 } else {
     publishing {
         publications {
-            create<MavenPublication>("myLibrary") {
+            register("mavenJava", MavenPublication::class) {
                 from(components["java"])
             }
         }
