@@ -31,7 +31,7 @@ abstract class SyncServerPluginsWithWorkerTask : DefaultTask() {
             }
     }
 
-    fun copyServerDirToWorkerDir(worker: Worker) {
+    private fun copyServerDirToWorkerDir(worker: Worker) {
         val sourceDir = DeployServerUtil.getServerWorkingDir(project)
         val destinationDir = Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker)).toFile()
         ProcessUtil.chMod(
