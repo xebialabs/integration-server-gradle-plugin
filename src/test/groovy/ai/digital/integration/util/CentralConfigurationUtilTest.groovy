@@ -11,7 +11,7 @@ class CentralConfigurationUtilTest {
     @Test
     void readServerKeyTest() {
         def mock = new MockFor(DeployServerUtil)
-        mock.demand.getServerWorkingDir { project -> "build/resources/test"}
+        mock.demand.getServerWorkingDir { project -> "build/resources/test" }
         mock.use {
             Project project
             String port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port").toString()

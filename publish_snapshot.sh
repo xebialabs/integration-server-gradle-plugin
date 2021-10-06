@@ -1,1 +1,1 @@
-./gradlew clean build -x test publishToMavenLocal snapshot
+./gradlew clean build publishToMavenLocal snapshot

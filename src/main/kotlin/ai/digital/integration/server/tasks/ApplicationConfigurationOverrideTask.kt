@@ -11,6 +11,7 @@ abstract class ApplicationConfigurationOverrideTask : DefaultTask() {
     init {
         this.group = PLUGIN_GROUP
         this.mustRunAfter("copyOverlays")
+        this.mustRunAfter("centralConfiguration")
     }
 
     @TaskAction
