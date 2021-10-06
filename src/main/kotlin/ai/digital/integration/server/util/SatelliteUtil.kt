@@ -40,8 +40,13 @@ class SatelliteUtil {
         }
 
         @JvmStatic
+        fun getSatelliteLogDir(project: Project, satellite: Satellite): File {
+            return project.file("${getSatelliteWorkingDir(project, satellite)}/log")
+        }
+
+        @JvmStatic
         fun getSatelliteLog(project: Project, satellite: Satellite): File {
-            return project.file("${getSatelliteWorkingDir(project, satellite)}/log/xl-satellite.log")
+            return project.file("${getSatelliteLogDir(project, satellite)}/xl-satellite.log")
         }
 
         @JvmStatic

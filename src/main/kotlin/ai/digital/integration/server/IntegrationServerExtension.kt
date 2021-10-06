@@ -17,6 +17,10 @@ open class IntegrationServerExtension(
 
     var xldIsDataVersion: String? = null
 
+    var tls: Tls? = null
+
+    var akkaSecured: AkkaSecured? = null
+
     fun clis(closure: Closure<NamedDomainObjectContainer<Cli>>) {
         clis.configure(closure)
     }

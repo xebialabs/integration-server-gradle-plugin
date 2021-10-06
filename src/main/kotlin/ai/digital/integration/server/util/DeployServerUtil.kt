@@ -10,6 +10,46 @@ import java.nio.file.Paths
 class DeployServerUtil {
 
     companion object {
+
+        @JvmStatic
+        fun getHttpHost(): String {
+            return "localhost"
+        }
+
+        @JvmStatic
+        fun getUrl(project: Project): String {
+            val server = getServer(project)
+            val hostName = getHttpHost()
+            if (isTls(project)) {
+                return "https://$hostName:${server.httpPort}${server.contextRoot}"
+            } else {
+                return "http://$hostName:${server.httpPort}${server.contextRoot}"
+            }
+        }
+
+        @JvmStatic
+        fun composeUrl(project: Project, path: String): String {
+            var url = getUrl(project)
+            var separator = "/"
+            if (path.startsWith("/") || url.endsWith("/")) {
+                separator = ""
+                if (path.startsWith("/") && url.endsWith("/"))
+                    url = url.removeSuffix("/")
+
+            }
+            return "$url$separator$path"
+        }
+
+        @JvmStatic
+        fun isTls(project: Project): Boolean {
+            return getServer(project).tls
+        }
+
+        @JvmStatic
+        fun isAkkaSecured(project: Project): Boolean {
+            return getServer(project).akkaSecured
+        }
+
         @JvmStatic
         fun getServer(project: Project): Server {
             val ext = project.extensions.getByType(IntegrationServerExtension::class.java)
@@ -20,6 +60,10 @@ class DeployServerUtil {
 
             server.dockerImage?.let {
                 server.runtimeDirectory = null
+            }
+
+            if (!server.contextRoot.startsWith("/")) {
+                server.contextRoot = "/$server.contextRoot"
             }
 
             return server
@@ -125,6 +169,54 @@ class DeployServerUtil {
         }
 
         @JvmStatic
+        fun waitForBoot(project: Project, process: Process?) {
+            val url = composeUrl(project, "/deployit/metadata/type")
+            WaitForBootUtil.byPort(project, "Deploy", url, process)
+        }
+
+        @JvmStatic
+        fun startServerFromClasspath(project: Project): Process {
+            project.logger.lifecycle("startServerFromClasspath.")
+            val server = getServer(project)
+
+            val classpath = project.configurations.getByName(ConfigurationsUtil.DEPLOY_SERVER)
+                    .filter { !it.name.endsWith("-sources.jar") }
+                    .asPath
+            project.logger.lifecycle("Launching Deploy Server from classpath ${classpath}.")
+
+            val jvmArgs = mutableListOf<String>()
+            jvmArgs.addAll(server.jvmArgs)
+            server.debugPort?.let {
+                jvmArgs.addAll(JavaUtil.debugJvmArg(project, it, server.debugSuspend))
+            }
+
+            val config = mutableMapOf(
+                    "classpath" to classpath,
+                    "discardIO" to (server.stdoutFileName == null),
+                    "jvmArgs" to jvmArgs,
+                    "mainClass" to "com.xebialabs.deployit.DeployitBootstrapper",
+                    "programArgs" to listOf("-force-upgrades"),
+                    "workDir" to File(getServerWorkingDir(project)),
+            )
+
+            server.stdoutFileName?.let {
+                config["redirectTo"] = File("${getLogDir(project)}/${it}")
+            }
+
+            project.properties["integrationServerJVMPath"]?.let {
+                config.putAll(JavaUtil.jvmPath(project, it as String))
+            }
+
+            project.logger.lifecycle("Starting integration test server on port ${server.httpPort} from runtime dir ${server.runtimeDirectory}")
+
+            val process = JavaUtil.execJava(config)
+
+            project.logger.lifecycle("Launched server on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
+
+            return process
+        }
+
+        @JvmStatic
         fun getDockerImageVersion(project: Project): String {
             val server = getServer(project)
             return "${server.dockerImage}:${server.version}"
@@ -144,13 +236,13 @@ class DeployServerUtil {
             val serverTemplate = resultComposeFilePath.toFile()
 
             val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-                .replace("DEPLOY_SERVER_HTTP_PORT", server.httpPort.toString())
-                .replace("DEPLOY_IMAGE_VERSION", getDockerImageVersion(project))
-                .replace(
-                    "DEPLOY_PLUGINS_TO_EXCLUDE",
-                    server.defaultOfficialPluginsToExclude.joinToString(separator = ",")
-                )
-                .replace("DEPLOY_VERSION", server.version.toString())
+                    .replace("DEPLOY_SERVER_HTTP_PORT", server.httpPort.toString())
+                    .replace("DEPLOY_IMAGE_VERSION", getDockerImageVersion(project))
+                    .replace(
+                            "DEPLOY_PLUGINS_TO_EXCLUDE",
+                            server.defaultOfficialPluginsToExclude.joinToString(separator = ",")
+                    )
+                    .replace("DEPLOY_VERSION", server.version.toString())
             serverTemplate.writeText(configuredTemplate)
 
             return resultComposeFilePath

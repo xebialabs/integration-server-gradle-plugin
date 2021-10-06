@@ -3,7 +3,6 @@ package ai.digital.integration.server.tasks
 import ai.digital.integration.server.util.DbUtil
 import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.LogbackUtil
-import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 

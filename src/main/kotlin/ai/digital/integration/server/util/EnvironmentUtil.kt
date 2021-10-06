@@ -2,34 +2,37 @@ package ai.digital.integration.server.util
 
 import ai.digital.integration.server.domain.Cli
 import ai.digital.integration.server.domain.Server
+import org.gradle.api.Project
 import java.io.File
 
 class EnvironmentUtil {
     companion object {
         @JvmStatic
-        fun getServerEnv(server: Server): MutableMap<String, String> {
-            return getEnv("DEPLOYIT_SERVER_OPTS", server.debugSuspend, server.debugPort, null)
+        fun getServerEnv(project: Project,server: Server): MutableMap<String, String> {
+            return getEnv(project, "DEPLOYIT_SERVER_OPTS", server.debugSuspend, server.debugPort, null)
         }
 
         @JvmStatic
-        fun getCliEnv(cli: Cli, extraParams: Map<String, String>, extraClassPath: List<File>): Map<String, String> {
-            val env = getEnv("DEPLOYIT_CLI_OPTS", cli.debugSuspend, cli.debugPort, null, extraParams)
+        fun getCliEnv(project: Project,cli: Cli, extraParams: Map<String, String>, extraClassPath: List<File>): Map<String, String> {
+            val env = getEnv(project, "DEPLOYIT_CLI_OPTS", cli.debugSuspend, cli.debugPort, null, extraParams)
             env["EXTRA_DEPLOYIT_CLI_CLASSPATH"] = extraClassPath.joinToString(separator = OsUtil.getPathSeparator())
             return env
         }
 
         @JvmStatic
         fun getEnv(
+            project: Project,
             variableName: String,
             debugSuspend: Boolean,
             debugPort: Int?,
             logFileName: String?
         ): MutableMap<String, String> {
-            return getEnv(variableName, debugSuspend, debugPort, logFileName, mutableMapOf())
+            return getEnv(project, variableName, debugSuspend, debugPort, logFileName, mutableMapOf())
         }
 
         @JvmStatic
         fun getEnv(
+            project: Project,
             variableName: String,
             debugSuspend: Boolean,
             debugPort: Int?,
@@ -40,6 +43,11 @@ class EnvironmentUtil {
 
             debugPort?.let {
                 opts = "$opts ${DeployServerUtil.createDebugString(debugSuspend, it)} "
+            }
+
+            if (DeployServerUtil.isTls(project)) {
+                val tls = SslUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
+                opts = "$opts -Djavax.net.ssl.trustStore=${tls?.trustStoreFile()} -Djavax.net.ssl.trustStorePassword=${tls?.truststorePassword} "
             }
 
             opts += extraProps

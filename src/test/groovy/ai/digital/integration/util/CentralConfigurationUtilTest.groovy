@@ -13,7 +13,7 @@ class CentralConfigurationUtilTest {
         def mock = new MockFor(DeployServerUtil)
         mock.demand.getServerWorkingDir { project -> "build/resources/test" }
         mock.use {
-            Project project;
+            Project project
             String port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port").toString()
             assert port == "8180"
         }

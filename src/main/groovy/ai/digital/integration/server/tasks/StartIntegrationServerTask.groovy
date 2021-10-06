@@ -41,6 +41,14 @@ class StartIntegrationServerTask extends DefaultTask {
         ]
 
         this.configure {
+            if (DeployServerUtil.isTls(project)) {
+                dependencies += [ TlsApplicationConfigurationOverrideTask.NAME ]
+            }
+
+            if (DeployServerUtil.isAkkaSecured(project)) {
+                dependencies += [ GenerateSecureAkkaKeysTask.NAME ]
+            }
+
             group = PLUGIN_GROUP
             dependsOn(dependencies)
 
@@ -67,11 +75,13 @@ class StartIntegrationServerTask extends DefaultTask {
 
     private Process startServer(Server server) {
         project.logger.lifecycle("Launching server")
+        def environment = EnvironmentUtil.getServerEnv(project, server)
+        project.logger.info("Starting server with environment: $environment")
         Process process = ProcessUtil.exec([
                 command    : "run",
                 discardIO  : server.stdoutFileName ? false : true,
-                redirectTo : server.stdoutFileName ? "${DeployServerUtil.getLogDir(project)}/${server.stdoutFileName}" : null,
-                environment: EnvironmentUtil.getServerEnv(server),
+                redirectTo : server.stdoutFileName ? new File("${DeployServerUtil.getLogDir(project)}/${server.stdoutFileName}") : null,
+                environment: environment,
                 params     : ["-force-upgrades"],
                 workDir    : getBinDir(),
         ])
@@ -87,8 +97,7 @@ class StartIntegrationServerTask extends DefaultTask {
         if (!DeployServerUtil.isDockerBased(project)) {
             maybeTearDown()
             if (hasToBeStartedFromClasspath(server)) {
-                ServerUtil.startServerFromClasspath(project)
-                return null
+                return DeployServerUtil.startServerFromClasspath(project)
             } else {
                 return startServer(server)
             }
@@ -116,6 +125,6 @@ class StartIntegrationServerTask extends DefaultTask {
         allowToWriteMountedHostFolders()
 
         Process process = start(server)
-        ServerUtil.waitForBoot(project, process)
+        DeployServerUtil.waitForBoot(project, process)
     }
 }

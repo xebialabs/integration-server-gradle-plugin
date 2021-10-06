@@ -1,5 +1,6 @@
 package ai.digital.integration.server.tasks
 
+import ai.digital.integration.server.domain.AkkaSecured
 import ai.digital.integration.server.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -14,6 +15,14 @@ class CentralConfigurationTask extends DefaultTask {
         def dependencies = [
                 DownloadAndExtractServerDistTask.NAME
         ]
+
+        if (DeployServerUtil.isTls(project)) {
+            dependencies += [ TlsApplicationConfigurationOverrideTask.NAME ]
+        }
+
+        if (DeployServerUtil.isAkkaSecured(project)) {
+            dependencies += [ GenerateSecureAkkaKeysTask.NAME ]
+        }
 
         this.configure { ->
             group = PLUGIN_GROUP
@@ -47,12 +56,32 @@ class CentralConfigurationTask extends DefaultTask {
         overlayRepositoryConfig(serverDir)
 
         project.logger.lifecycle("Creating custom deploy-server.yaml")
+
+        def serverYaml = [
+            "deploy.server.port"    : HTTPUtil.findFreePort(),
+            "deploy.server.hostname": "127.0.0.1"
+        ]
+
+        if (DeployServerUtil.isAkkaSecured(project)) {
+            def secured = SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
+            def key = secured.keys[AkkaSecured.MASTER_KEY_NAME + DeployServerUtil.getServer(project).name]
+            serverYaml += [
+                'deploy.server.ssl.enabled': true,
+                'deploy.server.ssl.key-store': key.keyStoreFile().absolutePath,
+                'deploy.server.ssl.key-store-password': key.keyStorePassword,
+                'deploy.server.ssl.trust-store': secured.trustStoreFile().absolutePath,
+                'deploy.server.ssl.trust-store-password': secured.truststorePassword,
+            ]
+            if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
+                serverYaml += [
+                    'deploy.server.ssl.key-password': key.keyPassword,
+                ]
+            }
+        }
+
         YamlFileUtil.overlayFile(
                 new File("${serverDir}/centralConfiguration/deploy-server.yaml"),
-                [
-                        "deploy.server.port"    : HTTPUtil.findFreePort(),
-                        "deploy.server.hostname": "127.0.0.1"
-                ]
+                serverYaml
         )
 
         project.logger.lifecycle("Creating custom deploy-task.yaml")

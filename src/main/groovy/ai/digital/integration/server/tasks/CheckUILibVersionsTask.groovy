@@ -1,7 +1,6 @@
 package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.util.DeployServerUtil
-import ai.digital.integration.server.util.ServerUtil
 import de.vandermeer.asciitable.AsciiTable
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment
 import groovy.json.JsonSlurper

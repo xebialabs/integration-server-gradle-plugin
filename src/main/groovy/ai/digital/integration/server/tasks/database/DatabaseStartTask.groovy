@@ -4,7 +4,6 @@ import ai.digital.integration.server.tasks.ApplicationConfigurationOverrideTask
 import ai.digital.integration.server.util.DbUtil
 import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.FileUtil
-import ai.digital.integration.server.util.ServerUtil
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
