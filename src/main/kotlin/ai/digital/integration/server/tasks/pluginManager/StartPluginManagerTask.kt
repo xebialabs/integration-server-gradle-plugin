@@ -13,7 +13,13 @@ import java.nio.file.Paths
 abstract class StartPluginManagerTask : DefaultTask() {
 
     init {
-        this.dependsOn("startIntegrationServer")
+        val dependencies = mutableListOf("startIntegrationServer")
+
+        if (DeployServerUtil.isTls(project)) {
+            dependencies.add("tlsApplicationConfigurationOverride")
+        }
+
+        this.dependsOn(dependencies)
         this.group = PLUGIN_GROUP
         this.onlyIf { !DeployServerUtil.isDockerBased(project) }
     }
@@ -27,7 +33,7 @@ abstract class StartPluginManagerTask : DefaultTask() {
             mapOf(
                 "command" to "run",
                 "discardIO" to true,
-                "environment" to EnvironmentUtil.getServerEnv(server),
+                "environment" to EnvironmentUtil.getServerEnv(project, server),
                 "params" to arrayOf("plugin-manager-cli"),
                 "workDir" to getBinDir()
             )

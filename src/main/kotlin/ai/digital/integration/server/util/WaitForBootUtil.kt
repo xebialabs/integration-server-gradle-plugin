@@ -13,7 +13,7 @@ class WaitForBootUtil {
     companion object {
 
         @JvmStatic
-        fun byPort(project: Project, name: String, url: String?) {
+        fun byPort(project: Project, name: String, url: String) {
             byPort(project, name, url, null)
         }
 
@@ -32,14 +32,14 @@ class WaitForBootUtil {
         }
 
         @JvmStatic
-        fun byPort(project: Project, name: String, url: String?, process: Process?) {
-            project.logger.lifecycle("Waiting for $name to start.")
+        fun byPort(project: Project, name: String, url: String, process: Process?) {
+            project.logger.lifecycle("Waiting for $name to start on URL: $url.")
             val server = getServer(project)
             var triesLeft = server.pingTotalTries
             var success = false
             while (triesLeft > 0 && !success) {
                 try {
-                    val http = buildRequest(url!!)
+                    val http = buildRequest(url)
                     http.get(mutableMapOf<String, Any>())
                     success = true
                 } catch (ignored: Exception) {
@@ -53,7 +53,7 @@ class WaitForBootUtil {
 
         @JvmStatic
         fun byLog(project: Project, name: String, logFile: File, containsLine: String, process: Process?) {
-            project.logger.lifecycle("Waiting for $name to start.")
+            project.logger.lifecycle("Waiting for $name to start with log: '$containsLine'.")
             val server = getServer(project)
             var triesLeft = server.pingTotalTries
             var success = false

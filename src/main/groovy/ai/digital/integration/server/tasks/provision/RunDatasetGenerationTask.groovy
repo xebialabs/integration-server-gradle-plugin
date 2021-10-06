@@ -37,7 +37,7 @@ class RunDatasetGenerationTask extends DefaultTask {
     static void generateDatasets(Project project, Server server) {
         server.generateDatasets.each { String dataset ->
 
-            def http = new HTTPBuilder("${DeployServerUtil.getUrl(project)}/deployit/generate/${dataset}")
+            def http = new HTTPBuilder(DeployServerUtil.composeUrl(project, "/deployit/generate/$dataset"))
             http.auth.basic("admin", "admin")
 
             http.post([:]) { resp, reader ->

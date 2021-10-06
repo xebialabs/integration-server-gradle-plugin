@@ -28,6 +28,19 @@ class DeployServerUtil {
         }
 
         @JvmStatic
+        fun composeUrl(project: Project, path: String): String {
+            var url = getUrl(project)
+            var separator = "/"
+            if (path.startsWith("/") || url.endsWith("/")) {
+                separator = ""
+                if (path.startsWith("/") && url.endsWith("/"))
+                    url = url.removeSuffix("/")
+
+            }
+            return "$url$separator$path"
+        }
+
+        @JvmStatic
         fun isTls(project: Project): Boolean {
             return getServer(project).tls
         }
@@ -157,7 +170,7 @@ class DeployServerUtil {
 
         @JvmStatic
         fun waitForBoot(project: Project, process: Process?) {
-            val url = "${getUrl(project)}/deployit/metadata/type"
+            val url = composeUrl(project, "/deployit/metadata/type")
             WaitForBootUtil.byPort(project, "Deploy", url, process)
         }
 

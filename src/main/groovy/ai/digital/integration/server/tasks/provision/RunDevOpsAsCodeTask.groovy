@@ -32,7 +32,7 @@ class RunDevOpsAsCodeTask extends DefaultTask {
     private static void launchDevOpAsCodeScripts(Project project, Server server) {
         if (server.getDevOpsAsCodes() != null) {
             server.getDevOpsAsCodes().each { DevOpsAsCode devOpsAsCode ->
-                def http = HTTPUtil.buildRequest("${DeployServerUtil.getUrl(project)}/deployit/devops-as-code/apply")
+                def http = HTTPUtil.buildRequest(DeployServerUtil.composeUrl(project, "/deployit/devops-as-code/apply"))
 
                 http.headers.with {
                     put("Content-Type", "text/vnd.yaml")

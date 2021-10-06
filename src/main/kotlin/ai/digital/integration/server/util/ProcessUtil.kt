@@ -8,14 +8,14 @@ class ProcessUtil {
     companion object {
         @JvmStatic
         private fun createRunCommand(baseCommand: String, runLocalShell: Boolean): MutableList<String> {
-            if (runLocalShell) {
-                return if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            return if (runLocalShell) {
+                if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                     mutableListOf("cmd", "/c", "${baseCommand}.cmd")
                 } else {
                     mutableListOf("./${baseCommand}.sh")
                 }
             } else {
-                return mutableListOf(baseCommand)
+                mutableListOf(baseCommand)
             }
         }
 
