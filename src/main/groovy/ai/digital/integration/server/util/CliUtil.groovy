@@ -68,22 +68,24 @@ class CliUtil {
         }
     }
 
-    static def executeScripts(Project project, List<File> scriptSources, String label) {
+    static def executeScripts(Project project, List<File> scriptSources, String label, Boolean secure) {
         if (!scriptSources.isEmpty()) {
-            runScripts(project, scriptSources, label, [:], [:], [])
+            runScripts(project, scriptSources, label, secure, [:], [:], [])
         }
     }
 
     static def executeScripts(Project project,
                               List<File> scriptSources,
                               String label,
+                              Boolean secure,
                               Test test) {
-        runScripts(project, scriptSources, label, test.environments, test.systemProperties, test.extraClassPath)
+        runScripts(project, scriptSources, label, secure, test.environments, test.systemProperties, test.extraClassPath)
     }
 
     private static def runScripts(Project project,
                                   List<File> scriptSources,
                                   String label,
+                                  Boolean secure,
                                   Map<String, String> extraEnvironments,
                                   Map<String, String> extraParams,
                                   List<File> extraClassPath) {
@@ -100,14 +102,13 @@ class CliUtil {
                 "-expose-proxies",
                 "-password", "admin",
                 "-port", DeployServerUtil.readDeployitConfProperty(project, "http.port"),
-                "-host", ServerUtil.getHttpHost(),
-                "-port", ServerUtil.readDeployitConfProperty(project, "http.port"),
+                "-host", DeployServerUtil.getHttpHost(),
                 "-socketTimeout", cli.socketTimeout.toString(),
                 "-source", scriptSources.collect { File source -> source.absolutePath }.join(","),
                 "-username", "admin",
         ] + extraParamsAsList
 
-        if (ServerUtil.isTls(project)) {
+        if (DeployServerUtil.isTls(project) || secure) {
             params += [
                 "-secure"
             ]

@@ -41,11 +41,11 @@ class StartIntegrationServerTask extends DefaultTask {
         ]
 
         this.configure {
-            if (ServerUtil.isTls(project)) {
+            if (DeployServerUtil.isTls(project)) {
                 dependencies += [ TlsApplicationConfigurationOverrideTask.NAME ]
             }
 
-            if (ServerUtil.isAkkaSecured(project)) {
+            if (DeployServerUtil.isAkkaSecured(project)) {
                 dependencies += [ GenerateSecureAkkaKeysTask.NAME ]
             }
 
@@ -80,7 +80,7 @@ class StartIntegrationServerTask extends DefaultTask {
         Process process = ProcessUtil.exec([
                 command    : "run",
                 discardIO  : server.stdoutFileName ? false : true,
-                redirectTo : server.stdoutFileName ? "${DeployServerUtil.getLogDir(project)}/${server.stdoutFileName}" : null,
+                redirectTo : server.stdoutFileName ? new File("${DeployServerUtil.getLogDir(project)}/${server.stdoutFileName}") : null,
                 environment: environment,
                 params     : ["-force-upgrades"],
                 workDir    : getBinDir(),
@@ -97,8 +97,7 @@ class StartIntegrationServerTask extends DefaultTask {
         if (!DeployServerUtil.isDockerBased(project)) {
             maybeTearDown()
             if (hasToBeStartedFromClasspath(server)) {
-                ServerUtil.startServerFromClasspath(project)
-                return null
+                return DeployServerUtil.startServerFromClasspath(project)
             } else {
                 return startServer(server)
             }
@@ -126,6 +125,6 @@ class StartIntegrationServerTask extends DefaultTask {
         allowToWriteMountedHostFolders()
 
         Process process = start(server)
-        ServerUtil.waitForBoot(project, process)
+        DeployServerUtil.waitForBoot(project, process)
     }
 }

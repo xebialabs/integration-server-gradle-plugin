@@ -2,10 +2,10 @@ package ai.digital.integration.server.tasks.satellite
 
 import ai.digital.integration.server.domain.Satellite
 import ai.digital.integration.server.tasks.TlsApplicationConfigurationOverrideTask
+import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.EnvironmentUtil
 import ai.digital.integration.server.util.ProcessUtil
 import ai.digital.integration.server.util.SatelliteUtil
-import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.WaitForBootUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -22,8 +22,8 @@ class StartSatelliteTask extends DefaultTask {
                 SatelliteOverlaysTask.NAME
         ]
 
-        if (ServerUtil.isTls(project)) {
-            dependencies += [TlsApplicationConfigurationOverrideTask.NAME ]
+        if (DeployServerUtil.isTls(project)) {
+            dependencies += [ TlsApplicationConfigurationOverrideTask.NAME ]
         }
 
         this.configure {
@@ -51,7 +51,7 @@ class StartSatelliteTask extends DefaultTask {
                     environment: environment,
                     workDir    : binDir,
                     discardIO  : satellite.stdoutFileName ? false : true,
-                    redirectTo : satellite.stdoutFileName ? "${SatelliteUtil.getSatelliteLog(project, satellite)}/${satellite.stdoutFileName}" : null,
+                    redirectTo : satellite.stdoutFileName ? new File("${SatelliteUtil.getSatelliteLogDir(project, satellite)}/${satellite.stdoutFileName}") : null,
             ])
             project.logger.lifecycle("Satellite '${satellite.name}' successfully started on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
             WaitForBootUtil.byLog(project, "Satellite ${satellite.name}", SatelliteUtil.getSatelliteLog(project, satellite), "XL Satellite has started", process)

@@ -30,7 +30,7 @@ class ShutdownSatelliteTask extends DefaultTask {
                 .resolve(STOP_SATELLITE_SCRIPT).toAbsolutePath().toString())
         ProcessUtil.exec([
                 command: "stopSatellite",
-                workDir: SatelliteUtil.getSatelliteWorkingDir(project, satellite)
+                workDir: new File(SatelliteUtil.getSatelliteWorkingDir(project, satellite))
         ])
         project.logger.lifecycle("Satellite server '${satellite.name}' successfully shutdown.")
     }

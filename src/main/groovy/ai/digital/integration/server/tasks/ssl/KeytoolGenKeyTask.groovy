@@ -1,6 +1,6 @@
 package ai.digital.integration.server.tasks.ssl
 
-import ai.digital.integration.server.util.ServerUtil
+import ai.digital.integration.server.util.DeployServerUtil
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
@@ -13,7 +13,7 @@ class KeytoolGenKeyTask extends KeytoolTask {
   String ip = "127.0.0.1"
 
   @Input
-  String dns = ServerUtil.getHttpHost()
+  String dns = DeployServerUtil.getHttpHost()
 
   @Input
   String validity = 360

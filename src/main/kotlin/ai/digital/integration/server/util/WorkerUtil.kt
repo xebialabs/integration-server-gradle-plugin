@@ -1,5 +1,6 @@
 package ai.digital.integration.server.util
 
+import ai.digital.integration.server.domain.AkkaSecured
 import ai.digital.integration.server.domain.Worker
 import org.gradle.api.Project
 import java.nio.file.Paths
@@ -64,7 +65,54 @@ class WorkerUtil {
         }
 
         @JvmStatic
-        private fun hasRuntimeDirectory(project: Project, worker: Worker): Boolean {
+        fun composeProgramParams(project: Project, worker: Worker, hostName: String, port: String, useWorkerCommand: Boolean): List<String> {
+
+            val params = mutableListOf(
+                    "-master",
+                    "127.0.0.1:$port",
+                    "-api",
+                    DeployServerUtil.getUrl(project),
+                    "-hostname",
+                    hostName,
+                    "-name",
+                    worker.name,
+                    "-port",
+                    worker.port
+            )
+
+            if (!worker.slimDistribution && useWorkerCommand) {
+                params.add(0, "worker")
+            }
+
+            if (DeployServerUtil.isAkkaSecured(project)) {
+                SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))?.let { secured ->
+                    secured.keys[AkkaSecured.WORKER_KEY_NAME + worker.name]?.let { key ->
+                        params.addAll(listOf(
+                                "-keyStore",
+                                key.keyStoreFile().absolutePath,
+                                "-keyStorePassword",
+                                key.keyStorePassword,
+                                "-trustStore",
+                                secured.trustStoreFile().absolutePath,
+                                "-trustStorePassword",
+                                secured.truststorePassword,
+                        ))
+                        if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
+                            params.addAll(listOf(
+                                    "-keyPassword",
+                                    key.keyPassword,
+                            ))
+                        }
+                    }
+                }
+            }
+
+            return params
+        }
+
+
+        @JvmStatic
+        fun hasRuntimeDirectory(project: Project, worker: Worker): Boolean {
             return getRuntimeDirectory(project, worker) != null
         }
 

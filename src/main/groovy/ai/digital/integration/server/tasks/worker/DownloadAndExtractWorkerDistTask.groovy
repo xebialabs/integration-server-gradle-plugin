@@ -2,7 +2,6 @@ package ai.digital.integration.server.tasks.worker
 
 import ai.digital.integration.server.domain.Worker
 import ai.digital.integration.server.util.DeployServerUtil
-import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.WorkerUtil
 import org.gradle.api.Action
 import org.gradle.api.tasks.Copy

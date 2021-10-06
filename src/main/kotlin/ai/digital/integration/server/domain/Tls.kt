@@ -6,10 +6,10 @@ import java.io.File
 class Tls(serverWorkingDir: String) {
 
     companion object {
-        val KEYSTORE_TYPE = "pkcs12"
-        val KEYSTORE_TYPE_EXTENSION = "pk12"
-        val KEY_NAME = "master_tls"
-        val TRUSTSTORE_SUFFIX_NAME = "truststore"
+        const val KEYSTORE_TYPE = "pkcs12"
+        const val KEYSTORE_TYPE_EXTENSION = "pk12"
+        const val KEY_NAME = "master_tls"
+        const val TRUSTSTORE_SUFFIX_NAME = "truststore"
     }
 
    var keyStorePassword: String = SslUtil.generatePassword("s$KEY_NAME")

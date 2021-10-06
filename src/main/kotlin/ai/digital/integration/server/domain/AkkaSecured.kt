@@ -6,12 +6,12 @@ import java.io.File
 class AkkaSecured(serverWorkingDir: String) {
 
     companion object {
-        val KEYSTORE_TYPE = "jks"
-        val KEYSTORE_TYPE_EXTENSION = "jks"
-        val MASTER_KEY_NAME = "akka_ssl_master_"
-        val WORKER_KEY_NAME = "akka_ssl_worker_"
-        val SATELLITE_KEY_NAME = "akka_ssl_satellite_"
-        val TRUSTSTORE_NAME = "akka_ssl_truststore_"
+        const val KEYSTORE_TYPE = "jks"
+        const val KEYSTORE_TYPE_EXTENSION = "jks"
+        const val MASTER_KEY_NAME = "akka_ssl_master_"
+        const val WORKER_KEY_NAME = "akka_ssl_worker_"
+        const val SATELLITE_KEY_NAME = "akka_ssl_satellite_"
+        const val TRUSTSTORE_NAME = "akka_ssl_truststore_"
     }
 
     val trustStoreName: String = TRUSTSTORE_NAME

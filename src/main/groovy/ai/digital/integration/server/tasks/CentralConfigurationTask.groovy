@@ -16,11 +16,11 @@ class CentralConfigurationTask extends DefaultTask {
                 DownloadAndExtractServerDistTask.NAME
         ]
 
-        if (ServerUtil.isAkkaSecured(project)) {
-            dependencies += [ GenerateSecureAkkaKeysTask.NAME ]
+        if (DeployServerUtil.isTls(project)) {
+            dependencies += [ TlsApplicationConfigurationOverrideTask.NAME ]
         }
 
-        if (ServerUtil.isTls(project)) {
+        if (DeployServerUtil.isAkkaSecured(project)) {
             dependencies += [ GenerateSecureAkkaKeysTask.NAME ]
         }
 
@@ -62,7 +62,7 @@ class CentralConfigurationTask extends DefaultTask {
             "deploy.server.hostname": "127.0.0.1"
         ]
 
-        if (ServerUtil.isAkkaSecured(project)) {
+        if (DeployServerUtil.isAkkaSecured(project)) {
             def secured = SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
             def key = secured.keys[AkkaSecured.MASTER_KEY_NAME + DeployServerUtil.getServer(project).name]
             serverYaml += [

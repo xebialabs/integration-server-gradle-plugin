@@ -4,7 +4,6 @@ import ai.digital.integration.server.domain.Server
 import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.ExtensionUtil
 import ai.digital.integration.server.util.OverlaysUtil
-import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.DefaultTask
 
 import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP

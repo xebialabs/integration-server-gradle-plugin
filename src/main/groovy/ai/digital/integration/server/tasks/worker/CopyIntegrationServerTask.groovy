@@ -4,7 +4,6 @@ import ai.digital.integration.server.domain.Worker
 import ai.digital.integration.server.tasks.YamlPatchTask
 import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.ProcessUtil
-import ai.digital.integration.server.util.ServerUtil
 import ai.digital.integration.server.util.WorkerUtil
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
