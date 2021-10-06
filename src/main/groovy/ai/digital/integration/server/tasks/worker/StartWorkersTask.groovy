@@ -54,118 +54,97 @@ class StartWorkersTask extends DefaultTask {
         "deploy-worker-${workerName}"
     }
 
-    void startWorker(Worker worker) {
+    Process startWorker(Worker worker) {
         project.logger.lifecycle("Launching worker $worker.name")
-        def server = DeployServerUtil.getServer(project)
 
-        def params = [
-                "-master",
-                "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
-                "-api",
-                "http://localhost:${server.httpPort}".toString(),
-                "-name",
-                worker.name,
-                "-port",
-                worker.port.toString()
-        ]
+        def hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
+        def port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
+        def params = WorkerUtil.composeProgramParams(project, worker, hostName as String, port as String, true)
 
-        if (!worker.slimDistribution) {
-            params = ["worker"] + params
-        }
+        def environment = EnvironmentUtil.getEnv(
+            project,
+            "DEPLOYIT_SERVER_OPTS",
+            worker.debugSuspend,
+            worker.debugPort,
+            logFileName(worker.name))
 
-        Process process = ProcessUtil.exec([
+        project.logger.info("Starting worker with environment: $environment")
+
+        ProcessUtil.exec([
                 command    : "run",
                 params     : params,
-                environment: EnvironmentUtil.getEnv("DEPLOYIT_SERVER_OPTS",
-                        worker.debugSuspend,
-                        worker.debugPort,
-                        logFileName(worker.name)),
+                environment: environment,
                 workDir    : getBinDir(worker),
                 discardIO  : worker.stdoutFileName ? false : true,
-                redirectTo : worker.stdoutFileName ? "${getLogDir(worker)}/${worker.stdoutFileName}" : null,
+                redirectTo : worker.stdoutFileName ? new File("${getLogDir(worker)}/${worker.stdoutFileName}") : null,
         ])
-
-        project.logger.lifecycle("Worker '${worker.name}' successfully started on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
-
-        waitForBoot(worker, process)
     }
 
-    void startWorkerFromClasspath(Worker worker) {
+    Process startWorkerFromClasspath(Worker worker) {
         def classpath = project.configurations
                 .getByName(ConfigurationsUtil.DEPLOY_SERVER)
                 .filter { !it.name.endsWith("-sources.jar") }.asPath
 
         logger.debug("XL Deploy Worker classpath: \n${classpath}")
-        project.logger.lifecycle("Starting Worker ${worker.name} for project ${project.name} on a port: ${worker.port}")
 
-        def params = [
-                classname: "com.xebialabs.deployit.TaskExecutionEngineBootstrapper",
-                dir      : WorkerUtil.getWorkerWorkingDir(project, worker),
-                fork     : true,
-                spawn    : worker.stdoutFileName == null
+        def hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
+        def port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
+        def programArgs = WorkerUtil.composeProgramParams(project, worker, hostName as String, port as String, false)
+
+        def jvmArgs = worker.jvmArgs.toList()
+        jvmArgs += [ "-DLOGFILE=${logFileName(worker.name)}".toString() ]
+        if (worker.debugPort) {
+            jvmArgs.addAll(JavaUtil.debugJvmArg(project, worker.debugPort, worker.debugSuspend))
+        }
+
+        if (DeployServerUtil.isTls(project)) {
+            def tls = SslUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
+            jvmArgs.addAll([
+                "-Djavax.net.ssl.trustStore=${tls?.trustStoreFile()}".toString(),
+                "-Djavax.net.ssl.trustStorePassword=${tls?.truststorePassword}".toString()
+            ])
+        }
+
+        def config = [
+            classpath : classpath,
+            discardIO  : worker.stdoutFileName ? false : true,
+            jvmArgs : jvmArgs,
+            mainClass : "com.xebialabs.deployit.TaskExecutionEngineBootstrapper",
+            programArgs    : programArgs,
+            redirectTo : worker.stdoutFileName ? new File("${getLogDir(worker)}/${worker.stdoutFileName}") : null,
+            workDir    : new File(WorkerUtil.getWorkerWorkingDir(project, worker)),
         ]
 
-        String jvmPath = project.properties['integrationServerJVMPath']
-        if (jvmPath) {
-            jvmPath = jvmPath + '/bin/java'
-            params['jvm'] = jvmPath
-            project.logger.lifecycle("Using JVM from location: ${jvmPath}")
+        if (project.properties["integrationServerJVMPath"]) {
+            config.putAll(JavaUtil.jvmPath(project, project.properties["integrationServerJVMPath"] as String))
         }
 
-        def port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
-        def hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
+        project.logger.lifecycle("Starting Worker ${worker.name} for project ${project.name} on a port: ${worker.port}")
 
-        def logDir = "${getLogDir(worker)}/${worker.stdoutFileName}"
+        JavaUtil.execJava(config)
+    }
 
-        ant.java(params) {
-            worker.jvmArgs.each {
-                jvmarg(value: it)
-            }
-            jvmarg(value: "-DLOGFILE=${logFileName(worker.name)}")
-
-            arg(value: "-master")
-            arg(value: "${hostName}:${port}")
-            arg(value: "-api")
-            arg(value: "http://${hostName}:${DeployServerUtil.getServer(project).httpPort}")
-            arg(value: "-hostname")
-            arg(value: "${hostName}")
-            arg(value: "-port")
-            arg(value: worker.port)
-            arg(value: "-work")
-            arg(value: worker.name)
-
-            env(key: "CLASSPATH", value: classpath)
-
-            if (worker.stdoutFileName) {
-                redirector(
-                        output: logDir
-                )
-            }
-
-            if (worker.debugPort != null) {
-                project.logger.lifecycle("Enabled debug mode on port ${worker.debugPort}")
-                jvmarg(value: "-Xdebug")
-                jvmarg(value: DeployServerUtil.createDebugString(worker.debugSuspend, worker.debugPort))
-            }
-        }
-        waitForBoot(worker, null)
+    void waitForBoot(Worker worker, Process process) {
+        def workerLog = project.file("${WorkerUtil.getWorkerWorkingDir(project, worker)}/log/${logFileName(worker.name)}.log")
+        def containsLine = "Registered successfully with Actor[akka://task-sys@127.0.0.1"
+        WaitForBootUtil.byLog(project, "worker ${worker.name}", workerLog, containsLine, process)
     }
 
     @TaskAction
     void launch() {
         def workers = ExtensionUtil.getExtension(project).workers
         workers.each { Worker worker ->
-            if (WorkerUtil.hasRuntimeDirectory(project, worker)) {
-                startWorkerFromClasspath(worker)
-            } else {
-                startWorker(worker)
-            }
-        }
-    }
 
-    private void waitForBoot(Worker worker, Process process) {
-        def workerLog = project.file("${WorkerUtil.getWorkerWorkingDir(project, worker)}/log/${logFileName(worker.name)}.log")
-        def containsLine = "Registered successfully with Actor[akka://task-sys@127.0.0.1"
-        WaitForBootUtil.byLog(project, "worker ${worker.name}", workerLog, containsLine, process)
+            Process process
+            if (WorkerUtil.hasRuntimeDirectory(project, worker)) {
+                process = startWorkerFromClasspath(worker)
+            } else {
+                process = startWorker(worker)
+            }
+
+            project.logger.lifecycle("Worker '${worker.name}' successfully started on PID [${process.pid()}] with command [${process.info().commandLine().orElse("")}].")
+
+            waitForBoot(worker, process)
+        }
     }
 }

@@ -46,12 +46,14 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME, DownloadAndExtractDbUnitDataDistTask)
         project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask)
         project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask)
+        project.tasks.create(GenerateSecureAkkaKeysTask.NAME, GenerateSecureAkkaKeysTask)
         project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask)
         project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask)
         project.tasks.create(PrepareDeployTask.NAME, PrepareDeployTask)
         project.tasks.create(RunDatasetGenerationTask.NAME, RunDatasetGenerationTask)
         project.tasks.create(RunDevOpsAsCodeTask.NAME, RunDevOpsAsCodeTask)
         project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask)
+        project.tasks.create(TlsApplicationConfigurationOverrideTask.NAME, TlsApplicationConfigurationOverrideTask)
         project.tasks.create(YamlPatchTask.NAME, YamlPatchTask)
 
         //Infrastructure

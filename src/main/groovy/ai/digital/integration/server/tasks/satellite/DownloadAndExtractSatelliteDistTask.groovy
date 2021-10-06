@@ -3,7 +3,6 @@ package ai.digital.integration.server.tasks.satellite
 import ai.digital.integration.server.domain.Satellite
 import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.SatelliteUtil
-import ai.digital.integration.server.util.ServerUtil
 import org.gradle.api.Action
 import org.gradle.api.tasks.Copy
 

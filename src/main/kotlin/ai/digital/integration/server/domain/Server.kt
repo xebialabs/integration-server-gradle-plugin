@@ -16,6 +16,8 @@ open class Server(name: String) : Engine(name) {
     var pingTotalTries: Int = 60
     var yamlPatches: Map<String, Map<String, Any>> = mutableMapOf()
     var devOpsAsCodes: NamedDomainObjectContainer<DevOpsAsCode>? = null
+    var tls: Boolean = false
+    var akkaSecured: Boolean = false
 
     fun devOpsAsCodes(closure: Closure<NamedDomainObjectContainer<DevOpsAsCode>>) {
         devOpsAsCodes?.configure(closure)

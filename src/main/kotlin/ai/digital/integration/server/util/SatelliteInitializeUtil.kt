@@ -1,5 +1,6 @@
 package ai.digital.integration.server.util
 
+import ai.digital.integration.server.domain.AkkaSecured
 import ai.digital.integration.server.domain.Satellite
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigRenderOptions
@@ -15,7 +16,7 @@ class SatelliteInitializeUtil {
 
             val options = ConfigRenderOptions.concise().setFormatted(true).setJson(false)
 
-            val newConfiguration = ConfigFactory.parseString(satelliteConf.readText(Charsets.UTF_8))
+            var newConfiguration = ConfigFactory.parseString(satelliteConf.readText(Charsets.UTF_8))
                 .withValue(
                     "deploy.server.bind-hostname",
                     ConfigValueFactory.fromAnyRef(satellite.serverAkkaBindHostName)
@@ -27,10 +28,32 @@ class SatelliteInitializeUtil {
                     "deploy.satellite.streaming.port",
                     ConfigValueFactory.fromAnyRef(satellite.akkaStreamingPort)
                 )
-                .root()
-                .render(options)
 
-            satelliteConf.writeText(newConfiguration)
+            if (DeployServerUtil.isAkkaSecured(project)) {
+                val secured = SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
+                secured?.let {
+                    val key = secured.keys[AkkaSecured.SATELLITE_KEY_NAME + satellite.name]
+
+                    newConfiguration = newConfiguration
+                            .withValue("deploy.server.ssl.enabled", ConfigValueFactory.fromAnyRef("yes"))
+                            .withValue("deploy.server.ssl.key-store", ConfigValueFactory.fromAnyRef(key?.keyStoreFile()?.absolutePath))
+                            .withValue("deploy.server.ssl.key-store-password", ConfigValueFactory.fromAnyRef(key?.keyStorePassword))
+                            .withValue("deploy.server.ssl.trust-store", ConfigValueFactory.fromAnyRef(secured.trustStoreFile().absolutePath))
+                            .withValue("deploy.server.ssl.trust-store-password", ConfigValueFactory.fromAnyRef(secured.truststorePassword))
+
+
+                    if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
+                        newConfiguration = newConfiguration
+                                .withValue("deploy.server.ssl.key-password", ConfigValueFactory.fromAnyRef(key?.keyPassword))
+                    }
+                }
+            }
+
+            satelliteConf.writeText(
+                    newConfiguration
+                            .root()
+                            .render(options)
+            )
         }
     }
 }

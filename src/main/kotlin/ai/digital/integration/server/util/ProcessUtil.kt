@@ -7,11 +7,15 @@ import java.io.File
 class ProcessUtil {
     companion object {
         @JvmStatic
-        private fun createRunCommand(baseCommand: String): MutableList<String> {
-            return if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                mutableListOf("cmd", "/c", "${baseCommand}.cmd")
+        private fun createRunCommand(baseCommand: String, runLocalShell: Boolean): MutableList<String> {
+            return if (runLocalShell) {
+                if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                    mutableListOf("cmd", "/c", "${baseCommand}.cmd")
+                } else {
+                    mutableListOf("./${baseCommand}.sh")
+                }
             } else {
-                mutableListOf("./${baseCommand}.sh")
+                mutableListOf(baseCommand)
             }
         }
 
@@ -25,7 +29,10 @@ class ProcessUtil {
         @JvmStatic
         @Suppress("UNCHECKED_CAST")
         fun exec(config: Map<String, Any>): Process {
-            val command = createRunCommand(config["command"] as String)
+
+            val runLocalShell = config.getOrDefault("runLocalShell", true) as Boolean
+
+            val command = createRunCommand(config["command"] as String, runLocalShell)
 
             if (config["params"] != null) {
                 command.addAll(config["params"] as List<String>)
@@ -49,7 +56,11 @@ class ProcessUtil {
 
             if (config["redirectTo"] != null) {
                 processBuilder.redirectErrorStream(true)
-                processBuilder.redirectOutput(ProcessBuilder.Redirect.to(config["redirectTo"] as File))
+                val redirectTo = config["redirectTo"] as File
+                if (!redirectTo.parentFile.isDirectory) {
+                    redirectTo.parentFile.mkdirs()
+                }
+                processBuilder.redirectOutput(ProcessBuilder.Redirect.to(redirectTo))
             }
 
             val process = processBuilder.start()

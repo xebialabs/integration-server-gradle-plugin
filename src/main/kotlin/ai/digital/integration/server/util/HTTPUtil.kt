@@ -13,6 +13,7 @@ open class HTTPUtil {
             http.getClient().getParams().setParameter("http.connection.timeout", timeout)
             http.getClient().getParams().setParameter("http.socket.timeout", timeout)
             http.auth.basic("admin", "admin")
+            http.ignoreSSLIssues()
 
             return http
         }

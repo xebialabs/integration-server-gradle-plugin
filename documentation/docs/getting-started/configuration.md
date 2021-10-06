@@ -131,6 +131,7 @@ integrationServer {
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
+|akkaSecured|Optional|false|Runs akka communication with worker with enabled TLS TCP. All keys, keystores and truststores are generated per master, worker and satellite.| 
 |copyBuildArtifacts|Optional|[:]|Here you can define what would you like to include to integration server from the build process itself. For example you run: `./gradlew build integrationServer` and you create `*.xldp` of your plugin which you would like to include to integration server. You have to specify it here. As for overlay it won't work. With overlay to make it work you have to run 2 commands: `./gradlew build` and then `./gradlew startIntegrationServer`. Key is a relative folder name from Deploy base, and a value is a pattern to all files located in `build` folder except `integration-server` sub-folder. This one is excluded.|
 |contextRoot|Optional|/|The context root for Deploy. **Limitation:** *Doesn't work for docker setup*|
 |debugPort|Optional|None|Remote Debug Port for Deploy Server| 
@@ -148,6 +149,7 @@ integrationServer {
 |runtimeDirectory|Optional|None|When this property is specified, runtime directory setup will be performed. Just make sure that you have complete deploy instance present there.|
 |stdoutFileName|Optional|None|The filename that stores standard output and error for server runtime. If not present output is discarded. Note: it should be used only for debugging purposes: if used with class loaded runtime (runtimeDirectory) it will block execution after startup because, for that case, limitations in process spawning |
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlDeployVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
+|tls|Optional|false|If enabled use HTTPS for API communication with master.|
 |yamlPatches|Optional|[:]|[Read about this section below](#yaml-patches)|
 
 ### Dev Ops As Code
