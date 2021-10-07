@@ -79,7 +79,7 @@ module.exports = {
                     versions: {
                         current: {
                             label: '10.4.0',
-                            path: '10.4.0'
+                            path: ''
                         }
                     },
                 },
