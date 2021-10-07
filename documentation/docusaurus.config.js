@@ -25,7 +25,10 @@ module.exports = {
                     position: 'left',
                     label: 'Tutorial',
                 },
-
+                {
+                    type: 'docsVersionDropdown',
+                    position: 'right',
+                },
                 {
                     href: 'https://github.com/xebialabs/integration-server-gradle-plugin',
                     label: 'GitHub',
@@ -71,7 +74,14 @@ module.exports = {
             '@docusaurus/preset-classic',
             {
                 docs: {
-                    sidebarPath: require.resolve('./sidebars.js')
+                    sidebarPath: 'sidebars.js',
+                    lastVersion: "current",
+                    versions: {
+                        current: {
+                            label: '10.4.0',
+                            path: '10.4.0'
+                        }
+                    },
                 },
                 blog: {
                     showReadingTime: true
