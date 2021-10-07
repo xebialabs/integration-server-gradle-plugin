@@ -40,7 +40,7 @@ abstract class SyncServerPluginsWithWorkerTask : DefaultTask() {
             "${Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "bin").toAbsolutePath()}"
         )
 
-        project.logger.lifecycle("Copy plugins from directory ${sourceDir} to Worker ${worker.name} in directory ${destinationDir}")
+        project.logger.lifecycle("Copy plugins from directory $sourceDir to Worker ${worker.name} in directory $destinationDir")
 
         // delete plugins from zip
         FileUtils.deleteDirectory(Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker), "plugins").toFile())

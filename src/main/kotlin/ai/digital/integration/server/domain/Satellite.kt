@@ -6,10 +6,11 @@ open class Satellite(val name: String) {
     var debugPort: Int? = null
     var debugSuspend: Boolean = false
     var metricsPort: Int = 8080
-    var serverAkkaPort: Int = 8380
-    var serverAkkaHostname: String = "127.0.0.1"
-    var serverAkkaBindHostName: String = "0.0.0.0"
     var overlays: Map<String, List<Any>> = mutableMapOf()
-    var version: String? = null
+    var serverAkkaBindHostName: String = "0.0.0.0"
+    var serverAkkaHostname: String = "127.0.0.1"
+    var serverAkkaPort: Int = 8380
     var stdoutFileName: String? = null
+    val syncPlugins: Boolean = true
+    var version: String? = null
 }

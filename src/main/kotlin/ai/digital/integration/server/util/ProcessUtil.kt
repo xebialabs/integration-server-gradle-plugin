@@ -28,7 +28,7 @@ class ProcessUtil {
 
         @JvmStatic
         @Suppress("UNCHECKED_CAST")
-        fun exec(config: Map<String, Any>): Process {
+        fun exec(config: Map<String, Any?>): Process {
 
             val runLocalShell = config.getOrDefault("runLocalShell", true) as Boolean
 

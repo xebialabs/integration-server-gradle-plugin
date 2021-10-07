@@ -75,6 +75,7 @@ class IntegrationServerPlugin implements Plugin<Project> {
         project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME, DownloadAndExtractSatelliteDistTask)
         project.tasks.create(PrepareSatellitesTask.NAME, PrepareSatellitesTask)
         project.tasks.create(SatelliteOverlaysTask.NAME, SatelliteOverlaysTask)
+        project.tasks.create(SatelliteSyncPluginsTask.NAME, SatelliteSyncPluginsTask)
         project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask)
         project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask)
 

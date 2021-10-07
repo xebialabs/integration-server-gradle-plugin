@@ -358,12 +358,19 @@ You can read more about a satellite here:
 integrationServer {
     satellites {
        satellite01 {  // The name of the section, you can name it as you with
+            akkaStreamingPort = 8481
             debugPort = 5008
             debugSuspend = true
+            metricsPort = 8081
             overlays = [
                 lib              : [files("src/test/resources/my-library.jar")],
                 ext              : ["src/test/resources/synthetic.xml"]
-            ]       
+            ]      
+            serverAkkaBindHostName = "0.0.0.0"
+            serverAkkaHostname = "127.0.0.1"
+            serverAkkaPort = 8381 
+            stdoutFileName = "satellite-startup.log"
+            syncPlugins = false
             version = "10.2.2"
        }   
     }
@@ -373,14 +380,15 @@ integrationServer {
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
 |akkaStreamingPort|Optional|8480|Streaming Akka port between Satellite and Server|
-|metricsPort|Optional|8080|Port for gathered (JMX) metrics on Satellite|
-|serverAkkaPort|Optional|8380|Akka port between Satellite and Server|
-|serverAkkaHostname|Optional|127.0.0.1|Akka host name of the Server|
-|serverAkkaBindHostName|Optional|0.0.0.0|Akka bind host name of the Server|
 |debugPort|Optional|None|Remote Debug Port for a satellite.|
 |debugSuspend|Optional|None|Suspend the start of the process before the remoting tool is attached.|
+|metricsPort|Optional|8080|Port for gathered (JMX) metrics on Satellite|
 |overlays|Optional|[:]|Identical to Server overlays, only in a satellite. [Read about this section below](#overlays)|
+|serverAkkaBindHostName|Optional|0.0.0.0|Akka bind host name of the Server|
+|serverAkkaHostname|Optional|127.0.0.1|Akka host name of the Server|
+|serverAkkaPort|Optional|8380|Akka port between Satellite and Server|
 |stdoutFileName|Optional|None|The filename that stores standard output and error for server runtime. If not present output is discarded. |
+|syncPlugins|Optional|true|If true, plugins will be synchronized from the server.|
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlSatelliteVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
 
 :::caution
