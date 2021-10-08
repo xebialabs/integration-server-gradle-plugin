@@ -4,6 +4,7 @@ import ai.digital.integration.server.domain.AkkaSecured
 import ai.digital.integration.server.domain.Worker
 import org.gradle.api.Project
 import java.nio.file.Paths
+import kotlin.system.exitProcess
 
 class WorkerUtil {
     companion object {
@@ -134,7 +135,7 @@ class WorkerUtil {
                 return DeployServerUtil.getServer(project).version.toString()
             } else if (!hasRuntimeDirectory(project, worker)) {
                 project.logger.error("Worker Version is not specified")
-                System.exit(1)
+                exitProcess(1)
             }
             return null
         }

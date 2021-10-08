@@ -21,7 +21,7 @@ class YamlFileUtil {
         private fun calcKeyChain(objectMap: MutableMap<String, Any>, tokens: List<String>): Array<String> {
             return if (objectMap[tokens[0] + "." + tokens[1]] != null) {
                 val keyChain = arrayOf(tokens[0] + "." + tokens[1])
-                keyChain.plus(tokens.drop(1).dropLast(2))
+                keyChain.plus(tokens.drop(2).dropLast(1))
             } else {
                 val keyChain = arrayOf(tokens[0])
                 keyChain.plus(tokens.drop(1).dropLast(1))

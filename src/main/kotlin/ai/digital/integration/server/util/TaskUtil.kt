@@ -7,11 +7,11 @@ class TaskUtil {
     companion object {
         @JvmStatic
         fun dontFailOnException(task: Task) {
-            task.setActions(task.actions.map { action ->
+            task.actions = task.actions.map { action ->
                 Action { current ->
                     action.execute(current)
                 }
-            })
+            }
         }
     }
 }

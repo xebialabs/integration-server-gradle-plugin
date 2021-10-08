@@ -63,9 +63,10 @@ dependencies {
         exclude("org.codehaus.groovy", "groovy")
     }
     implementation("org.dbunit:dbunit:${properties["dbUnitVersion"]}")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${properties["kotlin"]}")
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${properties["kotlin"]}")
     implementation("org.jetbrains.kotlin:kotlin-allopen:${properties["kotlin"]}")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${properties["kotlin"]}")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:${properties["kotlin"]}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${properties["kotlin"]}")
     implementation("org.postgresql:postgresql:${properties["driverVersions.postgres"]}")
 
 

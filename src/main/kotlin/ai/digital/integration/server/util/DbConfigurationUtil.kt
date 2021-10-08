@@ -29,7 +29,7 @@ class DbConfigurationUtil {
         @JvmStatic
         fun configureConnection(driverConnection: Connection, dbDependency: DbParameters): DatabaseConnection {
             val connection = DatabaseConnection(driverConnection, "public")
-            val config = connection.getConfig()
+            val config = connection.config
             config.setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true)
             config.setProperty(DatabaseConfig.FEATURE_QUALIFIED_TABLE_NAMES, true)
             config.setProperty(DatabaseConfig.PROPERTY_ESCAPE_PATTERN, dbDependency.escapePattern)
@@ -38,7 +38,7 @@ class DbConfigurationUtil {
             config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, dataTypeFactory)
 
             val metaFactory = dbDependency.metaFactory
-            if (metaFactory != null && !metaFactory.isEmpty()) {
+            if (metaFactory != null && metaFactory.isNotEmpty()) {
                 val metadataHandler = Class.forName(metaFactory).getDeclaredConstructor().newInstance()
                 config.setProperty(DatabaseConfig.PROPERTY_METADATA_HANDLER, metadataHandler)
             }

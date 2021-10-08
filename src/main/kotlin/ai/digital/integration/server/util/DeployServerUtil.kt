@@ -20,10 +20,10 @@ class DeployServerUtil {
         fun getUrl(project: Project): String {
             val server = getServer(project)
             val hostName = getHttpHost()
-            if (isTls(project)) {
-                return "https://$hostName:${server.httpPort}${server.contextRoot}"
+            return if (isTls(project)) {
+                "https://$hostName:${server.httpPort}${server.contextRoot}"
             } else {
-                return "http://$hostName:${server.httpPort}${server.contextRoot}"
+                "http://$hostName:${server.httpPort}${server.contextRoot}"
             }
         }
 

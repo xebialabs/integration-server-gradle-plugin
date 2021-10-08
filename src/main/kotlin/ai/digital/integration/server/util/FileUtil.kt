@@ -34,7 +34,7 @@ class FileUtil {
 
         @JvmStatic
         fun copyFile(source: InputStream, dest: Path) {
-            val parentDir = dest.getParent().toFile()
+            val parentDir = dest.parent.toFile()
             if (!parentDir.exists()) {
                 parentDir.mkdirs()
             }
