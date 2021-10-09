@@ -118,6 +118,9 @@ class CliUtil {
         ) {
             val cli = getCli(project)
 
+            project.logger.lifecycle("Running scripts. Script sources=[${scriptSources.joinToString(separator = ",")}}], label=${label}" +
+                    ",secure=$secure,extraEnvironments=$extraEnvironments,extraParams=$extraParams,extraClassPath=$extraClassPath")
+
             val extraParamsAsList = extraParams.filter {
                 true
             }.map {
