@@ -34,14 +34,14 @@ abstract class IntegrationTestsTask : DefaultTask() {
                 val basedir = dir.absolutePath
 
                 test.setupScripts.forEach { setupScript ->
-                    filesToExecute.addAll(FileUtil.findFiles(basedir, "/${setupScript}$/"))
+                    filesToExecute.addAll(FileUtil.findFiles(basedir, "/${setupScript}$"))
                 }
 
                 filesToExecute.addAll(FileUtil.findFiles(basedir, test.scriptPattern, test.excludesPattern))
 
                 test.tearDownScripts.forEach { teardownScript ->
-                    filesToExecute.addAll(FileUtil.findFiles(basedir, "/${teardownScript}$/"))
-                    filesForTeardown.addAll(FileUtil.findFiles(basedir, "/${teardownScript}$/"))
+                    filesToExecute.addAll(FileUtil.findFiles(basedir, "/${teardownScript}$"))
+                    filesForTeardown.addAll(FileUtil.findFiles(basedir, "/${teardownScript}$"))
                 }
 
                 try {

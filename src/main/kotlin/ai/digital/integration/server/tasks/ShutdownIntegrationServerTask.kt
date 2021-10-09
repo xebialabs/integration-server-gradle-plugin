@@ -1,5 +1,6 @@
 package ai.digital.integration.server.tasks
 
+import ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.tasks.satellite.ShutdownSatelliteTask
 import ai.digital.integration.server.tasks.worker.ShutdownWorkersTask
@@ -7,38 +8,34 @@ import ai.digital.integration.server.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-import static ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
+abstract class ShutdownIntegrationServerTask : DefaultTask() {
 
-class ShutdownIntegrationServerTask extends DefaultTask {
-    public static String NAME = "shutdownIntegrationServer"
+    companion object {
+        @JvmStatic
+        val NAME = "shutdownIntegrationServer"
+    }
 
-    ShutdownIntegrationServerTask() {
-        def dependencies = []
+    init {
+        this.group = PLUGIN_GROUP
+
         if (DeployServerUtil.isDockerBased(project)) {
-            dependencies.push(DockerBasedStopDeployTask.NAME)
+            this.dependsOn(DockerBasedStopDeployTask.NAME)
         }
         if (WorkerUtil.hasWorkers(project)) {
-            dependencies.push(ShutdownWorkersTask.NAME)
+            this.dependsOn(ShutdownWorkersTask.NAME)
         }
         if (SatelliteUtil.hasSatellites(project)) {
-            dependencies.push(ShutdownSatelliteTask.NAME)
+            this.dependsOn(ShutdownSatelliteTask.NAME)
         }
-        group = PLUGIN_GROUP
         if (DbUtil.isDerby(project)) {
-            finalizedBy("derbyStop")
+            this.finalizedBy("derbyStop")
         } else {
-            finalizedBy(DatabaseStopTask.NAME)
-        }
-        this.configure {
-            group = PLUGIN_GROUP
-            if (!dependencies.empty) {
-                dependsOn(dependencies)
-            }
+            this.finalizedBy(DatabaseStopTask.NAME)
         }
     }
 
     @TaskAction
-    void shutdown() {
+    fun shutdown() {
         project.logger.lifecycle("About to shutting down Deploy Server.")
 
         if (!DeployServerUtil.isDockerBased(project)) {
