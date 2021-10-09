@@ -1,6 +1,7 @@
 package ai.digital.integration.server.util
 
 import ai.digital.integration.server.domain.Cli
+import ai.digital.integration.server.domain.Test
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 import java.io.File
@@ -89,6 +90,23 @@ class CliUtil {
         }
 
         @JvmStatic
+        fun executeScripts(
+            project: Project,
+            scriptSources: List<File>,
+            label: String,
+            secure: Boolean,
+            test: Test,
+        ) {
+            runScripts(project,
+                scriptSources,
+                label,
+                secure,
+                test.environments,
+                test.systemProperties,
+                test.extraClassPath)
+        }
+
+        @JvmStatic
         private fun runScripts(
             project: Project,
             scriptSources: List<File>,
@@ -96,7 +114,7 @@ class CliUtil {
             secure: Boolean,
             extraEnvironments: Map<String, String>,
             extraParams: Map<String, String>,
-            extraClassPath: List<File>
+            extraClassPath: List<File>,
         ) {
             val cli = getCli(project)
 
