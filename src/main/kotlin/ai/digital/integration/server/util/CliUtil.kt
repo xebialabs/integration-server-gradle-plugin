@@ -113,19 +113,15 @@ class CliUtil {
             label: String,
             secure: Boolean,
             extraEnvironments: Map<String, String>,
-            extraParams: Map<String, String>,
+            extraParams: Map<String, String?>,
             extraClassPath: List<File>,
         ) {
             val cli = getCli(project)
 
-            project.logger.lifecycle("Running scripts. Script sources=[${scriptSources.joinToString(separator = ",")}}], label=${label}" +
-                    ",secure=$secure,extraEnvironments=$extraEnvironments,extraParams=$extraParams,extraClassPath=$extraClassPath")
-
-            val extraParamsAsList = extraParams.filter {
-                true
-            }.map {
-                arrayListOf(it.key, it.value)
-            }.flatten()
+            val extraParamsAsList = extraParams
+                .filterValues { it != null }
+                .map { arrayListOf(it.key, it.value) }
+                .flatten()
 
             val params = (arrayListOf(
                 "-context", DeployServerUtil.readDeployitConfProperty(project, "http.context.root"),

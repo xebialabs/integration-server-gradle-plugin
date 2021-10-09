@@ -13,7 +13,7 @@ class EnvironmentUtil {
         }
 
         @JvmStatic
-        fun getCliEnv(project: Project,cli: Cli, extraParams: Map<String, String>, extraClassPath: List<File>): Map<String, String> {
+        fun getCliEnv(project: Project,cli: Cli, extraParams: Map<String, String?>, extraClassPath: List<File>): Map<String, String> {
             val env = getEnv(project, "DEPLOYIT_CLI_OPTS", cli.debugSuspend, cli.debugPort, null, extraParams)
             env["EXTRA_DEPLOYIT_CLI_CLASSPATH"] = extraClassPath.joinToString(separator = OsUtil.getPathSeparator())
             return env
@@ -37,7 +37,7 @@ class EnvironmentUtil {
             debugSuspend: Boolean,
             debugPort: Int?,
             logFileName: String?,
-            extraProps: Map<String, String>
+            extraProps: Map<String, String?>
         ): MutableMap<String, String> {
             var opts = if (!logFileName.isNullOrEmpty()) "-Xmx1024m -DLOGFILE=$logFileName" else "-Xmx1024m"
 
@@ -51,7 +51,7 @@ class EnvironmentUtil {
             }
 
             opts += extraProps
-                .filter { true }
+                .filterValues { it != null }
                 .map { "-D${it.key}=${it.value}" }
                 .joinToString(separator = " ")
 
