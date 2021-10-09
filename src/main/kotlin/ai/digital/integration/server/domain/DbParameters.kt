@@ -1,9 +1,11 @@
 package ai.digital.integration.server.domain
 
+import ai.digital.integration.server.domain.api.DriverDependencyAware
+
 data class DbParameters(
-    val driverDependency: String,
+    override val driverDependency: String,
     val driverClass: String?,
     val dataFactory: String?,
     val metaFactory: String?,
-    val escapePattern: String?
-)
+    val escapePattern: String?,
+) : DriverDependencyAware(driverDependency)
