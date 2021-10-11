@@ -15,7 +15,7 @@ class CentralConfigurationUtilTest {
         mockkObject(DeployServerUtil.Companion)
         every { DeployServerUtil.Companion.getServerWorkingDir(project) } answers { "build/resources/test" }
 
-        val port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port").toString()
+        val port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
         assertEquals(port, "8180")
     }
 

@@ -49,6 +49,10 @@ class StartIntegrationServerTask extends DefaultTask {
                 dependencies += [ GenerateSecureAkkaKeysTask.NAME ]
             }
 
+            if (DeployServerUtil.isAkkaSecured(project)) {
+                dependencies += [ GenerateSecureAkkaKeysTask.NAME ]
+            }
+
             group = PLUGIN_GROUP
             dependsOn(dependencies)
 

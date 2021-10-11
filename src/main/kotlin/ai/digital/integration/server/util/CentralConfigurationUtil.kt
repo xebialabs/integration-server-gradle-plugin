@@ -6,8 +6,8 @@ import java.io.File
 class CentralConfigurationUtil {
     companion object {
         @JvmStatic
-        fun readServerKey(project: Project, key: String): Any? {
-            return readCCValue(project, "deploy-server.yaml", key)
+        fun readServerKey(project: Project, key: String): String {
+            return readCCValue(project, "deploy-server.yaml", key).toString()
         }
 
         @JvmStatic

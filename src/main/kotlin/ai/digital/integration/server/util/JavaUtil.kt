@@ -8,7 +8,7 @@ class JavaUtil {
 
         @Suppress("UNCHECKED_CAST")
         @JvmStatic
-        fun execJava(config: Map<String, Any>): Process {
+        fun execJava(config: Map<String, Any?>): Process {
             val jvmPath = config.getOrDefault("jvmPath", "${File.javaHome}${File.separator}bin${File.separator}java") as String
             val jvmArgs = config.getOrDefault("jvmArgs", listOf<String>()) as List<String>
             val programArgs = config.getOrDefault("programArgs", listOf<String>()) as List<String>
@@ -25,7 +25,7 @@ class JavaUtil {
             params.add(mainClass)
             params.addAll(programArgs)
 
-            val command = mutableMapOf<String, Any>()
+            val command = mutableMapOf<String, Any?>()
             command.putAll(config)
             command["command"] = jvmPath
             command["runLocalShell"] = false
