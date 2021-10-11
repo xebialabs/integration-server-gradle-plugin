@@ -54,6 +54,8 @@ class TlsApplicationConfigurationOverrideTask extends DefaultTask {
       project.tasks.getByName(genTrustStore.name).dependsOn genCert
 
       this.dependsOn genKeyStore, genCert, genTrustStore
+
+      this.mustRunAfter("copyOverlays")
     }
   }
 

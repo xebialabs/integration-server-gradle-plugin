@@ -16,10 +16,6 @@ class CentralConfigurationTask extends DefaultTask {
                 DownloadAndExtractServerDistTask.NAME
         ]
 
-        if (DeployServerUtil.isTls(project)) {
-            dependencies += [ TlsApplicationConfigurationOverrideTask.NAME ]
-        }
-
         if (DeployServerUtil.isAkkaSecured(project)) {
             dependencies += [ GenerateSecureAkkaKeysTask.NAME ]
         }

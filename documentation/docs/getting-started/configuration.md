@@ -75,6 +75,7 @@ integrationServer {
 integrationServer {
    servers {
        controlPlane { // The name of the section, you can name it as you with
+           akkaSecured = true
            contextRoot = "/custom"
            copyBuildArtifacts = [
                 "plugins/xld-official": /(.+)[.](xldp)/
@@ -117,6 +118,7 @@ integrationServer {
            removeStdoutConfig = true
            runtimeDirectory = "server-runtime"
            stdoutFileName = 'deploy-server-runtime.log'
+           tls = true
            version = '10.2.2'
            yamlPatches = [
                'centralConfiguration/deploy-server.yaml': [

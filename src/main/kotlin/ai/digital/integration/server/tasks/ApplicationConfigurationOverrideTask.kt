@@ -22,8 +22,8 @@ abstract class ApplicationConfigurationOverrideTask : DefaultTask() {
 
         val server = DeployServerUtil.getServer(project)
         val properties = PropertiesUtil.readPropertiesFile(deployitConf)
-        properties.put("http.context.root", server.contextRoot)
-        properties.put("http.port", server.httpPort.toString())
+        properties["http.context.root"] = server.contextRoot
+        properties["http.port"] = server.httpPort.toString()
 
         PropertiesUtil.writePropertiesFile(deployitConf, properties)
     }
