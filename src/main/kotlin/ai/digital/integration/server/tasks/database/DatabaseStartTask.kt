@@ -38,7 +38,7 @@ abstract class DatabaseStartTask : DockerComposeUp() {
 
         src?.let { codeSource ->
             val dbName = DbUtil.databaseName(project)
-            File("$dbName-docker", resultComposeFilePath.parent.toFile().path).mkdirs()
+            File(resultComposeFilePath.parent.toFile().path, "$dbName-docker").mkdirs()
 
             val jar = codeSource.location
             val zip = ZipInputStream(jar.openStream())
@@ -54,6 +54,8 @@ abstract class DatabaseStartTask : DockerComposeUp() {
                         FileUtil.copyFile(zip,
                             DeployServerUtil.getRelativePathInIntegrationServerDist(project, dockerFileName))
                     }
+                } else {
+                    break
                 }
             }
         }
