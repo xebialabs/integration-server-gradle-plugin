@@ -1,14 +1,13 @@
-package ai.digital.integration.util
+package ai.digital.integration.server.util
 
-import ai.digital.integration.server.util.GitlabUtil
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class GitlabUtilTest {
 
     @Test
-    void getGitlabRelativePathTest() {
+    fun getGitlabRelativePathTest() {
         Assertions.assertEquals("gitlab/gitlab-compose/docker-compose-gitlab.yml",
-                GitlabUtil.getGitlabRelativePath())
+            GitlabUtil.getGitlabRelativePath())
     }
 }
