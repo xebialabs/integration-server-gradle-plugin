@@ -1,6 +1,5 @@
 package ai.digital.integration.server.tasks.ssl
 
-
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -44,7 +43,7 @@ abstract class KeytoolTask extends DefaultTask {
 
     doLast {
       def customParams = getParams().clone()
-      ExecResult result = execTask(customParams, skipIfOutputFileExists())
+      def result = execTask(customParams, skipIfOutputFileExists())
 
       if (result != null && result.exitValue == 1) {
         throw new RuntimeException("Running keytool with params: ${customParams.join(" ")} was not successfully executed.")
@@ -66,14 +65,12 @@ abstract class KeytoolTask extends DefaultTask {
     } else {
       project.logger.lifecycle("Executing keytool with args: ${customParams.join(" ")}")
 
-      ExecResult result = project.exec {
+      project.exec {
         it.executable "keytool"
         it.args customParams
         it.workingDir workDir
         it.ignoreExitValue true
       }
-
-      result
     }
   }
 }

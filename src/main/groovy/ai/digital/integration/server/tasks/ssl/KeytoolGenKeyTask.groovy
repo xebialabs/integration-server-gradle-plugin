@@ -16,10 +16,10 @@ class KeytoolGenKeyTask extends KeytoolTask {
   String dns = DeployServerUtil.getHttpHost()
 
   @Input
-  String validity = 360
+  String validity = 360.toString()
 
   @Input
-  String keySize = 2048
+  String keySize = 2048.toString()
 
   @OutputFile
   File getOutputFile() {
@@ -35,11 +35,13 @@ class KeytoolGenKeyTask extends KeytoolTask {
     super()
 
     doFirst {
-      String paramsString = "-genkey -alias $keyname -ext SAN:c=DNS:$dns,IP:$ip " +
-          "-dname CN=localhost,O=digital.ai,OU=Deploy -keyalg RSA " +
-          "-keystore ${getOutputFile()} " +
-          "-storetype $type -validity $validity -keysize $keySize"
-      setParams(paramsString.split().toList())
+      def params = [
+          "-genkey", "-alias", keyname, "-ext", "SAN:c=DNS:$dns,IP:$ip".toString(),
+          "-dname", "CN=localhost,O=digital.ai,OU=Deploy", "-keyalg", "RSA",
+          "-keystore", getOutputFile().absolutePath,
+          "-storetype", type, "-validity", validity, "-keysize", keySize
+      ]
+      setParams(params)
     }
   }
 }

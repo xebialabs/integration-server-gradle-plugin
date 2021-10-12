@@ -25,8 +25,10 @@ class KeytoolImportKeyToTruststoreTask extends KeytoolTask {
 
   @Override
   Boolean skipIfOutputFileExists() {
-    String paramsString = "-list -alias $keyname -deststoretype $type -keystore ${getOutputFile()}"
-    ExecResult result = execTask(paramsString.split().toList(), false)
+    def params = [
+        "-list", "-alias", keyname, "-deststoretype", type, "-keystore", getOutputFile().absolutePath
+    ]
+    ExecResult result = execTask(params, false)
     result.exitValue == 0
   }
 
@@ -34,8 +36,11 @@ class KeytoolImportKeyToTruststoreTask extends KeytoolTask {
     super()
 
     doFirst {
-      String paramsString = "-import -noprompt -alias $keyname -deststoretype $type -file ${getInputFile()} -keystore ${getOutputFile()}"
-      setParams(paramsString.split().toList())
+      def params = [
+          "-import", "-noprompt", "-alias", keyname, "-deststoretype", type,
+          "-file",  getInputFile().absolutePath, "-keystore", getOutputFile().absolutePath
+      ]
+      setParams(params)
     }
   }
 }

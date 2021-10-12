@@ -27,8 +27,11 @@ class KeytoolExportKeyToCertTask extends KeytoolTask {
     super()
 
     doFirst {
-      String paramsString = "-export -keystore ${getInputFile()} -alias ${keyname} -file ${getOutputFile()}"
-      setParams(paramsString.split().toList())
+      def params = [
+          "-export", "-keystore", getInputFile().absolutePath, "-alias",  keyname,
+          "-file", getOutputFile().absolutePath
+      ]
+      setParams(params)
     }
   }
 
