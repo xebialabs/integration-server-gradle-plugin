@@ -36,6 +36,6 @@ class EnvironmentUtilTest {
         // environment with variableName and logFileName
         envMap = getEnv(mockProject, "DEPLOYIT_SERVER_OPTS", false, null, "deployit.log")
         Assertions.assertEquals(1, envMap.size)
-        Assertions.assertEquals("-Xmx1024m -DLOGFILE=deployit.log", envMap["DEPLOYIT_SERVER_OPTS"])
+        Assertions.assertEquals("-Xmx1024m -DLOGFILE=\"deployit.log\"", envMap["DEPLOYIT_SERVER_OPTS"])
     }
 }

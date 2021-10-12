@@ -60,7 +60,7 @@ abstract class StartWorkersTask : DefaultTask() {
 
         val environment = EnvironmentUtil.getEnv(
             project,
-            "DEPLOYIT_SERVER_OPTS",
+            "JDK_JAVA_OPTIONS",
             worker.debugSuspend,
             worker.debugPort,
             logFileName(worker.name))
@@ -99,7 +99,7 @@ abstract class StartWorkersTask : DefaultTask() {
         if (DeployServerUtil.isTls(project)) {
             val tls = SslUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
             jvmArgs.addAll(arrayOf(
-                "-Djavax.net.ssl.trustStore=${tls?.trustStoreFile()}",
+                "-Djavax.net.ssl.trustStore=${tls?.trustStoreFile()?.absolutePath}",
                 "-Djavax.net.ssl.trustStorePassword=${tls?.truststorePassword}"
             ))
         }
