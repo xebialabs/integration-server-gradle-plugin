@@ -18,7 +18,7 @@ abstract class CopyOverlaysTask : DefaultTask() {
         this.mustRunAfter(DownloadAndExtractServerDistTask.NAME)
         this.mustRunAfter(CentralConfigurationTask.NAME)
         this.mustRunAfter(CopyServerBuildArtifactsTask.NAME)
-        this.finalizedBy("checkUILibVersions")
+        this.finalizedBy(CheckUILibVersionsTask.NAME)
 
         project.afterEvaluate {
             val server = DeployServerUtil.getServer(project)

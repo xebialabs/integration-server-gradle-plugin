@@ -12,7 +12,6 @@ plugins {
     kotlin("jvm") version "1.4.20"
 
     id("com.github.node-gradle.node") version "3.1.0"
-    id("groovy")
     id("idea")
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
     id("maven-publish")
@@ -49,7 +48,6 @@ idea {
 dependencies {
     implementation(gradleApi())
     implementation(gradleKotlinDsl())
-    implementation(localGroovy())
 
     implementation("com.fasterxml.jackson.core:jackson-databind:${properties["jacksonVersion"]}")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${properties["jacksonVersion"]}")
@@ -229,13 +227,6 @@ tasks {
         dependsOn(named("yarnRunBuild"), named("docCleanUp"))
         from(file("${rootDir}/documentation/build"))
         into(file("${rootDir}/docs"))
-    }
-
-    named<AbstractCompile>("compileGroovy") {
-        dependsOn(named("compileKotlin"))
-        // Groovy only needs the declared dependencies
-        // (and not longer the output of compileJava)
-        classpath = sourceSets.main.get().compileClasspath + files(compileKotlin.get().destinationDir)
     }
 
     register<GenerateDocumentation>("updateDocs") {

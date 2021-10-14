@@ -18,7 +18,7 @@ class AkkaSecured(serverWorkingDir: String) {
     val truststorePassword: String = SslUtil.generatePassword(trustStoreName)
     private val confWorkDirPath: String = "$serverWorkingDir/conf"
     private val trustStoreFilePath: String = confWorkDir().toString() + "/" + trustStoreName + "." + KEYSTORE_TYPE_EXTENSION
-    val keys: Map<String?, KeyMeta?> = LinkedHashMap()
+    val keys: MutableMap<String, KeyMeta> = mutableMapOf()
 
     fun confWorkDir(): File {
         return File(confWorkDirPath)

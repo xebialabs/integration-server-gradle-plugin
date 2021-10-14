@@ -1,6 +1,7 @@
 package ai.digital.integration.server.tasks.satellite
 
 import ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
+import ai.digital.integration.server.tasks.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -13,11 +14,11 @@ abstract class StartSatelliteTask : DefaultTask() {
 
         this.dependsOn(DownloadAndExtractSatelliteDistTask.NAME)
         this.dependsOn(PrepareSatellitesTask.NAME)
-        this.dependsOn("satelliteOverlays")
+        this.dependsOn(SatelliteOverlaysTask.NAME)
         this.dependsOn(SatelliteSyncPluginsTask.NAME)
 
         if (DeployServerUtil.isTls(project)) {
-            this.dependsOn("tlsApplicationConfigurationOverride")
+            this.dependsOn(TlsApplicationConfigurationOverrideTask.NAME)
         }
     }
 
@@ -29,7 +30,7 @@ abstract class StartSatelliteTask : DefaultTask() {
 
             val environment = EnvironmentUtil.getEnv(
                 project,
-                "SATELLITE_OPTS",
+                "JDK_JAVA_OPTIONS",
                 satellite.debugSuspend,
                 satellite.debugPort,
                 "xl-satellite.log"

@@ -3,6 +3,7 @@ package ai.digital.integration.server.tasks.provision
 import ai.digital.integration.server.constant.PluginConstant
 import ai.digital.integration.server.domain.DevOpsAsCode
 import ai.digital.integration.server.domain.Server
+import ai.digital.integration.server.tasks.StartIntegrationServerTask
 import ai.digital.integration.server.tasks.worker.StartWorkersTask
 import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.HTTPUtil
@@ -24,7 +25,7 @@ abstract class RunDevOpsAsCodeTask : DefaultTask() {
 
     init {
         this.group = PluginConstant.PLUGIN_GROUP
-        this.dependsOn("startIntegrationServer")
+        this.dependsOn(StartIntegrationServerTask.NAME)
 
         if (WorkerUtil.hasWorkers(project)) {
             this.dependsOn(StartWorkersTask.NAME)
