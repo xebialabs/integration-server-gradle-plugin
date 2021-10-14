@@ -2,6 +2,7 @@ package ai.digital.integration.server.tasks.provision
 
 import ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.domain.Server
+import ai.digital.integration.server.tasks.StartIntegrationServerTask
 import ai.digital.integration.server.tasks.worker.StartWorkersTask
 import ai.digital.integration.server.util.DeployServerUtil
 import ai.digital.integration.server.util.HTTPUtil
@@ -23,7 +24,7 @@ abstract class RunDatasetGenerationTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP
-        this.dependsOn("startIntegrationServer")
+        this.dependsOn(StartIntegrationServerTask.NAME)
 
         if (WorkerUtil.hasWorkers(project)) {
             this.dependsOn(StartWorkersTask.NAME)

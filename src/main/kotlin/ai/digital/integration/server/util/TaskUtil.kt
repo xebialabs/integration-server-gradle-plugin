@@ -8,8 +8,12 @@ class TaskUtil {
         @JvmStatic
         fun dontFailOnException(task: Task) {
             task.actions = task.actions.map { action ->
-                Action { current ->
-                    action.execute(current)
+                Action {
+                    try {
+                        action.execute(task)
+                    } catch(e: Exception) {
+                        // ignore
+                    }
                 }
             }
         }

@@ -2,6 +2,7 @@ package ai.digital.integration.server.tasks.cli
 
 import ai.digital.integration.server.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.domain.Cli
+import ai.digital.integration.server.tasks.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.util.CliUtil
 import ai.digital.integration.server.util.DeployServerUtil
 import org.gradle.api.DefaultTask
@@ -24,7 +25,7 @@ abstract class RunCliTask : DefaultTask() {
         this.dependsOn(DownloadAndExtractCliDistTask.NAME)
 
         if (DeployServerUtil.isTls(project)) {
-            this.dependsOn("tlsApplicationConfigurationOverride")
+            this.dependsOn(TlsApplicationConfigurationOverrideTask.NAME)
         }
 
         this.group = PLUGIN_GROUP
