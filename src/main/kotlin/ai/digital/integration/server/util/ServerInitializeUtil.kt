@@ -30,6 +30,7 @@ class ServerInitializeUtil {
             file.appendText("http.context.root=${server.contextRoot}\n")
             file.appendText("threads.min=3\n")
             file.appendText("threads.max=24\n")
+            file.appendText("xl.spring.cloud.enabled=true\n")
 
         }
 
