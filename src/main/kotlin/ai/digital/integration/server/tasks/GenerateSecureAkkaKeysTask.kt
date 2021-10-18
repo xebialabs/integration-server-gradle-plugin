@@ -3,9 +3,9 @@ package ai.digital.integration.server.tasks
 import ai.digital.integration.server.constant.PluginConstant
 import ai.digital.integration.server.domain.AkkaSecured
 import ai.digital.integration.server.domain.AkkaSecured.KeyMeta
-import ai.digital.integration.server.tasks.ssl.KeytoolExportKeyToCertTask
-import ai.digital.integration.server.tasks.ssl.KeytoolGenKeyTask
-import ai.digital.integration.server.tasks.ssl.KeytoolImportKeyToTruststoreTask
+import ai.digital.integration.server.tasks.tls.KeytoolExportKeyToCertTask
+import ai.digital.integration.server.tasks.tls.KeytoolGenKeyTask
+import ai.digital.integration.server.tasks.tls.KeytoolImportKeyToTruststoreTask
 import ai.digital.integration.server.util.DeployServerUtil.Companion.getServer
 import ai.digital.integration.server.util.DeployServerUtil.Companion.getServerWorkingDir
 import ai.digital.integration.server.util.SatelliteUtil.Companion.getSatellites

@@ -1,4 +1,4 @@
-package ai.digital.integration.server.tasks.ssl
+package ai.digital.integration.server.tasks.tls
 
 import ai.digital.integration.server.util.DeployServerUtil.Companion.getHttpHost
 import org.gradle.api.tasks.CacheableTask

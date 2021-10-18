@@ -1,4 +1,4 @@
-package ai.digital.integration.server.tasks.ssl
+package ai.digital.integration.server.tasks.tls
 
 import ai.digital.integration.server.constant.PluginConstant
 import org.gradle.api.DefaultTask

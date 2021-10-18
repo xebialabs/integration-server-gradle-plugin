@@ -2,9 +2,9 @@ package ai.digital.integration.server.tasks
 
 import ai.digital.integration.server.constant.PluginConstant
 import ai.digital.integration.server.domain.Tls
-import ai.digital.integration.server.tasks.ssl.KeytoolExportKeyToCertTask
-import ai.digital.integration.server.tasks.ssl.KeytoolGenKeyTask
-import ai.digital.integration.server.tasks.ssl.KeytoolImportKeyToTruststoreTask
+import ai.digital.integration.server.tasks.tls.KeytoolExportKeyToCertTask
+import ai.digital.integration.server.tasks.tls.KeytoolGenKeyTask
+import ai.digital.integration.server.tasks.tls.KeytoolImportKeyToTruststoreTask
 import ai.digital.integration.server.util.DeployServerUtil.Companion.getServerWorkingDir
 import ai.digital.integration.server.util.PropertiesUtil.Companion.readPropertiesFile
 import ai.digital.integration.server.util.PropertiesUtil.Companion.writePropertiesFile

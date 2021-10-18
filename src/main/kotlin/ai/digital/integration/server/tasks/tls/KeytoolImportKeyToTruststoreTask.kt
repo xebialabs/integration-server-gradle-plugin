@@ -1,4 +1,4 @@
-package ai.digital.integration.server.tasks.ssl
+package ai.digital.integration.server.tasks.tls
 
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
