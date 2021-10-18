@@ -1,5 +1,6 @@
 package ai.digital.integration.server.util
 
+import ai.digital.integration.server.common.util.GitlabUtil
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 

@@ -1,5 +1,7 @@
 package ai.digital.integration.server.util
 
+import ai.digital.integration.server.common.util.CentralConfigurationUtil
+import ai.digital.integration.server.deploy.util.DeployServerUtil
 import io.mockk.every
 import io.mockk.mockkObject
 import org.gradle.testfixtures.ProjectBuilder

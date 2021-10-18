@@ -7,7 +7,7 @@ sidebar_position: 5
 ## The first section level
 
 ```groovy title=build.gradle
-integrationServer {
+deployIntegrationServer {
     clis {}
     servers {}
     databases {}
@@ -33,7 +33,7 @@ integrationServer {
 ## CLIs section
 
 ```groovy title=build.gradle
-integrationServer {
+deployIntegrationServer {
     clis {
         cli { // The name of the section, you can name it as you with
             cleanDefaultExtContent = true
@@ -72,7 +72,7 @@ integrationServer {
 ## Servers section
 
 ```groovy title=build.gradle
-integrationServer {
+deployIntegrationServer {
    servers {
        controlPlane { // The name of the section, you can name it as you with
            akkaSecured = true
@@ -252,7 +252,7 @@ yamlPatches = [
 ## Database section
 
 ```groovy title=build.gradle
-integrationServer {
+deployIntegrationServer {
    databases { 
      database01 { // The name of the section, you can name it as you with
         derbyPort = 10000
@@ -303,7 +303,7 @@ Read more about workers here:
 **Integration Server** currently support running only on the same VM.
 
 ```groovy
-integrationServer {
+deployIntegrationServer {
     workers {
         worker01 {  // The name of the section, you can name it as you with
             version = "10.2.2" // Optional, if not specified will use same version as Server
@@ -357,7 +357,7 @@ You can read more about a satellite here:
 [https://docs.xebialabs.com/v.10.2/deploy/concept/getting-started-with-the-satellite-module/](https://docs.xebialabs.com/v.10.2/deploy/concept/getting-started-with-the-satellite-module/)
 
 ```groovy
-integrationServer {
+deployIntegrationServer {
     satellites {
        satellite01 {  // The name of the section, you can name it as you with
             akkaStreamingPort = 8481
@@ -406,7 +406,7 @@ Message Queue Drivers are by default chosen by the plugin, you can change that, 
 That's how your can override it: 
 
 ```groovy
-integrationServer {
+deployIntegrationServer {
     mqDriverVersions {
         [
             'activemq': '5.16.2',
@@ -436,7 +436,7 @@ Therefore first you run the server with `./gradlew clean startIntegrationServer`
 You can also run both commands in one command as: `./gradlew clean startIntegrationServer integrationTests`.
 
 ```groovy
-integrationServer {
+deployIntegrationServer {
     tests {
         base {
             base = true

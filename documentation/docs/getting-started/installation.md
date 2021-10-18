@@ -32,7 +32,7 @@ buildscript {
 
 apply plugin: 'integration.server'
 
-integrationServer {
+deployIntegrationServer {
     servers {
         controlPlane {
             dockerImage = "xebialabs/xl-deploy" // docker hub repository

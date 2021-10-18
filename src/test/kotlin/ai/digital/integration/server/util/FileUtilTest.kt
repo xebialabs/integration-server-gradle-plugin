@@ -1,5 +1,6 @@
 package ai.digital.integration.server.util
 
+import ai.digital.integration.server.common.util.FileUtil
 import org.apache.commons.io.FileUtils
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue

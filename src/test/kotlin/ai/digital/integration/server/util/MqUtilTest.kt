@@ -1,5 +1,6 @@
 package ai.digital.integration.server.util
 
+import ai.digital.integration.server.common.util.MqUtil
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.assertEquals

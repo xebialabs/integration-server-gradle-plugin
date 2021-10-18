@@ -1,5 +1,6 @@
 package ai.digital.integration.server.util
 
+import ai.digital.integration.server.common.util.PropertyUtil
 import org.gradle.kotlin.dsl.extra
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
