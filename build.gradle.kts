@@ -240,6 +240,14 @@ tasks {
     named<Upload>("uploadArchives") {
         dependsOn(named("publish"))
     }
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
+    }
+
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
+    }
 }
 
 node {

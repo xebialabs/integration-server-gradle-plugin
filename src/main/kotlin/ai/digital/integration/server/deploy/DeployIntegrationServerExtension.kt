@@ -3,15 +3,19 @@ package ai.digital.integration.server.deploy
 import ai.digital.integration.server.common.domain.*
 import ai.digital.integration.server.deploy.domain.*
 import groovy.lang.Closure
+import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.property
 
+@Suppress("UnstableApiUsage")
 open class DeployIntegrationServerExtension(
+    val project: Project,
     val clis: NamedDomainObjectContainer<Cli>,
-    val databases: NamedDomainObjectContainer<Database>,
     val satellites: NamedDomainObjectContainer<Satellite>,
     val servers: NamedDomainObjectContainer<Server>,
     val tests: NamedDomainObjectContainer<Test>,
-    val workers: NamedDomainObjectContainer<Worker>
+    val workers: NamedDomainObjectContainer<Worker>,
 ) {
 
     var mqDriverVersions: MutableMap<String, String> = mutableMapOf()
@@ -24,10 +28,6 @@ open class DeployIntegrationServerExtension(
 
     fun clis(closure: Closure<NamedDomainObjectContainer<Cli>>) {
         clis.configure(closure)
-    }
-
-    fun databases(closure: Closure<NamedDomainObjectContainer<Database>>) {
-        databases.configure(closure)
     }
 
     fun satellites(closure: Closure<NamedDomainObjectContainer<Satellite>>) {
@@ -45,4 +45,8 @@ open class DeployIntegrationServerExtension(
     fun workers(closure: Closure<NamedDomainObjectContainer<Worker>>) {
         workers.configure(closure)
     }
+
+    val database = project.objects.property<Database>().value(Database(project.objects))
+
+    fun database(action: Action<in Database>) = action.execute(database.get())
 }

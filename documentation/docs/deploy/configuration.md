@@ -10,7 +10,7 @@ sidebar_position: 5
 deployIntegrationServer {
     clis {}
     servers {}
-    databases {}
+    database {}
     workers {}
     satellites {}
     mqDriverVersions {}
@@ -22,13 +22,13 @@ deployIntegrationServer {
 |Name|Description|
 | :---: | :---: |
 |clis|CLIs configurations, currently, it's possible to configure only one.|
-|servers|Server configurations, currently, it's possible to configure only one.|
-|databases|Currently supported only 1 running database. For now you can find this section helpful for overriding database driving versions or having more database level logs.|
-|workers|You can configure as many workers as you need here.|
-|satellites|You can configure as many satellites as you need here.|
+|database|Database configuration, you can find this section helpful for overriding database driving versions or having more database level logs.|
 |mqDriverVersions|Points to the version of MQ to use, in case you wish to adapt it to your own version.|
-|xldIsDataVersion|**Only for internal use in Digital.ai** Points to the data which is going to be imported after server is booted. To run waste the time to generate a huge amount of test data.|
+|satellites|You can configure as many satellites as you need here.|
+|servers|Server configurations, currently, it's possible to configure only one.|
 |tests|You can define Jython based test setups|
+|xldIsDataVersion|**Only for internal use in Digital.ai** Points to the data which is going to be imported after server is booted. To run waste the time to generate a huge amount of test data.|
+|workers|You can configure as many workers as you need here.|
 
 ## CLIs section
 
@@ -253,19 +253,17 @@ yamlPatches = [
 
 ```groovy title=build.gradle
 deployIntegrationServer {
-   databases { 
-     database01 { // The name of the section, you can name it as you with
-        derbyPort = 10000
-        driverVersions = [
+   database { 
+      derbyPort.set(10000)
+      driverVersions.set([
              'mssql'        : '8.4.1.jre8',
              'mysql'        : '8.0.22',
              'mysql-8'      : '8.0.22',
              'oracle-19c-se': '21.1.0.0',
              'postgres-10'  : '42.2.9',
              'postgres-12'  : '42.2.23',
-        ]
-        logSql = true
-     }   
+      ])
+      logSql.set(true)
    }
 }
 ```

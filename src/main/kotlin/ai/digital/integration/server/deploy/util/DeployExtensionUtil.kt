@@ -1,6 +1,5 @@
 package ai.digital.integration.server.deploy.util
 
-import ai.digital.integration.server.common.domain.Database
 import ai.digital.integration.server.common.domain.DevOpsAsCode
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.Test
@@ -33,8 +32,8 @@ class DeployExtensionUtil {
             project.extensions.create(
                 DEPLOY_IS_EXTENSION_NAME,
                 DeployIntegrationServerExtension::class.java,
+                project,
                 project.container(Cli::class.java),
-                project.container(Database::class.java),
                 project.container(Satellite::class.java),
                 servers,
                 project.container(Test::class.java),

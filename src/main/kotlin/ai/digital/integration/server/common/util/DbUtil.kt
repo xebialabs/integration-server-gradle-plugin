@@ -1,9 +1,9 @@
 package ai.digital.integration.server.common.util
 
-import ai.digital.integration.server.deploy.DeployIntegrationServerExtension
 import ai.digital.integration.server.common.domain.Database
 import ai.digital.integration.server.common.domain.DbParameters
 import ai.digital.integration.server.common.util.HTTPUtil.Companion.findFreePort
+import ai.digital.integration.server.deploy.DeployIntegrationServerExtension
 import com.fasterxml.jackson.core.TreeNode
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -86,26 +86,27 @@ class DbUtil {
 
         @JvmStatic
         private fun enrichDatabase(project: Project, database: Database): Database {
-            database.derbyPort =
+            database.derbyPort.set(
                 if (project.hasProperty("derbyPort"))
                     Integer.valueOf(project.property("derbyPort").toString())
                 else
                     randomDerbyPort
+            )
 
-            database.logSql =
+            database.logSql.set(
                 if (project.hasProperty("logSql"))
                     project.property("logSql").toString().toBoolean()
                 else
-                    database.logSql
+                    database.logSql.get()
+            )
 
             return database
         }
 
         @JvmStatic
         fun getDatabase(project: Project): Database {
-            val databases = project.extensions.getByType(DeployIntegrationServerExtension::class.java).databases
-            val db = if (databases.isEmpty()) Database(databaseName(project)) else databases.first()
-            return enrichDatabase(project, db)
+            val database = project.extensions.getByType(DeployIntegrationServerExtension::class.java).database.get()
+            return enrichDatabase(project, database)
         }
 
         @JvmStatic

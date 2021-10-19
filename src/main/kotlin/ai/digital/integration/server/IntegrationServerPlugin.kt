@@ -29,7 +29,7 @@ class IntegrationServerPlugin : Plugin<Project> {
 
         val derbyExtension = project.extensions.getByName("derby") as DerbyExtension
         derbyExtension.dataDir = workDir
-        derbyExtension.port = database.derbyPort!!
+        derbyExtension.port = database.derbyPort.get()
 
         val startDerbyTask = project.tasks.getByName("derbyStart")
         val stopDerbyTask = project.tasks.getByName("derbyStop")

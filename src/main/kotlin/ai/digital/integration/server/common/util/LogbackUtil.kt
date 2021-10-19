@@ -21,7 +21,7 @@ class LogbackUtil {
 
         @JvmStatic
         private fun getHardCodedLevels(project: Project): MutableMap<String, String> {
-            return if (DbUtil.getDatabase(project).logSql) LogbackConfigs.toLogSql else mutableMapOf()
+            return if (DbUtil.getDatabase(project).logSql.get()) LogbackConfigs.toLogSql else mutableMapOf()
         }
 
         @JvmStatic

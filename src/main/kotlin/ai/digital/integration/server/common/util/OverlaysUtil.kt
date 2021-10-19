@@ -71,7 +71,7 @@ class OverlaysUtil {
             val dbname = DbUtil.databaseName(project)
             val dbDependencies = DbUtil.detectDbDependencies(dbname)
             val libOverlay = container.overlays.getOrDefault(HOTFIX_LIB_KEY, mutableListOf())
-            val version = DbUtil.getDatabase(project).driverVersions[dbname]
+            val version = DbUtil.getDatabase(project).driverVersions.get()[dbname]
 
             overlayDependency(project, version, container, libOverlay, dbDependencies)
         }
