@@ -10,8 +10,7 @@ import java.io.File
 open class KeytoolImportKeyToTruststoreTask : KeytoolTask() {
 
     companion object {
-        @JvmStatic
-        val NAME = "keytoolImportKeyToTruststore"
+        const val NAME = "keytoolImportKeyToTruststore"
     }
 
     @Input

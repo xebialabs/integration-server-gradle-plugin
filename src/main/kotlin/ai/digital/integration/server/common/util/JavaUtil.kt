@@ -8,9 +8,9 @@ class JavaUtil {
     companion object {
 
         @Suppress("UNCHECKED_CAST")
-        @JvmStatic
         fun execJava(config: Map<String, Any?>): Process {
-            val jvmPath = config.getOrDefault("jvmPath", "${File.javaHome}${File.separator}bin${File.separator}java") as String
+            val jvmPath =
+                config.getOrDefault("jvmPath", "${File.javaHome}${File.separator}bin${File.separator}java") as String
             val jvmArgs = config.getOrDefault("jvmArgs", listOf<String>()) as List<String>
             val programArgs = config.getOrDefault("programArgs", listOf<String>()) as List<String>
             val mainClass = config["mainClass"] as String
@@ -36,16 +36,14 @@ class JavaUtil {
             return ProcessUtil.exec(command)
         }
 
-        @JvmStatic
         fun debugJvmArg(project: Project, debugPort: Int, debugSuspend: Boolean): List<String> {
             project.logger.lifecycle("Enabled debug mode on port $debugPort")
             return listOf(
-                    "-Xdebug",
+                "-Xdebug",
                 DeployServerUtil.createDebugString(debugSuspend, debugPort)
             )
         }
 
-        @JvmStatic
         fun jvmPath(project: Project, integrationServerJVMPath: String): Map<String, String> {
             val jvmPath = "$integrationServerJVMPath${File.separator}bin${File.separator}java"
             project.logger.lifecycle("Using JVM from location: $jvmPath")

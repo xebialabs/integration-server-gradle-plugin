@@ -14,8 +14,7 @@ import java.nio.file.Paths
 abstract class StartWorkersTask : DefaultTask() {
 
     companion object {
-        @JvmStatic
-        val NAME = "startWorkers"
+        const val NAME = "startWorkers"
     }
 
     init {

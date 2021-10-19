@@ -63,7 +63,6 @@ abstract class SyncServerPluginsWithWorkerTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "syncServerPluginsWithWorker"
+        const val NAME = "syncServerPluginsWithWorker"
     }
 }

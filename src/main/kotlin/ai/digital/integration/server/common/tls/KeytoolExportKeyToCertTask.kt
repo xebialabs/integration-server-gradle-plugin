@@ -9,8 +9,7 @@ import java.io.File
 open class KeytoolExportKeyToCertTask : KeytoolTask() {
 
     companion object {
-        @JvmStatic
-        val NAME = "keytoolExportKeyToCert"
+        const val NAME = "keytoolExportKeyToCert"
     }
 
     @InputFile

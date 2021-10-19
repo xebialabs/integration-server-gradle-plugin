@@ -8,11 +8,8 @@ import org.gradle.api.DefaultTask
 abstract class SatelliteOverlaysTask : DefaultTask() {
 
     companion object {
-        @JvmStatic
-        val NAME = "satelliteOverlays"
-
-        @JvmStatic
-        val PREFIX = "satellite"
+        const val NAME = "satelliteOverlays"
+        const val PREFIX = "satellite"
     }
 
     init {

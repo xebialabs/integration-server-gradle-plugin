@@ -12,7 +12,6 @@ import java.util.*
 open class HTTPUtil {
     companion object {
 
-        @JvmStatic
         fun buildRequest(url: String): HTTPBuilder {
             val timeout = 3 * 60 * 1000 // 3 min
 
@@ -29,7 +28,6 @@ open class HTTPUtil {
             return "Basic " + Base64.getEncoder().encodeToString("admin:admin".toByteArray())
         }
 
-        @JvmStatic
         fun doRequest(url: String): HttpRequest.Builder {
             return HttpRequest.newBuilder(URI(url))
                 .version(HttpClient.Version.HTTP_1_1)
@@ -37,7 +35,6 @@ open class HTTPUtil {
                 .timeout(Duration.of(3, ChronoUnit.MINUTES))
         }
 
-        @JvmStatic
         fun findFreePort(): Int {
             var socket: ServerSocket? = null
             try {

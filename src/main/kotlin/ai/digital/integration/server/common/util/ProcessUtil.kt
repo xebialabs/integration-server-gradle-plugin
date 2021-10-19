@@ -6,7 +6,6 @@ import java.io.File
 
 class ProcessUtil {
     companion object {
-        @JvmStatic
         private fun createRunCommand(baseCommand: String, runLocalShell: Boolean): MutableList<String> {
             return if (runLocalShell) {
                 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -19,14 +18,12 @@ class ProcessUtil {
             }
         }
 
-        @JvmStatic
         fun execAndCheck(config: Map<String, Any>, logFile: File) {
             if (exec(config).exitValue() == 1) {
                 throw RuntimeException("Running process was not successfully executed. Check logs [$logFile] for more information.")
             }
         }
 
-        @JvmStatic
         @Suppress("UNCHECKED_CAST")
         fun exec(config: Map<String, Any?>): Process {
 
@@ -71,7 +68,6 @@ class ProcessUtil {
             return process
         }
 
-        @JvmStatic
         fun chMod(project: Project, mode: String, fileName: String) {
             project.exec {
                 it.executable = "chmod"

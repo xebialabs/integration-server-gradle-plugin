@@ -7,7 +7,6 @@ import java.io.File
 
 class TestUtil {
     companion object {
-        @JvmStatic
         fun getTestBaseDirectory(project: Project, test: Test): File? {
 
             if (project.hasProperty("testBaseSubDirectory")) {
@@ -23,7 +22,6 @@ class TestUtil {
             return test.baseDirectory
         }
 
-        @JvmStatic
         fun getTestEnvironments(project: Project, test: Test): Map<String, String> {
             getBaseTest(project)?.let { it ->
                 return it.environments
@@ -31,7 +29,6 @@ class TestUtil {
             return test.environments
         }
 
-        @JvmStatic
         fun getTestExcludePattern(project: Project, test: Test): String {
             getBaseTest(project)?.let { base ->
                 return base.excludesPattern
@@ -39,7 +36,6 @@ class TestUtil {
             return test.excludesPattern
         }
 
-        @JvmStatic
         fun getTestExtraClassPath(project: Project, test: Test): List<File> {
             getBaseTest(project)?.let { base ->
                 return base.extraClassPath
@@ -47,7 +43,6 @@ class TestUtil {
             return test.extraClassPath
         }
 
-        @JvmStatic
         fun getTestSystemProperties(project: Project, test: Test): Map<String, String> {
             getBaseTest(project)?.let { base ->
                 return base.systemProperties
@@ -55,7 +50,6 @@ class TestUtil {
             return test.systemProperties
         }
 
-        @JvmStatic
         fun getTestScriptPattern(project: Project, test: Test): String {
             if (project.hasProperty("testScriptPattern")) {
                 return project.property("testScriptPattern").toString()
@@ -68,7 +62,6 @@ class TestUtil {
             return test.scriptPattern
         }
 
-        @JvmStatic
         fun getTestSetupScripts(project: Project, test: Test): List<String> {
             if (project.hasProperty("testSetupScripts")) {
                 return project.property("testSetupScripts").toString().split(",")
@@ -81,7 +74,6 @@ class TestUtil {
             return test.setupScripts
         }
 
-        @JvmStatic
         fun getTestTeardownScripts(project: Project, test: Test): List<String> {
             if (project.hasProperty("testTeardownScripts")) {
                 return project.property("testTeardownScripts").toString().split(",")
@@ -94,17 +86,14 @@ class TestUtil {
             return test.tearDownScripts
         }
 
-        @JvmStatic
         fun hasTests(project: Project): Boolean {
             return !DeployExtensionUtil.getExtension(project).tests.isEmpty()
         }
 
-        @JvmStatic
         fun getBaseTest(project: Project): Test? {
             return DeployExtensionUtil.getExtension(project).tests.find { test -> test.base }
         }
 
-        @JvmStatic
         fun getExecutableTests(project: Project): List<Test> {
             return DeployExtensionUtil.getExtension(project).tests
                 .filter { test ->

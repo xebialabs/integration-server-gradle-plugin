@@ -27,7 +27,6 @@ abstract class PrepareSatellitesTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "prepareSatellites"
+        const val NAME = "prepareSatellites"
     }
 }

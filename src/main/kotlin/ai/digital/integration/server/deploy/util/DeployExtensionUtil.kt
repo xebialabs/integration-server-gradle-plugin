@@ -16,12 +16,10 @@ class DeployExtensionUtil {
     companion object {
         const val DEPLOY_IS_EXTENSION_NAME: String = "deployIntegrationServer"
 
-        @JvmStatic
         fun getExtension(project: Project): DeployIntegrationServerExtension {
             return project.extensions.getByType(DeployIntegrationServerExtension::class.java)
         }
 
-        @JvmStatic
         fun createDeployExtension(project: Project) {
             val servers: NamedDomainObjectContainer<Server> = project.container(Server::class.java)
 
@@ -41,14 +39,12 @@ class DeployExtensionUtil {
             )
         }
 
-        @JvmStatic
         fun initialize(project: Project) {
             val extension = getExtension(project)
             extension.xldIsDataVersion = getXldIsDataVersion(project)
             extension.mqDriverVersions = getMqDriverVersions(project)
         }
 
-        @JvmStatic
         private fun getXldIsDataVersion(project: Project): String? {
             return if (project.hasProperty("xldIsDataVersion"))
                 project.property("xldIsDataVersion").toString()
@@ -56,7 +52,6 @@ class DeployExtensionUtil {
                 null
         }
 
-        @JvmStatic
         @Suppress("UNCHECKED_CAST")
         private fun getMqDriverVersions(project: Project): MutableMap<String, String> {
             return if (project.hasProperty("mqDriverVersions"))

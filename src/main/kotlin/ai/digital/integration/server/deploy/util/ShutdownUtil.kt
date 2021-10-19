@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit
 
 class ShutdownUtil {
     companion object {
-        @JvmStatic
         private fun waitForShutdown(project: Project) {
             val server = DeployServerUtil.getServer(project)
             val triesLeft = server.pingTotalTries
@@ -43,7 +42,6 @@ class ShutdownUtil {
             }
         }
 
-        @JvmStatic
         fun shutdownServer(project: Project) {
             val server = DeployServerUtil.getServer(project)
             try {

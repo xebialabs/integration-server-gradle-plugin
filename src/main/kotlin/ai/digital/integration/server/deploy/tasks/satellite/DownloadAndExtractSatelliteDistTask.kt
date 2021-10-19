@@ -27,7 +27,6 @@ abstract class DownloadAndExtractSatelliteDistTask : Copy() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "downloadAndExtractSatelliteServer"
+        const val NAME = "downloadAndExtractSatelliteServer"
     }
 }

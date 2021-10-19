@@ -46,10 +46,7 @@ abstract class ShutdownSatelliteTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "shutdownSatellite"
-
-        @JvmStatic
-        val STOP_SATELLITE_SCRIPT = "stopSatellite.sh"
+        const val NAME = "shutdownSatellite"
+        const val STOP_SATELLITE_SCRIPT = "stopSatellite.sh"
     }
 }

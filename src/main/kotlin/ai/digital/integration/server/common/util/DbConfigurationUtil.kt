@@ -10,7 +10,6 @@ import java.util.*
 class DbConfigurationUtil {
 
     companion object {
-        @JvmStatic
         fun connectionProperties(username: String, password: String): Properties {
             val properties = Properties()
             properties["user"] = username
@@ -18,7 +17,6 @@ class DbConfigurationUtil {
             return properties
         }
 
-        @JvmStatic
         fun createDriverConnection(driverClass: String, url: String, properties: Properties): Connection {
             val driver = Class.forName(driverClass).getDeclaredConstructor().newInstance() as Driver
             val driverConnection = driver.connect(url, properties)
@@ -26,7 +24,6 @@ class DbConfigurationUtil {
             return driverConnection
         }
 
-        @JvmStatic
         fun configureConnection(driverConnection: Connection, dbDependency: DbParameters): DatabaseConnection {
             val connection = DatabaseConnection(driverConnection, "public")
             val config = connection.config

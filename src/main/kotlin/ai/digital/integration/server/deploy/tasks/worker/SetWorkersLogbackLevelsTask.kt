@@ -21,7 +21,6 @@ abstract class SetWorkersLogbackLevelsTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "setWorkerLogbackLevels"
+        const val NAME = "setWorkerLogbackLevels"
     }
 }

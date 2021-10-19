@@ -10,8 +10,7 @@ import java.io.File
 open class KeytoolGenKeyTask : KeytoolTask() {
 
     companion object {
-        @JvmStatic
-        val NAME = "keytoolGenKey"
+        const val NAME = "keytoolGenKey"
     }
 
     @Input
@@ -38,8 +37,23 @@ open class KeytoolGenKeyTask : KeytoolTask() {
     init {
         this.doFirst {
             this.params = listOf(
-                    "-genkey", "-alias", keyname!!, "-ext", "SAN:c=DNS:$dns,IP:$ip", "-dname", "CN=localhost,O=digital.ai,OU=Deploy",
-                    "-keyalg", "RSA", "-keystore", getOutputFile().absolutePath, "-storetype", type, "-validity", validity, "-keysize", keySize
+                "-genkey",
+                "-alias",
+                keyname!!,
+                "-ext",
+                "SAN:c=DNS:$dns,IP:$ip",
+                "-dname",
+                "CN=localhost,O=digital.ai,OU=Deploy",
+                "-keyalg",
+                "RSA",
+                "-keystore",
+                getOutputFile().absolutePath,
+                "-storetype",
+                type,
+                "-validity",
+                validity,
+                "-keysize",
+                keySize
             )
         }
     }

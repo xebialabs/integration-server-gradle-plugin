@@ -3,10 +3,10 @@ package ai.digital.integration.server.deploy.tasks.provision
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.domain.DevOpsAsCode
 import ai.digital.integration.server.common.domain.Server
+import ai.digital.integration.server.common.util.HTTPUtil
 import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
 import ai.digital.integration.server.deploy.util.DeployServerUtil
-import ai.digital.integration.server.common.util.HTTPUtil
 import ai.digital.integration.server.deploy.util.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -18,10 +18,8 @@ import java.net.http.HttpResponse
 abstract class RunDevOpsAsCodeTask : DefaultTask() {
 
     companion object {
-        @JvmStatic
-        val NAME = "runDevOpsAsCode"
+        const val NAME = "runDevOpsAsCode"
     }
-
 
     init {
         this.group = PluginConstant.PLUGIN_GROUP
@@ -30,7 +28,6 @@ abstract class RunDevOpsAsCodeTask : DefaultTask() {
         if (WorkerUtil.hasWorkers(project)) {
             this.dependsOn(StartWorkersTask.NAME)
         }
-
     }
 
     private fun launchDevOpAsCodeScripts(project: Project, server: Server) {

@@ -38,7 +38,6 @@ abstract class CopyIntegrationServerTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "copyIntegrationServer"
+        const val NAME = "copyIntegrationServer"
     }
 }

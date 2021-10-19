@@ -40,7 +40,6 @@ abstract class SatelliteSyncPluginsTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "satelliteSyncPlugins"
+        const val NAME = "satelliteSyncPlugins"
     }
 }

@@ -14,7 +14,7 @@ import kotlin.system.exitProcess
 
 class CliUtil {
     companion object {
-        @JvmStatic
+
         fun getCli(project: Project): Cli {
             val clis = DeployExtensionUtil.getExtension(project).clis.toList()
             val cli = if (clis.isEmpty()) Cli("default") else clis.first()
@@ -23,12 +23,10 @@ class CliUtil {
             return cli
         }
 
-        @JvmStatic
         fun hasCli(project: Project): Boolean {
             return !DeployExtensionUtil.getExtension(project).clis.isEmpty()
         }
 
-        @JvmStatic
         private fun getDebugPort(project: Project, cli: Cli): Int? {
             return if (PropertyUtil.resolveBooleanValue(project, "debug", true)) {
                 PropertyUtil.resolveIntValue(project, "cliDebugPort", cli.debugPort)
@@ -37,24 +35,20 @@ class CliUtil {
             }
         }
 
-        @JvmStatic
         fun getWorkingDir(project: Project): String {
             val version = getCli(project).version
             val targetDir = IntegrationServerUtil.getDist(project)
             return Paths.get(targetDir, "xl-deploy-${version}-cli").toAbsolutePath().toString()
         }
 
-        @JvmStatic
         fun getCliLogFolder(project: Project): File {
             return File(getWorkingDir(project), "log")
         }
 
-        @JvmStatic
         fun getCliExtFolder(project: Project): File {
             return File(getWorkingDir(project), "ext")
         }
 
-        @JvmStatic
         fun getCliLogFile(project: Project, label: String): File {
             val file = Paths.get("${getCliLogFolder(project)}/${label}-${IdUtil.shortId()}.log").toFile()
             project.file(file.parent).mkdirs()
@@ -62,12 +56,10 @@ class CliUtil {
             return file
         }
 
-        @JvmStatic
         fun getCliBin(project: Project): File {
             return Paths.get(getWorkingDir(project), "bin").toFile()
         }
 
-        @JvmStatic
         private fun getCliVersion(project: Project, cli: Cli): String? {
             return when {
                 project.hasProperty("deployCliVersion") -> {
@@ -86,14 +78,12 @@ class CliUtil {
             }
         }
 
-        @JvmStatic
         fun executeScripts(project: Project, scriptSources: List<File>, label: String, secure: Boolean) {
             if (scriptSources.isNotEmpty()) {
                 runScripts(project, scriptSources, label, secure, mapOf(), mapOf(), listOf())
             }
         }
 
-        @JvmStatic
         fun executeScripts(
             project: Project,
             scriptSources: List<File>,
@@ -110,7 +100,6 @@ class CliUtil {
                 test.extraClassPath)
         }
 
-        @JvmStatic
         private fun runScripts(
             project: Project,
             scriptSources: List<File>,

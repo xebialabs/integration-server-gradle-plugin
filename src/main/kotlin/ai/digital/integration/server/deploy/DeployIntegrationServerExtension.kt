@@ -46,6 +46,10 @@ open class DeployIntegrationServerExtension(
         workers.configure(closure)
     }
 
+    val cli = project.objects.property<Database>().value(Database(project.objects))
+
+    fun cli(action: Action<in Database>) = action.execute(database.get())
+
     val database = project.objects.property<Database>().value(Database(project.objects))
 
     fun database(action: Action<in Database>) = action.execute(database.get())

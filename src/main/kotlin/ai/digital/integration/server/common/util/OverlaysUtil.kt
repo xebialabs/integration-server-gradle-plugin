@@ -1,7 +1,7 @@
 package ai.digital.integration.server.common.util
 
-import ai.digital.integration.server.common.domain.api.DriverDependencyAware
 import ai.digital.integration.server.common.domain.api.Container
+import ai.digital.integration.server.common.domain.api.DriverDependencyAware
 import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil
 import ai.digital.integration.server.deploy.util.DeployExtensionUtil
 import org.gradle.api.Project
@@ -11,14 +11,12 @@ import java.io.File
 
 class OverlaysUtil {
     companion object {
-        @JvmStatic
-        val HOTFIX_LIB_KEY = "hotfix/lib"
+        const val HOTFIX_LIB_KEY = "hotfix/lib"
 
         private fun shouldUnzip(file: File): Boolean {
             return file.name.endsWith(".zip")
         }
 
-        @JvmStatic
         fun defineOverlay(
             project: Project,
             currentTask: Task,
@@ -46,7 +44,6 @@ class OverlaysUtil {
             currentTask.dependsOn(copyTask)
         }
 
-        @JvmStatic
         private fun overlayDependency(
             project: Project,
             version: String?,
@@ -66,7 +63,6 @@ class OverlaysUtil {
             }
         }
 
-        @JvmStatic
         fun addDatabaseDependency(project: Project, container: Container) {
             val dbname = DbUtil.databaseName(project)
             val dbDependencies = DbUtil.detectDbDependencies(dbname)
@@ -76,7 +72,6 @@ class OverlaysUtil {
             overlayDependency(project, version, container, libOverlay, dbDependencies)
         }
 
-        @JvmStatic
         fun addMqDependency(project: Project, container: Container) {
             val mqName = MqUtil.mqName(project)
             val mqDependency = MqUtil.detectMqDependency(mqName)

@@ -66,7 +66,6 @@ abstract class StartSatelliteTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "startSatellite"
+        const val NAME = "startSatellite"
     }
 }

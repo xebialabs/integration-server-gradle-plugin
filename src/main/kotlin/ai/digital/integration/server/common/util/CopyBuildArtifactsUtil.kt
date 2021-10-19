@@ -6,7 +6,6 @@ import java.io.File
 
 class CopyBuildArtifactsUtil {
     companion object {
-        @JvmStatic
         fun execute(project: Project, copyBuildArtifacts: Map<String, String>, workingDir: String) {
             copyBuildArtifacts.forEach { entry: Map.Entry<String, String> ->
                 val where = entry.key

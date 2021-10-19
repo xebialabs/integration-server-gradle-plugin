@@ -6,7 +6,6 @@ import java.sql.SQLException
 
 class PostgresDbUtil {
     companion object {
-        @JvmStatic
         fun resetSequences(project: Project, connection: Connection) {
             try {
                 val seqStmt = connection.createStatement()

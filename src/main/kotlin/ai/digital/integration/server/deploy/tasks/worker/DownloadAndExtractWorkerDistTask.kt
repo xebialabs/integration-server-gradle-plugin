@@ -35,7 +35,6 @@ abstract class DownloadAndExtractWorkerDistTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "downloadAndExtractWorkerServer"
+        const val NAME = "downloadAndExtractWorkerServer"
     }
 }

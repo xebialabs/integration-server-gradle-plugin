@@ -8,11 +8,8 @@ import org.gradle.api.DefaultTask
 abstract class WorkerOverlaysTask : DefaultTask() {
 
     companion object {
-        @JvmStatic
-        val NAME = "workerOverlays"
-
-        @JvmStatic
-        val PREFIX = "worker"
+        const val NAME = "workerOverlays"
+        const val PREFIX = "worker"
     }
 
     init {

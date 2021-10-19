@@ -10,14 +10,12 @@ class SslUtil {
 
     companion object {
 
-        @JvmStatic
         fun setTls(project: Project, tls: Tls?): Tls? {
             val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
             ext.tls = tls
             return tls
         }
 
-        @JvmStatic
         fun getTls(project: Project, workDir: String): Tls? {
             val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
             if (ext.tls == null) {
@@ -27,14 +25,12 @@ class SslUtil {
             return ext.tls
         }
 
-        @JvmStatic
         fun setAkkaSecured(project: Project, akkaSecured: AkkaSecured?): AkkaSecured? {
             val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
             ext.akkaSecured = akkaSecured
             return akkaSecured
         }
 
-        @JvmStatic
         fun getAkkaSecured(project: Project, workDir: String): AkkaSecured? {
             val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
             if (ext.akkaSecured == null) {
@@ -44,7 +40,6 @@ class SslUtil {
             return ext.akkaSecured
         }
 
-        @JvmStatic
         fun generatePassword(name: String): String {
             return StringUtils.rightPad(StringUtils.substring(name, 0, 8), 8, "12345678")
         }

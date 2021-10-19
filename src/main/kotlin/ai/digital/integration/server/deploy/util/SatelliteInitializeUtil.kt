@@ -11,7 +11,6 @@ import org.gradle.api.Project
 class SatelliteInitializeUtil {
 
     companion object {
-        @JvmStatic
         fun prepare(project: Project, satellite: Satellite) {
             val satelliteConf = SatelliteUtil.getSatelliteConf(project, satellite)
 
@@ -36,24 +35,29 @@ class SatelliteInitializeUtil {
                     val key = secured.keys[AkkaSecured.SATELLITE_KEY_NAME + satellite.name]
 
                     newConfiguration = newConfiguration
-                            .withValue("deploy.server.ssl.enabled", ConfigValueFactory.fromAnyRef("yes"))
-                            .withValue("deploy.server.ssl.key-store", ConfigValueFactory.fromAnyRef(key?.keyStoreFile()?.absolutePath))
-                            .withValue("deploy.server.ssl.key-store-password", ConfigValueFactory.fromAnyRef(key?.keyStorePassword))
-                            .withValue("deploy.server.ssl.trust-store", ConfigValueFactory.fromAnyRef(secured.trustStoreFile().absolutePath))
-                            .withValue("deploy.server.ssl.trust-store-password", ConfigValueFactory.fromAnyRef(secured.truststorePassword))
+                        .withValue("deploy.server.ssl.enabled", ConfigValueFactory.fromAnyRef("yes"))
+                        .withValue("deploy.server.ssl.key-store",
+                            ConfigValueFactory.fromAnyRef(key?.keyStoreFile()?.absolutePath))
+                        .withValue("deploy.server.ssl.key-store-password",
+                            ConfigValueFactory.fromAnyRef(key?.keyStorePassword))
+                        .withValue("deploy.server.ssl.trust-store",
+                            ConfigValueFactory.fromAnyRef(secured.trustStoreFile().absolutePath))
+                        .withValue("deploy.server.ssl.trust-store-password",
+                            ConfigValueFactory.fromAnyRef(secured.truststorePassword))
 
 
                     if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
                         newConfiguration = newConfiguration
-                                .withValue("deploy.server.ssl.key-password", ConfigValueFactory.fromAnyRef(key?.keyPassword))
+                            .withValue("deploy.server.ssl.key-password",
+                                ConfigValueFactory.fromAnyRef(key?.keyPassword))
                     }
                 }
             }
 
             satelliteConf.writeText(
-                    newConfiguration
-                            .root()
-                            .render(options)
+                newConfiguration
+                    .root()
+                    .render(options)
             )
         }
     }

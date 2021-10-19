@@ -9,19 +9,16 @@ import java.io.File
 
 class EnvironmentUtil {
     companion object {
-        @JvmStatic
         fun getServerEnv(project: Project,server: Server): MutableMap<String, String> {
             return getEnv(project, "JDK_JAVA_OPTIONS", server.debugSuspend, server.debugPort, null)
         }
 
-        @JvmStatic
         fun getCliEnv(project: Project, cli: Cli, extraParams: Map<String, String?>, extraClassPath: List<File>): Map<String, String> {
             val env = getEnv(project, "JDK_JAVA_OPTIONS", cli.debugSuspend, cli.debugPort, null, extraParams)
             env["EXTRA_DEPLOYIT_CLI_CLASSPATH"] = extraClassPath.joinToString(separator = OsUtil.getPathSeparator())
             return env
         }
 
-        @JvmStatic
         fun getEnv(
             project: Project,
             variableName: String,
@@ -32,7 +29,6 @@ class EnvironmentUtil {
             return getEnv(project, variableName, debugSuspend, debugPort, logFileName, mutableMapOf())
         }
 
-        @JvmStatic
         fun getEnv(
             project: Project,
             variableName: String,
