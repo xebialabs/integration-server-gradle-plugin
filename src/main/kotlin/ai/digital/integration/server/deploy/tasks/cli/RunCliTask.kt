@@ -33,7 +33,7 @@ abstract class RunCliTask : DefaultTask() {
 
     private fun executeScripts(cli: Cli) {
         project.logger.lifecycle("Executing cli scripts ....")
-        CliUtil.executeScripts(project, cli.filesToExecute, "cli", secure.getOrElse(false))
+        CliUtil.executeScripts(project, cli.filesToExecute.get(), "cli", secure.getOrElse(false))
     }
 
     @TaskAction

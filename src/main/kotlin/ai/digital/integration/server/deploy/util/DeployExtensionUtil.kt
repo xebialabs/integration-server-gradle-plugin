@@ -4,7 +4,6 @@ import ai.digital.integration.server.common.domain.DevOpsAsCode
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.Test
 import ai.digital.integration.server.deploy.DeployIntegrationServerExtension
-import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.deploy.domain.Satellite
 import ai.digital.integration.server.deploy.domain.Worker
 import org.gradle.api.NamedDomainObjectContainer
@@ -31,7 +30,6 @@ class DeployExtensionUtil {
                 DEPLOY_IS_EXTENSION_NAME,
                 DeployIntegrationServerExtension::class.java,
                 project,
-                project.container(Cli::class.java),
                 project.container(Satellite::class.java),
                 servers,
                 project.container(Test::class.java),

@@ -18,7 +18,7 @@ abstract class CliCleanDefaultExtTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        if (CliUtil.getCli(project).cleanDefaultExtContent) {
+        if (CliUtil.getCli(project).cleanDefaultExtContent.get()) {
             project.logger.lifecycle("Removing all default content in CLI ext folder.")
 
             val folder = CliUtil.getCliExtFolder(project)

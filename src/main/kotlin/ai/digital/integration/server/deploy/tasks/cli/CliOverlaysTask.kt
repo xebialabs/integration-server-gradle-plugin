@@ -19,7 +19,7 @@ abstract class CliOverlaysTask : DefaultTask() {
         this.mustRunAfter(CopyCliBuildArtifactsTask.NAME)
 
         project.afterEvaluate {
-            CliUtil.getCli(project).overlays.forEach { overlay ->
+            CliUtil.getCli(project).overlays.get().forEach { overlay ->
                 OverlaysUtil.defineOverlay(project,
                     this,
                     CliUtil.getWorkingDir(project),

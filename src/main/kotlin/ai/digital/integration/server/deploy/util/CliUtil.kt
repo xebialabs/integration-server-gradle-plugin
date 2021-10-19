@@ -1,11 +1,11 @@
 package ai.digital.integration.server.deploy.util
 
-import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.common.domain.Test
 import ai.digital.integration.server.common.util.IdUtil
 import ai.digital.integration.server.common.util.IntegrationServerUtil
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.PropertyUtil
+import ai.digital.integration.server.deploy.domain.Cli
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 import java.io.File
@@ -16,27 +16,26 @@ class CliUtil {
     companion object {
 
         fun getCli(project: Project): Cli {
-            val clis = DeployExtensionUtil.getExtension(project).clis.toList()
-            val cli = if (clis.isEmpty()) Cli("default") else clis.first()
-            cli.version = getCliVersion(project, cli)
-            cli.debugPort = getDebugPort(project, cli)
+            val cli = DeployExtensionUtil.getExtension(project).cli.get()
+            cli.version.set(getCliVersion(project, cli))
+            cli.debugPort.set(getDebugPort(project, cli))
             return cli
         }
 
         fun hasCli(project: Project): Boolean {
-            return !DeployExtensionUtil.getExtension(project).clis.isEmpty()
+            return getCli(project).version.isPresent
         }
 
         private fun getDebugPort(project: Project, cli: Cli): Int? {
             return if (PropertyUtil.resolveBooleanValue(project, "debug", true)) {
-                PropertyUtil.resolveIntValue(project, "cliDebugPort", cli.debugPort)
+                PropertyUtil.resolveIntValue(project, "cliDebugPort", cli.debugPort.orNull)
             } else {
                 null
             }
         }
 
         fun getWorkingDir(project: Project): String {
-            val version = getCli(project).version
+            val version = getCli(project).version.get()
             val targetDir = IntegrationServerUtil.getDist(project)
             return Paths.get(targetDir, "xl-deploy-${version}-cli").toAbsolutePath().toString()
         }
@@ -49,14 +48,14 @@ class CliUtil {
             return File(getWorkingDir(project), "ext")
         }
 
-        fun getCliLogFile(project: Project, label: String): File {
+        private fun getCliLogFile(project: Project, label: String): File {
             val file = Paths.get("${getCliLogFolder(project)}/${label}-${IdUtil.shortId()}.log").toFile()
             project.file(file.parent).mkdirs()
             file.createNewFile()
             return file
         }
 
-        fun getCliBin(project: Project): File {
+        private fun getCliBin(project: Project): File {
             return Paths.get(getWorkingDir(project), "bin").toFile()
         }
 
@@ -65,8 +64,8 @@ class CliUtil {
                 project.hasProperty("deployCliVersion") -> {
                     project.property("deployCliVersion").toString()
                 }
-                !cli.version.isNullOrEmpty() -> {
-                    cli.version
+                !cli.version.orNull.isNullOrEmpty() -> {
+                    cli.version.get()
                 }
                 !DeployServerUtil.getServer(project).version.isNullOrEmpty() -> {
                     DeployServerUtil.getServer(project).version
@@ -122,7 +121,7 @@ class CliUtil {
                 "-password", "admin",
                 "-port", DeployServerUtil.readDeployitConfProperty(project, "http.port"),
                 "-host", DeployServerUtil.getHttpHost(),
-                "-socketTimeout", cli.socketTimeout.toString(),
+                "-socketTimeout", cli.socketTimeout.get().toString(),
                 "-source", scriptSources.joinToString(separator = ",") { source -> source.absolutePath },
                 "-username", "admin",
             ) + extraParamsAsList).toMutableList()

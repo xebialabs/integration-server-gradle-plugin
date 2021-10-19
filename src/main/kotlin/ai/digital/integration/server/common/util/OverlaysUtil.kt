@@ -11,7 +11,7 @@ import java.io.File
 
 class OverlaysUtil {
     companion object {
-        const val HOTFIX_LIB_KEY = "hotfix/lib"
+        private const val HOTFIX_LIB_KEY = "hotfix/lib"
 
         private fun shouldUnzip(file: File): Boolean {
             return file.name.endsWith(".zip")
@@ -22,13 +22,13 @@ class OverlaysUtil {
             currentTask: Task,
             workingDir: String,
             prefix: String,
-            overlay: Map.Entry<String, List<Any>>,
+            overlay: Map.Entry<String, List<*>>,
             dependedTasks: List<String>,
         ) {
             val configurationName = "${prefix}${overlay.key.capitalize().replace("/", "")}"
             val config = project.buildscript.configurations.create(configurationName)
             overlay.value.forEach { dependencyNotation ->
-                project.buildscript.dependencies.add(configurationName, dependencyNotation)
+                project.buildscript.dependencies.add(configurationName, dependencyNotation as Any)
             }
 
             val copyTask =

@@ -16,7 +16,7 @@ abstract class CopyCliBuildArtifactsTask : DefaultTask() {
     @TaskAction
     fun launch() {
         val cli = CliUtil.getCli(project)
-        CopyBuildArtifactsUtil.execute(project, cli.copyBuildArtifacts, CliUtil.getWorkingDir(project))
+        CopyBuildArtifactsUtil.execute(project, cli.copyBuildArtifacts.get(), CliUtil.getWorkingDir(project))
     }
 
     companion object {

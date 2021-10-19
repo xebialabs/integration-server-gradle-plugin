@@ -11,7 +11,6 @@ import org.gradle.kotlin.dsl.property
 @Suppress("UnstableApiUsage")
 open class DeployIntegrationServerExtension(
     val project: Project,
-    val clis: NamedDomainObjectContainer<Cli>,
     val satellites: NamedDomainObjectContainer<Satellite>,
     val servers: NamedDomainObjectContainer<Server>,
     val tests: NamedDomainObjectContainer<Test>,
@@ -25,10 +24,6 @@ open class DeployIntegrationServerExtension(
     var tls: Tls? = null
 
     var akkaSecured: AkkaSecured? = null
-
-    fun clis(closure: Closure<NamedDomainObjectContainer<Cli>>) {
-        clis.configure(closure)
-    }
 
     fun satellites(closure: Closure<NamedDomainObjectContainer<Satellite>>) {
         satellites.configure(closure)
@@ -46,9 +41,9 @@ open class DeployIntegrationServerExtension(
         workers.configure(closure)
     }
 
-    val cli = project.objects.property<Database>().value(Database(project.objects))
+    val cli = project.objects.property<Cli>().value(Cli(project.objects))
 
-    fun cli(action: Action<in Database>) = action.execute(database.get())
+    fun cli(action: Action<in Cli>) = action.execute(cli.get())
 
     val database = project.objects.property<Database>().value(Database(project.objects))
 

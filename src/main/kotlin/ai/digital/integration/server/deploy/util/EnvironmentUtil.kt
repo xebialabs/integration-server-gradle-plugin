@@ -14,7 +14,7 @@ class EnvironmentUtil {
         }
 
         fun getCliEnv(project: Project, cli: Cli, extraParams: Map<String, String?>, extraClassPath: List<File>): Map<String, String> {
-            val env = getEnv(project, "JDK_JAVA_OPTIONS", cli.debugSuspend, cli.debugPort, null, extraParams)
+            val env = getEnv(project, "JDK_JAVA_OPTIONS", cli.debugSuspend.get(), cli.debugPort.orNull, null, extraParams)
             env["EXTRA_DEPLOYIT_CLI_CLASSPATH"] = extraClassPath.joinToString(separator = OsUtil.getPathSeparator())
             return env
         }

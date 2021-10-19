@@ -8,7 +8,7 @@ sidebar_position: 5
 
 ```groovy title=build.gradle
 deployIntegrationServer {
-    clis {}
+    cli {}
     servers {}
     database {}
     workers {}
@@ -21,7 +21,7 @@ deployIntegrationServer {
 
 |Name|Description|
 | :---: | :---: |
-|clis|CLIs configurations, currently, it's possible to configure only one.|
+|cli|The configuration section for Deploy CLI client to run Jython scripts against Deploy server intance.|
 |database|Database configuration, you can find this section helpful for overriding database driving versions or having more database level logs.|
 |mqDriverVersions|Points to the version of MQ to use, in case you wish to adapt it to your own version.|
 |satellites|You can configure as many satellites as you need here.|
@@ -30,30 +30,28 @@ deployIntegrationServer {
 |xldIsDataVersion|**Only for internal use in Digital.ai** Points to the data which is going to be imported after server is booted. To run waste the time to generate a huge amount of test data.|
 |workers|You can configure as many workers as you need here.|
 
-## CLIs section
+## CLI section
 
 ```groovy title=build.gradle
 deployIntegrationServer {
-    clis {
-        cli { // The name of the section, you can name it as you with
-            cleanDefaultExtContent = true
-            copyBuildArtifacts = [
-               lib: /(.+)[.](jar)/
+    cli { // The name of the section, you can name it as you with
+        cleanDefaultExtContent.set(true)
+        copyBuildArtifacts.set([
+           lib: /(.+)[.](jar)/
+        ])
+        debugPort.set(4005)
+        debugSuspend.set(true)
+        filesToExecute.set([file("src/main/resources/provision.py")])
+        overlays.set([
+            ext: [
+                    files("ext") 
+            ],
+            lib: [
+                    "com.xebialabs.xl-platform.test-utils:py-modules:${testUtilsVersion}@jar"
             ]
-            debugPort = 4005
-            debugSuspend = true
-            filesToExecute = [file("src/main/resources/provision.py")]
-            overlays = [
-                ext: [
-                        files("ext") 
-                ],
-                lib: [
-                        "com.xebialabs.xl-platform.test-utils:py-modules:${testUtilsVersion}@jar"
-                ]
-            ]
-            socketTimeout = 120000
-            version = "10.2.2"
-        }
+        ])
+        socketTimeout.set(120000)
+        version.set("10.2.2")
     }
 }
 ```
