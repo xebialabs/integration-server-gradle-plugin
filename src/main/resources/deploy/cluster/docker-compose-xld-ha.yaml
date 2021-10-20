@@ -9,7 +9,7 @@ services:
       - "8080:5000"
       - "1936:1936"
     networks:
-      - xld-network
+      - {{DEPLOY_NETWORK_NAME}}
     environment:
       BACKENDS: "xl-deploy-master:4516"
       HTTPCHK: "GET /deployit/ha/health"
@@ -25,7 +25,7 @@ services:
       - rabbitmq
       - postgresql
     networks:
-      - xld-network
+      - {{DEPLOY_NETWORK_NAME}}
     environment:
       - USE_IP_AS_HOSTNAME=true
       - ADMIN_PASSWORD=admin
@@ -41,6 +41,7 @@ services:
       - XL_DB_PASSWORD=admin
       - FORCE_UPGRADE=true
     volumes:
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/conf:/opt/xebialabs/xl-deploy-server/conf
 
   rabbitmq:
@@ -53,15 +54,15 @@ services:
       - "25672:25672"
       - "15672:15672"
     networks:
-      - xld-network
+      - {{DEPLOY_NETWORK_NAME}}
     labels:
       NAME: "rabbitmq"
     environment:
       RABBITMQ_DEFAULT_USER: rabbitmq
-      RABBITMQ_DEFAULT_PASS: admin}
+      RABBITMQ_DEFAULT_PASS: admin
       RABBITMQ_LOOPBACK_USERS: none
-    volumes:
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
+#    volumes:
+#      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
 
   postgresql:
     image: postgres:10.5
@@ -74,8 +75,8 @@ services:
       - POSTGRES_PASSWORD=admin
     command: postgres
     networks:
-      - xld-network
+      - {{DEPLOY_NETWORK_NAME}}
 
 networks:
-  xld-network:
+  {{DEPLOY_NETWORK_NAME}}:
     external: true

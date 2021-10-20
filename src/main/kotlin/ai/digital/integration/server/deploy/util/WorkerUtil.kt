@@ -33,6 +33,10 @@ class WorkerUtil {
             }
         }
 
+        fun getNumberOfWorkers(project: Project): Int {
+            return getWorkers(project).size
+        }
+
         private fun enrichWorker(project: Project, worker: Worker): Worker {
             worker.debugPort = getDebugPort(project, worker)
             worker.version = getWorkerVersion(project, worker)

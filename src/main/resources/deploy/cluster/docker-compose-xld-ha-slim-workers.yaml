@@ -3,7 +3,7 @@ services:
   xl-deploy-worker:
     image: {{DEPLOY_WORKER_IMAGE}}
     networks:
-      - xld-network
+      - {{DEPLOY_NETWORK_NAME}}
     environment:
       - USE_IP_AS_HOSTNAME=true
       - ADMIN_PASSWORD=admin
@@ -18,16 +18,11 @@ services:
       - XL_DB_USERNAME=postgres
       - XL_DB_PASSWORD=admin
     command:
-      - "-api"
-      - "http://${XLD_LB}:5000/"
-      - "-master"
-      - "${XLD_MASTER_1}:8180"
-      - "-master"
-      - "${XLD_MASTER_2}:8180"
+      - changeMe
     volumes:
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-worker/conf:/opt/xebialabs/deploy-task-engine/conf
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-worker/plugins:/opt/xebialabs/deploy-task-engine/plugins
 
 networks:
-  xld-network:
+  {{DEPLOY_NETWORK_NAME}}:
     external: true
