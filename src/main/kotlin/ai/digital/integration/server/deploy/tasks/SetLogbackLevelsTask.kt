@@ -21,11 +21,12 @@ abstract class SetLogbackLevelsTask : DefaultTask() {
 
     @TaskAction
     fun setLevels() {
-        val server = DeployServerUtil.getServer(project)
-
-        if (DbUtil.getDatabase(project).logSql || server.logLevels.isNotEmpty()) {
-            project.logger.lifecycle("Setting logback level on Deploy Server.")
-            LogbackUtil.setLogLevels(project, DeployServerUtil.getServerWorkingDir(project), server.logLevels)
-        }
+        DeployServerUtil.getServers(project)
+                .forEach { server ->
+                    if (DbUtil.getDatabase(project).logSql || server.logLevels.isNotEmpty()) {
+                        project.logger.lifecycle("Setting logback level on Deploy Server ${server.name}")
+                        LogbackUtil.setLogLevels(project, DeployServerUtil.getServerWorkingDir(project, server), server.logLevels)
+                    }
+                }
     }
 }

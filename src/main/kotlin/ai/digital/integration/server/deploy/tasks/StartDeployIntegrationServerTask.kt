@@ -1,22 +1,25 @@
 package ai.digital.integration.server.deploy.tasks
 
-import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
-import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
+import ai.digital.integration.server.common.domain.Server
+import ai.digital.integration.server.common.mq.StartMqTask
 import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
-import ai.digital.integration.server.common.mq.StartMqTask
+import ai.digital.integration.server.common.util.DbUtil.Companion.isDerby
+import ai.digital.integration.server.common.util.ProcessUtil.Companion.exec
+import ai.digital.integration.server.common.util.ProcessUtil.Companion.execAndCheck
+import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
+import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.StartSatelliteTask
 import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
-import ai.digital.integration.server.common.util.DbUtil.Companion.isDerby
+import ai.digital.integration.server.deploy.util.DeployServerUtil
 import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getLogDir
 import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getResolvedDockerFile
-import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getServer
 import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getServerWorkingDir
+import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getServers
 import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.grantPermissionsToIntegrationServerFolder
 import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.isAkkaSecured
 import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.isDockerBased
@@ -24,7 +27,6 @@ import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.isTl
 import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.startServerFromClasspath
 import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.waitForBoot
 import ai.digital.integration.server.deploy.util.EnvironmentUtil.Companion.getServerEnv
-import ai.digital.integration.server.common.util.ProcessUtil.Companion.exec
 import ai.digital.integration.server.deploy.util.SatelliteUtil.Companion.hasSatellites
 import ai.digital.integration.server.deploy.util.ShutdownUtil.Companion.shutdownServer
 import ai.digital.integration.server.deploy.util.WorkerUtil.Companion.hasWorkers
@@ -88,8 +90,8 @@ open class StartDeployIntegrationServerTask : DefaultTask() {
         })
     }
 
-    private fun getBinDir(): File? {
-        return Paths.get(getServerWorkingDir(project), "bin").toFile()
+    private fun getBinDir(server: Server): File? {
+        return Paths.get(getServerWorkingDir(project, server), "bin").toFile()
     }
 
     private fun startServer(server: Server): Process {
@@ -99,15 +101,33 @@ open class StartDeployIntegrationServerTask : DefaultTask() {
         val map = mapOf(
             "command" to "run",
             "discardIO" to (server.stdoutFileName == null),
-            "redirectTo" to if (server.stdoutFileName != null) File(getLogDir(project).toString() + "/" + server.stdoutFileName) else null,
+            "redirectTo" to if (server.stdoutFileName != null) File(getLogDir(project, server).toString() + "/" + server.stdoutFileName) else null,
             "environment" to environment,
             "params" to listOf("-force-upgrades"),
-            "workDir" to getBinDir()
+            "workDir" to getBinDir(server)
         )
         val process = exec(map)
         project.logger.lifecycle("Launched server on PID [" + process.pid()
             .toString() + "] with command [" + process.info().commandLine().orElse("") + "].")
         return process
+    }
+
+    private fun runWithPreviousInstallation(server: Server) {
+        val previousServer = DeployServerUtil.getPreviousInstallationServer(project)
+        val workDir = DeployServerUtil.getServerWorkingDir(project, previousServer)
+        val logFile = Paths.get("${DeployServerUtil.getLogDir(project, server)}/deployit.log").toFile()
+
+        project.logger.lifecycle("Initializing Deploy with previous installation from $workDir")
+
+        val map = mapOf(
+                "command" to "run",
+                "environment" to getServerEnv(project, server),
+                "params" to listOf("-setup", "-previous-installation", workDir, "-force-upgrades"),
+                "workDir" to getBinDir(server),
+                "wait" to true
+        )
+
+        execAndCheck(map as Map<String, Any>, logFile)
     }
 
     private fun hasToBeStartedFromClasspath(server: Server): Boolean {
@@ -120,6 +140,9 @@ open class StartDeployIntegrationServerTask : DefaultTask() {
             if (hasToBeStartedFromClasspath(server)) {
                 startServerFromClasspath(project)
             } else {
+                if (DeployServerUtil.isPreviousInstallationServerDefined(project)) {
+                    runWithPreviousInstallation(server)
+                }
                 startServer(server)
             }
         } else {
@@ -141,11 +164,14 @@ open class StartDeployIntegrationServerTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        val server = getServer(project)
-        project.logger.lifecycle("About to launch Deploy Server on port " + server.httpPort.toString() + ".")
-        allowToWriteMountedHostFolders()
-        val process = start(server)
-        waitForBoot(project, process)
+        getServers(project)
+                .filter { server -> !server.previousInstallation }
+                .forEach { server ->
+                    project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
+                    allowToWriteMountedHostFolders()
+                    val process = start(server)
+                    waitForBoot(project, process)
+                }
     }
 
 }

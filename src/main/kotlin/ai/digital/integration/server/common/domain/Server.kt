@@ -19,6 +19,7 @@ open class Server(name: String) : Container(name) {
     var devOpsAsCodes: NamedDomainObjectContainer<DevOpsAsCode>? = null
     var tls: Boolean = false
     var akkaSecured: Boolean = false
+    var previousInstallation: Boolean = false
 
     fun devOpsAsCodes(closure: Closure<NamedDomainObjectContainer<DevOpsAsCode>>) {
         devOpsAsCodes?.configure(closure)

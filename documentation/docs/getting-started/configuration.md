@@ -22,7 +22,7 @@ deployIntegrationServer {
 |Name|Description|
 | :---: | :---: |
 |clis|CLIs configurations, currently, it's possible to configure only one.|
-|servers|Server configurations, currently, it's possible to configure only one.|
+|servers|Server configurations, there can be up to 2 servers. If there are 2 servers then 1 server should have the previousInstallation set to true.|
 |databases|Currently supported only 1 running database. For now you can find this section helpful for overriding database driving versions or having more database level logs.|
 |workers|You can configure as many workers as you need here.|
 |satellites|You can configure as many satellites as you need here.|
@@ -153,6 +153,7 @@ deployIntegrationServer {
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlDeployVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
 |tls|Optional|false|If enabled use HTTPS for API communication with master.|
 |yamlPatches|Optional|[:]|[Read about this section below](#yaml-patches)|
+|previousInstallation|Optional|false|Is the server the previous installed version to be used as source for upgrade|
 
 ### Dev Ops As Code
 

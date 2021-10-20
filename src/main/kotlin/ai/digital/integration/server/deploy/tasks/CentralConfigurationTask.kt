@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.domain.AkkaSecured
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.util.DeployServerUtil
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.deploy.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -38,9 +39,9 @@ abstract class CentralConfigurationTask : DefaultTask() {
         }
     }
 
-    private fun createCentralConfigurationFiles() {
-        project.logger.lifecycle("Generating initial central configuration files")
-        val serverDir = DeployServerUtil.getServerWorkingDir(project)
+    private fun createCentralConfigurationFiles(server: Server) {
+        project.logger.lifecycle("Generating initial central configuration files for server ${server.name}")
+        val serverDir = DeployServerUtil.getServerWorkingDir(project, server)
 
         overlayRepositoryConfig(serverDir)
 
@@ -143,6 +144,9 @@ abstract class CentralConfigurationTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        createCentralConfigurationFiles()
+        DeployServerUtil.getServers(project)
+                .forEach { server ->
+                    createCentralConfigurationFiles(server)
+                }
     }
 }

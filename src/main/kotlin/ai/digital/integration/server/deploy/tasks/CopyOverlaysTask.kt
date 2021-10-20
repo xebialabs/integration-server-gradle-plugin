@@ -20,21 +20,25 @@ abstract class CopyOverlaysTask : DefaultTask() {
         this.finalizedBy(CheckUILibVersionsTask.NAME)
 
         project.afterEvaluate {
-            val server = DeployServerUtil.getServer(project)
-            project.logger.lifecycle("Copying overlays on Deploy server ${server.name}")
+            DeployServerUtil.getServers(project)
+                    .forEach { server ->
+                        project.logger.lifecycle("Copying overlays on Deploy server ${server.name}")
 
-            OverlaysUtil.addDatabaseDependency(project, server)
-            OverlaysUtil.addMqDependency(project, server)
+                        OverlaysUtil.addDatabaseDependency(project, server)
+                        OverlaysUtil.addMqDependency(project, server)
 
-            server.overlays.forEach { overlay ->
-                OverlaysUtil.defineOverlay(
-                    project,
-                    this,
-                    DeployServerUtil.getServerWorkingDir(project),
-                    DeployExtensionUtil.DEPLOY_IS_EXTENSION_NAME,
-                    overlay,
-                    arrayListOf())
-            }
+                        server.overlays.forEach { overlay ->
+                            OverlaysUtil.defineOverlay(
+                                    project,
+                                    this,
+                                    DeployServerUtil.getServerWorkingDir(project, server),
+                                    DeployExtensionUtil.DEPLOY_IS_EXTENSION_NAME,
+                                    overlay,
+                                    arrayListOf("${DownloadAndExtractServerDistTask.NAME}${server.name}"),
+                                    server.name
+                            )
+                        }
+                    }
         }
     }
 }

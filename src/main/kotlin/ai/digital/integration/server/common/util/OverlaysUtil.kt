@@ -20,14 +20,19 @@ class OverlaysUtil {
 
         @JvmStatic
         fun defineOverlay(
-            project: Project,
-            currentTask: Task,
-            workingDir: String,
-            prefix: String,
-            overlay: Map.Entry<String, List<Any>>,
-            dependedTasks: List<String>,
+                project: Project,
+                currentTask: Task,
+                workingDir: String,
+                prefix: String,
+                overlay: Map.Entry<String, List<Any>>,
+                dependedTasks: List<String>,
+                customPrefix: String? = null
         ) {
-            val configurationName = "${prefix}${overlay.key.capitalize().replace("/", "")}"
+            val configurationName = if (customPrefix != null) {
+                "${customPrefix}${prefix}${overlay.key.capitalize().replace("/", "")}"
+            } else {
+                "${prefix}${overlay.key.capitalize().replace("/", "")}"
+            }
             val config = project.buildscript.configurations.create(configurationName)
             overlay.value.forEach { dependencyNotation ->
                 project.buildscript.dependencies.add(configurationName, dependencyNotation)

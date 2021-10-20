@@ -7,11 +7,11 @@ import java.io.File
 class DeployServerInitializeUtil {
     companion object {
         @JvmStatic
-        private fun createFolders(project: Project) {
-            project.logger.lifecycle("Preparing server destination folders.")
+        private fun createFolders(project: Project, server: Server) {
+            project.logger.lifecycle("Preparing server destination folders for ${server.name}.")
 
             arrayOf("centralConfiguration", "conf", "hotfix/plugins", "hotfix/lib", "plugins").forEach { folderName ->
-                val folderPath = "${DeployServerUtil.getServerWorkingDir(project)}/${folderName}"
+                val folderPath = "${DeployServerUtil.getServerWorkingDir(project, server)}/${folderName}"
                 val folder = File(folderPath)
                 folder.mkdirs()
                 project.logger.lifecycle("Folder $folderPath has created.")
@@ -20,9 +20,9 @@ class DeployServerInitializeUtil {
 
         @JvmStatic
         private fun createConfFile(project: Project, server: Server) {
-            project.logger.lifecycle("Creating deployit.conf file")
+            project.logger.lifecycle("Creating deployit.conf file for ${server.name}")
 
-            val file = project.file("${DeployServerUtil.getServerWorkingDir(project)}/conf/deployit.conf")
+            val file = project.file("${DeployServerUtil.getServerWorkingDir(project, server)}/conf/deployit.conf")
             file.createNewFile()
 
             file.writeText("http.port=${server.httpPort}\n")
@@ -35,10 +35,9 @@ class DeployServerInitializeUtil {
         }
 
         @JvmStatic
-        fun prepare(project: Project) {
-            val server = DeployServerUtil.getServer(project)
+        fun prepare(project: Project, server: Server) {
             project.logger.lifecycle("Preparing serve ${server.name} before launching it.")
-            createFolders(project)
+            createFolders(project, server)
             createConfFile(project, server)
         }
     }

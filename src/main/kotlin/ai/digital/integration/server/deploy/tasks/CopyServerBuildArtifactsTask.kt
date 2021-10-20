@@ -19,9 +19,12 @@ abstract class CopyServerBuildArtifactsTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        val server = DeployServerUtil.getServer(project)
-        CopyBuildArtifactsUtil.execute(project,
-            server.copyBuildArtifacts,
-            DeployServerUtil.getServerWorkingDir(project))
+        DeployServerUtil.getServers(project)
+                .forEach { server ->
+                    CopyBuildArtifactsUtil.execute(project,
+                            server.copyBuildArtifacts,
+                            DeployServerUtil.getServerWorkingDir(project, server))
+                }
+
     }
 }
