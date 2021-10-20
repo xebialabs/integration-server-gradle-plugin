@@ -1,0 +1,33 @@
+version: "3"
+services:
+  xl-deploy-worker:
+    image: {{DEPLOY_WORKER_IMAGE}}
+    networks:
+      - xld-network
+    environment:
+      - USE_IP_AS_HOSTNAME=true
+      - ADMIN_PASSWORD=admin
+      - ACCEPT_EULA=Y
+      - XL_CLUSTER_MODE=default
+      - XLD_IN_PROCESS=false
+      - XLD_TASK_QUEUE_DRIVER_CLASS_NAME=com.rabbitmq.jms.admin.RMQConnectionFactory
+      - XLD_TASK_QUEUE_URL=amqp://rabbitmq:5672
+      - XLD_TASK_QUEUE_USERNAME=rabbitmq
+      - XLD_TASK_QUEUE_PASSWORD=admin
+      - XL_DB_URL=jdbc:postgresql://postgresql:5432/xld-db
+      - XL_DB_USERNAME=postgres
+      - XL_DB_PASSWORD=admin
+    command:
+      - "-api"
+      - "http://${XLD_LB}:5000/"
+      - "-master"
+      - "${XLD_MASTER_1}:8180"
+      - "-master"
+      - "${XLD_MASTER_2}:8180"
+    volumes:
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-worker/conf:/opt/xebialabs/deploy-task-engine/conf
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-worker/plugins:/opt/xebialabs/deploy-task-engine/plugins
+
+networks:
+  xld-network:
+    external: true

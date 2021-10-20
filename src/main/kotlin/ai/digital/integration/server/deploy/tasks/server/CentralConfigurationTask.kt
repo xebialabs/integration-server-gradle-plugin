@@ -51,7 +51,7 @@ open class CentralConfigurationTask : DefaultTask() {
         )
 
         if (DeployServerUtil.isAkkaSecured(project)) {
-            val secured = SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
+            val secured = TlsUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
 
             secured?.let { sec ->
                 val key = sec.keys[AkkaSecured.MASTER_KEY_NAME + DeployServerUtil.getServer(project).name]

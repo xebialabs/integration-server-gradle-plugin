@@ -8,7 +8,7 @@ import ai.digital.integration.server.common.tls.KeytoolImportKeyToTruststoreTask
 import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getServerWorkingDir
 import ai.digital.integration.server.common.util.PropertiesUtil.Companion.readPropertiesFile
 import ai.digital.integration.server.common.util.PropertiesUtil.Companion.writePropertiesFile
-import ai.digital.integration.server.common.util.SslUtil.Companion.getTls
+import ai.digital.integration.server.common.util.TlsUtil.Companion.getTls
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.closureOf

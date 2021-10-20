@@ -3,7 +3,7 @@ package ai.digital.integration.server.deploy.util
 import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.OsUtil
-import ai.digital.integration.server.common.util.SslUtil
+import ai.digital.integration.server.common.util.TlsUtil
 import org.gradle.api.Project
 import java.io.File
 
@@ -44,7 +44,7 @@ class EnvironmentUtil {
             }
 
             if (DeployServerUtil.isTls(project)) {
-                val tls = SslUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
+                val tls = TlsUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
                 opts = "$opts -Djavax.net.ssl.trustStore=\"${tls?.trustStoreFile()}\" -Djavax.net.ssl.trustStorePassword=\"${tls?.truststorePassword}\" "
             }
 

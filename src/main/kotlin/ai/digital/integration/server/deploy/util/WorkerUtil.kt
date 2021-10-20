@@ -3,7 +3,7 @@ package ai.digital.integration.server.deploy.util
 import ai.digital.integration.server.common.domain.AkkaSecured
 import ai.digital.integration.server.common.util.IntegrationServerUtil
 import ai.digital.integration.server.common.util.PropertyUtil
-import ai.digital.integration.server.common.util.SslUtil
+import ai.digital.integration.server.common.util.TlsUtil
 import ai.digital.integration.server.deploy.domain.Worker
 import org.gradle.api.Project
 import java.nio.file.Paths
@@ -86,7 +86,7 @@ class WorkerUtil {
             }
 
             if (DeployServerUtil.isAkkaSecured(project)) {
-                SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))?.let { secured ->
+                TlsUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))?.let { secured ->
                     secured.keys[AkkaSecured.WORKER_KEY_NAME + worker.name]?.let { key ->
                         params.addAll(listOf(
                             "-keyStore",
@@ -124,10 +124,10 @@ class WorkerUtil {
         }
 
         private fun getWorkerVersion(project: Project, worker: Worker): String? {
-            if (project.hasProperty("deployTaskEngineVersion")) {
-                return project.property("deployTaskEngineVersion").toString()
-            } else if (!worker.version.isNullOrBlank()) {
+            if (!worker.version.isNullOrBlank()) {
                 return worker.version
+            } else if (project.hasProperty("deployTaskEngineVersion")) {
+                return project.property("deployTaskEngineVersion").toString()
             } else if (!DeployServerUtil.getServer(project).version.isNullOrBlank()) {
                 return DeployServerUtil.getServer(project).version.toString()
             } else if (!hasRuntimeDirectory(project, worker)) {

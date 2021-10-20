@@ -97,7 +97,7 @@ open class StartWorkersTask : DefaultTask() {
 
 
         if (DeployServerUtil.isTls(project)) {
-            val tls = SslUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
+            val tls = TlsUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
             jvmArgs.addAll(arrayOf(
                 "-Djavax.net.ssl.trustStore=${tls?.trustStoreFile()?.absolutePath}",
                 "-Djavax.net.ssl.trustStorePassword=${tls?.truststorePassword}"

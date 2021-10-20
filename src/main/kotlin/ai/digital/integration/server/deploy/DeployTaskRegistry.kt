@@ -12,6 +12,8 @@ import ai.digital.integration.server.common.gitlab.GitlabStopTask
 import ai.digital.integration.server.common.mq.ShutdownMqTask
 import ai.digital.integration.server.common.mq.StartMqTask
 import ai.digital.integration.server.common.pluginManager.StartPluginManagerTask
+import ai.digital.integration.server.deploy.tasks.cluster.DockerComposeBasedDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
@@ -35,6 +37,10 @@ open class DeployTaskRegistry {
             project.tasks.create(CliOverlaysTask.NAME, CliOverlaysTask::class.java)
             project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask::class.java)
             project.tasks.create(RunCliTask.NAME, RunCliTask::class.java)
+
+            //Cluster
+            project.tasks.create(DockerComposeBasedDeployClusterTask.NAME, DockerComposeBasedDeployClusterTask::class.java)
+            project.tasks.create(StartDeployClusterTask.NAME, StartDeployClusterTask::class.java)
 
             //Database
             project.tasks.create(DatabaseStartTask.NAME, DatabaseStartTask::class.java)

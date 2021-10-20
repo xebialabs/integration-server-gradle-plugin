@@ -25,7 +25,7 @@ import java.nio.file.Paths
 
 open class StartServerInstanceTask : DefaultTask() {
     companion object {
-        const val NAME = "startServerInstanceTask"
+        const val NAME = "startServerInstance"
     }
 
     init {
