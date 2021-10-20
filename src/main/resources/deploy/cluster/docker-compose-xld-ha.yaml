@@ -45,7 +45,7 @@ services:
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/conf:/opt/xebialabs/xl-deploy-server/conf
 
   rabbitmq:
-    image: "rabbitmq:3.7-management"
+    image: "rabbitmq:3.9.8-management-alpine"
     container_name: rabbitmq
     hostname: "rabbit"
     ports:
@@ -61,8 +61,6 @@ services:
       RABBITMQ_DEFAULT_USER: rabbitmq
       RABBITMQ_DEFAULT_PASS: admin
       RABBITMQ_LOOPBACK_USERS: none
-#    volumes:
-#      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
 
   postgresql:
     image: postgres:10.5
