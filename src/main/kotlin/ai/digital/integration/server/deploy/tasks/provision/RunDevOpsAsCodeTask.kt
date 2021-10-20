@@ -4,7 +4,7 @@ import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.domain.DevOpsAsCode
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.HTTPUtil
-import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
+import ai.digital.integration.server.deploy.tasks.server.StartServerInstanceTask
 import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
 import ai.digital.integration.server.deploy.util.DeployServerUtil
 import ai.digital.integration.server.deploy.util.WorkerUtil
@@ -15,7 +15,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
-abstract class RunDevOpsAsCodeTask : DefaultTask() {
+open class RunDevOpsAsCodeTask : DefaultTask() {
 
     companion object {
         const val NAME = "runDevOpsAsCode"
@@ -23,7 +23,7 @@ abstract class RunDevOpsAsCodeTask : DefaultTask() {
 
     init {
         this.group = PluginConstant.PLUGIN_GROUP
-        this.dependsOn(StartDeployIntegrationServerTask.NAME)
+        this.dependsOn(StartServerInstanceTask.NAME)
 
         if (WorkerUtil.hasWorkers(project)) {
             this.dependsOn(StartWorkersTask.NAME)

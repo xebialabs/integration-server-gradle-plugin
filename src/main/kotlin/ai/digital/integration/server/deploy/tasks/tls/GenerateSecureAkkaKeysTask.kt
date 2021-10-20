@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.tasks
+package ai.digital.integration.server.deploy.tasks.tls
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.domain.AkkaSecured

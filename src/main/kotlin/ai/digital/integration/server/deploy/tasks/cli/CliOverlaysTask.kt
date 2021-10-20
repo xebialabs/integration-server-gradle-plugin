@@ -5,7 +5,7 @@ import ai.digital.integration.server.deploy.util.CliUtil
 import ai.digital.integration.server.common.util.OverlaysUtil
 import org.gradle.api.DefaultTask
 
-abstract class CliOverlaysTask : DefaultTask() {
+open class CliOverlaysTask : DefaultTask() {
 
     companion object {
         const val NAME = "cliOverlays"

@@ -8,7 +8,7 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class GitlabStopTask : DefaultTask() {
+open class GitlabStopTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP

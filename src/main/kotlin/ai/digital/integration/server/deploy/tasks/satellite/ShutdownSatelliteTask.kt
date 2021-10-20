@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.nio.file.Paths
 
-abstract class ShutdownSatelliteTask : DefaultTask() {
+open class ShutdownSatelliteTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP

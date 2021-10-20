@@ -5,7 +5,7 @@ import ai.digital.integration.server.common.util.OverlaysUtil
 import ai.digital.integration.server.deploy.util.SatelliteUtil
 import org.gradle.api.DefaultTask
 
-abstract class SatelliteOverlaysTask : DefaultTask() {
+open class SatelliteOverlaysTask : DefaultTask() {
 
     companion object {
         const val NAME = "satelliteOverlays"

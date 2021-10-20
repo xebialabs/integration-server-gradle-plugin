@@ -4,7 +4,7 @@ import ai.digital.integration.server.common.TaskRegistry
 import ai.digital.integration.server.common.util.DbUtil.Companion.getDatabase
 import ai.digital.integration.server.common.util.TaskUtil.Companion.dontFailOnException
 import ai.digital.integration.server.deploy.DeployTaskRegistry
-import ai.digital.integration.server.deploy.tasks.ApplicationConfigurationOverrideTask
+import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil.Companion.DEPLOY_SERVER
 import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil.Companion.registerConfigurations
 import ai.digital.integration.server.deploy.util.DeployExtensionUtil.Companion.createDeployExtension

@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.tasks
+package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.DbUtil
@@ -7,7 +7,7 @@ import ai.digital.integration.server.deploy.util.DeployServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-abstract class SetLogbackLevelsTask : DefaultTask() {
+open class SetServerLogbackLevelsTask : DefaultTask() {
 
     companion object {
         const val NAME = "setLogbackLevels"

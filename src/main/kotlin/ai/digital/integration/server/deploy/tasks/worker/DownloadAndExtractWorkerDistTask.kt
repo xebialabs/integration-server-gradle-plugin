@@ -7,7 +7,7 @@ import ai.digital.integration.server.deploy.util.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
 
-abstract class DownloadAndExtractWorkerDistTask : DefaultTask() {
+open class DownloadAndExtractWorkerDistTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP

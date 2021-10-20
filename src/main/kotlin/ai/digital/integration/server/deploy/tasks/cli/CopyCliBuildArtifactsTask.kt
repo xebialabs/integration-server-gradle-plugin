@@ -6,7 +6,7 @@ import ai.digital.integration.server.common.util.CopyBuildArtifactsUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-abstract class CopyCliBuildArtifactsTask : DefaultTask() {
+open class CopyCliBuildArtifactsTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP

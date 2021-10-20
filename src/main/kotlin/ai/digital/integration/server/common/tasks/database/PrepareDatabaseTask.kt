@@ -5,15 +5,16 @@ import ai.digital.integration.server.common.util.DbUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 
-abstract class PrepareDatabaseTask : DefaultTask() {
+open class PrepareDatabaseTask : DefaultTask() {
 
     companion object {
         const val NAME = "prepareDatabase"
     }
 
     init {
-        val dbName = DbUtil.databaseName(project)
         this.group = PLUGIN_GROUP
+
+        val dbName = DbUtil.databaseName(project)
         project.afterEvaluate {
             injectDbDependency(project, dbName)
         }

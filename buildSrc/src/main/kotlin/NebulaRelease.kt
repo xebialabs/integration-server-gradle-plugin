@@ -2,7 +2,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.extra
 
-abstract class NebulaRelease : DefaultTask() {
+open class NebulaRelease : DefaultTask() {
 
     @TaskAction
     fun doRelease() {

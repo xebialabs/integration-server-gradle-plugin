@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.tasks
+package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getServerWorkingDir
@@ -29,7 +29,7 @@ open class CheckUILibVersionsTask : DefaultTask() {
 
     init {
         this.group = PluginConstant.PLUGIN_GROUP
-        val dependencies = listOf(CopyOverlaysTask.NAME, CopyServerBuildArtifactsTask.NAME)
+        val dependencies = listOf(ServerCopyOverlaysTask.NAME, CopyServerBuildArtifactsTask.NAME)
 
         this.configure(closureOf<CheckUILibVersionsTask> {
             dependsOn(dependencies)

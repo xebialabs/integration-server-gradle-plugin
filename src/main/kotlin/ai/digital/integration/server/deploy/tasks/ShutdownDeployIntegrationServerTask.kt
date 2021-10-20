@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.deploy.tasks.satellite.ShutdownSatelliteTask
+import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
 import ai.digital.integration.server.deploy.tasks.worker.ShutdownWorkersTask
 import ai.digital.integration.server.deploy.util.DeployServerUtil
 import ai.digital.integration.server.deploy.util.SatelliteUtil

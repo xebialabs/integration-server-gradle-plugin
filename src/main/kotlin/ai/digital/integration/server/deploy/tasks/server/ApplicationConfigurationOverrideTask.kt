@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.tasks
+package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.util.DeployServerUtil
@@ -6,12 +6,12 @@ import ai.digital.integration.server.common.util.PropertiesUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-abstract class ApplicationConfigurationOverrideTask : DefaultTask() {
+open class ApplicationConfigurationOverrideTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP
-        this.mustRunAfter("copyOverlays")
-        this.mustRunAfter("centralConfiguration")
+        this.mustRunAfter(ServerCopyOverlaysTask.NAME)
+        this.mustRunAfter(CentralConfigurationTask.NAME)
     }
 
     @TaskAction

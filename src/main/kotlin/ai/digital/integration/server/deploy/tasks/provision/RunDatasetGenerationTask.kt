@@ -14,12 +14,11 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
-abstract class RunDatasetGenerationTask : DefaultTask() {
+open class RunDatasetGenerationTask : DefaultTask() {
 
     companion object {
         const val NAME = "runDatasetGeneration"
     }
-
 
     init {
         this.group = PLUGIN_GROUP
@@ -38,7 +37,6 @@ abstract class RunDatasetGenerationTask : DefaultTask() {
 
     private fun generateDatasets(project: Project, server: Server) {
         server.generateDatasets.forEach { dataset ->
-
             val client = HttpClient.newHttpClient()
             val request = HTTPUtil.doRequest(DeployServerUtil.composeUrl(project, "/deployit/generate/$dataset"))
                 .POST(HttpRequest.BodyPublishers.noBody())

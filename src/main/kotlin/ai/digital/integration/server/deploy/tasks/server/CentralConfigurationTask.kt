@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.tasks
+package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.domain.AkkaSecured
 import ai.digital.integration.server.common.util.*
@@ -10,12 +10,11 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class CentralConfigurationTask : DefaultTask() {
+open class CentralConfigurationTask : DefaultTask() {
 
     companion object {
         const val NAME = "centralConfiguration"
     }
-
 
     init {
         this.dependsOn(DownloadAndExtractServerDistTask.NAME)

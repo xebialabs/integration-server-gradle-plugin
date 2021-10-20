@@ -5,7 +5,7 @@ import ai.digital.integration.server.deploy.util.CliUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-abstract class CliCleanDefaultExtTask : DefaultTask() {
+open class CliCleanDefaultExtTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP

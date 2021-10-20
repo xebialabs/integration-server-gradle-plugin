@@ -1,11 +1,11 @@
 package ai.digital.integration.server.common.tasks.database
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.deploy.tasks.DownloadAndExtractDbUnitDataDistTask
 import ai.digital.integration.server.common.util.DbConfigurationUtil
 import ai.digital.integration.server.common.util.DbUtil
-import ai.digital.integration.server.deploy.util.DeployExtensionUtil
 import ai.digital.integration.server.common.util.PostgresDbUtil
+import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractDbUnitDataDistTask
+import ai.digital.integration.server.deploy.util.DeployExtensionUtil
 import com.fasterxml.jackson.databind.node.TextNode
 import org.dbunit.dataset.xml.FlatXmlDataSet
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
@@ -15,14 +15,13 @@ import org.gradle.api.tasks.TaskAction
 import java.io.FileInputStream
 import java.nio.file.Paths
 
-abstract class ImportDbUnitDataTask : DefaultTask() {
+open class ImportDbUnitDataTask : DefaultTask() {
 
     companion object {
         const val NAME = "importDbUnitData"
     }
 
     init {
-
         this.group = PluginConstant.PLUGIN_GROUP
         this.dependsOn(DownloadAndExtractDbUnitDataDistTask.NAME)
         this.onlyIf {

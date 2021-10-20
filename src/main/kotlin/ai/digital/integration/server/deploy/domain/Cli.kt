@@ -14,6 +14,7 @@ class Cli(objects: ObjectFactory) {
     var cleanDefaultExtContent: Property<Boolean> = objects.property<Boolean>().value(false)
     var debugPort: Property<Int?> = objects.property()
     var debugSuspend: Property<Boolean> = objects.property<Boolean>().value(false)
+    var enabled: Property<Boolean> = objects.property<Boolean>().value(true)
     var filesToExecute: ListProperty<File> = objects.listProperty(File::class.java).value(mutableListOf<File>())
     var overlays: MapProperty<String, List<*>> =
         objects.mapProperty(String::class.java, List::class.java).value(mutableMapOf())

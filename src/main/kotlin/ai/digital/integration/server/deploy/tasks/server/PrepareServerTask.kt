@@ -1,10 +1,10 @@
-package ai.digital.integration.server.deploy.tasks
+package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.deploy.util.DeployServerInitializeUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-abstract class PrepareDeployTask : DefaultTask() {
+open class PrepareServerTask : DefaultTask() {
 
     @TaskAction
     fun launch() {

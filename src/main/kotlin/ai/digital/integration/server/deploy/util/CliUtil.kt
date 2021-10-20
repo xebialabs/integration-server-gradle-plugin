@@ -23,7 +23,7 @@ class CliUtil {
         }
 
         fun hasCli(project: Project): Boolean {
-            return getCli(project).version.isPresent
+            return getCli(project).enabled.get()
         }
 
         private fun getDebugPort(project: Project, cli: Cli): Int? {

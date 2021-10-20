@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.tasks
+package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.util.DeployServerUtil
@@ -6,10 +6,10 @@ import ai.digital.integration.server.deploy.util.DeployExtensionUtil
 import ai.digital.integration.server.common.util.OverlaysUtil
 import org.gradle.api.DefaultTask
 
-abstract class CopyOverlaysTask : DefaultTask() {
+open class ServerCopyOverlaysTask : DefaultTask() {
 
     companion object {
-        const val NAME = "copyOverlays"
+        const val NAME = "serverCopyOverlays"
     }
 
     init {

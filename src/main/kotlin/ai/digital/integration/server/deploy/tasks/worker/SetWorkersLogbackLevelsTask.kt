@@ -4,7 +4,7 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.util.WorkerUtil
 import org.gradle.api.DefaultTask
 
-abstract class SetWorkersLogbackLevelsTask : DefaultTask() {
+open class SetWorkersLogbackLevelsTask : DefaultTask() {
 
     init {
         val slimMustRunAfter =

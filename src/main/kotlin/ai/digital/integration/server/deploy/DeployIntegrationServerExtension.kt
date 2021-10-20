@@ -45,6 +45,10 @@ open class DeployIntegrationServerExtension(
 
     fun cli(action: Action<in Cli>) = action.execute(cli.get())
 
+    val cluster = project.objects.property<Cluster>().value(Cluster(project.objects))
+
+    fun cluster(action: Action<in Cluster?>) = action.execute(cluster.get())
+
     val database = project.objects.property<Database>().value(Database(project.objects))
 
     fun database(action: Action<in Database>) = action.execute(database.get())

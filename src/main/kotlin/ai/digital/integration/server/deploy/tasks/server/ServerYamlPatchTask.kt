@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.tasks
+package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.util.DeployServerUtil
@@ -7,16 +7,16 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class YamlPatchTask : DefaultTask() {
+open class ServerYamlPatchTask : DefaultTask() {
 
     companion object {
-        const val NAME = "yamlPatch"
+        const val NAME = "serverYamlPatch"
     }
 
     init {
         this.group = PLUGIN_GROUP
         this.dependsOn(CentralConfigurationTask.NAME)
-        this.dependsOn(CopyOverlaysTask.NAME)
+        this.dependsOn(ServerCopyOverlaysTask.NAME)
     }
 
     @TaskAction

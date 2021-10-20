@@ -9,7 +9,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.nio.file.Paths
 
-abstract class SatelliteSyncPluginsTask : DefaultTask() {
+open class SatelliteSyncPluginsTask : DefaultTask() {
 
     init {
         this.group = PluginConstant.PLUGIN_GROUP

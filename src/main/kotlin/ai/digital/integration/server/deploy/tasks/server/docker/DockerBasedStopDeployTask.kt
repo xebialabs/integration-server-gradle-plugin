@@ -1,6 +1,7 @@
-package ai.digital.integration.server.deploy.tasks
+package ai.digital.integration.server.deploy.tasks.server.docker
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
+import ai.digital.integration.server.deploy.tasks.server.PrepareServerTask
 import ai.digital.integration.server.deploy.util.DeployServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
@@ -8,14 +9,14 @@ import org.gradle.api.tasks.TaskAction
 import java.io.ByteArrayOutputStream
 import java.io.File
 
-abstract class DockerBasedStopDeployTask : DefaultTask() {
+open class DockerBasedStopDeployTask : DefaultTask() {
 
     companion object {
         const val NAME = "dockerBasedStopDeploy"
     }
 
     init {
-        this.dependsOn(PrepareDeployTask.NAME)
+        this.dependsOn(PrepareServerTask.NAME)
         this.group = PLUGIN_GROUP
         this.onlyIf { DeployServerUtil.isDockerBased(project) }
     }

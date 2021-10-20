@@ -41,6 +41,7 @@ deployIntegrationServer {
         ])
         debugPort.set(4005)
         debugSuspend.set(true)
+        enable.set(false)
         filesToExecute.set([file("src/main/resources/provision.py")])
         overlays.set([
             ext: [
@@ -62,6 +63,7 @@ deployIntegrationServer {
 |copyBuildArtifacts|Optional|[:]|Here you can define what would you like to include to integration server from the build process itself. For example you run: `./gradlew build integrationServer` and you create `*.jar` of your plugin which you would like to include to integration server. You have to specify it here. As for overlay it won't work. With overlay to make it work you have to run 2 commands: `./gradlew build` and then `./gradlew startIntegrationServer`. Key is a relative folder name from CLI base, and a value is a pattern to all files located in `build` folder except `integration-server` sub-folder. This one is excluded.|
 |debugPort|Optional|None|Remote Debug Port for Deploy CLI | 
 |debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached.|
+|enable|Optional|true|You can disable it, if you don't want to work with it, and it won't be downloaded.|
 |filesToExecute|Optional|[]|The list of files which will be executed after Deploy Server (workers and satellite if configured) started. You can use it to provision your server with data before running the tests.|
 |overlays|Optional|[:]|[Read about this section below](#overlays)|
 |socketTimeout|Optional|60000|Time is set in ms. Socket timeout means how long the socket will be opened to execute the provided script. If your script takes a time to be executed, consider to increase it.|

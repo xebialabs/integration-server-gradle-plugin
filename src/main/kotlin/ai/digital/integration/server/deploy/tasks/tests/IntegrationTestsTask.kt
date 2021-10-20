@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.tasks
+package ai.digital.integration.server.deploy.tasks.tests
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.domain.Server
@@ -11,7 +11,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class IntegrationTestsTask : DefaultTask() {
+open class IntegrationTestsTask : DefaultTask() {
 
     companion object {
         const val NAME = "integrationTests"

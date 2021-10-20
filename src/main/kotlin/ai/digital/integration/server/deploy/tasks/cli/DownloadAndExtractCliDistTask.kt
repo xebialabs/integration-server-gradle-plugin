@@ -8,7 +8,7 @@ import ai.digital.integration.server.common.util.TestUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
 
-abstract class DownloadAndExtractCliDistTask : DefaultTask() {
+open class DownloadAndExtractCliDistTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP

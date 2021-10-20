@@ -1,19 +1,20 @@
-package ai.digital.integration.server.deploy.tasks
+package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil.Companion.SERVER_DIST
 import ai.digital.integration.server.deploy.util.DeployServerUtil
 import ai.digital.integration.server.common.util.IntegrationServerUtil
+import ai.digital.integration.server.deploy.tasks.server.PrepareServerTask
 import org.gradle.api.tasks.Copy
 
-abstract class DownloadAndExtractServerDistTask : Copy() {
+open class DownloadAndExtractServerDistTask : Copy() {
 
     companion object {
         const val NAME = "downloadAndExtractServer"
     }
 
     init {
-        this.dependsOn(PrepareDeployTask.NAME)
+        this.dependsOn(PrepareServerTask.NAME)
 
         val server = DeployServerUtil.getServer(project)
         this.group = PLUGIN_GROUP

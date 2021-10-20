@@ -15,6 +15,11 @@ import ai.digital.integration.server.common.pluginManager.StartPluginManagerTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
+import ai.digital.integration.server.deploy.tasks.server.*
+import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
+import ai.digital.integration.server.deploy.tasks.tests.IntegrationTestsTask
+import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
+import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.tasks.worker.*
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -41,7 +46,7 @@ open class DeployTaskRegistry {
             project.tasks.create(CentralConfigurationTask.NAME, CentralConfigurationTask::class.java)
             project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask::class.java)
             project.tasks.create(CopyServerBuildArtifactsTask.NAME, CopyServerBuildArtifactsTask::class.java)
-            project.tasks.create(CopyOverlaysTask.NAME, CopyOverlaysTask::class.java)
+            project.tasks.create(ServerCopyOverlaysTask.NAME, ServerCopyOverlaysTask::class.java)
             project.tasks.create(DockerBasedStopDeployTask.NAME, DockerBasedStopDeployTask::class.java)
             project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME,
                 DownloadAndExtractDbUnitDataDistTask::class.java)
@@ -50,13 +55,14 @@ open class DeployTaskRegistry {
             project.tasks.create(GenerateSecureAkkaKeysTask.NAME, GenerateSecureAkkaKeysTask::class.java)
             project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask::class.java)
             project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask::class.java)
-            project.tasks.create(PrepareDeployTask.NAME, PrepareDeployTask::class.java)
+            project.tasks.create(PrepareServerTask.NAME, PrepareServerTask::class.java)
             project.tasks.create(RunDatasetGenerationTask.NAME, RunDatasetGenerationTask::class.java)
             project.tasks.create(RunDevOpsAsCodeTask.NAME, RunDevOpsAsCodeTask::class.java)
-            project.tasks.create(SetLogbackLevelsTask.NAME, SetLogbackLevelsTask::class.java)
+            project.tasks.create(SetServerLogbackLevelsTask.NAME, SetServerLogbackLevelsTask::class.java)
+            project.tasks.create(ServerYamlPatchTask.NAME, ServerYamlPatchTask::class.java)
+            project.tasks.create(StartServerInstanceTask.NAME, StartServerInstanceTask::class.java)
             project.tasks.create(TlsApplicationConfigurationOverrideTask.NAME,
                 TlsApplicationConfigurationOverrideTask::class.java)
-            project.tasks.create(YamlPatchTask.NAME, YamlPatchTask::class.java)
 
             //Infrastructure
             project.tasks.create(GitlabStartTask.NAME, GitlabStartTask::class.java)
