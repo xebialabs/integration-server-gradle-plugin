@@ -1,8 +1,8 @@
 package ai.digital.integration.server.deploy.tasks.cli
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.deploy.util.CliUtil
-import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil.Companion.SERVER_CLI_DIST
+import ai.digital.integration.server.deploy.internals.CliUtil
+import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.Companion.SERVER_CLI_DIST
 import ai.digital.integration.server.common.util.IntegrationServerUtil
 import ai.digital.integration.server.common.util.TestUtil
 import org.gradle.api.DefaultTask

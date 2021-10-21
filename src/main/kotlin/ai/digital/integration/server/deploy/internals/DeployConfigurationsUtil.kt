@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.util
+package ai.digital.integration.server.deploy.internals
 
 import org.gradle.api.Project
 

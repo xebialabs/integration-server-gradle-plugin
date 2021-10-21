@@ -2,9 +2,9 @@ package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.domain.AkkaSecured
 import ai.digital.integration.server.common.util.*
-import ai.digital.integration.server.deploy.util.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.deploy.util.*
+import ai.digital.integration.server.deploy.internals.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
@@ -51,7 +51,7 @@ open class CentralConfigurationTask : DefaultTask() {
         )
 
         if (DeployServerUtil.isAkkaSecured(project)) {
-            val secured = SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
+            val secured = TlsUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
 
             secured?.let { sec ->
                 val key = sec.keys[AkkaSecured.MASTER_KEY_NAME + DeployServerUtil.getServer(project).name]

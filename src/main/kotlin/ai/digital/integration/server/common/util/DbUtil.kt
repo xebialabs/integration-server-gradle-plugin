@@ -3,7 +3,7 @@ package ai.digital.integration.server.common.util
 import ai.digital.integration.server.common.domain.Database
 import ai.digital.integration.server.common.domain.DbParameters
 import ai.digital.integration.server.common.util.HTTPUtil.Companion.findFreePort
-import ai.digital.integration.server.deploy.DeployIntegrationServerExtension
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import com.fasterxml.jackson.core.TreeNode
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -79,7 +79,7 @@ class DbUtil {
         }
 
         fun getDatabase(project: Project): Database {
-            val database = project.extensions.getByType(DeployIntegrationServerExtension::class.java).database.get()
+            val database = DeployExtensionUtil.getExtension(project).database.get()
             return enrichDatabase(project, database)
         }
 

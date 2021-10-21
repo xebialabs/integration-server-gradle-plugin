@@ -1,8 +1,8 @@
 package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil.Companion.SERVER_DATA_DIST
-import ai.digital.integration.server.deploy.util.DeployExtensionUtil
+import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.Companion.SERVER_DATA_DIST
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.common.util.IntegrationServerUtil
 import org.gradle.api.tasks.Copy
 

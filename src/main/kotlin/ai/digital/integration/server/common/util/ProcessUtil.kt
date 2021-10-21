@@ -2,7 +2,9 @@ package ai.digital.integration.server.common.util
 
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.charset.StandardCharsets
 
 class ProcessUtil {
     companion object {
@@ -22,6 +24,20 @@ class ProcessUtil {
             if (exec(config).exitValue() == 1) {
                 throw RuntimeException("Running process was not successfully executed. Check logs [$logFile] for more information.")
             }
+        }
+
+        fun execute(project: Project, executable: String, args: List<String>, logOutput: Boolean = true): String {
+            val stdout = ByteArrayOutputStream()
+            project.exec {
+                it.args = args
+                it.executable = executable
+                it.standardOutput = stdout
+            }
+            val output = stdout.toString(StandardCharsets.UTF_8)
+            if (logOutput) {
+                project.logger.lifecycle(output)
+            }
+            return output
         }
 
         @Suppress("UNCHECKED_CAST")

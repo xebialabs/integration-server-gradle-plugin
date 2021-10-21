@@ -9,6 +9,7 @@ sidebar_position: 5
 ```groovy title=build.gradle
 deployIntegrationServer {
     cli {}
+    cluster{}
     servers {}
     database {}
     workers {}
@@ -34,7 +35,7 @@ deployIntegrationServer {
 
 ```groovy title=build.gradle
 deployIntegrationServer {
-    cli { // The name of the section, you can name it as you with
+    cli {
         cleanDefaultExtContent.set(true)
         copyBuildArtifacts.set([
            lib: /(.+)[.](jar)/
@@ -69,16 +70,64 @@ deployIntegrationServer {
 |socketTimeout|Optional|60000|Time is set in ms. Socket timeout means how long the socket will be opened to execute the provided script. If your script takes a time to be executed, consider to increase it.|
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `deployCliVersion`, via parameter or in `gradle.properties` file or explicitly via this field. As a last resource it also checks on `xlDeployVersion`, as usually the version should be the same, but you have a possibility to define different versions. |
 
+## Cluster section
+
+```groovy title=build.gradle
+deployIntegrationServer {
+    cluster {
+        enable.set(true)
+        publicPort.set(1000)
+    }
+}
+```
+
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|enable|Optional|false|If true, cluster setup will be enabled.|
+|publicPort|Optional|8080|The port to connect to the cluster.|
+
+Currently, there is only a docker compose based setup available. The minimum configuration you have to provide is:
+
+```groovy title=build.gradle
+deployIntegrationServer {
+    cluster {
+        enable.set(true)
+    }
+    servers {
+        server01 {
+            dockerImage = "xebialabs/xl-deploy"
+            version = "10.4.0" // not released yet
+        }
+        server02 {
+        }
+    }
+    workers {
+        worker01 {
+            dockerImage = "xebialabs/deploy-task-engine"
+        }
+        worker02 {
+        }
+    }
+}
+```
+
+You can define less or more servers and workers. The docker image is being read from the first server and 
+first worker sections. Version is enough to specify only in the first server section, as server and worker versions 
+should always match.
+
 ## Servers section
 
 ```groovy title=build.gradle
 deployIntegrationServer {
    servers {
-       controlPlane { // The name of the section, you can name it as you with
+       controlPlane { // The name of the section, you can name it as you wish
            akkaSecured = true
            contextRoot = "/custom"
            copyBuildArtifacts = [
                 "plugins/xld-official": /(.+)[.](xldp)/
+           ]
+           copyFolders = [
+                file("config/ext"): "ext"
            ]
            debugPort = 4005
            debugSuspend = true
@@ -135,6 +184,7 @@ deployIntegrationServer {
 | :---: | :---: | :---: | :---: |
 |akkaSecured|Optional|false|Runs akka communication with worker with enabled TLS TCP. All keys, keystores and truststores are generated per master, worker and satellite.| 
 |copyBuildArtifacts|Optional|[:]|Here you can define what would you like to include to integration server from the build process itself. For example you run: `./gradlew build integrationServer` and you create `*.xldp` of your plugin which you would like to include to integration server. You have to specify it here. As for overlay it won't work. With overlay to make it work you have to run 2 commands: `./gradlew build` and then `./gradlew startIntegrationServer`. Key is a relative folder name from Deploy base, and a value is a pattern to all files located in `build` folder except `integration-server` sub-folder. This one is excluded.|
+|copyFolders|Optional|[:]|It is an additional option to copy folders to preserve the folder structure. Overlay will flatten it, if you'll try to do the same.|
 |contextRoot|Optional|/|The context root for Deploy. **Limitation:** *Doesn't work for docker setup*|
 |debugPort|Optional|None|Remote Debug Port for Deploy Server| 
 |debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached.| 
@@ -303,15 +353,15 @@ Read more about workers here:
 ```groovy
 deployIntegrationServer {
     workers {
-        worker01 {  // The name of the section, you can name it as you with
+        worker01 {  // The name of the section, you can name it as you wish
             version = "10.2.2" // Optional, if not specified will use same version as Server
         }
-        worker02 {  // The name of the section, you can name it as you with
+        worker02 {  // The name of the section, you can name it as you wish
             debugPort = 5006
             debugSuspend = true
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
         }
-        worker03 {  // The name of the section, you can name it as you with
+        worker03 {  // The name of the section, you can name it as you wish
             debugPort = 5007
             debugSuspend = false
             runtimeDirectory = "/opt/xl-deploy-worker"
@@ -357,7 +407,7 @@ You can read more about a satellite here:
 ```groovy
 deployIntegrationServer {
     satellites {
-       satellite01 {  // The name of the section, you can name it as you with
+       satellite01 {  // The name of the section, you can name it as you wish
             akkaStreamingPort = 8481
             debugPort = 5008
             debugSuspend = true
@@ -441,7 +491,7 @@ deployIntegrationServer {
             extraClassPath = [file("src/test/resources")]
             scriptPattern = /\/jython\/ci\/(.+).py$/
         }
-        testGroupO1 { // The name of the section, you can name it as you with
+        testGroupO1 { // The name of the section, you can name it as you wish
             baseDirectory = file("src/test")
             extraClassPath = [file("src/test/resources/group-01")]
             scriptPattern = /\/jython\/ci\/group-01\/(.+).py$/

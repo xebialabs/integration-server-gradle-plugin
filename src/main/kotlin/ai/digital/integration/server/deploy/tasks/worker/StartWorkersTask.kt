@@ -5,7 +5,7 @@ import ai.digital.integration.server.common.mq.StartMqTask
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.domain.Worker
 import ai.digital.integration.server.deploy.tasks.server.ServerYamlPatchTask
-import ai.digital.integration.server.deploy.util.*
+import ai.digital.integration.server.deploy.internals.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -97,7 +97,7 @@ open class StartWorkersTask : DefaultTask() {
 
 
         if (DeployServerUtil.isTls(project)) {
-            val tls = SslUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
+            val tls = TlsUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
             jvmArgs.addAll(arrayOf(
                 "-Djavax.net.ssl.trustStore=${tls?.trustStoreFile()?.absolutePath}",
                 "-Djavax.net.ssl.trustStorePassword=${tls?.truststorePassword}"

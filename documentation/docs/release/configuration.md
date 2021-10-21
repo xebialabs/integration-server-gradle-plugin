@@ -21,7 +21,7 @@ releaseIntegrationServer {
 ```groovy title=build.gradle
 releaseIntegrationServer {
    servers {
-       controlPlane { // The name of the section, you can name it as you with
+       controlPlane { // The name of the section, you can name it as you wish
            dockerImage = "xebialabs/xl-release" 
            httpPort = 5516
            pingRetrySleepTime = 5

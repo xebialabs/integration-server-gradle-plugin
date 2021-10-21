@@ -2,7 +2,7 @@ package ai.digital.integration.server.deploy.tasks.satellite
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.OverlaysUtil
-import ai.digital.integration.server.deploy.util.SatelliteUtil
+import ai.digital.integration.server.deploy.internals.SatelliteUtil
 import org.gradle.api.DefaultTask
 
 open class SatelliteOverlaysTask : DefaultTask() {
