@@ -34,7 +34,9 @@ open class ServerCopyOverlaysTask : DefaultTask() {
                                     DeployServerUtil.getServerWorkingDir(project, server),
                                     DeployExtensionUtil.DEPLOY_IS_EXTENSION_NAME,
                                     overlay,
-                                    arrayListOf("${DownloadAndExtractServerDistTask.NAME}${server.name}"),
+                                    if (DeployServerUtil.isDistDownloadRequired(project, server))
+                                        arrayListOf("${DownloadAndExtractServerDistTask.NAME}${server.name}")
+                                    else arrayListOf(),
                                     server.name
                             )
                         }
