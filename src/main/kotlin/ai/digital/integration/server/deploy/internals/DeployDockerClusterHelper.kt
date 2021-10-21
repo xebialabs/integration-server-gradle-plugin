@@ -2,18 +2,13 @@ package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
-import ai.digital.integration.server.common.util.DockerComposeUtil
-import ai.digital.integration.server.common.util.FileUtil
-import ai.digital.integration.server.common.util.IntegrationServerUtil
-import ai.digital.integration.server.common.util.YamlFileUtil
+import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
 import org.gradle.api.Project
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
-open class DockerClusterBuilder(val project: Project) {
+open class DeployDockerClusterHelper(val project: Project) {
 
     companion object {
         private const val dockerXldHAPath = "deploy/cluster/docker-compose-xld-ha.yaml"
@@ -121,20 +116,17 @@ open class DockerClusterBuilder(val project: Project) {
     }
 
     private fun networkExists(): Boolean {
-        val stdout = ByteArrayOutputStream()
-        project.exec {
-            it.executable = "docker"
-            it.args = listOf("network",
+        return DockerComposeUtil.execute(
+            project,
+            listOf("network",
                 "ls",
                 "--filter",
                 "name=^${ClusterConstants.NETWORK_NAME}$",
                 "--format=\"{{ .Name }}\"")
-            it.standardOutput = stdout
-        }
-        return stdout.toString(StandardCharsets.UTF_8).isNotBlank()
+        ).isNotBlank()
     }
 
-    fun createNetwork() {
+    private fun createNetwork() {
         if (!networkExists()) {
             project.exec {
                 it.executable = "docker"
@@ -143,7 +135,7 @@ open class DockerClusterBuilder(val project: Project) {
         }
     }
 
-    fun runServers() {
+    private fun runServers() {
         configureRabbitMq()
 
         val num = getNumberOfServers()
@@ -158,13 +150,11 @@ open class DockerClusterBuilder(val project: Project) {
         project.logger.lifecycle("Running $num server(s) with a command: `docker-compose ${
             args.joinToString(separator = " ")
         }`")
-        project.exec {
-            it.executable = "docker-compose"
-            it.args = args
-        }
+
+        DockerComposeUtil.execute(project, args)
     }
 
-    fun runWorkers() {
+    private fun runWorkers() {
         val num = WorkerUtil.getNumberOfWorkers(project).toString()
         val args = listOf(
             "-f",
@@ -177,10 +167,8 @@ open class DockerClusterBuilder(val project: Project) {
         project.logger.lifecycle("Running $num workers(s) with a command: `docker-compose ${
             args.joinToString(separator = " ")
         }`")
-        project.exec {
-            it.executable = "docker-compose"
-            it.args = args
-        }
+
+        DockerComposeUtil.execute(project, args)
     }
 
     private fun inspectIps() {
@@ -191,18 +179,29 @@ open class DockerClusterBuilder(val project: Project) {
     }
 
     private fun getLbIp(): String {
-        return DockerComposeUtil.inspect(project,
+        return DockerUtil.inspect(project,
             "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
             "xl-deploy-lb")
     }
 
     private fun getMasterIp(order: Int): String {
-        return DockerComposeUtil.inspect(project,
+        return DockerUtil.inspect(project,
             "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
             "cluster_xl-deploy-master_${order}")
     }
 
-    fun buildCluster() {
+    fun shutdownCluster() {
+        val args = listOf(
+            "-f",
+            getResolvedXldHaWithWorkersDockerComposeFile().toFile().toString(),
+            "-f",
+            getResolvedXldHaDockerComposeFile().toFile().toString(),
+            "down"
+        )
+        DockerComposeUtil.execute(project, args)
+    }
+
+    fun launchCluster() {
         createNetwork()
         runServers()
         inspectIps()

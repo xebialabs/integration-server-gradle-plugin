@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.cluster
 
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStartDeployClusterTask
 import org.gradle.api.DefaultTask
 
 open class StartDeployClusterTask : DefaultTask() {
@@ -12,6 +13,6 @@ open class StartDeployClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        this.dependsOn(DockerComposeBasedDeployClusterTask.NAME)
+        this.dependsOn(DockerComposeBasedStartDeployClusterTask.NAME)
     }
 }

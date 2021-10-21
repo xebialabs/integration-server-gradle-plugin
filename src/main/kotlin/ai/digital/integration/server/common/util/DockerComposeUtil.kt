@@ -9,27 +9,26 @@ class DockerComposeUtil {
     companion object {
         fun getResolvedDockerPath(project: Project, relativePath: String): Path {
             val dockerComposeStream = {}::class.java.classLoader.getResourceAsStream(relativePath)
-            val resultComposeFilePath = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, relativePath)
+            val resultComposeFilePath =
+                IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, relativePath)
             dockerComposeStream?.let {
                 FileUtil.copyFile(it, resultComposeFilePath)
             }
             return resultComposeFilePath
         }
 
-        fun inspect(project: Project, format: String, instanceId: String): String {
+        fun execute(project: Project, args: List<String>, logOutput: Boolean = true): String {
             val stdout = ByteArrayOutputStream()
             project.exec {
-                it.executable = "docker"
-                it.args = listOf(
-                    "inspect",
-                    "-f",
-                    format,
-                    instanceId
-                )
+                it.args = args
+                it.executable = "docker-compose"
                 it.standardOutput = stdout
             }
-
-            return stdout.toString(StandardCharsets.UTF_8).trim()
+            val output = stdout.toString(StandardCharsets.UTF_8)
+            if (logOutput) {
+                project.logger.lifecycle(output)
+            }
+            return output
         }
     }
 }
