@@ -22,7 +22,7 @@ class OverlaysUtil {
                 currentTask: Task,
                 workingDir: String,
                 prefix: String,
-                overlay: Map.Entry<String, List<Any>>,
+                overlay: Map.Entry<String, List<*>>,
                 dependedTasks: List<String>,
                 customPrefix: String? = null
         ) {

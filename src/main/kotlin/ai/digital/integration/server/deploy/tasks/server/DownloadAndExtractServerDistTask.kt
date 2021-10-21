@@ -16,8 +16,6 @@ open class DownloadAndExtractServerDistTask : Copy() {
 
     init {
         this.dependsOn(PrepareServerTask.NAME)
-
-        val server = DeployServerUtil.getServer(project)
         this.group = PLUGIN_GROUP
 
         DeployServerUtil.getServers(project)

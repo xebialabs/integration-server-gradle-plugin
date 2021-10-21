@@ -76,8 +76,26 @@ open class StartServerInstanceTask : DefaultTask() {
         })
     }
 
-    private fun getBinDir(): File? {
-        return Paths.get(DeployServerUtil.getServerWorkingDir(project), "bin").toFile()
+    private fun getBinDir(server: Server): File? {
+        return Paths.get(DeployServerUtil.getServerWorkingDir(project, server), "bin").toFile()
+    }
+
+    private fun runWithPreviousInstallation(server: Server) {
+        val previousServer = DeployServerUtil.getPreviousInstallationServer(project)
+        val workDir = DeployServerUtil.getServerWorkingDir(project, previousServer)
+        val logFile = Paths.get("${DeployServerUtil.getLogDir(project, server)}/deployit.log").toFile()
+
+        project.logger.lifecycle("Initializing Deploy with previous installation from $workDir")
+
+        val map = mapOf(
+                "command" to "run",
+                "environment" to EnvironmentUtil.getServerEnv(project, server),
+                "params" to listOf("-setup", "-previous-installation", workDir, "-force-upgrades"),
+                "workDir" to getBinDir(server),
+                "wait" to true
+        )
+
+        ProcessUtil.execAndCheck(map as Map<String, Any>, logFile)
     }
 
     private fun startServer(server: Server): Process {
@@ -87,11 +105,11 @@ open class StartServerInstanceTask : DefaultTask() {
         val map = mapOf(
             "command" to "run",
             "discardIO" to (server.stdoutFileName == null),
-            "redirectTo" to if (server.stdoutFileName != null) File(DeployServerUtil.getLogDir(project)
+            "redirectTo" to if (server.stdoutFileName != null) File(DeployServerUtil.getLogDir(project, server)
                 .toString() + "/" + server.stdoutFileName) else null,
             "environment" to environment,
             "params" to listOf("-force-upgrades"),
-            "workDir" to getBinDir()
+            "workDir" to getBinDir(server)
         )
         val process = ProcessUtil.exec(map)
         project.logger.lifecycle("Launched server on PID [" + process.pid()
@@ -109,6 +127,9 @@ open class StartServerInstanceTask : DefaultTask() {
             if (hasToBeStartedFromClasspath(server)) {
                 DeployServerUtil.startServerFromClasspath(project)
             } else {
+                if (DeployServerUtil.isPreviousInstallationServerDefined(project)) {
+                    runWithPreviousInstallation(server)
+                }
                 startServer(server)
             }
         } else {
@@ -130,10 +151,13 @@ open class StartServerInstanceTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        val server = DeployServerUtil.getServer(project)
-        project.logger.lifecycle("About to launch Deploy Server on port " + server.httpPort.toString() + ".")
-        allowToWriteMountedHostFolders()
-        val process = start(server)
-        DeployServerUtil.waitForBoot(project, process)
+        DeployServerUtil.getServers(project)
+                .filter { server -> !server.previousInstallation }
+                .forEach { server ->
+                    project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
+                    allowToWriteMountedHostFolders()
+                    val process = start(server)
+                    DeployServerUtil.waitForBoot(project, process)
+                }
     }
 }

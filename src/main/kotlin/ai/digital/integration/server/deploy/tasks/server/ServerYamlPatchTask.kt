@@ -26,7 +26,7 @@ open class ServerYamlPatchTask : DefaultTask() {
                     project.logger.lifecycle("Applying patches on YAML files for ${server.name}.")
 
                     server.yamlPatches.forEach { yamlPatch ->
-                        val file = File("${DeployServerUtil.getServerWorkingDir(project)}/${yamlPatch.key}")
+                        val file = File("${DeployServerUtil.getServerWorkingDir(project, server)}/${yamlPatch.key}")
                         YamlFileUtil.overlayFile(file, yamlPatch.value.toMutableMap())
                     }
                 }
