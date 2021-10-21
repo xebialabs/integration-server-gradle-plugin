@@ -87,7 +87,7 @@ open class DeployTaskRegistry {
             project.tasks.create(ShutdownMqTask.NAME, ShutdownMqTask::class.java)
             project.tasks.create(StartMqTask.NAME, StartMqTask::class.java)
 
-            // Plugin Manager
+            //Plugin Manager
             project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask::class.java)
 
             //Satellite

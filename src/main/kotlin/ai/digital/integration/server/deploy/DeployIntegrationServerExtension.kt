@@ -1,7 +1,9 @@
 package ai.digital.integration.server.deploy
 
 import ai.digital.integration.server.common.domain.*
-import ai.digital.integration.server.deploy.domain.*
+import ai.digital.integration.server.deploy.domain.Cli
+import ai.digital.integration.server.deploy.domain.Satellite
+import ai.digital.integration.server.deploy.domain.Worker
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
@@ -47,7 +49,7 @@ open class DeployIntegrationServerExtension(
 
     val cluster = project.objects.property<Cluster>().value(Cluster(project.objects))
 
-    fun cluster(action: Action<in Cluster?>) = action.execute(cluster.get())
+    fun cluster(action: Action<in Cluster>) = action.execute(cluster.get())
 
     val database = project.objects.property<Database>().value(Database(project.objects))
 

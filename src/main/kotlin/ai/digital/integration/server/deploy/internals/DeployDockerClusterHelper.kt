@@ -4,9 +4,12 @@ import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
+import net.jodah.failsafe.Failsafe
+import net.jodah.failsafe.RetryPolicy
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
+import java.time.temporal.ChronoUnit
 
 open class DeployDockerClusterHelper(val project: Project) {
 
@@ -100,7 +103,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun overrideWorkerCommand(template: File) {
-        val commandArgs = mutableListOf("-api", "http://${lbIp}:${getPublicPort()}/")
+        val commandArgs = mutableListOf("-api", "http://${lbIp}:5000/")
 
         for (orderNum in 1..this.getNumberOfServers()) {
             commandArgs.add("-master")
@@ -116,7 +119,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun networkExists(): Boolean {
-        return DockerComposeUtil.execute(
+        return DockerUtil.execute(
             project,
             listOf("network",
                 "ls",
@@ -178,10 +181,23 @@ open class DeployDockerClusterHelper(val project: Project) {
         lbIp = getLbIp()
     }
 
-    private fun getLbIp(): String {
-        return DockerUtil.inspect(project,
-            "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
-            "xl-deploy-lb")
+    private fun getLbIp(): String? {
+        val maxAttempts = 5
+
+        fun inspectLbIp(): String {
+            return DockerUtil.inspect(project,
+                "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
+                "xl-deploy-lb")
+        }
+
+        val retryPolicy = RetryPolicy<String>()
+            .withMaxAttempts(maxAttempts)
+            .withBackoff(1, 30, ChronoUnit.SECONDS)
+            .handleResult("")
+            .onRetriesExceeded { project.logger.warn("Failed to inspect Load Balancer IP. Max retries $maxAttempts exceeded.") }
+            .onRetryScheduled { project.logger.lifecycle("Retry scheduled {}.") }
+
+        return Failsafe.with(retryPolicy).get { -> inspectLbIp()}
     }
 
     private fun getMasterIp(order: Int): String {

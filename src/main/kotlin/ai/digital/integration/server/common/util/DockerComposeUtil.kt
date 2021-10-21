@@ -1,8 +1,6 @@
 package ai.digital.integration.server.common.util
 
 import org.gradle.api.Project
-import java.io.ByteArrayOutputStream
-import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 class DockerComposeUtil {
@@ -18,17 +16,7 @@ class DockerComposeUtil {
         }
 
         fun execute(project: Project, args: List<String>, logOutput: Boolean = true): String {
-            val stdout = ByteArrayOutputStream()
-            project.exec {
-                it.args = args
-                it.executable = "docker-compose"
-                it.standardOutput = stdout
-            }
-            val output = stdout.toString(StandardCharsets.UTF_8)
-            if (logOutput) {
-                project.logger.lifecycle(output)
-            }
-            return output
+            return ProcessUtil.execute(project, "docker-compose", args, logOutput)
         }
     }
 }

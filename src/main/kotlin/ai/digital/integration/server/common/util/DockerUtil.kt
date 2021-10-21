@@ -6,6 +6,10 @@ import java.nio.charset.StandardCharsets
 
 class DockerUtil {
     companion object {
+        fun execute(project: Project, args: List<String>, logOutput: Boolean = true): String {
+            return ProcessUtil.execute(project, "docker", args, logOutput)
+        }
+
         fun inspect(project: Project, format: String, instanceId: String): String {
             val stdout = ByteArrayOutputStream()
             project.exec {
