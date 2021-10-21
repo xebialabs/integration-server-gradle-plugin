@@ -126,6 +126,9 @@ deployIntegrationServer {
            copyBuildArtifacts = [
                 "plugins/xld-official": /(.+)[.](xldp)/
            ]
+           copyFolders = [
+                file("config/ext"): "ext"
+           ]
            debugPort = 4005
            debugSuspend = true
            defaultOfficialPluginsToExclude = ["xld-terraform-plugin-10.1.0", "xld-aws-plugin-10.2.1"]
@@ -181,6 +184,7 @@ deployIntegrationServer {
 | :---: | :---: | :---: | :---: |
 |akkaSecured|Optional|false|Runs akka communication with worker with enabled TLS TCP. All keys, keystores and truststores are generated per master, worker and satellite.| 
 |copyBuildArtifacts|Optional|[:]|Here you can define what would you like to include to integration server from the build process itself. For example you run: `./gradlew build integrationServer` and you create `*.xldp` of your plugin which you would like to include to integration server. You have to specify it here. As for overlay it won't work. With overlay to make it work you have to run 2 commands: `./gradlew build` and then `./gradlew startIntegrationServer`. Key is a relative folder name from Deploy base, and a value is a pattern to all files located in `build` folder except `integration-server` sub-folder. This one is excluded.|
+|copyFolders|Optional|[:]|It is an additional option to copy folders to preserve the folder structure. Overlay will flatten it, if you'll try to do the same.|
 |contextRoot|Optional|/|The context root for Deploy. **Limitation:** *Doesn't work for docker setup*|
 |debugPort|Optional|None|Remote Debug Port for Deploy Server| 
 |debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached.| 

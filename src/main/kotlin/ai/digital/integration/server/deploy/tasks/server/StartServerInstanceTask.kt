@@ -36,6 +36,7 @@ open class StartServerInstanceTask : DefaultTask() {
             CentralConfigurationTask.NAME,
             CheckUILibVersionsTask.NAME,
             CopyCliBuildArtifactsTask.NAME,
+            CopyServerFoldersTask.NAME,
             CopyServerBuildArtifactsTask.NAME,
             ServerCopyOverlaysTask.NAME, if (DbUtil.isDerby(project)) "derbyStart" else DatabaseStartTask.NAME,
             DownloadAndExtractServerDistTask.NAME,

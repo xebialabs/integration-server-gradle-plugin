@@ -5,11 +5,13 @@ import ai.digital.integration.server.common.domain.api.Container
 import ai.digital.integration.server.common.util.HTTPUtil
 import groovy.lang.Closure
 import org.gradle.api.NamedDomainObjectContainer
+import java.io.File
 
 open class Server(name: String) : Container(name) {
     var akkaSecured: Boolean = false
     var contextRoot: String = "/"
     var copyBuildArtifacts = mutableMapOf<String, String>()
+    var copyFolders = mutableMapOf<String, List<File>>()
     var defaultOfficialPluginsToExclude: List<String> = mutableListOf()
     var devOpsAsCodes: NamedDomainObjectContainer<DevOpsAsCode>? = null
     var dockerImage: String? = null

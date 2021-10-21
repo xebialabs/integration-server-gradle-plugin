@@ -56,6 +56,7 @@ open class DeployTaskRegistry {
             project.tasks.create(CentralConfigurationTask.NAME, CentralConfigurationTask::class.java)
             project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask::class.java)
             project.tasks.create(CopyServerBuildArtifactsTask.NAME, CopyServerBuildArtifactsTask::class.java)
+            project.tasks.create(CopyServerFoldersTask.NAME, CopyServerFoldersTask::class.java)
             project.tasks.create(ServerCopyOverlaysTask.NAME, ServerCopyOverlaysTask::class.java)
             project.tasks.create(DockerBasedStopDeployTask.NAME, DockerBasedStopDeployTask::class.java)
             project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME,
