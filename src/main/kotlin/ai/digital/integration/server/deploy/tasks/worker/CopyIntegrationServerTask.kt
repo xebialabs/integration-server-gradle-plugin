@@ -4,8 +4,8 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.deploy.domain.Worker
 import ai.digital.integration.server.deploy.tasks.server.ServerYamlPatchTask
-import ai.digital.integration.server.deploy.util.DeployServerUtil
-import ai.digital.integration.server.deploy.util.WorkerUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction

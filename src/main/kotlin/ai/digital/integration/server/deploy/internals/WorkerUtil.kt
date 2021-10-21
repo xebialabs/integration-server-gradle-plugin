@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.util
+package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.AkkaSecured
 import ai.digital.integration.server.common.util.IntegrationServerUtil

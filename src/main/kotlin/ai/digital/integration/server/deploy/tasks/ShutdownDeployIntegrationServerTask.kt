@@ -6,10 +6,10 @@ import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.deploy.tasks.satellite.ShutdownSatelliteTask
 import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
 import ai.digital.integration.server.deploy.tasks.worker.ShutdownWorkersTask
-import ai.digital.integration.server.deploy.util.DeployServerUtil
-import ai.digital.integration.server.deploy.util.SatelliteUtil
-import ai.digital.integration.server.deploy.util.ShutdownUtil
-import ai.digital.integration.server.deploy.util.WorkerUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.SatelliteUtil
+import ai.digital.integration.server.deploy.internals.ShutdownUtil
+import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 

@@ -34,7 +34,7 @@ deployIntegrationServer {
 
 ```groovy title=build.gradle
 deployIntegrationServer {
-    cli { // The name of the section, you can name it as you with
+    cli { // The name of the section, you can name it as you wish
         cleanDefaultExtContent.set(true)
         copyBuildArtifacts.set([
            lib: /(.+)[.](jar)/
@@ -74,7 +74,7 @@ deployIntegrationServer {
 ```groovy title=build.gradle
 deployIntegrationServer {
    servers {
-       controlPlane { // The name of the section, you can name it as you with
+       controlPlane { // The name of the section, you can name it as you wish
            akkaSecured = true
            contextRoot = "/custom"
            copyBuildArtifacts = [
@@ -303,15 +303,15 @@ Read more about workers here:
 ```groovy
 deployIntegrationServer {
     workers {
-        worker01 {  // The name of the section, you can name it as you with
+        worker01 {  // The name of the section, you can name it as you wish
             version = "10.2.2" // Optional, if not specified will use same version as Server
         }
-        worker02 {  // The name of the section, you can name it as you with
+        worker02 {  // The name of the section, you can name it as you wish
             debugPort = 5006
             debugSuspend = true
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
         }
-        worker03 {  // The name of the section, you can name it as you with
+        worker03 {  // The name of the section, you can name it as you wish
             debugPort = 5007
             debugSuspend = false
             runtimeDirectory = "/opt/xl-deploy-worker"
@@ -357,7 +357,7 @@ You can read more about a satellite here:
 ```groovy
 deployIntegrationServer {
     satellites {
-       satellite01 {  // The name of the section, you can name it as you with
+       satellite01 {  // The name of the section, you can name it as you wish
             akkaStreamingPort = 8481
             debugPort = 5008
             debugSuspend = true
@@ -441,7 +441,7 @@ deployIntegrationServer {
             extraClassPath = [file("src/test/resources")]
             scriptPattern = /\/jython\/ci\/(.+).py$/
         }
-        testGroupO1 { // The name of the section, you can name it as you with
+        testGroupO1 { // The name of the section, you can name it as you wish
             baseDirectory = file("src/test")
             extraClassPath = [file("src/test/resources/group-01")]
             scriptPattern = /\/jython\/ci\/group-01\/(.+).py$/

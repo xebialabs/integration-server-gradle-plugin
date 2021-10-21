@@ -4,7 +4,7 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.domain.Satellite
 import ai.digital.integration.server.common.util.FileUtil
 import ai.digital.integration.server.common.util.ProcessUtil
-import ai.digital.integration.server.deploy.util.SatelliteUtil
+import ai.digital.integration.server.deploy.internals.SatelliteUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File

@@ -1,8 +1,8 @@
 package ai.digital.integration.server.deploy.tasks.anonymizer
 
 import ai.digital.integration.server.common.domain.Server
-import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil
-import ai.digital.integration.server.deploy.util.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File

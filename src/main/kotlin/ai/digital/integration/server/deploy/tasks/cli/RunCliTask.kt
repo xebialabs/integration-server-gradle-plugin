@@ -3,8 +3,8 @@ package ai.digital.integration.server.deploy.tasks.cli
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
-import ai.digital.integration.server.deploy.util.CliUtil
-import ai.digital.integration.server.deploy.util.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.CliUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input

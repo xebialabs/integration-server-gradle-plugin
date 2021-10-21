@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.util
+package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
@@ -68,7 +68,7 @@ class DeployServerUtil {
 
             return when {
                 isDockerBased(project) -> {
-                    val workDir = ServerUtil.getRelativePathInIntegrationServerDist(project, "deploy")
+                    val workDir = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, "deploy")
                     workDir.toAbsolutePath().toString()
                 }
                 server.runtimeDirectory == null -> {

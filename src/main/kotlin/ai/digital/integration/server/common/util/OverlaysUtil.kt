@@ -2,8 +2,8 @@ package ai.digital.integration.server.common.util
 
 import ai.digital.integration.server.common.domain.api.Container
 import ai.digital.integration.server.common.domain.api.DriverDependencyAware
-import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil
-import ai.digital.integration.server.deploy.util.DeployExtensionUtil
+import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy

@@ -5,7 +5,7 @@ import ai.digital.integration.server.common.util.DbConfigurationUtil
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.PostgresDbUtil
 import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractDbUnitDataDistTask
-import ai.digital.integration.server.deploy.util.DeployExtensionUtil
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import com.fasterxml.jackson.databind.node.TextNode
 import org.dbunit.dataset.xml.FlatXmlDataSet
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder

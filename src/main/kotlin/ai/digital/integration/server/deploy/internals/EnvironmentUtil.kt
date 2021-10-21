@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.util
+package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.common.domain.Server

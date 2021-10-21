@@ -6,7 +6,7 @@ services:
     depends_on:
       - xl-deploy-master
     ports:
-      - "8080:5000"
+      - "{{PUBLIC_PORT}}:5000"
       - "1936:1936"
     networks:
       - {{DEPLOY_NETWORK_NAME}}
@@ -61,6 +61,8 @@ services:
       RABBITMQ_DEFAULT_USER: rabbitmq
       RABBITMQ_DEFAULT_PASS: admin
       RABBITMQ_LOOPBACK_USERS: none
+    volumes:
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/rabbitmq:/etc/rabbitmq
 
   postgresql:
     image: postgres:10.5

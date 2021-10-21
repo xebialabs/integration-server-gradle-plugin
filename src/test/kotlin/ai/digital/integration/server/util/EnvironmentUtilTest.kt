@@ -1,7 +1,7 @@
 package ai.digital.integration.server.util
 
-import ai.digital.integration.server.deploy.util.DeployServerUtil
-import ai.digital.integration.server.deploy.util.EnvironmentUtil.Companion.getEnv
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.EnvironmentUtil.Companion.getEnv
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.mockkObject

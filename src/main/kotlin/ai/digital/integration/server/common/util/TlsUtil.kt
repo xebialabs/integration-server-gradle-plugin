@@ -1,9 +1,8 @@
 package ai.digital.integration.server.common.util
 
-import ai.digital.integration.server.deploy.DeployIntegrationServerExtension
 import ai.digital.integration.server.common.domain.AkkaSecured
 import ai.digital.integration.server.common.domain.Tls
-import ai.digital.integration.server.deploy.util.DeployExtensionUtil
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Project
 

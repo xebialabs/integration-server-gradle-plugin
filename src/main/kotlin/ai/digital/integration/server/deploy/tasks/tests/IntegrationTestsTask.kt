@@ -3,8 +3,8 @@ package ai.digital.integration.server.deploy.tasks.tests
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.Test
-import ai.digital.integration.server.deploy.util.CliUtil
-import ai.digital.integration.server.deploy.util.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.CliUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.common.util.FileUtil
 import ai.digital.integration.server.common.util.TestUtil
 import org.gradle.api.DefaultTask

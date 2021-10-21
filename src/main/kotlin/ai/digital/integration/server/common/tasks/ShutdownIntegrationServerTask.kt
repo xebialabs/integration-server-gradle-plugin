@@ -2,7 +2,7 @@ package ai.digital.integration.server.common.tasks
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.tasks.ShutdownDeployIntegrationServerTask
-import ai.digital.integration.server.deploy.util.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.release.tasks.ShutdownReleaseIntegrationServerTask
 import ai.digital.integration.server.release.util.ReleaseServerUtil
 import org.gradle.api.DefaultTask

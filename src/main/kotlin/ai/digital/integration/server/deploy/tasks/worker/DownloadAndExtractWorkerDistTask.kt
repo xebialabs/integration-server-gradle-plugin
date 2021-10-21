@@ -1,9 +1,9 @@
 package ai.digital.integration.server.deploy.tasks.worker
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.common.util.ServerUtil
-import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil.Companion.WORKER_DIST
-import ai.digital.integration.server.deploy.util.WorkerUtil
+import ai.digital.integration.server.common.util.IntegrationServerUtil
+import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.Companion.WORKER_DIST
+import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
 
@@ -28,7 +28,7 @@ open class DownloadAndExtractWorkerDistTask : DefaultTask() {
 
                     this.dependsOn(project.tasks.register(taskName, Copy::class.java) { copy ->
                         copy.from(project.zipTree(project.buildscript.configurations.getByName(WORKER_DIST).singleFile))
-                        copy.into(ServerUtil.getRelativePathInIntegrationServerDist(project, worker.name))
+                        copy.into(IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, worker.name))
                     })
                 }
             }

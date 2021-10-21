@@ -5,7 +5,7 @@ import ai.digital.integration.server.common.domain.Tls
 import ai.digital.integration.server.common.tls.KeytoolExportKeyToCertTask
 import ai.digital.integration.server.common.tls.KeytoolGenKeyTask
 import ai.digital.integration.server.common.tls.KeytoolImportKeyToTruststoreTask
-import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getServerWorkingDir
+import ai.digital.integration.server.deploy.internals.DeployServerUtil.Companion.getServerWorkingDir
 import ai.digital.integration.server.common.util.PropertiesUtil.Companion.readPropertiesFile
 import ai.digital.integration.server.common.util.PropertiesUtil.Companion.writePropertiesFile
 import ai.digital.integration.server.common.util.TlsUtil.Companion.getTls

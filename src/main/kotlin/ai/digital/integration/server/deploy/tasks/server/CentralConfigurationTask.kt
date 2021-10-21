@@ -2,9 +2,9 @@ package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.domain.AkkaSecured
 import ai.digital.integration.server.common.util.*
-import ai.digital.integration.server.deploy.util.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.deploy.util.*
+import ai.digital.integration.server.deploy.internals.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction

@@ -2,7 +2,7 @@ package ai.digital.integration.server.common.mq
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.MqUtil
-import ai.digital.integration.server.deploy.util.WorkerUtil
+import ai.digital.integration.server.deploy.internals.WorkerUtil
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
