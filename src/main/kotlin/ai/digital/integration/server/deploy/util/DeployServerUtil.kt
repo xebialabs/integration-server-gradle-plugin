@@ -64,11 +64,16 @@ class DeployServerUtil {
             return ext.servers.find { server -> server.previousInstallation } != null
         }
 
-        fun enrichServer(project: Project, server: Server): Server {
+        private fun enrichServer(project: Project, server: Server): Server {
             server.debugPort = getDebugPort(project, server)
-            server.httpPort = getHttpPort(project, server)
-            if (!server.previousInstallation) {
+
+            if (server.previousInstallation) {
+                server.httpPort = getHttpPort(project, server)
+            } else {
                 server.version = getServerVersion(project, server)
+                if (isPreviousInstallationServerDefined(project)) {
+                    server.httpPort = getPreviousInstallationServer(project).httpPort
+                }
             }
 
             server.dockerImage?.let {
