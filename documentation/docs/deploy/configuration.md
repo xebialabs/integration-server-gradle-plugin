@@ -9,6 +9,7 @@ sidebar_position: 5
 ```groovy title=build.gradle
 deployIntegrationServer {
     cli {}
+    cluster{}
     servers {}
     database {}
     workers {}
@@ -34,7 +35,7 @@ deployIntegrationServer {
 
 ```groovy title=build.gradle
 deployIntegrationServer {
-    cli { // The name of the section, you can name it as you wish
+    cli {
         cleanDefaultExtContent.set(true)
         copyBuildArtifacts.set([
            lib: /(.+)[.](jar)/
@@ -68,6 +69,51 @@ deployIntegrationServer {
 |overlays|Optional|[:]|[Read about this section below](#overlays)|
 |socketTimeout|Optional|60000|Time is set in ms. Socket timeout means how long the socket will be opened to execute the provided script. If your script takes a time to be executed, consider to increase it.|
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `deployCliVersion`, via parameter or in `gradle.properties` file or explicitly via this field. As a last resource it also checks on `xlDeployVersion`, as usually the version should be the same, but you have a possibility to define different versions. |
+
+## Cluster section
+
+```groovy title=build.gradle
+deployIntegrationServer {
+    cluster {
+        enable.set(true)
+        publicPort.set(1000)
+    }
+}
+```
+
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|enable|Optional|false|If true, cluster setup will be enabled.|
+|publicPort|Optional|8080|The port to connect to the cluster.|
+
+Currently, there is only a docker compose based setup available. The minimum configuration you have to provide is:
+
+```groovy title=build.gradle
+deployIntegrationServer {
+    cluster {
+        enable.set(true)
+    }
+    servers {
+        server01 {
+            dockerImage = "xebialabs/xl-deploy"
+            version = "10.4.0" // not released yet
+        }
+        server02 {
+        }
+    }
+    workers {
+        worker01 {
+            dockerImage = "xebialabs/deploy-task-engine"
+        }
+        worker02 {
+        }
+    }
+}
+```
+
+You can define less or more servers and workers. The docker image is being read from the first server and 
+first worker sections. Version is enough to specify only in the first server section, as server and worker versions 
+should always match.
 
 ## Servers section
 
