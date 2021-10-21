@@ -11,7 +11,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.nio.file.Paths
 
-abstract class SyncServerPluginsWithWorkerTask : DefaultTask() {
+open class SyncServerPluginsWithWorkerTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP
@@ -63,7 +63,6 @@ abstract class SyncServerPluginsWithWorkerTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "syncServerPluginsWithWorker"
+        const val NAME = "syncServerPluginsWithWorker"
     }
 }

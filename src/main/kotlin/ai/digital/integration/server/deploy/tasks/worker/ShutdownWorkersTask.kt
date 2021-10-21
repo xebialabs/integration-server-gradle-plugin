@@ -10,11 +10,10 @@ import org.gradle.api.tasks.TaskAction
 import java.net.http.HttpClient
 import java.net.http.HttpResponse
 
-abstract class ShutdownWorkersTask : DefaultTask() {
+open class ShutdownWorkersTask : DefaultTask() {
 
     companion object {
-        @JvmStatic
-        val NAME = "shutdownWorkers"
+        const val NAME = "shutdownWorkers"
     }
 
     init {

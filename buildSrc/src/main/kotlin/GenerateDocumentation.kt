@@ -1,7 +1,7 @@
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-abstract class GenerateDocumentation : DefaultTask() {
+open class GenerateDocumentation : DefaultTask() {
 
     @TaskAction
     fun doRelease() {

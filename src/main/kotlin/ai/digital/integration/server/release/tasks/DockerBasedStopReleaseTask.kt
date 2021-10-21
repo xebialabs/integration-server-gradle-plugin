@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 import java.io.ByteArrayOutputStream
 import java.io.File
 
-abstract class DockerBasedStopReleaseTask : DefaultTask() {
+open class DockerBasedStopReleaseTask : DefaultTask() {
 
     companion object {
         const val NAME = "dockerBasedStopRelease"

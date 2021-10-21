@@ -5,7 +5,7 @@ import ai.digital.integration.server.deploy.util.CliUtil
 import ai.digital.integration.server.common.util.OverlaysUtil
 import org.gradle.api.DefaultTask
 
-abstract class CliOverlaysTask : DefaultTask() {
+open class CliOverlaysTask : DefaultTask() {
 
     companion object {
         const val NAME = "cliOverlays"
@@ -19,7 +19,7 @@ abstract class CliOverlaysTask : DefaultTask() {
         this.mustRunAfter(CopyCliBuildArtifactsTask.NAME)
 
         project.afterEvaluate {
-            CliUtil.getCli(project).overlays.forEach { overlay ->
+            CliUtil.getCli(project).overlays.get().forEach { overlay ->
                 OverlaysUtil.defineOverlay(project,
                     this,
                     CliUtil.getWorkingDir(project),

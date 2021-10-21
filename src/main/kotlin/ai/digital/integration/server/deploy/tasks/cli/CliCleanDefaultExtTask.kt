@@ -5,7 +5,7 @@ import ai.digital.integration.server.deploy.util.CliUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-abstract class CliCleanDefaultExtTask : DefaultTask() {
+open class CliCleanDefaultExtTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP
@@ -18,7 +18,7 @@ abstract class CliCleanDefaultExtTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        if (CliUtil.getCli(project).cleanDefaultExtContent) {
+        if (CliUtil.getCli(project).cleanDefaultExtContent.get()) {
             project.logger.lifecycle("Removing all default content in CLI ext folder.")
 
             val folder = CliUtil.getCliExtFolder(project)

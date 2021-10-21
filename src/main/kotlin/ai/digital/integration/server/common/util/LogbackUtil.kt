@@ -19,12 +19,10 @@ class LogbackUtil {
 
     companion object {
 
-        @JvmStatic
         private fun getHardCodedLevels(project: Project): MutableMap<String, String> {
-            return if (DbUtil.getDatabase(project).logSql) LogbackConfigs.toLogSql else mutableMapOf()
+            return if (DbUtil.getDatabase(project).logSql.get()) LogbackConfigs.toLogSql else mutableMapOf()
         }
 
-        @JvmStatic
         fun setLogLevels(project: Project, workingDir: String, customLogLevels: Map<String, String>) {
             val logbackConfig = "${workingDir}/conf/logback.xml"
 

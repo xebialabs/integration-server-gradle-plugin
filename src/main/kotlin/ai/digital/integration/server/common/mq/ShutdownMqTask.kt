@@ -7,7 +7,7 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class ShutdownMqTask : DefaultTask() {
+open class ShutdownMqTask : DefaultTask() {
 
     companion object {
         const val NAME = "shutdownMq"

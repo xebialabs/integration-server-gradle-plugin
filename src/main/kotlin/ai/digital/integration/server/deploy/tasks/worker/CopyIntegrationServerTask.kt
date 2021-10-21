@@ -1,20 +1,21 @@
 package ai.digital.integration.server.deploy.tasks.worker
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.deploy.domain.Worker
-import ai.digital.integration.server.deploy.util.DeployServerUtil
 import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.deploy.domain.Worker
+import ai.digital.integration.server.deploy.tasks.server.ServerYamlPatchTask
+import ai.digital.integration.server.deploy.util.DeployServerUtil
 import ai.digital.integration.server.deploy.util.WorkerUtil
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.nio.file.Paths
 
-abstract class CopyIntegrationServerTask : DefaultTask() {
+open class CopyIntegrationServerTask : DefaultTask() {
 
     init {
-        this.dependsOn("yamlPatch")
         this.group = PLUGIN_GROUP
+        this.dependsOn(ServerYamlPatchTask.NAME)
         this.onlyIf {
             WorkerUtil.hasWorkers(project)
         }
@@ -38,7 +39,6 @@ abstract class CopyIntegrationServerTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "copyIntegrationServer"
+        const val NAME = "copyIntegrationServer"
     }
 }

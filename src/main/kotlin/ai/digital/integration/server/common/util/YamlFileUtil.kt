@@ -17,7 +17,6 @@ class YamlFileUtil {
         )
 
         // Creates different key chain, depends on what is the first key, contains a dot or not for a first key.
-        @JvmStatic
         private fun calcKeyChain(objectMap: MutableMap<String, Any>, tokens: List<String>): Array<String> {
             return if (objectMap[tokens[0] + "." + tokens[1]] != null) {
                 val keyChain = arrayOf(tokens[0] + "." + tokens[1])
@@ -28,7 +27,6 @@ class YamlFileUtil {
             }
         }
 
-        @JvmStatic
         @Suppress("UNCHECKED_CAST")
         fun getKeyParentAndLastToken(
             objectMap: MutableMap<String, Any>,
@@ -44,18 +42,16 @@ class YamlFileUtil {
                 if (value == null) {
                     current[keyItem] = LinkedHashMap<String, Any>()
                 }
-                current = current.get(keyItem) as MutableMap<String, Any>
+                current = current[keyItem] as MutableMap<String, Any>
             }
             return Pair(current, tokens.last())
         }
 
-        @JvmStatic
         private fun readKey(objectMap: MutableMap<String, Any>, key: String): Any? {
             val pair = getKeyParentAndLastToken(objectMap, key)
             return pair.first[pair.second]
         }
 
-        @JvmStatic
         private fun addPair(initial: MutableMap<String, Any>, newPairs: MutableMap<String, Any>) {
             newPairs.forEach { pair ->
                 val p = getKeyParentAndLastToken(initial, pair.key)
@@ -63,7 +59,6 @@ class YamlFileUtil {
             }
         }
 
-        @JvmStatic
         @Suppress("UNCHECKED_CAST")
         private fun mingleValues(source: URL, pairs: MutableMap<String, Any>, destinationFile: File) {
             val aggregatedValue: MutableMap<String, Any> =
@@ -73,7 +68,6 @@ class YamlFileUtil {
             mapper.writeValue(destinationFile, aggregatedValue)
         }
 
-        @JvmStatic
         private fun mingleValues(pairs: MutableMap<String, Any>, destinationFile: File) {
             val aggregatedValue = LinkedHashMap<String, Any>()
             addPair(aggregatedValue, pairs)
@@ -89,7 +83,6 @@ class YamlFileUtil {
          * @param pairs
          * @param destinationFile
          */
-        @JvmStatic
         fun overlayFile(sourceFle: File, pairs: MutableMap<String, Any>, destinationFile: File) {
             if (!sourceFle.exists()) {
                 sourceFle.createNewFile()
@@ -107,7 +100,6 @@ class YamlFileUtil {
          * @param pairs
          */
 
-        @JvmStatic
         fun overlayFile(sourceAndDestinationFle: File, pairs: MutableMap<String, Any>) {
             if (!sourceAndDestinationFle.exists()) {
                 sourceAndDestinationFle.createNewFile()
@@ -126,28 +118,19 @@ class YamlFileUtil {
          * @param pairs
          * @param destinationFile
          */
-        @JvmStatic
         fun overlayResource(resource: URL, pairs: MutableMap<String, Any>, destinationFile: File) {
             return mingleValues(resource, pairs, destinationFile)
         }
 
         @Suppress("UNCHECKED_CAST")
-        @JvmStatic
         fun readFileKey(file: File, key: String): Any? {
             return readKey(mapper.readValue(file, MutableMap::class.java) as MutableMap<String, Any>, key)
         }
 
-        @JvmStatic
-        fun readTree(resource: URL): TreeNode {
-            return mapper.readTree(resource)
-        }
-
-        @JvmStatic
         fun readTree(resource: InputStream): TreeNode {
             return mapper.readTree(resource)
         }
 
-        @JvmStatic
         fun writeFileValue(sourceFle: File, value: Any) {
             if (!sourceFle.exists()) {
                 File(sourceFle.parent).mkdirs()

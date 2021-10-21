@@ -4,7 +4,8 @@ sidebar_position: 1
 
 # Introduction
 
-Are you developing your own plugin for Deploy and looking for a simple way to run integration tests against it? <br/>
+Are you developing your own plugin for **Digital.ai Deploy** or **Release** and looking for a simple way 
+to run integration tests against it? <br/>
 Then you are on the right track! <br/>
 
 

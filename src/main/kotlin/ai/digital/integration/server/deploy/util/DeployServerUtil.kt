@@ -10,11 +10,9 @@ import java.nio.file.Paths
 
 class DeployServerUtil {
     companion object {
-
         fun getHttpHost(): String {
             return "localhost"
         }
-
 
         fun getUrl(project: Project): String {
             val server = getServer(project)
@@ -25,7 +23,6 @@ class DeployServerUtil {
                 "http://$hostName:${server.httpPort}${server.contextRoot}"
             }
         }
-
 
         fun composeUrl(project: Project, path: String): String {
             var url = getUrl(project)
@@ -39,16 +36,13 @@ class DeployServerUtil {
             return "$url$separator$path"
         }
 
-
         fun isTls(project: Project): Boolean {
             return getServer(project).tls
         }
 
-
         fun isAkkaSecured(project: Project): Boolean {
             return getServer(project).akkaSecured
         }
-
 
         fun getServer(project: Project): Server {
             val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
@@ -123,14 +117,12 @@ class DeployServerUtil {
                 server.version
         }
 
-
         private fun getHttpPort(project: Project, server: Server): Int {
             return if (project.hasProperty("serverHttpPort"))
                 Integer.valueOf(project.property("serverHttpPort").toString())
             else
                 server.httpPort
         }
-
 
         private fun getDebugPort(project: Project, server: Server): Int? {
             return if (PropertyUtil.resolveBooleanValue(project, "debug", true)) {
@@ -140,12 +132,10 @@ class DeployServerUtil {
             }
         }
 
-
         fun createDebugString(debugSuspend: Boolean, debugPort: Int): String {
             val suspend = if (debugSuspend) "y" else "n"
             return "-Xrunjdwp:transport=dt_socket,server=y,suspend=${suspend},address=${debugPort}"
         }
-
 
         fun isDeployServerDefined(project: Project): Boolean {
             val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
@@ -157,7 +147,6 @@ class DeployServerUtil {
             return server.runtimeDirectory == null && !isDockerBased(project)
         }
 
-
         fun readDeployitConfProperty(project: Project, key: String): String {
             val deployitConf = Paths.get("${getServerWorkingDir(project)}/conf/deployit.conf").toFile()
             return PropertiesUtil.readProperty(deployitConf, key)
@@ -167,7 +156,6 @@ class DeployServerUtil {
         fun getLogDir(project: Project, server: Server): File {
             return Paths.get(getServerWorkingDir(project, server), "log").toFile()
         }
-
 
         fun grantPermissionsToIntegrationServerFolder(project: Project) {
             if (isDockerBased(project)) {
@@ -179,13 +167,11 @@ class DeployServerUtil {
             }
         }
 
-
         fun waitForBoot(project: Project, process: Process?) {
             val url = composeUrl(project, "/deployit/metadata/type")
             val server = getServer(project)
             WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries)
         }
-
 
         fun startServerFromClasspath(project: Project): Process {
             project.logger.lifecycle("startServerFromClasspath.")
@@ -230,18 +216,15 @@ class DeployServerUtil {
             return process
         }
 
-
         fun getDockerImageVersion(project: Project): String {
             val server = getServer(project)
             return "${server.dockerImage}:${server.version}"
         }
 
-
         fun getDockerServiceName(project: Project): String {
             val server = getServer(project)
             return "deploy-${server.version}"
         }
-
 
         fun getResolvedDockerFile(project: Project): Path {
             val server = getServer(project)
@@ -262,10 +245,8 @@ class DeployServerUtil {
             return resultComposeFilePath
         }
 
-
         private fun dockerServerRelativePath(): String {
             return "deploy/server-docker-compose.yaml"
         }
-
     }
 }

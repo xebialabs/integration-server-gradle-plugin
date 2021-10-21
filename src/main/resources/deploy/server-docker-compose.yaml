@@ -10,7 +10,7 @@ services:
       GENERATE_XL_CONFIG: "false"
       PLUGINS_TO_EXCLUDE: DEPLOY_PLUGINS_TO_EXCLUDE
     ports:
-      - DEPLOY_SERVER_HTTP_PORT:DEPLOY_SERVER_HTTP_PORT
+      - DEPLOY_SERVER_HTTP_PORT:4516
     volumes:
       - ./centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration
       - ./conf:/opt/xebialabs/xl-deploy-server/conf

@@ -8,13 +8,13 @@ import ai.digital.integration.server.common.util.TestUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
 
-abstract class DownloadAndExtractCliDistTask : DefaultTask() {
+open class DownloadAndExtractCliDistTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP
 
         if (CliUtil.hasCli(project) || TestUtil.hasTests(project)) {
-            val version = CliUtil.getCli(project).version
+            val version = CliUtil.getCli(project).version.get()
             project.logger.lifecycle("Downloading and extracting the CLI ${version}.")
 
             project.buildscript.dependencies.add(

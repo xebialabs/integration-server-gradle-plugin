@@ -10,14 +10,12 @@ import org.gradle.api.Project
 class ReleaseExtensionUtil {
 
     companion object {
-        const val RELEASE_IS_EXTENSION_NAME: String = "releaseIntegrationServer"
+        private const val RELEASE_IS_EXTENSION_NAME: String = "releaseIntegrationServer"
 
-        @JvmStatic
         fun getExtension(project: Project): ReleaseIntegrationServerExtension {
             return project.extensions.getByType(ReleaseIntegrationServerExtension::class.java)
         }
 
-        @JvmStatic
         fun createReleaseExtension(project: Project) {
             val servers: NamedDomainObjectContainer<Server> = project.container(Server::class.java)
 
@@ -30,11 +28,6 @@ class ReleaseExtensionUtil {
                 ReleaseIntegrationServerExtension::class.java,
                 servers
             )
-        }
-
-        @JvmStatic
-        fun initialize(project: Project) {
-            getExtension(project)
         }
     }
 }

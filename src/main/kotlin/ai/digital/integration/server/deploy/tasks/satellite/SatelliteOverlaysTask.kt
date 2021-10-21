@@ -5,14 +5,11 @@ import ai.digital.integration.server.common.util.OverlaysUtil
 import ai.digital.integration.server.deploy.util.SatelliteUtil
 import org.gradle.api.DefaultTask
 
-abstract class SatelliteOverlaysTask : DefaultTask() {
+open class SatelliteOverlaysTask : DefaultTask() {
 
     companion object {
-        @JvmStatic
-        val NAME = "satelliteOverlays"
-
-        @JvmStatic
-        val PREFIX = "satellite"
+        const val NAME = "satelliteOverlays"
+        const val PREFIX = "satellite"
     }
 
     init {

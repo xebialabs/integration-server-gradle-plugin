@@ -1,6 +1,8 @@
 package ai.digital.integration.server.common.tls
 
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.deploy.tasks.server.CentralConfigurationTask
+import ai.digital.integration.server.deploy.tasks.server.ServerCopyOverlaysTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -11,8 +13,8 @@ import java.util.*
 abstract class KeytoolTask: DefaultTask() {
     init {
         this.group = PluginConstant.PLUGIN_GROUP
-        this.mustRunAfter("copyOverlays")
-        this.mustRunAfter("centralConfiguration")
+        this.mustRunAfter(ServerCopyOverlaysTask.NAME)
+        this.mustRunAfter(CentralConfigurationTask.NAME)
 
         this.doFirst {
             val customParams = ArrayList(params)

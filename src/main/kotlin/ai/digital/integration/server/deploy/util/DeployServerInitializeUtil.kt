@@ -6,9 +6,8 @@ import java.io.File
 
 class DeployServerInitializeUtil {
     companion object {
-        @JvmStatic
         private fun createFolders(project: Project, server: Server) {
-            project.logger.lifecycle("Preparing server destination folders for ${server.name}.")
+            project.logger.lifecycle("Preparing server destination folders.")
 
             arrayOf("centralConfiguration", "conf", "hotfix/plugins", "hotfix/lib", "plugins").forEach { folderName ->
                 val folderPath = "${DeployServerUtil.getServerWorkingDir(project, server)}/${folderName}"
@@ -18,7 +17,6 @@ class DeployServerInitializeUtil {
             }
         }
 
-        @JvmStatic
         private fun createConfFile(project: Project, server: Server) {
             project.logger.lifecycle("Creating deployit.conf file for ${server.name}")
 
@@ -31,10 +29,8 @@ class DeployServerInitializeUtil {
             file.appendText("threads.min=3\n")
             file.appendText("threads.max=24\n")
             file.appendText("xl.spring.cloud.enabled=true\n")
-
         }
 
-        @JvmStatic
         fun prepare(project: Project, server: Server) {
             project.logger.lifecycle("Preparing serve ${server.name} before launching it.")
             createFolders(project, server)

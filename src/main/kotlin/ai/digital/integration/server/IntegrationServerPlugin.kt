@@ -4,7 +4,7 @@ import ai.digital.integration.server.common.TaskRegistry
 import ai.digital.integration.server.common.util.DbUtil.Companion.getDatabase
 import ai.digital.integration.server.common.util.TaskUtil.Companion.dontFailOnException
 import ai.digital.integration.server.deploy.DeployTaskRegistry
-import ai.digital.integration.server.deploy.tasks.ApplicationConfigurationOverrideTask
+import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil.Companion.DEPLOY_SERVER
 import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil.Companion.registerConfigurations
 import ai.digital.integration.server.deploy.util.DeployExtensionUtil.Companion.createDeployExtension
@@ -29,7 +29,7 @@ class IntegrationServerPlugin : Plugin<Project> {
 
         val derbyExtension = project.extensions.getByName("derby") as DerbyExtension
         derbyExtension.dataDir = workDir
-        derbyExtension.port = database.derbyPort!!
+        derbyExtension.port = database.derbyPort.get()
 
         val startDerbyTask = project.tasks.getByName("derbyStart")
         val stopDerbyTask = project.tasks.getByName("derbyStop")

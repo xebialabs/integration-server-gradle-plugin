@@ -6,7 +6,7 @@ import ai.digital.integration.server.common.util.CopyBuildArtifactsUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-abstract class CopyCliBuildArtifactsTask : DefaultTask() {
+open class CopyCliBuildArtifactsTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP
@@ -16,7 +16,7 @@ abstract class CopyCliBuildArtifactsTask : DefaultTask() {
     @TaskAction
     fun launch() {
         val cli = CliUtil.getCli(project)
-        CopyBuildArtifactsUtil.execute(project, cli.copyBuildArtifacts, CliUtil.getWorkingDir(project))
+        CopyBuildArtifactsUtil.execute(project, cli.copyBuildArtifacts.get(), CliUtil.getWorkingDir(project))
     }
 
     companion object {

@@ -7,7 +7,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class ExportDatabaseTask : DefaultTask() {
+open class ExportDatabaseTask : DefaultTask() {
 
     private fun startFromClasspath(server: Server) {
         val classpath = project.configurations.getByName(DeployConfigurationsUtil.DEPLOY_SERVER)

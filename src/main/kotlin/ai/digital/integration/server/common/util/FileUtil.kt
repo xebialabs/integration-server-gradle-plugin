@@ -12,7 +12,6 @@ import java.nio.file.Paths
 class FileUtil {
 
     companion object {
-        @JvmStatic
         fun copyDirs(srcBaseDir: String, targetBaseDir: String, dirs: List<String>) {
             dirs.forEach { dir: String ->
                 FileUtils.copyDirectory(
@@ -22,7 +21,6 @@ class FileUtil {
             }
         }
 
-        @JvmStatic
         fun copyFiles(srcDir: String, targetDir: String, files: List<String>) {
             files.forEach { file ->
                 FileUtils.copyFileToDirectory(
@@ -32,7 +30,6 @@ class FileUtil {
             }
         }
 
-        @JvmStatic
         fun copyFile(source: InputStream, dest: Path) {
             val parentDir = dest.parent.toFile()
             if (!parentDir.exists()) {
@@ -47,33 +44,27 @@ class FileUtil {
             }
         }
 
-        @JvmStatic
         fun pathToString(path: Path): String {
             return path.toAbsolutePath().toString()
         }
 
-        @JvmStatic
         fun toPathString(path: Path, subDir: String): String {
             return pathToString(Paths.get(pathToString(path), subDir))
         }
 
-        @JvmStatic
         fun grantRWPermissions(file: File) {
             file.setWritable(true, false)
             file.setReadable(true, false)
         }
 
-        @JvmStatic
         fun findFiles(basedir: String, pattern: String): List<File> {
             return FileNameByRegexFinder().getFileNames(basedir, pattern).map { File(it) }
         }
 
-        @JvmStatic
         fun findFiles(basedir: String, pattern: String, excludesPattern: String): List<File> {
             return FileNameByRegexFinder().getFileNames(basedir, pattern, excludesPattern).map { File(it) }
         }
 
-        @JvmStatic
         fun removeEmptyLines(data: String, output: File) {
             output.writeText("")
             data

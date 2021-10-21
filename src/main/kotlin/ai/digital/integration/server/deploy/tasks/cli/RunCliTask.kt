@@ -2,7 +2,7 @@ package ai.digital.integration.server.deploy.tasks.cli
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.domain.Cli
-import ai.digital.integration.server.deploy.tasks.TlsApplicationConfigurationOverrideTask
+import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.util.CliUtil
 import ai.digital.integration.server.deploy.util.DeployServerUtil
 import org.gradle.api.DefaultTask
@@ -33,7 +33,7 @@ abstract class RunCliTask : DefaultTask() {
 
     private fun executeScripts(cli: Cli) {
         project.logger.lifecycle("Executing cli scripts ....")
-        CliUtil.executeScripts(project, cli.filesToExecute, "cli", secure.getOrElse(false))
+        CliUtil.executeScripts(project, cli.filesToExecute.get(), "cli", secure.getOrElse(false))
     }
 
     @TaskAction

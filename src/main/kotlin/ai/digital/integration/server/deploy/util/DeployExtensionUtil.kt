@@ -1,11 +1,9 @@
 package ai.digital.integration.server.deploy.util
 
-import ai.digital.integration.server.common.domain.Database
 import ai.digital.integration.server.common.domain.DevOpsAsCode
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.Test
 import ai.digital.integration.server.deploy.DeployIntegrationServerExtension
-import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.deploy.domain.Satellite
 import ai.digital.integration.server.deploy.domain.Worker
 import org.gradle.api.NamedDomainObjectContainer
@@ -17,12 +15,10 @@ class DeployExtensionUtil {
     companion object {
         const val DEPLOY_IS_EXTENSION_NAME: String = "deployIntegrationServer"
 
-        @JvmStatic
         fun getExtension(project: Project): DeployIntegrationServerExtension {
             return project.extensions.getByType(DeployIntegrationServerExtension::class.java)
         }
 
-        @JvmStatic
         fun createDeployExtension(project: Project) {
             val servers: NamedDomainObjectContainer<Server> = project.container(Server::class.java)
 
@@ -33,8 +29,7 @@ class DeployExtensionUtil {
             project.extensions.create(
                 DEPLOY_IS_EXTENSION_NAME,
                 DeployIntegrationServerExtension::class.java,
-                project.container(Cli::class.java),
-                project.container(Database::class.java),
+                project,
                 project.container(Satellite::class.java),
                 servers,
                 project.container(Test::class.java),
@@ -42,14 +37,12 @@ class DeployExtensionUtil {
             )
         }
 
-        @JvmStatic
         fun initialize(project: Project) {
             val extension = getExtension(project)
             extension.xldIsDataVersion = getXldIsDataVersion(project)
             extension.mqDriverVersions = getMqDriverVersions(project)
         }
 
-        @JvmStatic
         private fun getXldIsDataVersion(project: Project): String? {
             return if (project.hasProperty("xldIsDataVersion"))
                 project.property("xldIsDataVersion").toString()
@@ -57,7 +50,6 @@ class DeployExtensionUtil {
                 null
         }
 
-        @JvmStatic
         @Suppress("UNCHECKED_CAST")
         private fun getMqDriverVersions(project: Project): MutableMap<String, String> {
             return if (project.hasProperty("mqDriverVersions"))

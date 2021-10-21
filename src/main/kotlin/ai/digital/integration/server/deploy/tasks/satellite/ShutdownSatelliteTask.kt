@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.nio.file.Paths
 
-abstract class ShutdownSatelliteTask : DefaultTask() {
+open class ShutdownSatelliteTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP
@@ -46,10 +46,7 @@ abstract class ShutdownSatelliteTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "shutdownSatellite"
-
-        @JvmStatic
-        val STOP_SATELLITE_SCRIPT = "stopSatellite.sh"
+        const val NAME = "shutdownSatellite"
+        const val STOP_SATELLITE_SCRIPT = "stopSatellite.sh"
     }
 }

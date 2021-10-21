@@ -8,7 +8,6 @@ import java.util.*
 class PropertiesUtil {
     companion object {
 
-        @JvmStatic
         fun readPropertiesFile(file: File): Properties {
             val properties = Properties()
             if (!file.exists()) {
@@ -19,12 +18,10 @@ class PropertiesUtil {
             return properties
         }
 
-        @JvmStatic
         fun readProperty(file: File, key: String): String {
             return readPropertiesFile(file).get(key).toString()
         }
 
-        @JvmStatic
         fun writePropertiesFile(file: File, properties: Properties) {
             val fos = FileOutputStream(file.absolutePath)
             properties.store(fos, null)

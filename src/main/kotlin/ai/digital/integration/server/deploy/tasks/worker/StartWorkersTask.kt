@@ -4,18 +4,17 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.mq.StartMqTask
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.domain.Worker
-import ai.digital.integration.server.deploy.tasks.YamlPatchTask
+import ai.digital.integration.server.deploy.tasks.server.ServerYamlPatchTask
 import ai.digital.integration.server.deploy.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.nio.file.Paths
 
-abstract class StartWorkersTask : DefaultTask() {
+open class StartWorkersTask : DefaultTask() {
 
     companion object {
-        @JvmStatic
-        val NAME = "startWorkers"
+        const val NAME = "startWorkers"
     }
 
     init {
@@ -33,7 +32,7 @@ abstract class StartWorkersTask : DefaultTask() {
         this.dependsOn(SetWorkersLogbackLevelsTask.NAME)
         this.dependsOn(StartMqTask.NAME)
         this.dependsOn(WorkerOverlaysTask.NAME)
-        this.dependsOn(YamlPatchTask.NAME)
+        this.dependsOn(ServerYamlPatchTask.NAME)
 
         this.onlyIf {
             WorkerUtil.hasWorkers(project)

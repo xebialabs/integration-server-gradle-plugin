@@ -7,7 +7,7 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class DatabaseStopTask : DefaultTask() {
+open class DatabaseStopTask : DefaultTask() {
 
     companion object {
         const val NAME = "databaseStop"

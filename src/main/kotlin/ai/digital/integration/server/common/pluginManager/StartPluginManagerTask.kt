@@ -2,20 +2,20 @@ package ai.digital.integration.server.common.pluginManager
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.domain.Server
-import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
-import ai.digital.integration.server.deploy.tasks.TlsApplicationConfigurationOverrideTask
+import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.deploy.tasks.server.StartServerInstanceTask
+import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.util.DeployServerUtil
 import ai.digital.integration.server.deploy.util.EnvironmentUtil
-import ai.digital.integration.server.common.util.ProcessUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.nio.file.Paths
 
-abstract class StartPluginManagerTask : DefaultTask() {
+open class StartPluginManagerTask : DefaultTask() {
 
     init {
-        val dependencies = mutableListOf(StartDeployIntegrationServerTask.NAME)
+        val dependencies = mutableListOf(StartServerInstanceTask.NAME)
 
         if (DeployServerUtil.isTls(project)) {
             dependencies.add(TlsApplicationConfigurationOverrideTask.NAME)
@@ -55,7 +55,6 @@ abstract class StartPluginManagerTask : DefaultTask() {
     }
 
     companion object {
-        @JvmStatic
-        val NAME = "startPluginManager"
+        const val NAME = "startPluginManager"
     }
 }
