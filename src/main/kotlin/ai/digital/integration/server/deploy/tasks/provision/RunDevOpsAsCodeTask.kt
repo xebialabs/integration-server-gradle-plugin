@@ -7,6 +7,7 @@ import ai.digital.integration.server.common.util.HTTPUtil
 import ai.digital.integration.server.deploy.tasks.server.StartServerInstanceTask
 import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.EntryPointUrlUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -53,7 +54,7 @@ open class RunDevOpsAsCodeTask : DefaultTask() {
                     addHeaders("X-Xebialabs-Scm-Type", devOpsAsCode.scmType)
 
                     val request =
-                        HTTPUtil.doRequest(DeployServerUtil.composeUrl(project, "/deployit/devops-as-code/apply"))
+                        HTTPUtil.doRequest(EntryPointUrlUtil.composeUrl(project, "/deployit/devops-as-code/apply"))
                             .headers(
                                 "Content-Type", "text/vnd.yaml",
                                 *headers.toTypedArray()

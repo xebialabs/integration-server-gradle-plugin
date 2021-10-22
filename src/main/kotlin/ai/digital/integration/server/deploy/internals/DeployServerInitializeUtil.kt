@@ -13,7 +13,7 @@ class DeployServerInitializeUtil {
                 val folderPath = "${DeployServerUtil.getServerWorkingDir(project, server)}/${folderName}"
                 val folder = File(folderPath)
                 folder.mkdirs()
-                project.logger.lifecycle("Folder $folderPath has created.")
+                project.logger.lifecycle("Folder $folderPath has been created.")
             }
         }
 

@@ -18,7 +18,7 @@ class ShutdownUtil {
             while (triesLeft > 0 && !success) {
                 try {
                     val client = HttpClient.newHttpClient()
-                    val request = HTTPUtil.doRequest(DeployServerUtil.composeUrl(project, server.contextRoot))
+                    val request = HTTPUtil.doRequest(EntryPointUrlUtil.composeUrl(project, server.contextRoot))
                         .POST(HttpRequest.BodyPublishers.noBody())
                         .build()
                     val response = client.send(request, HttpResponse.BodyHandlers.ofString())
@@ -46,10 +46,10 @@ class ShutdownUtil {
             val server = DeployServerUtil.getServer(project)
             try {
                 val port = server.httpPort
-                project.logger.lifecycle("Trying to shutdown integration server on port ${port}")
+                project.logger.lifecycle("Trying to shutdown integration server on port $port")
 
                 val client = HttpClient.newHttpClient()
-                val request = HTTPUtil.doRequest(DeployServerUtil.composeUrl(project, "/deployit/server/shutdown"))
+                val request = HTTPUtil.doRequest(EntryPointUrlUtil.composeUrl(project, "/deployit/server/shutdown"))
                     .POST(HttpRequest.BodyPublishers.noBody())
                     .build()
                 client.send(request, HttpResponse.BodyHandlers.ofString())

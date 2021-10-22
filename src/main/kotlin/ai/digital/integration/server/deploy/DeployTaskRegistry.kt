@@ -12,6 +12,7 @@ import ai.digital.integration.server.common.gitlab.GitlabStopTask
 import ai.digital.integration.server.common.mq.ShutdownMqTask
 import ai.digital.integration.server.common.mq.StartMqTask
 import ai.digital.integration.server.common.pluginManager.StartPluginManagerTask
+import ai.digital.integration.server.deploy.tasks.maintenance.CleanupBeforeStartupTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
@@ -83,6 +84,9 @@ open class DeployTaskRegistry {
             project.tasks.create(ShutdownDeployIntegrationServerTask.NAME, ShutdownDeployIntegrationServerTask::class.java)
             project.tasks.create(StartDeployIntegrationServerTask.NAME, StartDeployIntegrationServerTask::class.java)
                 .dependsOn(itcfg)
+
+            //Maintenance
+            project.tasks.create(CleanupBeforeStartupTask.NAME, CleanupBeforeStartupTask::class.java)
 
             //MQ
             project.tasks.create(ShutdownMqTask.NAME, ShutdownMqTask::class.java)

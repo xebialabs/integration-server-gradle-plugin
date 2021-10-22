@@ -17,25 +17,25 @@ class CliUtil {
 
         fun getCli(project: Project): Cli {
             val cli = DeployExtensionUtil.getExtension(project).cli.get()
-            cli.version.set(getCliVersion(project, cli))
-            cli.debugPort.set(getDebugPort(project, cli))
+            cli.version = getCliVersion(project, cli)
+            cli.debugPort = getDebugPort(project, cli)
             return cli
         }
 
         fun hasCli(project: Project): Boolean {
-            return getCli(project).enabled.get()
+            return getCli(project).enabled
         }
 
         private fun getDebugPort(project: Project, cli: Cli): Int? {
             return if (PropertyUtil.resolveBooleanValue(project, "debug", true)) {
-                PropertyUtil.resolveIntValue(project, "cliDebugPort", cli.debugPort.orNull)
+                PropertyUtil.resolveIntValue(project, "cliDebugPort", cli.debugPort)
             } else {
                 null
             }
         }
 
         fun getWorkingDir(project: Project): String {
-            val version = getCli(project).version.get()
+            val version = getCli(project).version
             val targetDir = IntegrationServerUtil.getDist(project)
             return Paths.get(targetDir, "xl-deploy-${version}-cli").toAbsolutePath().toString()
         }
@@ -64,8 +64,8 @@ class CliUtil {
                 project.hasProperty("deployCliVersion") -> {
                     project.property("deployCliVersion").toString()
                 }
-                !cli.version.orNull.isNullOrEmpty() -> {
-                    cli.version.get()
+                !cli.version.isNullOrEmpty() -> {
+                    cli.version
                 }
                 !DeployServerUtil.getServer(project).version.isNullOrEmpty() -> {
                     DeployServerUtil.getServer(project).version
@@ -116,12 +116,12 @@ class CliUtil {
                 .flatten()
 
             val params = (arrayListOf(
-                "-context", DeployServerUtil.readDeployitConfProperty(project, "http.context.root"),
+                "-context", EntryPointUrlUtil.getContextRoot(project),
                 "-expose-proxies",
                 "-password", "admin",
-                "-port", DeployServerUtil.readDeployitConfProperty(project, "http.port"),
-                "-host", DeployServerUtil.getHttpHost(),
-                "-socketTimeout", cli.socketTimeout.get().toString(),
+                "-port", EntryPointUrlUtil.getHttpPort(project),
+                "-host", EntryPointUrlUtil.getHttpHost(),
+                "-socketTimeout", cli.socketTimeout.toString(),
                 "-source", scriptSources.joinToString(separator = ",") { source -> source.absolutePath },
                 "-username", "admin",
             ) + extraParamsAsList).toMutableList()

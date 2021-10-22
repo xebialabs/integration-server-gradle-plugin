@@ -12,6 +12,7 @@ deployIntegrationServer {
     cluster{}
     servers {}
     database {}
+    maintenance {}
     workers {}
     satellites {}
     mqDriverVersions {}
@@ -36,24 +37,24 @@ deployIntegrationServer {
 ```groovy title=build.gradle
 deployIntegrationServer {
     cli {
-        cleanDefaultExtContent.set(true)
-        copyBuildArtifacts.set([
+        cleanDefaultExtContent = true
+        copyBuildArtifacts = [
            lib: /(.+)[.](jar)/
-        ])
-        debugPort.set(4005)
-        debugSuspend.set(true)
-        enable.set(false)
-        filesToExecute.set([file("src/main/resources/provision.py")])
-        overlays.set([
+        ]
+        debugPort = 4005
+        debugSuspend = true
+        enable = false
+        filesToExecute = [file("src/main/resources/provision.py")]
+        overlays = [
             ext: [
                     files("ext") 
             ],
             lib: [
                     "com.xebialabs.xl-platform.test-utils:py-modules:${testUtilsVersion}@jar"
             ]
-        ])
-        socketTimeout.set(120000)
-        version.set("10.2.2")
+        ]
+        socketTimeout = 120000
+        version = "10.2.2"
     }
 }
 ```
@@ -75,15 +76,18 @@ deployIntegrationServer {
 ```groovy title=build.gradle
 deployIntegrationServer {
     cluster {
-        enable.set(true)
-        publicPort.set(1000)
+        enable = true
+        enableDebug = true
+        publicPort = 1000
     }
 }
 ```
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
+|debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached. Take in mind that you have to attach to all processes to be able to completely run the cluster.|
 |enable|Optional|false|If true, cluster setup will be enabled.|
+|enableDebug|Optional|false|If true, debug will be enabled on all masters and workers. The exposed ports to connect will be randomly defined. You can check with `docker ps` which port was exposed for debugging.|
 |publicPort|Optional|8080|The port to connect to the cluster.|
 
 Currently, there is only a docker compose based setup available. The minimum configuration you have to provide is:
@@ -114,6 +118,10 @@ deployIntegrationServer {
 You can define less or more servers and workers. The docker image is being read from the first server and 
 first worker sections. Version is enough to specify only in the first server section, as server and worker versions 
 should always match.
+
+Example where to check for debugging ports to attach:
+
+![Example](./pics/cluster-debug-docker-ps.png)
 
 ## Servers section
 
@@ -289,7 +297,7 @@ where a key is a folder path and value is another map, in which key is the path 
 For example, if you want to modify in `deploy-client.yaml` file the `automatically-map-all-deployables` to `false`, you have 
 to do:
 
-![Yaml Patch Example](../pics/yaml-patch-example.png)
+![Yaml Patch Example](./pics/yaml-patch-example.png)
 
 ```groovy
 yamlPatches = [
@@ -305,16 +313,16 @@ yamlPatches = [
 ```groovy title=build.gradle
 deployIntegrationServer {
    database { 
-      derbyPort.set(10000)
-      driverVersions.set([
+      derbyPort = 10000
+      driverVersions = [
              'mssql'        : '8.4.1.jre8',
              'mysql'        : '8.0.22',
              'mysql-8'      : '8.0.22',
              'oracle-19c-se': '21.1.0.0',
              'postgres-10'  : '42.2.9',
              'postgres-12'  : '42.2.23',
-      ])
-      logSql.set(true)
+      ]
+      logSql = true
    }
 }
 ```
@@ -336,6 +344,24 @@ database=derby-network
 ```
 
 If nothing specified, **derby in memory** is going to be used.
+
+## Maintenance section
+
+```groovy
+deployIntegrationServer {
+    maintenance {
+        cleanupBeforeStartup = [
+                file("ext/ci.py"),
+                file("ext/default-imports.py"),
+                file("ext/readme.cli")
+        ]
+    }
+}
+```
+
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|cleanupBeforeStartup|List|[]|The list of files/folders to clean up before next server run.|
 
 ## Workers section
 

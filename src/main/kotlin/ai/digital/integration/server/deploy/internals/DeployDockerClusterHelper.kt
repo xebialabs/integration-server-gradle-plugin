@@ -10,13 +10,16 @@ import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 open class DeployDockerClusterHelper(val project: Project) {
 
     companion object {
+        private const val clusterMetadataPath = "deploy/cluster/cluster-metadata.properties"
         private const val dockerXldHAPath = "deploy/cluster/docker-compose-xld-ha.yaml"
         private const val dockerXldHAWithWorkersPath = "deploy/cluster/docker-compose-xld-ha-slim-workers.yaml"
         private const val rabbitMqEnabledPluginsPath = "deploy/cluster/rabbitmq/enabled_plugins"
+        private const val privateDebugPort = 4005
     }
 
     private val workerToIp = mutableMapOf<Int, String>()
@@ -33,7 +36,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     fun isClusterEnabled(): Boolean {
-        return getCluster().enable.get()
+        return getCluster().enable
     }
 
     private fun getServers(): List<Server> {
@@ -72,21 +75,30 @@ open class DeployDockerClusterHelper(val project: Project) {
         }
     }
 
-    private fun getPublicPort(): String {
-        return getCluster().publicPort.get().toString()
+    fun getClusterPublicPort(): String {
+        return getCluster().publicPort.toString()
+    }
+
+    private fun createClusterMetadata() {
+        val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, clusterMetadataPath)
+        val props = Properties()
+        props["cluster.port"] = getClusterPublicPort()
+        PropertiesUtil.writePropertiesFile(path.toFile(), props)
     }
 
     private fun getResolvedXldHaDockerComposeFile(): Path {
-        val serverTemplate = getTemplate(dockerXldHAPath)
+        val template = getTemplate(dockerXldHAPath)
 
-        val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
+        val configuredTemplate = template.readText(Charsets.UTF_8)
             .replace("{{DEPLOY_MASTER_IMAGE}}", getServerVersionedImage())
             .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", IntegrationServerUtil.getDist(project))
             .replace("{{DEPLOY_NETWORK_NAME}}", ClusterConstants.NETWORK_NAME)
-            .replace("{{PUBLIC_PORT}}", getPublicPort())
+            .replace("{{PUBLIC_PORT}}", getClusterPublicPort())
 
-        serverTemplate.writeText(configuredTemplate)
-        return serverTemplate.toPath()
+        template.writeText(configuredTemplate)
+        openDebugPort(template, "xl-deploy-master", "4000-4049")
+
+        return template.toPath()
     }
 
     private fun getResolvedXldHaWithWorkersDockerComposeFile(): Path {
@@ -99,7 +111,30 @@ open class DeployDockerClusterHelper(val project: Project) {
 
         template.writeText(configuredTemplate)
         overrideWorkerCommand(template)
+        openDebugPort(template, "xl-deploy-worker", "4050-4100")
+
         return template.toPath()
+    }
+
+    private fun getServiceOpts(): String {
+        val suspend = if (getCluster().debugSuspend) "y" else "n"
+        return "DEPLOYIT_SERVER_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=*:$privateDebugPort"
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun openDebugPort(template: File, serviceName: String, range: String) {
+        if (getCluster().enableDebug) {
+            val variables =
+                YamlFileUtil.readFileKey(template, "services.$serviceName.environment") as MutableList<String>
+            variables.add(getServiceOpts())
+            variables.sort()
+
+            val pairs = mutableMapOf<String, Any>(
+                "services.$serviceName.environment" to variables,
+                "services.$serviceName.ports" to listOf("$range:$privateDebugPort")
+            )
+            YamlFileUtil.overlayFile(template, pairs)
+        }
     }
 
     private fun overrideWorkerCommand(template: File) {
@@ -197,7 +232,7 @@ open class DeployDockerClusterHelper(val project: Project) {
             .onRetriesExceeded { project.logger.warn("Failed to inspect Load Balancer IP. Max retries $maxAttempts exceeded.") }
             .onRetryScheduled { project.logger.lifecycle("Retry scheduled {}.") }
 
-        return Failsafe.with(retryPolicy).get { -> inspectLbIp()}
+        return Failsafe.with(retryPolicy).get { -> inspectLbIp() }
     }
 
     private fun getMasterIp(order: Int): String {
@@ -217,10 +252,18 @@ open class DeployDockerClusterHelper(val project: Project) {
         DockerComposeUtil.execute(project, args)
     }
 
+    private fun waitForBoot() {
+        val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type")
+        val server = DeployServerUtil.getServer(project)
+        WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
+    }
+
     fun launchCluster() {
         createNetwork()
         runServers()
         inspectIps()
         runWorkers()
+        createClusterMetadata()
+        waitForBoot()
     }
 }

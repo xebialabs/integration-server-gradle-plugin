@@ -2,8 +2,8 @@ package ai.digital.integration.server.deploy.tasks.worker
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.mq.ShutdownMqTask
-import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.common.util.HTTPUtil
+import ai.digital.integration.server.deploy.internals.EntryPointUrlUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -30,7 +30,7 @@ open class ShutdownWorkersTask : DefaultTask() {
             project.logger.lifecycle("About to shutdown all workers")
 
             val client = HttpClient.newHttpClient()
-            val request = HTTPUtil.doRequest(DeployServerUtil.composeUrl(project, "/deployit/workers"))
+            val request = HTTPUtil.doRequest(EntryPointUrlUtil.composeUrl(project, "/deployit/workers"))
                 .DELETE()
                 .build()
 

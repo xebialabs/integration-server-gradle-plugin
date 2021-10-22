@@ -6,7 +6,7 @@ sidebar_position: 3
 
 There are 3 ways how your can install Deploy
 
-![Types of installation](../pics/types-of-installation.jpg)
+![Types of installation](./pics/types-of-installation.jpg)
 
 What kind of setup going to be chosen, depends on the filled in configuration fields. <br/>
 
@@ -21,6 +21,6 @@ Docker based installation is going to happen if to fill in the field `dockerImag
 
 The richest setup available now you can configure with help of **Integration Server** is depicted below.
 
-![Richest setup available](../pics/richest-setup-available.jpg)
+![Richest setup available](./pics/richest-setup-available.jpg)
 
 MQ and Database setup done based on Docker. Only Derby is exception, it runs as a JDK process.  
