@@ -8,6 +8,7 @@ import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.deploy.internals.*
 import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
 import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
@@ -16,7 +17,6 @@ import ai.digital.integration.server.deploy.tasks.satellite.StartSatelliteTask
 import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
-import ai.digital.integration.server.deploy.internals.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.closureOf
@@ -89,14 +89,14 @@ open class StartServerInstanceTask : DefaultTask() {
         project.logger.lifecycle("Initializing Deploy with previous installation from $workDir")
 
         val map = mapOf(
-                "command" to "run",
-                "environment" to EnvironmentUtil.getServerEnv(project, server),
-                "params" to listOf("-setup", "-previous-installation", workDir, "-force-upgrades"),
-                "workDir" to getBinDir(server),
-                "wait" to true
+            "command" to "run",
+            "environment" to EnvironmentUtil.getServerEnv(project, server),
+            "params" to listOf("-setup", "-previous-installation", workDir, "-force-upgrades"),
+            "workDir" to getBinDir(server)!!,
+            "wait" to true
         )
 
-        ProcessUtil.execAndCheck(map as Map<String, Any>, logFile)
+        ProcessUtil.execAndCheck(map, logFile)
     }
 
     private fun startServer(server: Server): Process {
@@ -153,12 +153,12 @@ open class StartServerInstanceTask : DefaultTask() {
     @TaskAction
     fun launch() {
         DeployServerUtil.getServers(project)
-                .filter { server -> !server.previousInstallation }
-                .forEach { server ->
-                    project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
-                    allowToWriteMountedHostFolders()
-                    val process = start(server)
-                    DeployServerUtil.waitForBoot(project, process)
-                }
+            .filter { server -> !server.previousInstallation }
+            .forEach { server ->
+                project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
+                allowToWriteMountedHostFolders()
+                val process = start(server)
+                DeployServerUtil.waitForBoot(project, process)
+            }
     }
 }
