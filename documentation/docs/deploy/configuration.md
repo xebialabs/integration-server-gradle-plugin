@@ -95,7 +95,7 @@ Currently, there is only a docker compose based setup available. The minimum con
 ```groovy title=build.gradle
 deployIntegrationServer {
     cluster {
-        enable.set(true)
+        enable = true
     }
     servers {
         server01 {
