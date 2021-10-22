@@ -296,7 +296,7 @@ where a key is a folder path and value is another map, in which key is the path 
 For example, if you want to modify in `deploy-client.yaml` file the `automatically-map-all-deployables` to `false`, you have 
 to do:
 
-![Yaml Patch Example](../pics/yaml-patch-example.png)
+![Yaml Patch Example](./pics/yaml-patch-example.png)
 
 ```groovy
 yamlPatches = [
