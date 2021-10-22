@@ -1,7 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.worker
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.deploy.util.WorkerUtil
+import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.gradle.api.DefaultTask
 
 open class SetWorkersLogbackLevelsTask : DefaultTask() {

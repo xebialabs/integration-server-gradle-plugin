@@ -1,8 +1,7 @@
-package ai.digital.integration.server.deploy.util
+package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
-import ai.digital.integration.server.deploy.DeployIntegrationServerExtension
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
@@ -10,6 +9,9 @@ import java.nio.file.Paths
 
 class DeployServerUtil {
     companion object {
+
+        private const val dockerServerRelativePath = "deploy/server-docker-compose.yaml"
+
         fun getHttpHost(): String {
             return "localhost"
         }
@@ -45,6 +47,7 @@ class DeployServerUtil {
         }
 
         fun getServer(project: Project): Server {
+            val server = DeployExtensionUtil.getExtension(project).servers.first()
             val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
             return enrichServer(project, ext.servers.first { server -> !server.previousInstallation})
         }
@@ -92,7 +95,7 @@ class DeployServerUtil {
         fun getServerWorkingDir(project: Project, server: Server): String {
             return when {
                 isDockerBased(project) -> {
-                    val workDir = ServerUtil.getRelativePathInIntegrationServerDist(project, "deploy")
+                    val workDir = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, "deploy")
                     workDir.toAbsolutePath().toString()
                 }
                 server.runtimeDirectory == null -> {
@@ -116,7 +119,9 @@ class DeployServerUtil {
 
 
         private fun getServerVersion(project: Project, server: Server): String? {
-            return if (project.hasProperty("xlDeployVersion"))
+            return if (!server.version.isNullOrBlank()) {
+                return server.version
+            } else if (project.hasProperty("xlDeployVersion"))
                 project.property("xlDeployVersion").toString()
             else
                 server.version
@@ -143,8 +148,7 @@ class DeployServerUtil {
         }
 
         fun isDeployServerDefined(project: Project): Boolean {
-            val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
-            return ext.servers.size > 0
+            return DeployExtensionUtil.getExtension(project).servers.size > 0
         }
 
 
@@ -233,7 +237,7 @@ class DeployServerUtil {
 
         fun getResolvedDockerFile(project: Project): Path {
             val server = getServer(project)
-            val resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, dockerServerRelativePath())
+            val resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, dockerServerRelativePath)
 
             val serverTemplate = resultComposeFilePath.toFile()
 
@@ -248,10 +252,6 @@ class DeployServerUtil {
             serverTemplate.writeText(configuredTemplate)
 
             return resultComposeFilePath
-        }
-
-        private fun dockerServerRelativePath(): String {
-            return "deploy/server-docker-compose.yaml"
         }
     }
 }

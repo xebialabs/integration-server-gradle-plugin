@@ -1,7 +1,7 @@
-package ai.digital.integration.server.deploy.util
+package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.AkkaSecured
-import ai.digital.integration.server.common.util.SslUtil
+import ai.digital.integration.server.common.util.TlsUtil
 import ai.digital.integration.server.deploy.domain.Satellite
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigRenderOptions
@@ -30,7 +30,7 @@ class SatelliteInitializeUtil {
                 )
 
             if (DeployServerUtil.isAkkaSecured(project)) {
-                val secured = SslUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
+                val secured = TlsUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
                 secured?.let {
                     val key = secured.keys[AkkaSecured.SATELLITE_KEY_NAME + satellite.name]
 

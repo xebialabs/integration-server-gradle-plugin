@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.util
 
-import ai.digital.integration.server.deploy.util.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.file.File
 

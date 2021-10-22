@@ -1,23 +1,22 @@
 package ai.digital.integration.server.common.util
 
-import ai.digital.integration.server.deploy.DeployIntegrationServerExtension
 import ai.digital.integration.server.common.domain.AkkaSecured
 import ai.digital.integration.server.common.domain.Tls
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Project
 
-class SslUtil {
+class TlsUtil {
 
     companion object {
 
         fun setTls(project: Project, tls: Tls?): Tls? {
-            val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
-            ext.tls = tls
+            DeployExtensionUtil.getExtension(project).tls = tls
             return tls
         }
 
         fun getTls(project: Project, workDir: String): Tls? {
-            val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
+            val ext = DeployExtensionUtil.getExtension(project)
             if (ext.tls == null) {
                 val tls = Tls(workDir)
                 setTls(project, tls)
@@ -26,13 +25,13 @@ class SslUtil {
         }
 
         fun setAkkaSecured(project: Project, akkaSecured: AkkaSecured?): AkkaSecured? {
-            val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
+            val ext = DeployExtensionUtil.getExtension(project)
             ext.akkaSecured = akkaSecured
             return akkaSecured
         }
 
         fun getAkkaSecured(project: Project, workDir: String): AkkaSecured? {
-            val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
+            val ext = DeployExtensionUtil.getExtension(project)
             if (ext.akkaSecured == null) {
                 val akkaSecured = AkkaSecured(workDir)
                 setAkkaSecured(project, akkaSecured)

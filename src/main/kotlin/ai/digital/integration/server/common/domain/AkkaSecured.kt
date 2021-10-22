@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.domain
 
-import ai.digital.integration.server.common.util.SslUtil
+import ai.digital.integration.server.common.util.TlsUtil
 import java.io.File
 
 class AkkaSecured(serverWorkingDir: String) {
@@ -15,7 +15,7 @@ class AkkaSecured(serverWorkingDir: String) {
     }
 
     val trustStoreName: String = TRUSTSTORE_NAME
-    val truststorePassword: String = SslUtil.generatePassword(trustStoreName)
+    val truststorePassword: String = TlsUtil.generatePassword(trustStoreName)
     private val confWorkDirPath: String = "$serverWorkingDir/conf"
     private val trustStoreFilePath: String = confWorkDir().toString() + "/" + trustStoreName + "." + KEYSTORE_TYPE_EXTENSION
     val keys: MutableMap<String, KeyMeta> = mutableMapOf()
@@ -38,8 +38,8 @@ class AkkaSecured(serverWorkingDir: String) {
         var keyStoreFilePath: String
 
         init {
-            keyStorePassword = SslUtil.generatePassword("s$keyStoreName")
-            keyPassword = SslUtil.generatePassword("k$keyStoreName")
+            keyStorePassword = TlsUtil.generatePassword("s$keyStoreName")
+            keyPassword = TlsUtil.generatePassword("k$keyStoreName")
             keyStoreFilePath = "$confWorkDir/$keyStoreName.$KEYSTORE_TYPE_EXTENSION"
         }
     }

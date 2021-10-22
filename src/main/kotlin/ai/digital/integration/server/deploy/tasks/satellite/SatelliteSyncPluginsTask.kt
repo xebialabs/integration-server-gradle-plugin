@@ -1,9 +1,9 @@
 package ai.digital.integration.server.deploy.tasks.satellite
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.deploy.util.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.common.util.FileUtil
-import ai.digital.integration.server.deploy.util.SatelliteUtil
+import ai.digital.integration.server.deploy.internals.SatelliteUtil
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction

@@ -6,11 +6,11 @@ import ai.digital.integration.server.common.domain.AkkaSecured.KeyMeta
 import ai.digital.integration.server.common.tls.KeytoolExportKeyToCertTask
 import ai.digital.integration.server.common.tls.KeytoolGenKeyTask
 import ai.digital.integration.server.common.tls.KeytoolImportKeyToTruststoreTask
-import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getServer
-import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getServerWorkingDir
-import ai.digital.integration.server.deploy.util.SatelliteUtil.Companion.getSatellites
-import ai.digital.integration.server.common.util.SslUtil.Companion.getAkkaSecured
-import ai.digital.integration.server.deploy.util.WorkerUtil.Companion.getWorkers
+import ai.digital.integration.server.deploy.internals.DeployServerUtil.Companion.getServer
+import ai.digital.integration.server.deploy.internals.DeployServerUtil.Companion.getServerWorkingDir
+import ai.digital.integration.server.deploy.internals.SatelliteUtil.Companion.getSatellites
+import ai.digital.integration.server.common.util.TlsUtil.Companion.getAkkaSecured
+import ai.digital.integration.server.deploy.internals.WorkerUtil.Companion.getWorkers
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.closureOf

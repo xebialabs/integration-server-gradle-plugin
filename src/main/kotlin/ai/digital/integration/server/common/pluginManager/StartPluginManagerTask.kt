@@ -5,8 +5,8 @@ import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.deploy.tasks.server.StartServerInstanceTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
-import ai.digital.integration.server.deploy.util.DeployServerUtil
-import ai.digital.integration.server.deploy.util.EnvironmentUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.EnvironmentUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File

@@ -5,10 +5,11 @@ import ai.digital.integration.server.common.domain.Tls
 import ai.digital.integration.server.common.tls.KeytoolExportKeyToCertTask
 import ai.digital.integration.server.common.tls.KeytoolGenKeyTask
 import ai.digital.integration.server.common.tls.KeytoolImportKeyToTruststoreTask
-import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getServerWorkingDir
+import ai.digital.integration.server.deploy.internals.DeployServerUtil.Companion.getServerWorkingDir
 import ai.digital.integration.server.common.util.PropertiesUtil.Companion.readPropertiesFile
 import ai.digital.integration.server.common.util.PropertiesUtil.Companion.writePropertiesFile
-import ai.digital.integration.server.common.util.SslUtil.Companion.getTls
+import ai.digital.integration.server.common.util.TlsUtil.Companion.getTls
+import ai.digital.integration.server.deploy.tasks.server.ServerCopyOverlaysTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.closureOf
@@ -56,7 +57,7 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
                 project.tasks.getByName(genTrustStore.name).dependsOn(genCert)
                 dependsOn(genKeyStore, genCert, genTrustStore)
             }
-            mustRunAfter("copyOverlays")
+            mustRunAfter(ServerCopyOverlaysTask.NAME)
         })
     }
 

@@ -2,9 +2,9 @@ package ai.digital.integration.server.deploy.tasks.satellite
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
-import ai.digital.integration.server.deploy.util.DeployServerUtil
-import ai.digital.integration.server.deploy.util.SatelliteInitializeUtil
-import ai.digital.integration.server.deploy.util.SatelliteUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.SatelliteInitializeUtil
+import ai.digital.integration.server.deploy.internals.SatelliteUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 

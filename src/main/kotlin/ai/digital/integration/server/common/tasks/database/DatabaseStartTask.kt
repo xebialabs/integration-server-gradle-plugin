@@ -4,7 +4,7 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.FileUtil
-import ai.digital.integration.server.common.util.ServerUtil
+import ai.digital.integration.server.common.util.IntegrationServerUtil
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -50,7 +50,7 @@ abstract class DatabaseStartTask : DockerComposeUp() {
                     if (name.startsWith(folderName) && name != folderName) {
                         val dockerFileName = name.substring(name.indexOf('/') + 1)
                         FileUtil.copyFile(zip,
-                            ServerUtil.getRelativePathInIntegrationServerDist(project, dockerFileName))
+                            IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, dockerFileName))
                     }
                 } else {
                     break

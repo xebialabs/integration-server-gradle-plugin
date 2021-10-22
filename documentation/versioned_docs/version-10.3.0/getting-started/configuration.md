@@ -35,7 +35,7 @@ integrationServer {
 ```groovy title=build.gradle
 integrationServer {
     clis {
-        cli { // The name of the section, you can name it as you with
+        cli { // The name of the section, you can name it as you wish
             cleanDefaultExtContent = true
             copyBuildArtifacts = [
                lib: /(.+)[.](jar)/
@@ -74,7 +74,7 @@ integrationServer {
 ```groovy title=build.gradle
 integrationServer {
    servers {
-       controlPlane { // The name of the section, you can name it as you with
+       controlPlane { // The name of the section, you can name it as you wish
            contextRoot = "/custom"
            copyBuildArtifacts = [
                 "plugins/xld-official": /(.+)[.](xldp)/
@@ -250,7 +250,7 @@ yamlPatches = [
 ```groovy title=build.gradle
 integrationServer {
    databases { 
-     database01 { // The name of the section, you can name it as you with
+     database01 { // The name of the section, you can name it as you wish
         derbyPort = 10000
         driverVersions = [
              'mssql'        : '8.4.1.jre8',
@@ -301,15 +301,15 @@ Read more about workers here:
 ```groovy
 integrationServer {
     workers {
-        worker01 {  // The name of the section, you can name it as you with
+        worker01 {  // The name of the section, you can name it as you wish
             version = "10.2.2" // Optional, if not specified will use same version as Server
         }
-        worker02 {  // The name of the section, you can name it as you with
+        worker02 {  // The name of the section, you can name it as you wish
             debugPort = 5006
             debugSuspend = true
             jvmArgs = ["-Xmx1024m", "-Duser.timezone=UTC"]
         }
-        worker03 {  // The name of the section, you can name it as you with
+        worker03 {  // The name of the section, you can name it as you wish
             debugPort = 5007
             debugSuspend = false
             runtimeDirectory = "/opt/xl-deploy-worker"
@@ -355,7 +355,7 @@ You can read more about a satellite here:
 ```groovy
 integrationServer {
     satellites {
-       satellite01 {  // The name of the section, you can name it as you with
+       satellite01 {  // The name of the section, you can name it as you wish
             debugPort = 5008
             debugSuspend = true
             overlays = [
@@ -431,7 +431,7 @@ integrationServer {
             extraClassPath = [file("src/test/resources")]
             scriptPattern = /\/jython\/ci\/(.+).py$/
         }
-        testGroupO1 { // The name of the section, you can name it as you with
+        testGroupO1 { // The name of the section, you can name it as you wish
             baseDirectory = file("src/test")
             extraClassPath = [file("src/test/resources/group-01")]
             scriptPattern = /\/jython\/ci\/group-01\/(.+).py$/

@@ -12,6 +12,10 @@ import ai.digital.integration.server.common.gitlab.GitlabStopTask
 import ai.digital.integration.server.common.mq.ShutdownMqTask
 import ai.digital.integration.server.common.mq.StartMqTask
 import ai.digital.integration.server.common.pluginManager.StartPluginManagerTask
+import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
@@ -36,6 +40,12 @@ open class DeployTaskRegistry {
             project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask::class.java)
             project.tasks.create(RunCliTask.NAME, RunCliTask::class.java)
 
+            //Cluster
+            project.tasks.create(DockerComposeBasedStartDeployClusterTask.NAME, DockerComposeBasedStartDeployClusterTask::class.java)
+            project.tasks.create(DockerComposeBasedStopDeployClusterTask.NAME, DockerComposeBasedStopDeployClusterTask::class.java)
+            project.tasks.create(StartDeployClusterTask.NAME, StartDeployClusterTask::class.java)
+            project.tasks.create(StopDeployClusterTask.NAME, StopDeployClusterTask::class.java)
+
             //Database
             project.tasks.create(DatabaseStartTask.NAME, DatabaseStartTask::class.java)
             project.tasks.create(DatabaseStopTask.NAME, DatabaseStopTask::class.java)
@@ -46,6 +56,7 @@ open class DeployTaskRegistry {
             project.tasks.create(CentralConfigurationTask.NAME, CentralConfigurationTask::class.java)
             project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask::class.java)
             project.tasks.create(CopyServerBuildArtifactsTask.NAME, CopyServerBuildArtifactsTask::class.java)
+            project.tasks.create(CopyServerFoldersTask.NAME, CopyServerFoldersTask::class.java)
             project.tasks.create(ServerCopyOverlaysTask.NAME, ServerCopyOverlaysTask::class.java)
             project.tasks.create(DockerBasedStopDeployTask.NAME, DockerBasedStopDeployTask::class.java)
             project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME,
@@ -77,7 +88,7 @@ open class DeployTaskRegistry {
             project.tasks.create(ShutdownMqTask.NAME, ShutdownMqTask::class.java)
             project.tasks.create(StartMqTask.NAME, StartMqTask::class.java)
 
-            // Plugin Manager
+            //Plugin Manager
             project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask::class.java)
 
             //Satellite

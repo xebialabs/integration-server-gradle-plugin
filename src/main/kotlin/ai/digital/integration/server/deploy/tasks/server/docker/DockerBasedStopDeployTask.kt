@@ -2,7 +2,7 @@ package ai.digital.integration.server.deploy.tasks.server.docker
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.tasks.server.PrepareServerTask
-import ai.digital.integration.server.deploy.util.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction

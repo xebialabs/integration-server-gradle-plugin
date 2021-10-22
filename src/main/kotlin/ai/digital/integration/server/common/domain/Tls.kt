@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.domain
 
-import ai.digital.integration.server.common.util.SslUtil
+import ai.digital.integration.server.common.util.TlsUtil
 import java.io.File
 
 class Tls(serverWorkingDir: String) {
@@ -12,9 +12,9 @@ class Tls(serverWorkingDir: String) {
         const val TRUSTSTORE_SUFFIX_NAME = "truststore"
     }
 
-   var keyStorePassword: String = SslUtil.generatePassword("s$KEY_NAME")
-   var keyPassword: String = SslUtil.generatePassword("k$KEY_NAME")
-   var truststorePassword: String = SslUtil.generatePassword("t$KEY_NAME")
+   var keyStorePassword: String = TlsUtil.generatePassword("s$KEY_NAME")
+   var keyPassword: String = TlsUtil.generatePassword("k$KEY_NAME")
+   var truststorePassword: String = TlsUtil.generatePassword("t$KEY_NAME")
    var trustStoreName: String = "$KEY_NAME-$TRUSTSTORE_SUFFIX_NAME"
    var confWorkDirPath: String = "$serverWorkingDir/conf"
    var keyStoreFilePath: String = confWorkDir().toString() + "/" + KEY_NAME + "." + KEYSTORE_TYPE_EXTENSION

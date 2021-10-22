@@ -1,8 +1,8 @@
 package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.getServerWorkingDir
-import ai.digital.integration.server.deploy.util.DeployServerUtil.Companion.isDockerBased
+import ai.digital.integration.server.deploy.internals.DeployServerUtil.Companion.getServerWorkingDir
+import ai.digital.integration.server.deploy.internals.DeployServerUtil.Companion.isDockerBased
 import de.vandermeer.asciitable.AsciiTable
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment
 import groovy.json.JsonSlurper

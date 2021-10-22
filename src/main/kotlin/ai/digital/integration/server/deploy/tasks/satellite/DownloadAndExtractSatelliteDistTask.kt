@@ -1,9 +1,9 @@
 package ai.digital.integration.server.deploy.tasks.satellite
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.common.util.ServerUtil
-import ai.digital.integration.server.deploy.util.DeployConfigurationsUtil.Companion.SATELLITE_DIST
-import ai.digital.integration.server.deploy.util.SatelliteUtil
+import ai.digital.integration.server.common.util.IntegrationServerUtil
+import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.Companion.SATELLITE_DIST
+import ai.digital.integration.server.deploy.internals.SatelliteUtil
 import org.gradle.api.tasks.Copy
 
 open class DownloadAndExtractSatelliteDistTask : Copy() {
@@ -20,7 +20,7 @@ open class DownloadAndExtractSatelliteDistTask : Copy() {
             val taskName = "downloadAndExtractSatellite${satellite.name}"
             val task = project.tasks.register(taskName, Copy::class.java) { copy ->
                 copy.from(project.zipTree(project.buildscript.configurations.getByName(SATELLITE_DIST).singleFile))
-                copy.into(ServerUtil.getRelativePathInIntegrationServerDist(project, satellite.name))
+                copy.into(IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, satellite.name))
             }
             this.dependsOn(task)
         }
