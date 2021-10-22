@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.tls
 
-import ai.digital.integration.server.deploy.internals.DeployServerUtil.Companion.getHttpHost
+import ai.digital.integration.server.deploy.internals.EntryPointUrlUtil.Companion.getHttpHost
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile

@@ -116,11 +116,11 @@ class CliUtil {
                 .flatten()
 
             val params = (arrayListOf(
-                "-context", DeployServerUtil.readDeployitConfProperty(project, "http.context.root"),
+                "-context", EntryPointUrlUtil.getContextRoot(project),
                 "-expose-proxies",
                 "-password", "admin",
-                "-port", DeployServerUtil.readDeployitConfProperty(project, "http.port"),
-                "-host", DeployServerUtil.getHttpHost(),
+                "-port", EntryPointUrlUtil.getHttpPort(project),
+                "-host", EntryPointUrlUtil.getHttpHost(),
                 "-socketTimeout", cli.socketTimeout.toString(),
                 "-source", scriptSources.joinToString(separator = ",") { source -> source.absolutePath },
                 "-username", "admin",

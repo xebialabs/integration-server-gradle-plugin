@@ -12,32 +12,6 @@ class DeployServerUtil {
 
         private const val dockerServerRelativePath = "deploy/server-docker-compose.yaml"
 
-        fun getHttpHost(): String {
-            return "localhost"
-        }
-
-        fun getUrl(project: Project): String {
-            val server = getServer(project)
-            val hostName = getHttpHost()
-            return if (isTls(project)) {
-                "https://$hostName:${server.httpPort}${server.contextRoot}"
-            } else {
-                "http://$hostName:${server.httpPort}${server.contextRoot}"
-            }
-        }
-
-        fun composeUrl(project: Project, path: String): String {
-            var url = getUrl(project)
-            var separator = "/"
-            if (path.startsWith("/") || url.endsWith("/")) {
-                separator = ""
-                if (path.startsWith("/") && url.endsWith("/"))
-                    url = url.removeSuffix("/")
-
-            }
-            return "$url$separator$path"
-        }
-
         fun isTls(project: Project): Boolean {
             return getServer(project).tls
         }
@@ -148,7 +122,7 @@ class DeployServerUtil {
         }
 
         fun waitForBoot(project: Project, process: Process?) {
-            val url = composeUrl(project, "/deployit/metadata/type")
+            val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type")
             val server = getServer(project)
             WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries)
         }

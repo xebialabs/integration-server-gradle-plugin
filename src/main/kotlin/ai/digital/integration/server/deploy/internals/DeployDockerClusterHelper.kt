@@ -10,10 +10,12 @@ import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 open class DeployDockerClusterHelper(val project: Project) {
 
     companion object {
+        private const val clusterMetadataPath = "deploy/cluster/cluster-metadata.properties"
         private const val dockerXldHAPath = "deploy/cluster/docker-compose-xld-ha.yaml"
         private const val dockerXldHAWithWorkersPath = "deploy/cluster/docker-compose-xld-ha-slim-workers.yaml"
         private const val rabbitMqEnabledPluginsPath = "deploy/cluster/rabbitmq/enabled_plugins"
@@ -73,8 +75,15 @@ open class DeployDockerClusterHelper(val project: Project) {
         }
     }
 
-    private fun getPublicPort(): String {
+    fun getClusterPublicPort(): String {
         return getCluster().publicPort.toString()
+    }
+
+    private fun createClusterMetadata() {
+        val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, clusterMetadataPath)
+        val props = Properties()
+        props["cluster.port"] = getClusterPublicPort()
+        PropertiesUtil.writePropertiesFile(path.toFile(), props)
     }
 
     private fun getResolvedXldHaDockerComposeFile(): Path {
@@ -84,7 +93,7 @@ open class DeployDockerClusterHelper(val project: Project) {
             .replace("{{DEPLOY_MASTER_IMAGE}}", getServerVersionedImage())
             .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", IntegrationServerUtil.getDist(project))
             .replace("{{DEPLOY_NETWORK_NAME}}", ClusterConstants.NETWORK_NAME)
-            .replace("{{PUBLIC_PORT}}", getPublicPort())
+            .replace("{{PUBLIC_PORT}}", getClusterPublicPort())
 
         template.writeText(configuredTemplate)
         openDebugPort(template, "xl-deploy-master", "4000-4049")
@@ -243,10 +252,18 @@ open class DeployDockerClusterHelper(val project: Project) {
         DockerComposeUtil.execute(project, args)
     }
 
+    private fun waitForBoot() {
+        val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type")
+        val server = DeployServerUtil.getServer(project)
+        WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
+    }
+
     fun launchCluster() {
         createNetwork()
         runServers()
         inspectIps()
         runWorkers()
+        createClusterMetadata()
+        waitForBoot()
     }
 }

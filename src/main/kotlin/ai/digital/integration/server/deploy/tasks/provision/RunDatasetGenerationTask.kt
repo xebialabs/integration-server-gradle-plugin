@@ -6,6 +6,7 @@ import ai.digital.integration.server.common.util.HTTPUtil
 import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.EntryPointUrlUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -38,7 +39,7 @@ open class RunDatasetGenerationTask : DefaultTask() {
     private fun generateDatasets(project: Project, server: Server) {
         server.generateDatasets.forEach { dataset ->
             val client = HttpClient.newHttpClient()
-            val request = HTTPUtil.doRequest(DeployServerUtil.composeUrl(project, "/deployit/generate/$dataset"))
+            val request = HTTPUtil.doRequest(EntryPointUrlUtil.composeUrl(project, "/deployit/generate/$dataset"))
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build()
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
