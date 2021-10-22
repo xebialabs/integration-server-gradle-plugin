@@ -43,6 +43,7 @@ services:
     volumes:
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/conf:/opt/xebialabs/xl-deploy-server/conf
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/plugins:/opt/xebialabs/xl-deploy-server/plugins
 
   rabbitmq:
     image: "rabbitmq:3.9.8-management-alpine"

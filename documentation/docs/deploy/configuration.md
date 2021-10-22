@@ -12,6 +12,7 @@ deployIntegrationServer {
     cluster{}
     servers {}
     database {}
+    maintenance {}
     workers {}
     satellites {}
     mqDriverVersions {}
@@ -36,24 +37,24 @@ deployIntegrationServer {
 ```groovy title=build.gradle
 deployIntegrationServer {
     cli {
-        cleanDefaultExtContent.set(true)
-        copyBuildArtifacts.set([
+        cleanDefaultExtContent = true
+        copyBuildArtifacts = [
            lib: /(.+)[.](jar)/
-        ])
-        debugPort.set(4005)
-        debugSuspend.set(true)
-        enable.set(false)
-        filesToExecute.set([file("src/main/resources/provision.py")])
-        overlays.set([
+        ]
+        debugPort = 4005
+        debugSuspend = true
+        enable = false
+        filesToExecute = [file("src/main/resources/provision.py")]
+        overlays = [
             ext: [
                     files("ext") 
             ],
             lib: [
                     "com.xebialabs.xl-platform.test-utils:py-modules:${testUtilsVersion}@jar"
             ]
-        ])
-        socketTimeout.set(120000)
-        version.set("10.2.2")
+        ]
+        socketTimeout = 120000
+        version = "10.2.2"
     }
 }
 ```
@@ -75,8 +76,8 @@ deployIntegrationServer {
 ```groovy title=build.gradle
 deployIntegrationServer {
     cluster {
-        enable.set(true)
-        publicPort.set(1000)
+        enable = true
+        publicPort = 1000
     }
 }
 ```
@@ -304,16 +305,16 @@ yamlPatches = [
 ```groovy title=build.gradle
 deployIntegrationServer {
    database { 
-      derbyPort.set(10000)
-      driverVersions.set([
+      derbyPort = 10000
+      driverVersions = [
              'mssql'        : '8.4.1.jre8',
              'mysql'        : '8.0.22',
              'mysql-8'      : '8.0.22',
              'oracle-19c-se': '21.1.0.0',
              'postgres-10'  : '42.2.9',
              'postgres-12'  : '42.2.23',
-      ])
-      logSql.set(true)
+      ]
+      logSql = true
    }
 }
 ```
@@ -335,6 +336,24 @@ database=derby-network
 ```
 
 If nothing specified, **derby in memory** is going to be used.
+
+## Maintenance section
+
+```groovy
+deployIntegrationServer {
+    maintenance {
+        cleanupBeforeStartup = [
+                file("ext/ci.py"),
+                file("ext/default-imports.py"),
+                file("ext/readme.cli")
+        ]
+    }
+}
+```
+
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|cleanupBeforeStartup|List|[]|The list of files/folders to clean up before next server run.|
 
 ## Workers section
 

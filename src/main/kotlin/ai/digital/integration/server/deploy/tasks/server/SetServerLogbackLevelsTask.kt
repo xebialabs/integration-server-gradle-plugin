@@ -23,7 +23,7 @@ open class SetServerLogbackLevelsTask : DefaultTask() {
     fun setLevels() {
         val server = DeployServerUtil.getServer(project)
 
-        if (DbUtil.getDatabase(project).logSql.get() || server.logLevels.isNotEmpty()) {
+        if (DbUtil.getDatabase(project).logSql || server.logLevels.isNotEmpty()) {
             project.logger.lifecycle("Setting logback level on Deploy Server.")
             LogbackUtil.setLogLevels(project, DeployServerUtil.getServerWorkingDir(project), server.logLevels)
         }

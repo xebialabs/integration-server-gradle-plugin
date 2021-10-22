@@ -61,19 +61,17 @@ class DbUtil {
         }
 
         private fun enrichDatabase(project: Project, database: Database): Database {
-            database.derbyPort.set(
+            database.derbyPort =
                 if (project.hasProperty("derbyPort"))
                     Integer.valueOf(project.property("derbyPort").toString())
                 else
                     randomDerbyPort
-            )
 
-            database.logSql.set(
+            database.logSql =
                 if (project.hasProperty("logSql"))
                     project.property("logSql").toString().toBoolean()
                 else
-                    database.logSql.get()
-            )
+                    database.logSql
 
             return database
         }
@@ -140,7 +138,6 @@ class DbUtil {
             null,
             "\"?\""
         )
-
 
 
         fun detectDbDependencies(db: String): DbParameters {

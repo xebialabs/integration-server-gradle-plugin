@@ -54,4 +54,8 @@ open class DeployIntegrationServerExtension(
     val database = project.objects.property<Database>().value(Database(project.objects))
 
     fun database(action: Action<in Database>) = action.execute(database.get())
+
+    val maintenance = project.objects.property<Maintenance>().value(Maintenance(project.objects))
+
+    fun maintenance(action: Action<in Maintenance>) = action.execute(maintenance.get())
 }

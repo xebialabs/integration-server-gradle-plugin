@@ -20,7 +20,7 @@ class LogbackUtil {
     companion object {
 
         private fun getHardCodedLevels(project: Project): MutableMap<String, String> {
-            return if (DbUtil.getDatabase(project).logSql.get()) LogbackConfigs.toLogSql else mutableMapOf()
+            return if (DbUtil.getDatabase(project).logSql) LogbackConfigs.toLogSql else mutableMapOf()
         }
 
         fun setLogLevels(project: Project, workingDir: String, customLogLevels: Map<String, String>) {

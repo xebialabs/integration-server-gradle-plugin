@@ -33,7 +33,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     fun isClusterEnabled(): Boolean {
-        return getCluster().enable.get()
+        return getCluster().enable
     }
 
     private fun getServers(): List<Server> {
@@ -73,7 +73,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun getPublicPort(): String {
-        return getCluster().publicPort.get().toString()
+        return getCluster().publicPort.toString()
     }
 
     private fun getResolvedXldHaDockerComposeFile(): Path {
@@ -197,7 +197,7 @@ open class DeployDockerClusterHelper(val project: Project) {
             .onRetriesExceeded { project.logger.warn("Failed to inspect Load Balancer IP. Max retries $maxAttempts exceeded.") }
             .onRetryScheduled { project.logger.lifecycle("Retry scheduled {}.") }
 
-        return Failsafe.with(retryPolicy).get { -> inspectLbIp()}
+        return Failsafe.with(retryPolicy).get { -> inspectLbIp() }
     }
 
     private fun getMasterIp(order: Int): String {

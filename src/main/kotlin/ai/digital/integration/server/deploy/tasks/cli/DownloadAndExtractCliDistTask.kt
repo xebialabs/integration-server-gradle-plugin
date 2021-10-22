@@ -14,7 +14,7 @@ open class DownloadAndExtractCliDistTask : DefaultTask() {
         this.group = PLUGIN_GROUP
 
         if (CliUtil.hasCli(project) || TestUtil.hasTests(project)) {
-            val version = CliUtil.getCli(project).version.get()
+            val version = CliUtil.getCli(project).version
             project.logger.lifecycle("Downloading and extracting the CLI ${version}.")
 
             project.buildscript.dependencies.add(
