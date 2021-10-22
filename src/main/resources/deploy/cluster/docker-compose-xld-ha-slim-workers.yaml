@@ -1,4 +1,5 @@
-version: "3"
+version: "3.4"
+
 services:
   xl-deploy-worker:
     image: {{DEPLOY_WORKER_IMAGE}}
