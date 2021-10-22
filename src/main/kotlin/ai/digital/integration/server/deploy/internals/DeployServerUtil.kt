@@ -47,29 +47,23 @@ class DeployServerUtil {
         }
 
         fun getServer(project: Project): Server {
-            val server = DeployExtensionUtil.getExtension(project).servers.first()
-            val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
-            return enrichServer(project, ext.servers.first { server -> !server.previousInstallation})
+            return enrichServer(project, DeployExtensionUtil.getExtension(project).servers.first { server -> !server.previousInstallation})
         }
 
         fun getServers(project: Project): List<Server> {
-            val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
-            return ext.servers.map { server: Server -> enrichServer(project, server) }
+            return DeployExtensionUtil.getExtension(project).servers.map { server: Server -> enrichServer(project, server) }
         }
 
         fun getPreviousInstallationServer(project: Project): Server {
-            val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
-            return ext.servers.first { server -> server.previousInstallation }
+            return DeployExtensionUtil.getExtension(project).servers.first { server -> server.previousInstallation }
         }
 
         fun isPreviousInstallationServerDefined(project: Project): Boolean {
-            val ext = project.extensions.getByType(DeployIntegrationServerExtension::class.java)
-            return ext.servers.find { server -> server.previousInstallation } != null
+            return DeployExtensionUtil.getExtension(project).servers.find { server -> server.previousInstallation } != null
         }
 
         private fun enrichServer(project: Project, server: Server): Server {
             server.debugPort = getDebugPort(project, server)
-
             if (server.previousInstallation) {
                 server.httpPort = getHttpPort(project, server)
             } else {
@@ -78,7 +72,6 @@ class DeployServerUtil {
                     server.httpPort = getPreviousInstallationServer(project).httpPort
                 }
             }
-
             server.dockerImage?.let {
                 server.runtimeDirectory = null
             }
@@ -151,7 +144,6 @@ class DeployServerUtil {
             return DeployExtensionUtil.getExtension(project).servers.size > 0
         }
 
-
         fun isDistDownloadRequired(project: Project, server: Server): Boolean {
             return server.runtimeDirectory == null && !isDockerBased(project)
         }
@@ -160,7 +152,6 @@ class DeployServerUtil {
             val deployitConf = Paths.get("${getServerWorkingDir(project)}/conf/deployit.conf").toFile()
             return PropertiesUtil.readProperty(deployitConf, key)
         }
-
 
         fun getLogDir(project: Project, server: Server): File {
             return Paths.get(getServerWorkingDir(project, server), "log").toFile()
