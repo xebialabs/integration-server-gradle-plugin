@@ -77,6 +77,7 @@ deployIntegrationServer {
 deployIntegrationServer {
     cluster {
         enable = true
+        enableDebug = true
         publicPort = 1000
     }
 }
@@ -84,7 +85,9 @@ deployIntegrationServer {
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
+|debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached. Take in mind that you have to attach to all processes to be able to completely run the cluster.|
 |enable|Optional|false|If true, cluster setup will be enabled.|
+|enableDebug|Optional|false|If true, debug will be enabled on all masters and workers. The exposed ports to connect will be randomly defined. You can check with `docker ps` which port was exposed for debugging.|
 |publicPort|Optional|8080|The port to connect to the cluster.|
 
 Currently, there is only a docker compose based setup available. The minimum configuration you have to provide is:
@@ -115,6 +118,10 @@ deployIntegrationServer {
 You can define less or more servers and workers. The docker image is being read from the first server and 
 first worker sections. Version is enough to specify only in the first server section, as server and worker versions 
 should always match.
+
+Example where to check for debugging ports to attach:
+
+![Example](./pics/cluster-debug-docker-ps.png)
 
 ## Servers section
 

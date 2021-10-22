@@ -17,6 +17,7 @@ open class DeployDockerClusterHelper(val project: Project) {
         private const val dockerXldHAPath = "deploy/cluster/docker-compose-xld-ha.yaml"
         private const val dockerXldHAWithWorkersPath = "deploy/cluster/docker-compose-xld-ha-slim-workers.yaml"
         private const val rabbitMqEnabledPluginsPath = "deploy/cluster/rabbitmq/enabled_plugins"
+        private const val privateDebugPort = 4005
     }
 
     private val workerToIp = mutableMapOf<Int, String>()
@@ -77,16 +78,18 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun getResolvedXldHaDockerComposeFile(): Path {
-        val serverTemplate = getTemplate(dockerXldHAPath)
+        val template = getTemplate(dockerXldHAPath)
 
-        val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
+        val configuredTemplate = template.readText(Charsets.UTF_8)
             .replace("{{DEPLOY_MASTER_IMAGE}}", getServerVersionedImage())
             .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", IntegrationServerUtil.getDist(project))
             .replace("{{DEPLOY_NETWORK_NAME}}", ClusterConstants.NETWORK_NAME)
             .replace("{{PUBLIC_PORT}}", getPublicPort())
 
-        serverTemplate.writeText(configuredTemplate)
-        return serverTemplate.toPath()
+        template.writeText(configuredTemplate)
+        openDebugPort(template, "xl-deploy-master", "4000-4049")
+
+        return template.toPath()
     }
 
     private fun getResolvedXldHaWithWorkersDockerComposeFile(): Path {
@@ -99,7 +102,30 @@ open class DeployDockerClusterHelper(val project: Project) {
 
         template.writeText(configuredTemplate)
         overrideWorkerCommand(template)
+        openDebugPort(template, "xl-deploy-worker", "4050-4100")
+
         return template.toPath()
+    }
+
+    private fun getServiceOpts(): String {
+        val suspend = if (getCluster().debugSuspend) "y" else "n"
+        return "DEPLOYIT_SERVER_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=*:$privateDebugPort"
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun openDebugPort(template: File, serviceName: String, range: String) {
+        if (getCluster().enableDebug) {
+            val variables =
+                YamlFileUtil.readFileKey(template, "services.$serviceName.environment") as MutableList<String>
+            variables.add(getServiceOpts())
+            variables.sort()
+
+            val pairs = mutableMapOf<String, Any>(
+                "services.$serviceName.environment" to variables,
+                "services.$serviceName.ports" to listOf("$range:$privateDebugPort")
+            )
+            YamlFileUtil.overlayFile(template, pairs)
+        }
     }
 
     private fun overrideWorkerCommand(template: File) {
