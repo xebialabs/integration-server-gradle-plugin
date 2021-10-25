@@ -24,8 +24,13 @@ class OverlaysUtil {
             prefix: String,
             overlay: Map.Entry<String, List<*>>,
             dependedTasks: List<String>,
+            customPrefix: String? = null,
         ) {
-            val configurationName = "${prefix}${overlay.key.capitalize().replace("/", "")}"
+            val configurationName = if (customPrefix != null) {
+                "${customPrefix}${prefix}${overlay.key.capitalize().replace("/", "")}"
+            } else {
+                "${prefix}${overlay.key.capitalize().replace("/", "")}"
+            }
             val config = project.buildscript.configurations.create(configurationName)
             overlay.value.forEach { dependencyNotation ->
                 project.buildscript.dependencies.add(configurationName, dependencyNotation as Any)

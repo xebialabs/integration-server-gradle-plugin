@@ -21,12 +21,14 @@ open class ServerYamlPatchTask : DefaultTask() {
 
     @TaskAction
     fun yamlPatches() {
-        val server = DeployServerUtil.getServer(project)
-        project.logger.lifecycle("Applying patches on YAML files for ${server.name}.")
+        DeployServerUtil.getServers(project)
+                .forEach { server ->
+                    project.logger.lifecycle("Applying patches on YAML files for ${server.name}.")
 
-        server.yamlPatches.forEach { yamlPatch ->
-            val file = File("${DeployServerUtil.getServerWorkingDir(project)}/${yamlPatch.key}")
-            YamlFileUtil.overlayFile(file, yamlPatch.value.toMutableMap())
-        }
+                    server.yamlPatches.forEach { yamlPatch ->
+                        val file = File("${DeployServerUtil.getServerWorkingDir(project, server)}/${yamlPatch.key}")
+                        YamlFileUtil.overlayFile(file, yamlPatch.value.toMutableMap())
+                    }
+                }
     }
 }

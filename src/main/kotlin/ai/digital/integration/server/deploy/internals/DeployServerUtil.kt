@@ -21,25 +21,45 @@ class DeployServerUtil {
         }
 
         fun getServer(project: Project): Server {
-            val server = DeployExtensionUtil.getExtension(project).servers.first()
-            server.debugPort = getDebugPort(project, server)
-            server.httpPort = getHttpPort(project, server)
-            server.version = getServerVersion(project, server)
+            return enrichServer(project, DeployExtensionUtil.getExtension(project).servers.first { server -> !server.previousInstallation})
+        }
 
+        fun getServers(project: Project): List<Server> {
+            return DeployExtensionUtil.getExtension(project).servers.map { server: Server -> enrichServer(project, server) }
+        }
+
+        fun getPreviousInstallationServer(project: Project): Server {
+            return DeployExtensionUtil.getExtension(project).servers.first { server -> server.previousInstallation }
+        }
+
+        fun isPreviousInstallationServerDefined(project: Project): Boolean {
+            return DeployExtensionUtil.getExtension(project).servers.find { server -> server.previousInstallation } != null
+        }
+
+        private fun enrichServer(project: Project, server: Server): Server {
+            server.debugPort = getDebugPort(project, server)
+            if (server.previousInstallation) {
+                server.httpPort = getHttpPort(project, server)
+            } else {
+                server.version = getServerVersion(project, server)
+                if (isPreviousInstallationServerDefined(project)) {
+                    server.httpPort = getPreviousInstallationServer(project).httpPort
+                }
+            }
             server.dockerImage?.let {
                 server.runtimeDirectory = null
             }
-
             if (!server.contextRoot.startsWith("/")) {
                 server.contextRoot = "/$server.contextRoot"
             }
-
             return server
         }
 
         fun getServerWorkingDir(project: Project): String {
-            val server = getServer(project)
+            return getServerWorkingDir(project, getServer(project))
+        }
 
+        fun getServerWorkingDir(project: Project, server: Server): String {
             return when {
                 isDockerBased(project) -> {
                     val workDir = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, "deploy")
@@ -98,8 +118,8 @@ class DeployServerUtil {
             return DeployExtensionUtil.getExtension(project).servers.size > 0
         }
 
-        fun isDistDownloadRequired(project: Project): Boolean {
-            return getServer(project).runtimeDirectory == null && !isDockerBased(project)
+        fun isDistDownloadRequired(project: Project, server: Server): Boolean {
+            return server.runtimeDirectory == null && !isDockerBased(project)
         }
 
         fun readDeployitConfProperty(project: Project, key: String): String {
@@ -107,8 +127,8 @@ class DeployServerUtil {
             return PropertiesUtil.readProperty(deployitConf, key)
         }
 
-        fun getLogDir(project: Project): File {
-            return Paths.get(getServerWorkingDir(project), "log").toFile()
+        fun getLogDir(project: Project, server: Server): File {
+            return Paths.get(getServerWorkingDir(project, server), "log").toFile()
         }
 
         fun grantPermissionsToIntegrationServerFolder(project: Project) {
@@ -152,7 +172,7 @@ class DeployServerUtil {
             )
 
             server.stdoutFileName?.let {
-                config["redirectTo"] = File("${getLogDir(project)}/${it}")
+                config["redirectTo"] = File("${getLogDir(project, server)}/${it}")
             }
 
             project.properties["integrationServerJVMPath"]?.let {

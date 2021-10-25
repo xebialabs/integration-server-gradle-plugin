@@ -13,6 +13,7 @@ What docker setup doesn't support:
 * Overlay works only mounted folders, so it is: conf, centralConfiguration, hotfix, plugins.
 * Debugging
 * Log levels
+* Upgrade a server which is configured to run using docker
 
 Docker image contains all plugins which are defined in Deploy Server Trial distribution.
 If you want to exclude some of them you can use property `defaultOfficialPluginsToExclude`.
