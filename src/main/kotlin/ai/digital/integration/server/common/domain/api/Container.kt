@@ -14,6 +14,6 @@ open class Container(val name: String) {
         version?.let { it ->
             return it.split(".").take(2).joinToString(".").toDouble()
         }
-        return 0.0
+        return Double.MAX_VALUE
     }
 }
