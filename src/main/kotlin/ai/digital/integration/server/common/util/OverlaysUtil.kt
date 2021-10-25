@@ -18,13 +18,13 @@ class OverlaysUtil {
         }
 
         fun defineOverlay(
-                project: Project,
-                currentTask: Task,
-                workingDir: String,
-                prefix: String,
-                overlay: Map.Entry<String, List<*>>,
-                dependedTasks: List<String>,
-                customPrefix: String? = null
+            project: Project,
+            currentTask: Task,
+            workingDir: String,
+            prefix: String,
+            overlay: Map.Entry<String, List<*>>,
+            dependedTasks: List<String>,
+            customPrefix: String? = null,
         ) {
             val configurationName = if (customPrefix != null) {
                 "${customPrefix}${prefix}${overlay.key.capitalize().replace("/", "")}"

@@ -27,7 +27,7 @@ deployIntegrationServer {
 |database|Database configuration, you can find this section helpful for overriding database driving versions or having more database level logs.|
 |mqDriverVersions|Points to the version of MQ to use, in case you wish to adapt it to your own version.|
 |satellites|You can configure as many satellites as you need here.|
-|servers|Server configurations, there can be up to 2 servers. If there are 2 servers then 1 server should have the previousInstallation set to true.|
+|servers|For non-cluster setup, you can specify here only 1 active server, the rest will be ignored. Unless it is a configuration for update from a previous installation.|
 |tests|You can define Jython based test setups|
 |xldIsDataVersion|**Only for internal use in Digital.ai** Points to the data which is going to be imported after server is booted. To run waste the time to generate a huge amount of test data.|
 |workers|You can configure as many workers as you need here.|
@@ -211,7 +211,7 @@ deployIntegrationServer {
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlDeployVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
 |tls|Optional|false|If enabled use HTTPS for API communication with master.|
 |yamlPatches|Optional|[:]|[Read about this section below](#yaml-patches)|
-|previousInstallation|Optional|false|Is the server the previous installed version to be used as source for upgrade|
+|previousInstallation|Optional|false|Is the server the previous installed version to be used a as source for upgrade.|
 
 ### Dev Ops As Code
 
