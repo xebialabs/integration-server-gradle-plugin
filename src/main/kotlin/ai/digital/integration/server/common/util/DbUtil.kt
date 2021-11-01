@@ -23,7 +23,7 @@ class DbUtil {
         const val DERBY_NETWORK = "derby-network"
         const val DERBY_INMEMORY = "derby-inmemory"
 
-        private val randomDerbyPort: Int = findFreePort()
+        private val randomDatabasePort: Int = findFreePort()
 
         fun databaseName(project: Project): String {
             return PropertyUtil.resolveValue(project, "database", DERBY_INMEMORY).toString()
@@ -65,7 +65,13 @@ class DbUtil {
                 if (project.hasProperty("derbyPort"))
                     Integer.valueOf(project.property("derbyPort").toString())
                 else
-                    randomDerbyPort
+                    randomDatabasePort
+
+            database.databasePort =
+                if (project.hasProperty("databasePort"))
+                    Integer.valueOf(project.property("databasePort").toString())
+                else
+                    randomDatabasePort
 
             database.logSql =
                 if (project.hasProperty("logSql"))

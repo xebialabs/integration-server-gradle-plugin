@@ -8,6 +8,8 @@ open class Database(objects: ObjectFactory) {
 
     var derbyPort: Int = objects.property<Int>().value(1527).get()
 
+    var databasePort: Int = objects.property<Int>().value(1527).get()
+
     var driverVersions: Map<String, String> =
         objects.mapProperty(String::class.java, String::class.java).value(
             mutableMapOf(
