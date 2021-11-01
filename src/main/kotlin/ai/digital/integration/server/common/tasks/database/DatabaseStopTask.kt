@@ -27,7 +27,7 @@ open class DatabaseStopTask : DefaultTask() {
     fun run() {
         project.exec {
             it.executable = "docker-compose"
-            it.args = arrayListOf("-f", getDockerComposeFile().path, "down")
+            it.args = arrayListOf("-f", getDockerComposeFile().path, "down", "--remove-orphans")
         }
     }
 }
