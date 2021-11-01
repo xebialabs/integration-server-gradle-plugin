@@ -175,6 +175,7 @@ open class DeployDockerClusterHelper(val project: Project) {
 
     private fun runServers() {
         configureRabbitMq()
+        createServerFolders()
 
         val num = getNumberOfServers()
         val args = listOf(
@@ -193,6 +194,8 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun runWorkers() {
+        createWorkerFolders()
+
         val num = WorkerUtil.getNumberOfWorkers(project).toString()
         val args = listOf(
             "-f",
@@ -256,6 +259,24 @@ open class DeployDockerClusterHelper(val project: Project) {
         val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type")
         val server = DeployServerUtil.getServer(project)
         WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
+    }
+
+    private fun createServerFolders() {
+        arrayOf("centralConfiguration", "conf", "plugins").forEach { folderName ->
+            val folderPath = "${IntegrationServerUtil.getDist(project)}/xl-deploy-server/${folderName}"
+            val folder = File(folderPath)
+            folder.mkdirs()
+            project.logger.lifecycle("Folder $folderPath has been created.")
+        }
+    }
+
+    private fun createWorkerFolders() {
+        arrayOf("conf", "plugins").forEach { folderName ->
+            val folderPath = "${IntegrationServerUtil.getDist(project)}/xl-deploy-worker/${folderName}"
+            val folder = File(folderPath)
+            folder.mkdirs()
+            project.logger.lifecycle("Folder $folderPath has been created.")
+        }
     }
 
     fun launchCluster() {
