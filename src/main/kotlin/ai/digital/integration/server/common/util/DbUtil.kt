@@ -61,12 +61,6 @@ class DbUtil {
         }
 
         private fun enrichDatabase(project: Project, database: Database): Database {
-            database.derbyPort =
-                if (project.hasProperty("derbyPort"))
-                    Integer.valueOf(project.property("derbyPort").toString())
-                else
-                    randomDatabasePort
-
             database.databasePort =
                 if (project.hasProperty("databasePort"))
                     Integer.valueOf(project.property("databasePort").toString())
