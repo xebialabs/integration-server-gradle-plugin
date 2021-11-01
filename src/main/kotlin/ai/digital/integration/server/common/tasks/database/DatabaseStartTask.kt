@@ -60,7 +60,7 @@ abstract class DatabaseStartTask : DockerComposeUp() {
 
         val serverTemplate = resultComposeFilePath.toFile()
         val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-            .replace("{{PUBLIC_PORT}}", DbUtil.getDatabase(project).databasePort.toString())
+            .replace("{{DB_PORT}}", DbUtil.getDatabase(project).databasePort.toString())
         serverTemplate.writeText(configuredTemplate)
 
         return project.file(resultComposeFilePath)

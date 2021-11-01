@@ -5,7 +5,7 @@ services:
     image: postgres:10.5
     working_dir: /
     ports:
-      - "{{PUBLIC_PORT}}:5432"
+      - "{{DB_PORT}}:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=demo
