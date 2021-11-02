@@ -22,7 +22,7 @@ abstract class RunCliTask : DefaultTask() {
 
 
     @get:Input
-    @get:Option(option = "Additional filesToExecute ", description = "Use true when TLS is enabled on the server side.")
+    @get:Option(option = "files ", description = "Additional files to Execute.")
     @get:Optional
     var filesToExec: List<File> = mutableListOf<File>()
 
