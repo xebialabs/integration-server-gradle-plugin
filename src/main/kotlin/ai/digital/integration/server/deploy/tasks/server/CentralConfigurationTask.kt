@@ -33,7 +33,7 @@ open class CentralConfigurationTask : DefaultTask() {
         }
 
         if (DbUtil.isDerbyNetwork(project)) {
-            val port = DbUtil.getDatabase(project).derbyPort
+            val port = DbUtil.getPort(project)
             val dbUrl = "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin"
             YamlFileUtil.overlayFile(deployRepositoryYaml, mutableMapOf("xl.repository.database.db-url" to dbUrl))
         }

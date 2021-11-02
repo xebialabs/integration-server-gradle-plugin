@@ -1,7 +1,7 @@
 package ai.digital.integration.server
 
 import ai.digital.integration.server.common.TaskRegistry
-import ai.digital.integration.server.common.util.DbUtil.Companion.getDatabase
+import ai.digital.integration.server.common.util.DbUtil.Companion.getPort
 import ai.digital.integration.server.common.util.TaskUtil.Companion.dontFailOnException
 import ai.digital.integration.server.deploy.DeployTaskRegistry
 import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
@@ -24,12 +24,11 @@ import org.gradle.kotlin.dsl.closureOf
 class IntegrationServerPlugin : Plugin<Project> {
 
     private fun applyDerbyPlugin(project: Project, workDir: String): Task {
-        val database = getDatabase(project)
         project.plugins.apply("derby-ns")
 
         val derbyExtension = project.extensions.getByName("derby") as DerbyExtension
         derbyExtension.dataDir = workDir
-        derbyExtension.port = database.derbyPort
+        derbyExtension.port = getPort(project)
 
         val startDerbyTask = project.tasks.getByName("derbyStart")
         val stopDerbyTask = project.tasks.getByName("derbyStop")
