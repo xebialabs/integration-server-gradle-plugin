@@ -21,10 +21,7 @@ open class DatabaseStopTask : DefaultTask() {
     fun getDockerComposeFile(): File {
         DbUtil.assertNotDerby(project, "Docker compose tasks do not support Derby database.")
         val resultComposeFilePath = DbUtil.getResolveDbFilePath(project)
-        val serverTemplate = resultComposeFilePath.toFile()
-        val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-            .replace("{{DB_PORT}}", DbUtil.getPort(project).toString())
-        serverTemplate.writeText(configuredTemplate)
+        DbUtil.getResolvedDBDockerComposeFile(resultComposeFilePath, project)
 
         return project.file(resultComposeFilePath)
     }

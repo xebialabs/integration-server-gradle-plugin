@@ -157,5 +157,12 @@ class DbUtil {
             }
 
         }
+
+        fun getResolvedDBDockerComposeFile(resultComposeFilePath: Path, project: Project) {
+            val serverTemplate = resultComposeFilePath.toFile()
+            val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
+                .replace("{{DB_PORT}}", getPort(project).toString())
+            serverTemplate.writeText(configuredTemplate)
+        }
     }
 }

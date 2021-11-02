@@ -9,6 +9,7 @@ import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import java.nio.file.Path
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -57,11 +58,7 @@ abstract class DatabaseStartTask : DockerComposeUp() {
                 }
             }
         }
-
-        val serverTemplate = resultComposeFilePath.toFile()
-        val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-            .replace("{{DB_PORT}}", DbUtil.getPort(project).toString())
-        serverTemplate.writeText(configuredTemplate)
+        DbUtil.getResolvedDBDockerComposeFile(resultComposeFilePath, project)
 
         return project.file(resultComposeFilePath)
     }
