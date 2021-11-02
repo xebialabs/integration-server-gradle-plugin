@@ -6,7 +6,7 @@ import org.gradle.kotlin.dsl.property
 @Suppress("UnstableApiUsage")
 open class Database(objects: ObjectFactory) {
 
-    var databasePort: Int = objects.property<Int>().value(1527).get()
+    var databasePort: Int? = null
 
     var driverVersions: Map<String, String> =
         objects.mapProperty(String::class.java, String::class.java).value(

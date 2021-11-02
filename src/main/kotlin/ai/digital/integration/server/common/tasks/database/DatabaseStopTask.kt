@@ -23,7 +23,7 @@ open class DatabaseStopTask : DefaultTask() {
         val resultComposeFilePath = DbUtil.getResolveDbFilePath(project)
         val serverTemplate = resultComposeFilePath.toFile()
         val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-            .replace("{{DB_PORT}}", DbUtil.getDatabase(project).databasePort.toString())
+            .replace("{{DB_PORT}}", DbUtil.getPort(project).toString())
         serverTemplate.writeText(configuredTemplate)
 
         return project.file(resultComposeFilePath)

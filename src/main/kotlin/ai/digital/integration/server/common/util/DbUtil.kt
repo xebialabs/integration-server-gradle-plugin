@@ -76,6 +76,10 @@ class DbUtil {
             return database
         }
 
+        fun getPort(project: Project): Int {
+            return getDatabase(project).databasePort ?: randomDatabasePort
+        }
+
         fun getDatabase(project: Project): Database {
             val database = DeployExtensionUtil.getExtension(project).database.get()
             return enrichDatabase(project, database)
