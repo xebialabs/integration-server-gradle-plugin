@@ -313,7 +313,7 @@ yamlPatches = [
 ```groovy title=build.gradle
 deployIntegrationServer {
    database { 
-      derbyPort = 10000
+      databasePort = 10000
       driverVersions = [
              'mssql'        : '8.4.1.jre8',
              'mysql'        : '8.0.22',
@@ -329,7 +329,7 @@ deployIntegrationServer {
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
-|derbyPort|Optional|Random number|If derby database is used, the port on which it's going to be started. For other databases port is fixed.|
+|databasePort|Optional|Random number|The port on which database is going to be started.|
 |driverVersions|Optional|['mssql':'8.4.1.jre8','mysql':'8.0.22','mysql-8':'8.0.22','oracle-19c-se':'21.1.0.0','postgres-10':'42.2.9','postgres-12':'42.2.23']||
 |logSql|Optional|false|If true, enables tracing all SQL queries|
 
