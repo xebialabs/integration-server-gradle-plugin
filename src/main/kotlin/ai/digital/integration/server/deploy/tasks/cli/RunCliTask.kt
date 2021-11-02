@@ -11,6 +11,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import java.io.File
 
 abstract class RunCliTask : DefaultTask() {
 
@@ -18,6 +19,13 @@ abstract class RunCliTask : DefaultTask() {
     @get:Option(option = "security", description = "Use true when TLS is enabled on the server side.")
     @get:Optional
     abstract val secure: Property<Boolean>
+
+
+    @get:Input
+    @get:Option(option = "Additional filesToExecute ", description = "Use true when TLS is enabled on the server side.")
+    @get:Optional
+    var filesToExec: List<File> = mutableListOf<File>()
+
 
     init {
         this.dependsOn(CliCleanDefaultExtTask.NAME)
@@ -33,7 +41,8 @@ abstract class RunCliTask : DefaultTask() {
 
     private fun executeScripts(cli: Cli) {
         project.logger.lifecycle("Executing cli scripts ....")
-        CliUtil.executeScripts(project, cli.filesToExecute, "cli", secure.getOrElse(false))
+        var filesExec = if (filesToExec != null && filesToExec.size > 0) filesToExec else cli.filesToExecute
+        CliUtil.executeScripts(project, filesExec, "cli", secure.getOrElse(false))
     }
 
     @TaskAction
