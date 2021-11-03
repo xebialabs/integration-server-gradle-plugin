@@ -16,6 +16,7 @@ abstract class StartMqTask : DockerComposeUp() {
 
     init {
         this.group = PLUGIN_GROUP
+        this.dependsOn(ShutdownMqTask.NAME)
         this.onlyIf {
             WorkerUtil.hasWorkers(project)
         }

@@ -21,6 +21,7 @@ abstract class DatabaseStartTask : DockerComposeUp() {
 
     init {
         this.group = PLUGIN_GROUP
+        this.dependsOn(DatabaseStopTask.NAME)
         this.mustRunAfter(ApplicationConfigurationOverrideTask.NAME)
     }
 
