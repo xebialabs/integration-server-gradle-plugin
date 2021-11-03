@@ -17,6 +17,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     companion object {
         private const val clusterMetadataPath = "deploy/cluster/cluster-metadata.properties"
         private const val dockerXldHAPath = "deploy/cluster/docker-compose-xld-ha.yaml"
+        private const val dockerXldHAWithDbLoadbalancerPath = "deploy/cluster/cluster-with-db-loadbalancer/docker-compose-xld-ha-with-db-loadbalancer.yaml"
         private const val dockerXldHAWithWorkersPath = "deploy/cluster/docker-compose-xld-ha-slim-workers.yaml"
         private const val rabbitMqEnabledPluginsPath = "deploy/cluster/rabbitmq/enabled_plugins"
         private const val privateDebugPort = 4005
@@ -37,6 +38,10 @@ open class DeployDockerClusterHelper(val project: Project) {
 
     fun isClusterEnabled(): Boolean {
         return getCluster().enable
+    }
+
+    fun isDatabaseLoadBalancerEnabled(): Boolean {
+        return getCluster().enableDatabaseLoadBalancer
     }
 
     private fun getServers(): List<Server> {
@@ -65,6 +70,14 @@ open class DeployDockerClusterHelper(val project: Project) {
         return "${worker.dockerImage}:${getClusterVersion()}"
     }
 
+    private fun getWorkerJdbcUrl(): String {
+        var workerJdbcUrl = "postgresql:5432/xld-db"
+        if (isDatabaseLoadBalancerEnabled()) {
+            workerJdbcUrl = "haproxydb:5000/postgres"
+        }
+        return workerJdbcUrl
+    }
+
     private fun configureRabbitMq() {
         val dockerComposeStream = {}::class.java.classLoader.getResourceAsStream(rabbitMqEnabledPluginsPath)
         val resultComposeFilePath =
@@ -87,7 +100,10 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun getResolvedXldHaDockerComposeFile(): Path {
-        val template = getTemplate(dockerXldHAPath)
+        var template = getTemplate(dockerXldHAPath)
+        if (isDatabaseLoadBalancerEnabled()){
+            template = getTemplate(dockerXldHAWithDbLoadbalancerPath)
+        }
 
         val configuredTemplate = template.readText(Charsets.UTF_8)
             .replace("{{DEPLOY_MASTER_IMAGE}}", getServerVersionedImage())
@@ -108,6 +124,7 @@ open class DeployDockerClusterHelper(val project: Project) {
             .replace("{{DEPLOY_WORKER_IMAGE}}", getWorkerVersionedImage())
             .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", IntegrationServerUtil.getDist(project))
             .replace("{{DEPLOY_NETWORK_NAME}}", ClusterConstants.NETWORK_NAME)
+            .replace("{{JDBC_URL}}", getWorkerJdbcUrl())
 
         template.writeText(configuredTemplate)
         overrideWorkerCommand(template)
@@ -236,9 +253,13 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun getMasterIp(order: Int): String {
+        var masterContainerName = "cluster_xl-deploy-master_"
+        if (isDatabaseLoadBalancerEnabled()){
+            masterContainerName = "cluster-with-db-loadbalancer_xl-deploy-master_"
+        }
         return DockerUtil.inspect(project,
             "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
-            "cluster_xl-deploy-master_${order}")
+            "${masterContainerName}${order}")
     }
 
     fun shutdownCluster() {
