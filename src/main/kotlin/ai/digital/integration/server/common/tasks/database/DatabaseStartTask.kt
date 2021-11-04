@@ -9,7 +9,6 @@ import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import java.io.File
-import java.nio.file.Path
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -21,7 +20,6 @@ abstract class DatabaseStartTask : DockerComposeUp() {
 
     init {
         this.group = PLUGIN_GROUP
-        this.dependsOn(DatabaseStopTask.NAME)
         this.mustRunAfter(ApplicationConfigurationOverrideTask.NAME)
     }
 
