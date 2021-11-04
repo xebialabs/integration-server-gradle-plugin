@@ -6,6 +6,7 @@ import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.RetryPolicy
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
@@ -88,7 +89,7 @@ open class DeployDockerClusterHelper(val project: Project) {
 
     private fun getResolvedXldHaDockerComposeFile(): Path {
         val template = getTemplate(dockerXldHAPath)
-
+        val serviceName = "xl-deploy-master"
         val configuredTemplate = template.readText(Charsets.UTF_8)
             .replace("{{DEPLOY_MASTER_IMAGE}}", getServerVersionedImage())
             .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", IntegrationServerUtil.getDist(project))
@@ -96,14 +97,15 @@ open class DeployDockerClusterHelper(val project: Project) {
             .replace("{{PUBLIC_PORT}}", getClusterPublicPort())
 
         template.writeText(configuredTemplate)
-        openDebugPort(template, "xl-deploy-master", "4000-4049")
+        openDebugPort(template, serviceName, "4000-4049")
+        defineDockerUser(template, serviceName)
 
         return template.toPath()
     }
 
     private fun getResolvedXldHaWithWorkersDockerComposeFile(): Path {
         val template = getTemplate(dockerXldHAWithWorkersPath)
-
+        val serviceName = "xl-deploy-worker"
         val configuredTemplate = template.readText(Charsets.UTF_8)
             .replace("{{DEPLOY_WORKER_IMAGE}}", getWorkerVersionedImage())
             .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", IntegrationServerUtil.getDist(project))
@@ -111,21 +113,35 @@ open class DeployDockerClusterHelper(val project: Project) {
 
         template.writeText(configuredTemplate)
         overrideWorkerCommand(template)
-        openDebugPort(template, "xl-deploy-worker", "4050-4100")
+        openDebugPort(template, serviceName, "4050-4100")
+        defineDockerUser(template, serviceName)
 
         return template.toPath()
     }
 
-    private fun getServiceOpts(): String {
-        val suspend = if (getCluster().debugSuspend) "y" else "n"
-        return "DEPLOYIT_SERVER_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=*:$privateDebugPort"
+    private fun defineDockerUser(template: File, serviceName: String) {
+        if (Os.isFamily(Os.FAMILY_UNIX)) {
+            val variables = getEnvironmentVariables(template, serviceName)
+            variables.add("XL_USER=${getCurrentUser()}")
+            variables.sort()
+            val pairs = mutableMapOf<String, Any>("services.$serviceName.environment" to variables)
+            YamlFileUtil.overlayFile(template, pairs)
+        }
     }
 
-    @Suppress("UNCHECKED_CAST")
+    private fun getCurrentUser(): String {
+        return ProcessUtil.executeCommand(project, "echo \$(id -u):\$(id -g)")
+    }
+
     private fun openDebugPort(template: File, serviceName: String, range: String) {
+
+        fun getServiceOpts(): String {
+            val suspend = if (getCluster().debugSuspend) "y" else "n"
+            return "DEPLOYIT_SERVER_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=*:$privateDebugPort"
+        }
+
         if (getCluster().enableDebug) {
-            val variables =
-                YamlFileUtil.readFileKey(template, "services.$serviceName.environment") as MutableList<String>
+            val variables = getEnvironmentVariables(template, serviceName)
             variables.add(getServiceOpts())
             variables.sort()
 
@@ -135,6 +151,11 @@ open class DeployDockerClusterHelper(val project: Project) {
             )
             YamlFileUtil.overlayFile(template, pairs)
         }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun getEnvironmentVariables(template: File, serviceName: String): MutableList<String> {
+        return YamlFileUtil.readFileKey(template, "services.$serviceName.environment") as MutableList<String>
     }
 
     private fun overrideWorkerCommand(template: File) {
