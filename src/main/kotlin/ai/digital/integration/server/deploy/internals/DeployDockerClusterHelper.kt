@@ -120,12 +120,15 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun defineDockerUser(template: File, serviceName: String) {
-        if (Os.isFamily(Os.FAMILY_UNIX)) {
+        project.logger.lifecycle("OS family is: ${System.getProperty("os.name")}")
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             val variables = getEnvironmentVariables(template, serviceName)
             variables.add("XL_USER=${getCurrentUser()}")
             variables.sort()
             val pairs = mutableMapOf<String, Any>("services.$serviceName.environment" to variables)
             YamlFileUtil.overlayFile(template, pairs)
+        } else {
+            project.logger.lifecycle("OS user has not been defined, default one defined in the docker image will be used.")
         }
     }
 
