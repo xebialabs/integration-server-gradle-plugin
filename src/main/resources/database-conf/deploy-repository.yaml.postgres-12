@@ -3,7 +3,7 @@ xl.repository:
     root: build/artifacts
   database:
     db-driver-classname: "org.postgresql.Driver"
-    db-url: "jdbc:postgresql://127.0.0.1:5432/postgres"
+    db-url: "jdbc:postgresql://127.0.0.1:{{DB_PORT}}/postgres"
     db-username: "postgres"
     db-password: "demo"
     leak-detection-threshold: 2 minutes
