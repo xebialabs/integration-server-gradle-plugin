@@ -8,7 +8,7 @@ services:
       - xl-deploy-master
     ports:
       - "{{PUBLIC_PORT}}:5000"
-      - "1936:1936"
+      - "{{HA_PORT}}:1936"
     networks:
       - {{DEPLOY_NETWORK_NAME}}
     environment:
@@ -50,11 +50,6 @@ services:
     image: "rabbitmq:3.9.8-management-alpine"
     container_name: rabbitmq
     hostname: "rabbit"
-    ports:
-      - "5672:5672"
-      - "4369:4369"
-      - "25672:25672"
-      - "15672:15672"
     networks:
       - {{DEPLOY_NETWORK_NAME}}
     labels:
@@ -70,7 +65,7 @@ services:
     image: postgres:10.5
     container_name: postgresql
     ports:
-      - "5432:5432"
+      - "{{DB_PORT}}:5432"
     environment:
       - POSTGRES_DB=xld-db
       - POSTGRES_USER=postgres

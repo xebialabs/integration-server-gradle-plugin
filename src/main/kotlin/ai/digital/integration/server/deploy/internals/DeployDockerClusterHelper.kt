@@ -95,6 +95,8 @@ open class DeployDockerClusterHelper(val project: Project) {
             .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", IntegrationServerUtil.getDist(project))
             .replace("{{DEPLOY_NETWORK_NAME}}", ClusterConstants.NETWORK_NAME)
             .replace("{{PUBLIC_PORT}}", getClusterPublicPort())
+            .replace("{{HA_PORT}}", HTTPUtil.findFreePort().toString())
+            .replace("{{DB_PORT}}", HTTPUtil.findFreePort().toString())
 
         template.writeText(configuredTemplate)
         openDebugPort(template, serviceName, "4000-4049")
