@@ -2,9 +2,9 @@ package ai.digital.integration.server.deploy.tasks.cli
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.domain.Cli
-import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.internals.CliUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -24,8 +24,7 @@ abstract class RunCliTask : DefaultTask() {
     @get:Input
     @get:Option(option = "files ", description = "Additional files to Execute.")
     @get:Optional
-    var filesToExec: List<File> = mutableListOf<File>()
-
+    var filesToExec: List<File> = mutableListOf()
 
     init {
         this.dependsOn(CliCleanDefaultExtTask.NAME)
@@ -41,7 +40,7 @@ abstract class RunCliTask : DefaultTask() {
 
     private fun executeScripts(cli: Cli) {
         project.logger.lifecycle("Executing cli scripts ....")
-        var filesExec = if (filesToExec != null && filesToExec.size > 0) filesToExec else cli.filesToExecute
+        val filesExec = if (filesToExec.isNotEmpty()) filesToExec else cli.filesToExecute
         CliUtil.executeScripts(project, filesExec, "cli", secure.getOrElse(false))
     }
 
