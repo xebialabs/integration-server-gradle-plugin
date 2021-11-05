@@ -27,6 +27,7 @@ class ProcessUtil {
         }
 
         fun execute(project: Project, executable: String, args: List<String>, logOutput: Boolean = true): String {
+            project.logger.lifecycle("About to execute `$executable ${args.joinToString(" ")}`")
             val stdout = ByteArrayOutputStream()
             project.exec {
                 it.args = args

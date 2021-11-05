@@ -36,7 +36,7 @@ open class DockerBasedStopReleaseTask : DefaultTask() {
                 "-T",
                 ReleaseServerUtil.getDockerServiceName(project),
                 "chmod",
-                "777",
+                "766",
                 "-R",
                 "/opt/xebialabs/xl-release-server")
             it.errorOutput = ByteArrayOutputStream()

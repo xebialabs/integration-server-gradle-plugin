@@ -20,6 +20,9 @@ open class DeployDockerClusterHelper(val project: Project) {
         private const val dockerXldHAWithWorkersPath = "deploy/cluster/docker-compose-xld-ha-slim-workers.yaml"
         private const val rabbitMqEnabledPluginsPath = "deploy/cluster/rabbitmq/enabled_plugins"
         private const val privateDebugPort = 4005
+
+        private val serverMountedVolumes = listOf("centralConfiguration", "conf", "plugins")
+        private val workerMountedVolumes = listOf("conf", "plugins")
     }
 
     private val workerToIp = mutableMapOf<Int, String>()
@@ -268,7 +271,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun createServerFolders() {
-        arrayOf("centralConfiguration", "conf", "plugins").forEach { folderName ->
+        serverMountedVolumes.forEach { folderName ->
             val folderPath = "${IntegrationServerUtil.getDist(project)}/xl-deploy-server/${folderName}"
             val folder = File(folderPath)
             folder.mkdirs()
@@ -278,7 +281,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun createWorkerFolders() {
-        arrayOf("conf", "plugins").forEach { folderName ->
+        workerMountedVolumes.forEach { folderName ->
             val folderPath = "${IntegrationServerUtil.getDist(project)}/xl-deploy-worker/${folderName}"
             val folder = File(folderPath)
             folder.mkdirs()
@@ -290,9 +293,43 @@ open class DeployDockerClusterHelper(val project: Project) {
     private fun giveAllPermissionsForMountedVolume(folderPath: String) {
         ProcessUtil.chMod(
             project,
-            "777",
+            "766",
             folderPath
         )
+    }
+
+    private fun allowToCleanMountedFiles(serviceName: String, dockerFilePath: String, folders: List<String>) {
+        folders.forEach { folder ->
+            val args = arrayListOf("-f",
+                dockerFilePath,
+                "exec",
+                "-T",
+                serviceName,
+                "chmod",
+                "766",
+                "-R",
+                folder)
+            DockerComposeUtil.execute(project, args, true)
+        }
+    }
+
+    private fun getDockerXldHAFile(): File {
+        return IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, dockerXldHAPath).toFile()
+    }
+
+    private fun getDockerXldHAWithWorkersPath(): File {
+        return IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, dockerXldHAWithWorkersPath)
+            .toFile()
+    }
+
+    private fun allowToRemoveClusterMountedVolumes() {
+        allowToCleanMountedFiles("xl-deploy-master",
+            getDockerXldHAFile().path,
+            serverMountedVolumes.map { "/opt/xebialabs/xl-deploy-server/${it}" })
+
+        allowToCleanMountedFiles("xl-deploy-worker",
+            getDockerXldHAWithWorkersPath().path,
+            workerMountedVolumes.map { "/opt/xebialabs/deploy-task-engine/${it}" })
     }
 
     fun launchCluster() {
@@ -302,5 +339,6 @@ open class DeployDockerClusterHelper(val project: Project) {
         runWorkers()
         createClusterMetadata()
         waitForBoot()
+        allowToRemoveClusterMountedVolumes()
     }
 }

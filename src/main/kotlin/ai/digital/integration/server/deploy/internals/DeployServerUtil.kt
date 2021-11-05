@@ -210,13 +210,13 @@ class DeployServerUtil {
             val serverTemplate = resultComposeFilePath.toFile()
 
             val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-                .replace("DEPLOY_SERVER_HTTP_PORT", server.httpPort.toString())
-                .replace("DEPLOY_IMAGE_VERSION", getDockerImageVersion(project))
+                .replace("{{DEPLOY_SERVER_HTTP_PORT}}", server.httpPort.toString())
+                .replace("{{DEPLOY_IMAGE_VERSION}}", getDockerImageVersion(project))
                 .replace(
-                    "DEPLOY_PLUGINS_TO_EXCLUDE",
+                    "{{DEPLOY_PLUGINS_TO_EXCLUDE}}",
                     server.defaultOfficialPluginsToExclude.joinToString(separator = ",")
                 )
-                .replace("DEPLOY_VERSION", server.version.toString())
+                .replace("{{DEPLOY_VERSION}}", server.version.toString())
             serverTemplate.writeText(configuredTemplate)
 
             return resultComposeFilePath
