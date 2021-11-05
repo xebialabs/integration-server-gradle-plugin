@@ -2,10 +2,8 @@ package ai.digital.integration.server.common.util
 
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
-import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 
 class ProcessUtil {
@@ -93,25 +91,6 @@ class ProcessUtil {
                 it.executable = "chmod"
                 it.args = listOf("-R", mode, fileName)
             }
-        }
-
-        fun executeCommand(project: Project, command: String): String {
-            val process: Process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
-
-            val stdInput = BufferedReader(InputStreamReader(process.inputStream))
-            val stdError = BufferedReader(InputStreamReader(process.errorStream))
-
-            var s: String?
-            while (stdInput.readLine().also { s = it } != null) {
-                project.logger.lifecycle(s)
-                return s.toString()
-            }
-
-            while (stdError.readLine().also { s = it } != null) {
-                project.logger.lifecycle(s)
-                return s.toString()
-            }
-            return ""
         }
     }
 }

@@ -6,7 +6,6 @@ import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.RetryPolicy
-import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
@@ -100,7 +99,6 @@ open class DeployDockerClusterHelper(val project: Project) {
 
         template.writeText(configuredTemplate)
         openDebugPort(template, serviceName, "4000-4049")
-        defineDockerUser(template, serviceName)
 
         return template.toPath()
     }
@@ -116,31 +114,8 @@ open class DeployDockerClusterHelper(val project: Project) {
         template.writeText(configuredTemplate)
         overrideWorkerCommand(template)
         openDebugPort(template, serviceName, "4050-4100")
-        defineDockerUser(template, serviceName)
 
         return template.toPath()
-    }
-
-    private fun defineDockerUser(template: File, serviceName: String) {
-        project.logger.lifecycle("OS family is: ${System.getProperty("os.name")}")
-        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-            val variables = getEnvironmentVariables(template, serviceName)
-            variables.add("XL_USER=${getCurrentUser()}")
-            variables.add("XL_USER_GROUP=${getCurrentUserGroup()}")
-            variables.sort()
-            val pairs = mutableMapOf<String, Any>("services.$serviceName.environment" to variables)
-            YamlFileUtil.overlayFile(template, pairs)
-        } else {
-            project.logger.lifecycle("OS user has not been defined, default one defined in the docker image will be used.")
-        }
-    }
-
-    private fun getCurrentUser(): String {
-        return ProcessUtil.executeCommand(project, "echo \$(id -u)")
-    }
-
-    private fun getCurrentUserGroup(): String {
-        return ProcessUtil.executeCommand(project, "echo \$(id -g)")
     }
 
     private fun openDebugPort(template: File, serviceName: String, range: String) {
@@ -297,6 +272,7 @@ open class DeployDockerClusterHelper(val project: Project) {
             val folderPath = "${IntegrationServerUtil.getDist(project)}/xl-deploy-server/${folderName}"
             val folder = File(folderPath)
             folder.mkdirs()
+            giveAllPermissionsForMountedVolume(folderPath)
             project.logger.lifecycle("Folder $folderPath has been created.")
         }
     }
@@ -306,8 +282,17 @@ open class DeployDockerClusterHelper(val project: Project) {
             val folderPath = "${IntegrationServerUtil.getDist(project)}/xl-deploy-worker/${folderName}"
             val folder = File(folderPath)
             folder.mkdirs()
+            giveAllPermissionsForMountedVolume(folderPath)
             project.logger.lifecycle("Folder $folderPath has been created.")
         }
+    }
+
+    private fun giveAllPermissionsForMountedVolume(folderPath: String) {
+        ProcessUtil.chMod(
+            project,
+            "777",
+            folderPath
+        )
     }
 
     fun launchCluster() {
