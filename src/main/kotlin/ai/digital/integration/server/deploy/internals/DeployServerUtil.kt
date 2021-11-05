@@ -21,11 +21,15 @@ class DeployServerUtil {
         }
 
         fun getServer(project: Project): Server {
-            return enrichServer(project, DeployExtensionUtil.getExtension(project).servers.first { server -> !server.previousInstallation})
+            return enrichServer(project,
+                DeployExtensionUtil.getExtension(project).servers.first { server -> !server.previousInstallation })
         }
 
         fun getServers(project: Project): List<Server> {
-            return DeployExtensionUtil.getExtension(project).servers.map { server: Server -> enrichServer(project, server) }
+            return DeployExtensionUtil.getExtension(project).servers.map { server: Server ->
+                enrichServer(project,
+                    server)
+            }
         }
 
         fun getPreviousInstallationServer(project: Project): Server {
@@ -38,14 +42,13 @@ class DeployServerUtil {
 
         private fun enrichServer(project: Project, server: Server): Server {
             server.debugPort = getDebugPort(project, server)
-            if (server.previousInstallation) {
-                server.httpPort = getHttpPort(project, server)
-            } else {
-                server.version = getServerVersion(project, server)
-                if (isPreviousInstallationServerDefined(project)) {
-                    server.httpPort = getPreviousInstallationServer(project).httpPort
-                }
+            server.httpPort = getHttpPort(project, server)
+            server.version = getServerVersion(project, server)
+
+            if (isPreviousInstallationServerDefined(project)) {
+                server.httpPort = getPreviousInstallationServer(project).httpPort
             }
+
             server.dockerImage?.let {
                 server.runtimeDirectory = null
             }

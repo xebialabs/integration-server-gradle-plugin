@@ -126,6 +126,7 @@ open class DeployDockerClusterHelper(val project: Project) {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             val variables = getEnvironmentVariables(template, serviceName)
             variables.add("XL_USER=${getCurrentUser()}")
+            variables.add("XL_USER_GROUP=${getCurrentUserGroup()}")
             variables.sort()
             val pairs = mutableMapOf<String, Any>("services.$serviceName.environment" to variables)
             YamlFileUtil.overlayFile(template, pairs)
@@ -135,7 +136,11 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun getCurrentUser(): String {
-        return ProcessUtil.executeCommand(project, "echo \$(id -u):\$(id -g)")
+        return ProcessUtil.executeCommand(project, "echo \$(id -u)")
+    }
+
+    private fun getCurrentUserGroup(): String {
+        return ProcessUtil.executeCommand(project, "echo \$(id -g)")
     }
 
     private fun openDebugPort(template: File, serviceName: String, range: String) {
