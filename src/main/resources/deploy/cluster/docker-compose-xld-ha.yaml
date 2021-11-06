@@ -42,9 +42,9 @@ services:
       - XLD_TASK_QUEUE_URL=amqp://rabbitmq:5672
       - USE_IP_AS_HOSTNAME=true
     volumes:
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration:rw
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/conf:/opt/xebialabs/xl-deploy-server/conf:rw
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/plugins:/opt/xebialabs/xl-deploy-server/plugins:rw
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration:z
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/conf:/opt/xebialabs/xl-deploy-server/conf:z
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/plugins:/opt/xebialabs/xl-deploy-server/plugins:z
 
   rabbitmq:
     image: "rabbitmq:3.9.8-management-alpine"

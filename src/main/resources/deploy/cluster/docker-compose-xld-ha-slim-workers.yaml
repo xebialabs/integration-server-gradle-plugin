@@ -21,8 +21,8 @@ services:
     command:
       - changeMe
     volumes:
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-worker/conf:/opt/xebialabs/deploy-task-engine/conf:rw
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-worker/plugins:/opt/xebialabs/deploy-task-engine/plugins:rw
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-worker/conf:/opt/xebialabs/deploy-task-engine/conf:z
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-worker/plugins:/opt/xebialabs/deploy-task-engine/plugins:z
 
 networks:
   {{DEPLOY_NETWORK_NAME}}:
