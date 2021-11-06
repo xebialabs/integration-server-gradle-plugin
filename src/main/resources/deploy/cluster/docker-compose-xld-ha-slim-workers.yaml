@@ -3,6 +3,7 @@ version: "3.4"
 services:
   xl-deploy-worker:
     image: {{DEPLOY_WORKER_IMAGE}}
+    privileged: true
     networks:
       - {{DEPLOY_NETWORK_NAME}}
     environment:

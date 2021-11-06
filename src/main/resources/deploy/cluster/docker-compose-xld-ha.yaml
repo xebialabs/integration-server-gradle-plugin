@@ -22,6 +22,7 @@ services:
 
   xl-deploy-master:
     image: {{DEPLOY_MASTER_IMAGE}}
+    privileged: true
     depends_on:
       - rabbitmq
       - postgresql
