@@ -21,9 +21,10 @@ open class DeployDockerClusterHelper(val project: Project) {
         private const val rabbitMqEnabledPluginsPath = "deploy/cluster/rabbitmq/enabled_plugins"
         private const val privateDebugPort = 4005
 
-        private val serverMountedVolumes =
-            listOf("centralConfiguration", "conf", "plugins/__local", "plugins/xld-official")
-        private val workerMountedVolumes = listOf("conf", "plugins/__local", "plugins/xld-official")
+        private val pluginsFolders = listOf("plugins", "plugins/__local", "plugins/xld-official")
+
+        private val serverMountedVolumes = listOf("centralConfiguration", "conf", *pluginsFolders.toTypedArray())
+        private val workerMountedVolumes = listOf("conf", *pluginsFolders.toTypedArray())
     }
 
     private val workerToIp = mutableMapOf<Int, String>()
