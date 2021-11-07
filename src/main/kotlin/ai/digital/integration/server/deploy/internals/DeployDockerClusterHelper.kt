@@ -21,8 +21,9 @@ open class DeployDockerClusterHelper(val project: Project) {
         private const val rabbitMqEnabledPluginsPath = "deploy/cluster/rabbitmq/enabled_plugins"
         private const val privateDebugPort = 4005
 
-        private val serverMountedVolumes = listOf("centralConfiguration", "conf", "plugins")
-        private val workerMountedVolumes = listOf("conf", "plugins")
+        private val serverMountedVolumes =
+            listOf("centralConfiguration", "conf", "plugins/__local", "plugins/xld-official")
+        private val workerMountedVolumes = listOf("conf", "plugins/__local", "plugins/xld-official")
     }
 
     private val workerToIp = mutableMapOf<Int, String>()
@@ -298,40 +299,6 @@ open class DeployDockerClusterHelper(val project: Project) {
         )
     }
 
-    private fun allowToCleanMountedFiles(serviceName: String, dockerFilePath: String, folders: List<String>) {
-        folders.forEach { folder ->
-            val args = arrayListOf("-f",
-                dockerFilePath,
-                "exec",
-                "-T",
-                serviceName,
-                "chmod",
-                "777",
-                "-R",
-                folder)
-            DockerComposeUtil.execute(project, args, true)
-        }
-    }
-
-    private fun getDockerXldHAFile(): File {
-        return IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, dockerXldHAPath).toFile()
-    }
-
-    private fun getDockerXldHAWithWorkersPath(): File {
-        return IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, dockerXldHAWithWorkersPath)
-            .toFile()
-    }
-
-    private fun allowToRemoveClusterMountedVolumes() {
-        allowToCleanMountedFiles("xl-deploy-master",
-            getDockerXldHAFile().path,
-            serverMountedVolumes.map { "/opt/xebialabs/xl-deploy-server/${it}" })
-
-        allowToCleanMountedFiles("xl-deploy-worker",
-            getDockerXldHAWithWorkersPath().path,
-            workerMountedVolumes.map { "/opt/xebialabs/deploy-task-engine/${it}" })
-    }
-
     fun launchCluster() {
         createNetwork()
         runServers()
@@ -339,6 +306,5 @@ open class DeployDockerClusterHelper(val project: Project) {
         runWorkers()
         createClusterMetadata()
         waitForBoot()
-        allowToRemoveClusterMountedVolumes()
     }
 }
