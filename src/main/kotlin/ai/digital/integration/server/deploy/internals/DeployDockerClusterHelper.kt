@@ -293,7 +293,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     private fun giveAllPermissionsForMountedVolume(folderPath: String) {
         ProcessUtil.chMod(
             project,
-            "766",
+            "777",
             folderPath
         )
     }
@@ -306,7 +306,7 @@ open class DeployDockerClusterHelper(val project: Project) {
                 "-T",
                 serviceName,
                 "chmod",
-                "766",
+                "777",
                 "-R",
                 folder)
             DockerComposeUtil.execute(project, args, true)

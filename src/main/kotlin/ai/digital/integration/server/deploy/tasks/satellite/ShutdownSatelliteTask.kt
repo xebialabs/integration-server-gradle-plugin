@@ -26,7 +26,7 @@ open class ShutdownSatelliteTask : DefaultTask() {
     }
 
     private fun stopSatellite(satellite: Satellite) {
-        ProcessUtil.chMod(project, "766", Paths.get(SatelliteUtil.getSatelliteWorkingDir(project, satellite))
+        ProcessUtil.chMod(project, "777", Paths.get(SatelliteUtil.getSatelliteWorkingDir(project, satellite))
             .resolve(STOP_SATELLITE_SCRIPT).toAbsolutePath().toString())
         ProcessUtil.exec(mapOf<String, Any?>(
             "command" to "stopSatellite",

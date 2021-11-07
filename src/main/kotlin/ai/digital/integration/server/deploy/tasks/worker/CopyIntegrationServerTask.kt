@@ -29,7 +29,7 @@ open class CopyIntegrationServerTask : DefaultTask() {
             .forEach { worker -> copyServerDirToWorkerDir(worker) }
     }
 
-    fun copyServerDirToWorkerDir(worker: Worker) {
+    private fun copyServerDirToWorkerDir(worker: Worker) {
         val sourceDir = Paths.get(DeployServerUtil.getServerWorkingDir(project)).toFile()
         val destinationDir = Paths.get(WorkerUtil.getWorkerWorkingDir(project, worker)).toFile()
 

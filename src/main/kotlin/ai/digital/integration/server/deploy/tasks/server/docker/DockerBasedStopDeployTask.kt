@@ -36,7 +36,7 @@ open class DockerBasedStopDeployTask : DefaultTask() {
             "-T",
             DeployServerUtil.getDockerServiceName(project),
             "chmod",
-            "766",
+            "777",
             "-R",
             "/opt/xebialabs/xl-deploy-server")
         DockerComposeUtil.execute(project, args, true)
