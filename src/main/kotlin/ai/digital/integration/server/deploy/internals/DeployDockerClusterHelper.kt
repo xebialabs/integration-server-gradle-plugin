@@ -298,6 +298,40 @@ open class DeployDockerClusterHelper(val project: Project) {
         )
     }
 
+    private fun allowToCleanMountedFiles(serviceName: String, dockerFilePath: String, folders: List<String>) {
+        folders.forEach { folder ->
+            val args = arrayListOf("-f",
+                dockerFilePath,
+                "exec",
+                "-T",
+                serviceName,
+                "chmod",
+                "777",
+                "-R",
+                folder)
+            DockerComposeUtil.execute(project, args, true)
+        }
+    }
+
+    private fun getDockerXldHAFile(): File {
+        return IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, dockerXldHAPath).toFile()
+    }
+
+    private fun getDockerXldHAWithWorkersPath(): File {
+        return IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, dockerXldHAWithWorkersPath)
+            .toFile()
+    }
+
+    private fun allowToRemoveClusterMountedVolumes() {
+        allowToCleanMountedFiles("xl-deploy-master",
+            getDockerXldHAFile().path,
+            serverMountedVolumes.map { "/opt/xebialabs/xl-deploy-server/${it}" })
+
+        allowToCleanMountedFiles("xl-deploy-worker",
+            getDockerXldHAWithWorkersPath().path,
+            workerMountedVolumes.map { "/opt/xebialabs/deploy-task-engine/${it}" })
+    }
+
     fun launchCluster() {
         createNetwork()
         runServers()
@@ -305,5 +339,6 @@ open class DeployDockerClusterHelper(val project: Project) {
         runWorkers()
         createClusterMetadata()
         waitForBoot()
+        allowToRemoveClusterMountedVolumes()
     }
 }
