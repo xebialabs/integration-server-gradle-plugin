@@ -43,6 +43,7 @@ services:
       - USE_IP_AS_HOSTNAME=true
     volumes:
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration:z
+      - /dev/null:/opt/xebialabs/xl-deploy-server/centralConfiguration/deploy-server.yaml
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/conf:/opt/xebialabs/xl-deploy-server/conf:z
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/plugins:/opt/xebialabs/xl-deploy-server/plugins:z
 
