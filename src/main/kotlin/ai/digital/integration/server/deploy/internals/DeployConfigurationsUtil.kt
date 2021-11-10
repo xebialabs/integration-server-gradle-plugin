@@ -11,6 +11,7 @@ class DeployConfigurationsUtil {
         const val CENTRAL_CONFIG_DIST = "centralConfigDist"
         const val WORKER_DIST = "workerDist"
         const val DEPLOY_SERVER = "integrationTestServer" // TODO: review and refactor
+        const val PERMISSION_SERVICE_DIST = "permissionServiceDist"
 
         fun registerConfigurations(project: Project) {
             project.buildscript.configurations.create(SERVER_DIST)
@@ -19,6 +20,7 @@ class DeployConfigurationsUtil {
             project.buildscript.configurations.create(SATELLITE_DIST)
             project.buildscript.configurations.create(CENTRAL_CONFIG_DIST)
             project.buildscript.configurations.create(WORKER_DIST)
+            project.buildscript.configurations.create(PERMISSION_SERVICE_DIST)
         }
     }
 }

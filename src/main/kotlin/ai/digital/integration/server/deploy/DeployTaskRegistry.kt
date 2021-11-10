@@ -17,6 +17,7 @@ import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerCo
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.permission.DownloadAndExtractPermissionDistTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
@@ -115,6 +116,9 @@ open class DeployTaskRegistry {
 
             //Tests
             project.tasks.create(IntegrationTestsTask.NAME, IntegrationTestsTask::class.java)
+
+            //Permission Service
+            project.tasks.create(DownloadAndExtractPermissionDistTask.NAME, DownloadAndExtractPermissionDistTask::class.java)
         }
     }
 }

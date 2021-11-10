@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy
 
 import ai.digital.integration.server.common.domain.*
 import ai.digital.integration.server.deploy.domain.Cli
+import ai.digital.integration.server.deploy.domain.Permission
 import ai.digital.integration.server.deploy.domain.Satellite
 import ai.digital.integration.server.deploy.domain.Worker
 import groovy.lang.Closure
@@ -58,4 +59,9 @@ open class DeployIntegrationServerExtension(
     val maintenance = project.objects.property<Maintenance>().value(Maintenance(project.objects))
 
     fun maintenance(action: Action<in Maintenance>) = action.execute(maintenance.get())
+
+    val permissions = project.objects.property<Permission>().value(Permission(project.objects))
+
+    fun permissions(action: Action<in Permission>) = action.execute(permissions.get())
+
 }
