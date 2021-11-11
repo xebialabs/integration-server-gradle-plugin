@@ -7,5 +7,12 @@ class TerraformUtil {
         fun execute(project: Project, args: List<String>, logOutput: Boolean = true): String {
             return ProcessUtil.execute(project, "terraform", args, logOutput)
         }
+
+        fun getProvider(project: Project): String {
+            return if(project.hasProperty("provider"))
+                project.property("provider").toString()
+            else
+                "aws"
+        }
     }
 }

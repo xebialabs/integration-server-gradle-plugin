@@ -13,6 +13,8 @@ Integration Server based on Gradle and docker images. Therefore, you have to hav
 * Docker Compose  
 * Gradle 6+
 
+If you want to provision a kubernetes cluster on cloud then you have to have Terraform pre-installed on your machine.
+
 ## Add the plugin
 
 In the root file **build.gradle** of your project define a plugin dependency like this:
