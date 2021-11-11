@@ -28,6 +28,7 @@ Parameters/Flags can be defined in 2 ways:
 |debug|Boolean|Enables or disables starting processes in debug mode. It overrides any debug setting in configuration. If not set debugging is enabled.|
 |databasePort|Any available port|The port on which database is going to be started.|
 |logSql|true/false|Enables printing of SQL queries executed on the server|
+|provider|`aws`<br>`azure`|Terraform cloud provider options|
 |satelliteDebugPort|Any available port|Provides a satellite debug port for remote debugging.|
 |serverDebugPort|Any available port|Provides a server debug port for remote debugging.|
 |serverHttpPort|Any available port|Overrides default server HTTP port|
