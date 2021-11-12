@@ -1,7 +1,3 @@
-provider "aws" {
-    region = "us-east-1"
-}
-
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
 }
@@ -15,21 +11,20 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
   token                  = data.aws_eks_cluster_auth.cluster.token
   load_config_file       = false
-  version                = "~> 1.11"
 }
 
 data "aws_availability_zones" "available" {
 }
 
 locals {
-  cluster_name = "purity-eks"
+  cluster_name = "{{EKS_CLUSTER_NAME}}"
 }
 
 module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "2.78.0"
+  source  = "{{EKS_VPC_SOURCE}}"
+  version = "{{EKS_VPC_VERSION}}"
 
-  name                 = "k8s-vpc"
+  name                 = "{{EKS_VPC_NAME}}"
   cidr                 = "172.16.0.0/16"
   azs                  = data.aws_availability_zones.available.names
   private_subnets      = ["172.16.1.0/24", "172.16.2.0/24", "172.16.3.0/24"]
@@ -50,11 +45,11 @@ module "vpc" {
 }
 
 module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "17.18.0"
+  source  = "{{EKS_SOURCE}}"
+  version = "{{EKS_VERSION}}"
 
   cluster_name    = "${local.cluster_name}"
-  cluster_version = "1.17"
+  cluster_version = "{{EKS_CLUSTER_VERSION}}"
   subnets         = module.vpc.private_subnets
 
   vpc_id = module.vpc.vpc_id
@@ -70,5 +65,4 @@ module "eks" {
   }
 
   write_kubeconfig   = true
-  #config_output_path = "./"
 }

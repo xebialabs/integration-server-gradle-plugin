@@ -13,7 +13,9 @@ Integration Server based on Gradle and docker images. Therefore, you have to hav
 * Docker Compose  
 * Gradle 6+
 
-If you want to provision a kubernetes cluster on cloud then you have to have Terraform pre-installed on your machine.
+If you want to provision a Kubernetes cluster on cloud with help of terraform first you have to ensure that you have installed it along with the
+provider cli tool. Please keep in mind, terraform uses cli tool configurations if not specified explicitly as
+in this project ( e.g. aws region value will be read from .aws/config )
 
 ## Add the plugin
 
