@@ -1,5 +1,7 @@
 package ai.digital.integration.server.common.util
 
+import ai.digital.integration.server.common.domain.Terraform
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import org.gradle.api.Project
 
 class TerraformUtil {
