@@ -1,12 +1,12 @@
 package ai.digital.integration.server.deploy.tasks.server.docker
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.deploy.tasks.server.PrepareServerTask
+import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.tasks.server.PrepareServerTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
-import java.io.ByteArrayOutputStream
 import java.io.File
 
 open class DockerBasedStopDeployTask : DefaultTask() {
@@ -30,20 +30,16 @@ open class DockerBasedStopDeployTask : DefaultTask() {
      * Ignoring an exception as only certain folders and files (which were mounted) belong to a docker user.
      */
     private fun allowToCleanMountedFiles() {
-        project.exec {
-            it.executable = "docker-compose"
-            it.args = arrayListOf("-f",
-                getDockerComposeFile().path,
-                "exec",
-                "-T",
-                DeployServerUtil.getDockerServiceName(project),
-                "chmod",
-                "777",
-                "-R",
-                "/opt/xebialabs/xl-deploy-server")
-            it.errorOutput = ByteArrayOutputStream()
-            it.isIgnoreExitValue = true
-        }
+        val args = arrayListOf("-f",
+            getDockerComposeFile().path,
+            "exec",
+            "-T",
+            DeployServerUtil.getDockerServiceName(project),
+            "chmod",
+            "777",
+            "-R",
+            "/opt/xebialabs/xl-deploy-server")
+        DockerComposeUtil.execute(project, args, true)
     }
 
     @TaskAction

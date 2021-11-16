@@ -3,7 +3,7 @@ xl.repository:
     root: build/artifacts
   database:
     db-driver-classname: "com.mysql.jdbc.Driver"
-    db-url: "jdbc:mysql://localhost:3306/xld?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false"
+    db-url: "jdbc:mysql://localhost:{{DB_PORT}}/xld?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false"
     db-username: "xldrepo"
     db-password: "xldrepo"
     leak-detection-threshold: 2 minutes

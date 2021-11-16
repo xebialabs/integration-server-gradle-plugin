@@ -12,32 +12,6 @@ class DeployServerUtil {
 
         private const val dockerServerRelativePath = "deploy/server-docker-compose.yaml"
 
-        fun getHttpHost(): String {
-            return "localhost"
-        }
-
-        fun getUrl(project: Project): String {
-            val server = getServer(project)
-            val hostName = getHttpHost()
-            return if (isTls(project)) {
-                "https://$hostName:${server.httpPort}${server.contextRoot}"
-            } else {
-                "http://$hostName:${server.httpPort}${server.contextRoot}"
-            }
-        }
-
-        fun composeUrl(project: Project, path: String): String {
-            var url = getUrl(project)
-            var separator = "/"
-            if (path.startsWith("/") || url.endsWith("/")) {
-                separator = ""
-                if (path.startsWith("/") && url.endsWith("/"))
-                    url = url.removeSuffix("/")
-
-            }
-            return "$url$separator$path"
-        }
-
         fun isTls(project: Project): Boolean {
             return getServer(project).tls
         }
@@ -47,25 +21,48 @@ class DeployServerUtil {
         }
 
         fun getServer(project: Project): Server {
-            val server = DeployExtensionUtil.getExtension(project).servers.first()
+            return enrichServer(project,
+                DeployExtensionUtil.getExtension(project).servers.first { server -> !server.previousInstallation })
+        }
+
+        fun getServers(project: Project): List<Server> {
+            return DeployExtensionUtil.getExtension(project).servers.map { server: Server ->
+                enrichServer(project,
+                    server)
+            }
+        }
+
+        fun getPreviousInstallationServer(project: Project): Server {
+            return DeployExtensionUtil.getExtension(project).servers.first { server -> server.previousInstallation }
+        }
+
+        fun isPreviousInstallationServerDefined(project: Project): Boolean {
+            return DeployExtensionUtil.getExtension(project).servers.find { server -> server.previousInstallation } != null
+        }
+
+        private fun enrichServer(project: Project, server: Server): Server {
             server.debugPort = getDebugPort(project, server)
             server.httpPort = getHttpPort(project, server)
             server.version = getServerVersion(project, server)
 
+            if (isPreviousInstallationServerDefined(project)) {
+                server.httpPort = getPreviousInstallationServer(project).httpPort
+            }
+
             server.dockerImage?.let {
                 server.runtimeDirectory = null
             }
-
             if (!server.contextRoot.startsWith("/")) {
                 server.contextRoot = "/$server.contextRoot"
             }
-
             return server
         }
 
         fun getServerWorkingDir(project: Project): String {
-            val server = getServer(project)
+            return getServerWorkingDir(project, getServer(project))
+        }
 
+        fun getServerWorkingDir(project: Project, server: Server): String {
             return when {
                 isDockerBased(project) -> {
                     val workDir = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, "deploy")
@@ -124,8 +121,8 @@ class DeployServerUtil {
             return DeployExtensionUtil.getExtension(project).servers.size > 0
         }
 
-        fun isDistDownloadRequired(project: Project): Boolean {
-            return getServer(project).runtimeDirectory == null && !isDockerBased(project)
+        fun isDistDownloadRequired(project: Project, server: Server): Boolean {
+            return server.runtimeDirectory == null && !isDockerBased(project)
         }
 
         fun readDeployitConfProperty(project: Project, key: String): String {
@@ -133,8 +130,8 @@ class DeployServerUtil {
             return PropertiesUtil.readProperty(deployitConf, key)
         }
 
-        fun getLogDir(project: Project): File {
-            return Paths.get(getServerWorkingDir(project), "log").toFile()
+        fun getLogDir(project: Project, server: Server): File {
+            return Paths.get(getServerWorkingDir(project, server), "log").toFile()
         }
 
         fun grantPermissionsToIntegrationServerFolder(project: Project) {
@@ -148,7 +145,7 @@ class DeployServerUtil {
         }
 
         fun waitForBoot(project: Project, process: Process?) {
-            val url = composeUrl(project, "/deployit/metadata/type")
+            val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type")
             val server = getServer(project)
             WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries)
         }
@@ -178,7 +175,7 @@ class DeployServerUtil {
             )
 
             server.stdoutFileName?.let {
-                config["redirectTo"] = File("${getLogDir(project)}/${it}")
+                config["redirectTo"] = File("${getLogDir(project, server)}/${it}")
             }
 
             project.properties["integrationServerJVMPath"]?.let {
@@ -213,13 +210,13 @@ class DeployServerUtil {
             val serverTemplate = resultComposeFilePath.toFile()
 
             val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-                .replace("DEPLOY_SERVER_HTTP_PORT", server.httpPort.toString())
-                .replace("DEPLOY_IMAGE_VERSION", getDockerImageVersion(project))
+                .replace("{{DEPLOY_SERVER_HTTP_PORT}}", server.httpPort.toString())
+                .replace("{{DEPLOY_IMAGE_VERSION}}", getDockerImageVersion(project))
                 .replace(
-                    "DEPLOY_PLUGINS_TO_EXCLUDE",
+                    "{{DEPLOY_PLUGINS_TO_EXCLUDE}}",
                     server.defaultOfficialPluginsToExclude.joinToString(separator = ",")
                 )
-                .replace("DEPLOY_VERSION", server.version.toString())
+                .replace("{{DEPLOY_VERSION}}", server.version.toString())
             serverTemplate.writeText(configuredTemplate)
 
             return resultComposeFilePath

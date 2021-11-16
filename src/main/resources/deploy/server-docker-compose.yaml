@@ -1,16 +1,16 @@
-version: "3.3"
+version: "3.4"
 
 services:
-  deploy-DEPLOY_VERSION:
-    image: DEPLOY_IMAGE_VERSION
-    container_name: deploy-DEPLOY_VERSION
+  deploy-{{DEPLOY_VERSION}}:
+    image: {{DEPLOY_IMAGE_VERSION}}
+    container_name: deploy-{{DEPLOY_VERSION}}
     environment:
       ADMIN_PASSWORD: admin
       ACCEPT_EULA: 'Y'
       GENERATE_XL_CONFIG: "false"
-      PLUGINS_TO_EXCLUDE: DEPLOY_PLUGINS_TO_EXCLUDE
+      PLUGINS_TO_EXCLUDE: {{DEPLOY_PLUGINS_TO_EXCLUDE}}
     ports:
-      - DEPLOY_SERVER_HTTP_PORT:4516
+      - {{DEPLOY_SERVER_HTTP_PORT}}:4516
     volumes:
       - ./centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration
       - ./conf:/opt/xebialabs/xl-deploy-server/conf

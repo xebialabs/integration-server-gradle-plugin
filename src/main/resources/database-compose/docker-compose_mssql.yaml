@@ -4,7 +4,7 @@ services:
   db_mssql:
     image: xldevdocker/mssql
     ports:
-      - 1433:1433
+      - "{{DB_PORT}}:1433"
     networks:
       - front-tier
 networks:

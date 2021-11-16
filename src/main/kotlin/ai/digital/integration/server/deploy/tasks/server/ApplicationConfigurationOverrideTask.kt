@@ -16,16 +16,19 @@ open class ApplicationConfigurationOverrideTask : DefaultTask() {
 
     @TaskAction
     fun run() {
-        project.logger.lifecycle("Configurations overriding overlaying files.")
+        DeployServerUtil.getServers(project)
+                .forEach { server ->
+                    project.logger.lifecycle("Configurations overriding overlaying files for server ${server.name}.")
 
-        val deployitConf = project.file("${DeployServerUtil.getServerWorkingDir(project)}/conf/deployit.conf")
+                    val deployitConf = project.file("${DeployServerUtil.getServerWorkingDir(project, server)}/conf/deployit.conf")
 
-        val server = DeployServerUtil.getServer(project)
-        val properties = PropertiesUtil.readPropertiesFile(deployitConf)
-        properties["http.context.root"] = server.contextRoot
-        properties["http.port"] = server.httpPort.toString()
 
-        PropertiesUtil.writePropertiesFile(deployitConf, properties)
+                    val properties = PropertiesUtil.readPropertiesFile(deployitConf)
+                    properties["http.context.root"] = server.contextRoot
+                    properties["http.port"] = server.httpPort.toString()
+
+                    PropertiesUtil.writePropertiesFile(deployitConf, properties)
+                }
     }
 
     companion object {

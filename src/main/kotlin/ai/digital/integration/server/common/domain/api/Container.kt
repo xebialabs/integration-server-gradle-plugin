@@ -9,4 +9,11 @@ open class Container(val name: String) {
     var runtimeDirectory: String? = null
     var version: String? = null
     var stdoutFileName: String? = null
+
+    fun numericVersion(): Double {
+        version?.let { it ->
+            return it.split(".").take(2).joinToString(".").toDouble()
+        }
+        return Double.MAX_VALUE
+    }
 }

@@ -1,10 +1,12 @@
 package ai.digital.integration.server.deploy.tasks.server
 
+import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.domain.AkkaSecured
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
-import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.deploy.internals.*
+import ai.digital.integration.server.deploy.internals.SatelliteUtil
+import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
@@ -30,16 +32,14 @@ open class CentralConfigurationTask : DefaultTask() {
             YamlFileUtil.writeFileValue(deployRepositoryYaml, config)
         }
 
-        if (DbUtil.isDerbyNetwork(project)) {
-            val port = DbUtil.getDatabase(project).derbyPort
-            val dbUrl = "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin"
-            YamlFileUtil.overlayFile(deployRepositoryYaml, mutableMapOf("xl.repository.database.db-url" to dbUrl))
-        }
+        val configuredTemplate = deployRepositoryYaml.readText(Charsets.UTF_8)
+            .replace("{{DB_PORT}}", DbUtil.getPort(project).toString())
+        deployRepositoryYaml.writeText(configuredTemplate)
     }
 
-    private fun createCentralConfigurationFiles() {
-        project.logger.lifecycle("Generating initial central configuration files")
-        val serverDir = DeployServerUtil.getServerWorkingDir(project)
+    private fun createCentralConfigurationFiles(server: Server) {
+        project.logger.lifecycle("Generating initial central configuration files for server ${server.name}")
+        val serverDir = DeployServerUtil.getServerWorkingDir(project, server)
 
         overlayRepositoryConfig(serverDir)
 
@@ -142,6 +142,11 @@ open class CentralConfigurationTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        createCentralConfigurationFiles()
+        DeployServerUtil.getServers(project)
+            .forEach { server ->
+                if (server.numericVersion() >= 10.2) {
+                    createCentralConfigurationFiles(server)
+                }
+            }
     }
 }

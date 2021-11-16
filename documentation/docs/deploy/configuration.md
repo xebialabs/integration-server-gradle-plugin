@@ -27,7 +27,7 @@ deployIntegrationServer {
 |database|Database configuration, you can find this section helpful for overriding database driving versions or having more database level logs.|
 |mqDriverVersions|Points to the version of MQ to use, in case you wish to adapt it to your own version.|
 |satellites|You can configure as many satellites as you need here.|
-|servers|Server configurations, currently, it's possible to configure only one.|
+|servers|For non-cluster setup, you can specify here only 1 active server, the rest will be ignored. Unless it is a configuration for update from a previous installation.|
 |tests|You can define Jython based test setups|
 |xldIsDataVersion|**Only for internal use in Digital.ai** Points to the data which is going to be imported after server is booted. To run waste the time to generate a huge amount of test data.|
 |workers|You can configure as many workers as you need here.|
@@ -77,6 +77,7 @@ deployIntegrationServer {
 deployIntegrationServer {
     cluster {
         enable = true
+        enableDebug = true
         publicPort = 1000
     }
 }
@@ -84,7 +85,9 @@ deployIntegrationServer {
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
+|debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached. Take in mind that you have to attach to all processes to be able to completely run the cluster.|
 |enable|Optional|false|If true, cluster setup will be enabled.|
+|enableDebug|Optional|false|If true, debug will be enabled on all masters and workers. The exposed ports to connect will be randomly defined. You can check with `docker ps` which port was exposed for debugging.|
 |publicPort|Optional|8080|The port to connect to the cluster.|
 
 Currently, there is only a docker compose based setup available. The minimum configuration you have to provide is:
@@ -92,7 +95,7 @@ Currently, there is only a docker compose based setup available. The minimum con
 ```groovy title=build.gradle
 deployIntegrationServer {
     cluster {
-        enable.set(true)
+        enable = true
     }
     servers {
         server01 {
@@ -115,6 +118,10 @@ deployIntegrationServer {
 You can define less or more servers and workers. The docker image is being read from the first server and 
 first worker sections. Version is enough to specify only in the first server section, as server and worker versions 
 should always match.
+
+Example where to check for debugging ports to attach:
+
+![Example](./pics/cluster-debug-docker-ps.png)
 
 ## Servers section
 
@@ -204,6 +211,7 @@ deployIntegrationServer {
 |version|Optional|None|It can be specified in several ways. Or as a gradle property `xlDeployVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
 |tls|Optional|false|If enabled use HTTPS for API communication with master.|
 |yamlPatches|Optional|[:]|[Read about this section below](#yaml-patches)|
+|previousInstallation|Optional|false|Is the server the previous installed version to be used a as source for upgrade.|
 
 ### Dev Ops As Code
 
@@ -289,7 +297,7 @@ where a key is a folder path and value is another map, in which key is the path 
 For example, if you want to modify in `deploy-client.yaml` file the `automatically-map-all-deployables` to `false`, you have 
 to do:
 
-![Yaml Patch Example](../pics/yaml-patch-example.png)
+![Yaml Patch Example](./pics/yaml-patch-example.png)
 
 ```groovy
 yamlPatches = [
@@ -305,7 +313,7 @@ yamlPatches = [
 ```groovy title=build.gradle
 deployIntegrationServer {
    database { 
-      derbyPort = 10000
+      databasePort = 10000
       driverVersions = [
              'mssql'        : '8.4.1.jre8',
              'mysql'        : '8.0.22',
@@ -321,7 +329,7 @@ deployIntegrationServer {
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
-|derbyPort|Optional|Random number|If derby database is used, the port on which it's going to be started. For other databases port is fixed.|
+|databasePort|Optional|Random number|The port on which database is going to be started.|
 |driverVersions|Optional|['mssql':'8.4.1.jre8','mysql':'8.0.22','mysql-8':'8.0.22','oracle-19c-se':'21.1.0.0','postgres-10':'42.2.9','postgres-12':'42.2.23']||
 |logSql|Optional|false|If true, enables tracing all SQL queries|
 

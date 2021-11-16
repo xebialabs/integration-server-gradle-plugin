@@ -6,11 +6,11 @@ import java.io.File
 
 class DeployServerInitializeUtil {
     companion object {
-        private fun createFolders(project: Project) {
+        private fun createFolders(project: Project, server: Server) {
             project.logger.lifecycle("Preparing server destination folders.")
 
             arrayOf("centralConfiguration", "conf", "hotfix/plugins", "hotfix/lib", "plugins").forEach { folderName ->
-                val folderPath = "${DeployServerUtil.getServerWorkingDir(project)}/${folderName}"
+                val folderPath = "${DeployServerUtil.getServerWorkingDir(project, server)}/${folderName}"
                 val folder = File(folderPath)
                 folder.mkdirs()
                 project.logger.lifecycle("Folder $folderPath has been created.")
@@ -18,9 +18,9 @@ class DeployServerInitializeUtil {
         }
 
         private fun createConfFile(project: Project, server: Server) {
-            project.logger.lifecycle("Creating deployit.conf file")
+            project.logger.lifecycle("Creating deployit.conf file for ${server.name}")
 
-            val file = project.file("${DeployServerUtil.getServerWorkingDir(project)}/conf/deployit.conf")
+            val file = project.file("${DeployServerUtil.getServerWorkingDir(project, server)}/conf/deployit.conf")
             file.createNewFile()
 
             file.writeText("http.port=${server.httpPort}\n")
@@ -31,10 +31,9 @@ class DeployServerInitializeUtil {
             file.appendText("xl.spring.cloud.enabled=true\n")
         }
 
-        fun prepare(project: Project) {
-            val server = DeployServerUtil.getServer(project)
-            project.logger.lifecycle("Preparing serve ${server.name} before launching it.")
-            createFolders(project)
+        fun prepare(project: Project, server: Server) {
+            project.logger.lifecycle("Preparing server ${server.name} before launching it.")
+            createFolders(project, server)
             createConfFile(project, server)
         }
     }

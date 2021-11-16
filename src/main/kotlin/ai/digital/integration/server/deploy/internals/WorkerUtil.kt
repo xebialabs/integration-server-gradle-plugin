@@ -76,7 +76,7 @@ class WorkerUtil {
                 "-master",
                 "127.0.0.1:$port",
                 "-api",
-                DeployServerUtil.getUrl(project),
+                EntryPointUrlUtil.getUrl(project),
                 "-hostname",
                 hostName,
                 "-name",

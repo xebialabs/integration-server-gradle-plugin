@@ -1,4 +1,5 @@
-version: "3"
+version: "3.4"
+
 services:
   xl-deploy-lb:
     image: xebialabsunsupported/haproxy
@@ -7,7 +8,7 @@ services:
       - xl-deploy-master
     ports:
       - "{{PUBLIC_PORT}}:5000"
-      - "1936:1936"
+      - "{{HA_PORT}}:1936"
     networks:
       - {{DEPLOY_NETWORK_NAME}}
     environment:
@@ -27,33 +28,29 @@ services:
     networks:
       - {{DEPLOY_NETWORK_NAME}}
     environment:
-      - USE_IP_AS_HOSTNAME=true
-      - ADMIN_PASSWORD=admin
       - ACCEPT_EULA=Y
+      - ADMIN_PASSWORD=admin
+      - FORCE_UPGRADE=true
       - XL_CLUSTER_MODE=default
+      - XL_DB_PASSWORD=admin
+      - XL_DB_USERNAME=postgres
+      - XL_DB_URL=jdbc:postgresql://postgresql:5432/xld-db
       - XLD_IN_PROCESS=false
       - XLD_TASK_QUEUE_DRIVER_CLASS_NAME=com.rabbitmq.jms.admin.RMQConnectionFactory
-      - XLD_TASK_QUEUE_URL=amqp://rabbitmq:5672
-      - XLD_TASK_QUEUE_USERNAME=rabbitmq
       - XLD_TASK_QUEUE_PASSWORD=admin
-      - XL_DB_URL=jdbc:postgresql://postgresql:5432/xld-db
-      - XL_DB_USERNAME=postgres
-      - XL_DB_PASSWORD=admin
-      - FORCE_UPGRADE=true
+      - XLD_TASK_QUEUE_USERNAME=rabbitmq
+      - XLD_TASK_QUEUE_URL=amqp://rabbitmq:5672
+      - USE_IP_AS_HOSTNAME=true
     volumes:
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/conf:/opt/xebialabs/xl-deploy-server/conf
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/plugins:/opt/xebialabs/xl-deploy-server/plugins
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration:z
+      - /dev/null:/opt/xebialabs/xl-deploy-server/centralConfiguration/deploy-server.yaml
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/conf:/opt/xebialabs/xl-deploy-server/conf:z
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/plugins:/opt/xebialabs/xl-deploy-server/plugins:z
 
   rabbitmq:
     image: "rabbitmq:3.9.8-management-alpine"
     container_name: rabbitmq
     hostname: "rabbit"
-    ports:
-      - "5672:5672"
-      - "4369:4369"
-      - "25672:25672"
-      - "15672:15672"
     networks:
       - {{DEPLOY_NETWORK_NAME}}
     labels:
@@ -69,7 +66,7 @@ services:
     image: postgres:10.5
     container_name: postgresql
     ports:
-      - "5432:5432"
+      - "{{DB_PORT}}:5432"
     environment:
       - POSTGRES_DB=xld-db
       - POSTGRES_USER=postgres
