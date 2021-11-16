@@ -1,15 +1,16 @@
 package ai.digital.integration.server.common.tasks.provision
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
+import ai.digital.integration.server.common.util.ProviderUtil.Companion.getProviders
+import ai.digital.integration.server.common.util.ProviderUtil.Companion.getProvidersNames
 import ai.digital.integration.server.common.util.TerraformHelper
-import ai.digital.integration.server.common.util.TerraformUtil.Companion.getProvider
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-open class TerraformK8sClusterSetUpTask : DefaultTask() {
+open class SetUpK8sClusterTask : DefaultTask() {
 
     companion object {
-        const val NAME = "terraformK8sClusterSetUp"
+        const val NAME = "setUpK8sCluster"
     }
 
     init {
@@ -18,7 +19,7 @@ open class TerraformK8sClusterSetUpTask : DefaultTask() {
 
     @TaskAction
     fun launch(){
-        project.logger.lifecycle("Setting up a kubernetes cluster on ${getProvider(project)}")
+        project.logger.lifecycle("Setting up a kubernetes cluster on ${getProvidersNames(getProviders(project))}")
         TerraformHelper(project).launchCluster()
     }
 

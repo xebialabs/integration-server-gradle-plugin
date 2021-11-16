@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.DevOpsAsCode
+import ai.digital.integration.server.common.domain.Provider
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.Test
 import ai.digital.integration.server.deploy.DeployIntegrationServerExtension
@@ -33,7 +34,8 @@ class DeployExtensionUtil {
                 project.container(Satellite::class.java),
                 servers,
                 project.container(Test::class.java),
-                project.container(Worker::class.java)
+                project.container(Worker::class.java),
+                project.container(Provider::class.java)
             )
         }
 
