@@ -19,13 +19,5 @@ class ProviderUtil {
                 provider
             }
         }
-
-        fun getProvidersNames(providers: List<Provider>) : String {
-            var names = ""
-            providers.forEach { provider ->
-                names += "name: $provider "
-            }
-            return names
-        }
     }
 }

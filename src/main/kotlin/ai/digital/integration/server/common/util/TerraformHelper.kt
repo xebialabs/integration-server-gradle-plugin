@@ -5,6 +5,8 @@ import ai.digital.integration.server.common.util.ProviderUtil.Companion.getFirst
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.memberProperties
 
 open class TerraformHelper(val project: Project) {
 
@@ -21,13 +23,13 @@ open class TerraformHelper(val project: Project) {
         val template = getTemplate(terraformAwsPath)
 
         val configuredTemplate = template.readText(Charsets.UTF_8)
-            .replace("{{EKS_CLUSTER_NAME}}", getEksClusterName(project,getFirstProvider(project)))
-            .replace("{{EKS_VPC_NAME}}", getEksVpcName(project, getFirstProvider(project)))
-            .replace("{{EKS_VPC_SOURCE}}", getEksVpcSource(project, getFirstProvider(project)))
-            .replace("{{EKS_VPC_VERSION}}", getEksVpcVersion(project, getFirstProvider(project)))
-            .replace("{{EKS_SOURCE}}", getEksSource(project, getFirstProvider(project)))
-            .replace("{{EKS_VERSION}}", getEksVersion(project, getFirstProvider(project)))
-            .replace("{{EKS_CLUSTER_VERSION}}", getEksClusterVersion(project, getFirstProvider(project)))
+            .replace("{{EKS_CLUSTER_NAME}}", getAwsProperty(project,getFirstProvider(project),"eksClusterName"))
+            .replace("{{EKS_VPC_NAME}}", getAwsProperty(project, getFirstProvider(project),"eksVpcName"))
+            .replace("{{EKS_VPC_SOURCE}}", getAwsProperty(project, getFirstProvider(project),"eksVpcSource"))
+            .replace("{{EKS_VPC_VERSION}}", getAwsProperty(project, getFirstProvider(project), "eksVpcVersion"))
+            .replace("{{EKS_SOURCE}}", getAwsProperty(project, getFirstProvider(project), "eksSource"))
+            .replace("{{EKS_VERSION}}", getAwsProperty(project, getFirstProvider(project),"eksVersion"))
+            .replace("{{EKS_CLUSTER_VERSION}}", getAwsProperty(project, getFirstProvider(project),"eksClusterVersion"))
 
         template.writeText(configuredTemplate)
 
@@ -42,60 +44,23 @@ open class TerraformHelper(val project: Project) {
         TerraformUtil.execute(project, listOf("-chdir=${getResolvedTerraformAwsPath()}","apply"))
     }
 
-    private fun getProvisioner(project: Project, provider: Provider): String {
-        return if (project.hasProperty("provisioner"))
-            project.property("provisioner").toString()
+    private fun getAwsProperty(project: Project,provider: Provider, providerProperty: String): String {
+        return if (project.hasProperty(providerProperty))
+            project.property(providerProperty).toString()
         else
-            provider.provisioner
+            getPropertyValue(provider, providerProperty)
     }
 
-    private fun getEksClusterName(project: Project, provider: Provider): String {
-        return if (project.hasProperty("eksClusterName"))
-            project.property("eksClusterName").toString()
-        else
-            provider.eksClusterName
-    }
+    private fun getPropertyValue(provider: Provider, providerProperty: String): String {
+        var propertyValue = ""
 
-    private fun getEksVpcName(project: Project, provider: Provider): String {
-        return if (project.hasProperty("eksVpcName"))
-            project.property("eksVpcName").toString()
-        else
-            provider.eksVpcName
-    }
+        provider::class.memberProperties.forEach { member ->
+            if (member.name.equals(providerProperty)) {
+                propertyValue = (member as KProperty1<Any, Any>).get(provider).toString()
+            }
+        }
 
-    private fun getEksVpcSource(project: Project, provider: Provider): String {
-        return if (project.hasProperty("eksVpcSource"))
-            project.property("eksVpcSource").toString()
-        else
-            provider.eksVpcSource
-    }
-
-    private fun getEksVpcVersion(project: Project, provider: Provider): String {
-        return if (project.hasProperty("eksVpcVersion"))
-            project.property("eksVpcVersion").toString()
-        else
-            provider.eksVpcVersion
-    }
-
-    private fun getEksSource(project: Project, provider: Provider): String {
-        return if (project.hasProperty("eksSource"))
-            project.property("eksSource").toString()
-        else
-            provider.eksSource
-    }
-
-    private fun getEksVersion(project: Project, provider: Provider): String {
-        return if (project.hasProperty("eksVersion"))
-            project.property("eksVersion").toString()
-        else
-            provider.eksVersion
-    }
-
-    private fun getEksClusterVersion(project: Project, provider: Provider): String {
-        return if (project.hasProperty("eksClusterVersion"))
-            project.property("eksClusterVersion").toString()
-        else
-            provider.eksClusterVersion
+        return propertyValue
     }
 
     fun launchCluster() {
