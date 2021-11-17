@@ -19,7 +19,10 @@ open class SetUpK8sClusterTask : DefaultTask() {
 
     @TaskAction
     fun launch(){
-        project.logger.lifecycle("Setting up a kubernetes cluster on ${getProvidersNames(getProviders(project))}")
+
+        getProviders(project).forEach { provider ->
+            project.logger.lifecycle("Setting up a kubernetes cluster on ${provider.name}")
+        }
         TerraformHelper(project).launchCluster()
     }
 

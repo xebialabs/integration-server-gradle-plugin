@@ -1,8 +1,6 @@
 package ai.digital.integration.server.common.domain
 
-import org.gradle.api.model.ObjectFactory
-
-class Provider(objects: ObjectFactory) {
+class Provider(val name: String) {
     var provisioner: String = "terraform"
     var eksClusterName: String = "Integration-Server-Plugin-EKS"
     var eksVpcName: String = "Integration-Server-Plugin-VPC"
