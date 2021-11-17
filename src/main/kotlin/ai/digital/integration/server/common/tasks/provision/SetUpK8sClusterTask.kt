@@ -2,7 +2,6 @@ package ai.digital.integration.server.common.tasks.provision
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.ProviderUtil.Companion.getProviders
-import ai.digital.integration.server.common.util.ProviderUtil.Companion.getProvidersNames
 import ai.digital.integration.server.common.util.TerraformHelper
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
