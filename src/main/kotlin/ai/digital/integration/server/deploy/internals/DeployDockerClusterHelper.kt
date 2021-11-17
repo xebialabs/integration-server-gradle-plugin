@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
+import ai.digital.integration.server.common.domain.profiles.DockerComposeProfile
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
 import net.jodah.failsafe.Failsafe
@@ -32,6 +33,10 @@ open class DeployDockerClusterHelper(val project: Project) {
 
     private fun getCluster(): Cluster {
         return DeployExtensionUtil.getExtension(project).cluster.get()
+    }
+
+    private fun getProfile(): DockerComposeProfile {
+        return DeployExtensionUtil.getExtension(project).clusterProfiles.get().dockerCompose
     }
 
     private fun getClusterVersion(): String? {
@@ -94,13 +99,17 @@ open class DeployDockerClusterHelper(val project: Project) {
     private fun getResolvedXldHaDockerComposeFile(): Path {
         val template = getTemplate(dockerXldHAPath)
         val serviceName = "xl-deploy-master"
+
         val configuredTemplate = template.readText(Charsets.UTF_8)
             .replace("{{DEPLOY_MASTER_IMAGE}}", getServerVersionedImage())
-            .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", IntegrationServerUtil.getDist(project))
             .replace("{{DEPLOY_NETWORK_NAME}}", ClusterConstants.NETWORK_NAME)
-            .replace("{{PUBLIC_PORT}}", getClusterPublicPort())
             .replace("{{HA_PORT}}", HTTPUtil.findFreePort().toString())
+            .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", IntegrationServerUtil.getDist(project))
             .replace("{{DB_PORT}}", HTTPUtil.findFreePort().toString())
+            .replace("{{POSGRES_COMMAND}}", getProfile().postgresCommand)
+            .replace("{{POSTGRES_IMAGE}}", getProfile().postgresImage)
+            .replace("{{PUBLIC_PORT}}", getClusterPublicPort())
+            .replace("{{RABBIT_MQ_IMAGE}}", getProfile().rabbitMqImage)
 
         template.writeText(configuredTemplate)
         openDebugPort(template, serviceName, "4000-4049")
