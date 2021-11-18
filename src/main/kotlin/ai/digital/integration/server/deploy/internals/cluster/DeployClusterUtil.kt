@@ -13,5 +13,9 @@ class DeployClusterUtil {
         fun getTerraformProvider(project: Project): String {
             return DeployExtensionUtil.getExtension(project).clusterProfiles.get().terraform.activeProviderName
         }
+
+        fun getOperatorProvider(project: Project): String {
+            return DeployExtensionUtil.getExtension(project).clusterProfiles.get().operator.activeProviderName
+        }
     }
 }

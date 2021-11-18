@@ -1,4 +1,4 @@
-package ai.digital.integration.server.common.domain.providers
+package ai.digital.integration.server.common.domain.providers.terraform
 
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.property

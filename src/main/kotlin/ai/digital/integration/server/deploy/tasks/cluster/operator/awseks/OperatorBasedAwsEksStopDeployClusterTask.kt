@@ -1,14 +1,14 @@
-package ai.digital.integration.server.deploy.tasks.cluster.terraform
+package ai.digital.integration.server.deploy.tasks.cluster.operator.awseks
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.deploy.internals.cluster.terraform.AwsEksHelper
+import ai.digital.integration.server.deploy.internals.cluster.operator.AwsEksHelper
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-open class TerraformBasedAwsEksStopDeployClusterTask : DefaultTask() {
+open class OperatorBasedAwsEksStopDeployClusterTask : DefaultTask() {
 
     companion object {
-        const val NAME = "terraformBasedAwsEksStopDeployCluster"
+        const val NAME = "operatorBasedAwsEksStopDeployCluster"
     }
 
     init {

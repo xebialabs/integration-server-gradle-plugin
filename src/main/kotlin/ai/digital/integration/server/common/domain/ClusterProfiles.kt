@@ -12,11 +12,9 @@ open class ClusterProfiles(objects: ObjectFactory) {
     var dockerCompose: DockerComposeProfile =
         objects.property<DockerComposeProfile>().value(DockerComposeProfile(objects)).get()
 
-    // TBD
     var operator: OperatorProfile =
-        objects.property<OperatorProfile>().value(OperatorProfile()).get()
+        objects.property<OperatorProfile>().value(OperatorProfile(objects)).get()
 
-    // TBD
     var terraform: TerraformProfile =
         objects.property<TerraformProfile>().value(TerraformProfile(objects)).get()
 
