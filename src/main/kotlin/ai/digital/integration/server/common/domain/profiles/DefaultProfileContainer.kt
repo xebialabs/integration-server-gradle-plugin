@@ -1,5 +1,7 @@
 package ai.digital.integration.server.common.domain.profiles
 
+import ai.digital.integration.server.common.domain.providers.operator.OperatorProviderContainer
+import ai.digital.integration.server.common.domain.providers.terraform.TerraformProviderContainer
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
@@ -7,7 +9,7 @@ import org.gradle.api.internal.NamedDomainObjectContainerConfigureDelegate
 import org.gradle.util.ConfigureUtil
 
 @Suppress("UnstableApiUsage")
-internal class DefaulProfileContainer(delegate: NamedDomainObjectContainer<Profile>) :
+internal class DefaultProfileContainer(delegate: NamedDomainObjectContainer<Profile>) :
     ProfileContainer, NamedDomainObjectContainer<Profile> by delegate {
 
     override fun dockerCompose(): DockerComposeProfile = dockerCompose {}

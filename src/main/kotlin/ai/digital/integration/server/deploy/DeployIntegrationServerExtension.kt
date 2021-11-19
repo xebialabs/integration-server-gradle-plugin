@@ -1,7 +1,7 @@
 package ai.digital.integration.server.deploy
 
 import ai.digital.integration.server.common.domain.*
-import ai.digital.integration.server.common.domain.profiles.DefaulProfileContainer
+import ai.digital.integration.server.common.domain.profiles.DefaultProfileContainer
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.domain.profiles.ProfileContainer
@@ -51,7 +51,7 @@ open class DeployIntegrationServerExtension(
     }
 
     val clusterProfiles: ProfileContainer =
-        DefaulProfileContainer(project.container(Profile::class) { name ->
+        DefaultProfileContainer(project.container(Profile::class) { name ->
             project.objects.newInstance(OperatorProfile::class, name, project)
         })
 
