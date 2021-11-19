@@ -1,6 +1,10 @@
 package ai.digital.integration.server.deploy
 
 import ai.digital.integration.server.common.domain.*
+import ai.digital.integration.server.common.domain.profiles.DefaulProfileContainer
+import ai.digital.integration.server.common.domain.profiles.OperatorProfile
+import ai.digital.integration.server.common.domain.profiles.Profile
+import ai.digital.integration.server.common.domain.profiles.ProfileContainer
 import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.deploy.domain.Satellite
 import ai.digital.integration.server.deploy.domain.Worker
@@ -8,7 +12,10 @@ import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.container
+import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
+
 
 @Suppress("UnstableApiUsage")
 open class DeployIntegrationServerExtension(
@@ -43,9 +50,12 @@ open class DeployIntegrationServerExtension(
         workers.configure(closure)
     }
 
-    val clusterProfiles = project.objects.property<ClusterProfiles>().value(ClusterProfiles(project.objects))
+    val clusterProfiles: ProfileContainer =
+        DefaulProfileContainer(project.container(Profile::class) { name ->
+            project.objects.newInstance(OperatorProfile::class, name, project)
+        })
 
-    fun clusterProfiles(action: Action<in ClusterProfiles>) = action.execute(clusterProfiles.get())
+    fun clusterProfiles(action: Action<in ProfileContainer>) = action.execute(clusterProfiles)
 
     val cli = project.objects.property<Cli>().value(Cli(project.objects))
 

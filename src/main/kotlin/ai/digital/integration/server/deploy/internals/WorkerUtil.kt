@@ -69,7 +69,7 @@ class WorkerUtil {
             worker: Worker,
             hostName: String,
             port: String,
-            useWorkerCommand: Boolean,
+            useWorkerCommand: Boolean
         ): List<String> {
 
             val params = mutableListOf(
@@ -100,12 +100,12 @@ class WorkerUtil {
                             "-trustStore",
                             secured.trustStoreFile().absolutePath,
                             "-trustStorePassword",
-                            secured.truststorePassword,
+                            secured.truststorePassword
                         ))
                         if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
                             params.addAll(listOf(
                                 "-keyPassword",
-                                key.keyPassword,
+                                key.keyPassword
                             ))
                         }
                     }

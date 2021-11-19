@@ -135,8 +135,8 @@ open class StartServerInstanceTask : DefaultTask() {
             }
         } else {
             project.exec {
-                it.executable = "docker-compose"
-                it.args = listOf("-f", DeployServerUtil.getResolvedDockerFile(project).toFile().toString(), "up", "-d")
+                executable = "docker-compose"
+                args = listOf("-f", DeployServerUtil.getResolvedDockerFile(project).toFile().toString(), "up", "-d")
             }
             null
         }

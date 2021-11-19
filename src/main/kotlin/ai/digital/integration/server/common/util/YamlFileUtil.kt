@@ -30,7 +30,7 @@ class YamlFileUtil {
         @Suppress("UNCHECKED_CAST")
         fun getKeyParentAndLastToken(
             objectMap: MutableMap<String, Any>,
-            key: String,
+            key: String
         ): Pair<MutableMap<String, Any>, String> {
             val tokens: List<String> = key.split(".")
 

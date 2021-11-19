@@ -17,6 +17,22 @@ import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerCo
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
@@ -42,10 +58,39 @@ open class DeployTaskRegistry {
             project.tasks.create(RunCliTask.NAME, RunCliTask::class.java)
 
             //Cluster
-            project.tasks.create(DockerComposeBasedStartDeployClusterTask.NAME, DockerComposeBasedStartDeployClusterTask::class.java)
-            project.tasks.create(DockerComposeBasedStopDeployClusterTask.NAME, DockerComposeBasedStopDeployClusterTask::class.java)
+
             project.tasks.create(StartDeployClusterTask.NAME, StartDeployClusterTask::class.java)
             project.tasks.create(StopDeployClusterTask.NAME, StopDeployClusterTask::class.java)
+
+            // Cluster Operator
+            project.tasks.create(OperatorBasedAwsEksStartDeployClusterTask.NAME, OperatorBasedAwsEksStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsEksStopDeployClusterTask.NAME, OperatorBasedAwsEksStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedAwsOpenShiftStartDeployClusterTask.NAME, OperatorBasedAwsOpenShiftStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME, OperatorBasedAwsOpenShiftStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedAzureAksStartDeployClusterTask.NAME, OperatorBasedAzureAksStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAzureAksStopDeployClusterTask.NAME, OperatorBasedAzureAksStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedGcpGkeStartDeployClusterTask.NAME, OperatorBasedGcpGkeStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedGcpGkeStopDeployClusterTask.NAME, OperatorBasedGcpGkeStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedOnPremStartDeployClusterTask.NAME, OperatorBasedOnPremStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedOnPremStopDeployClusterTask.NAME, OperatorBasedOnPremStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME, OperatorBasedVmWareOpenShiftStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME, OperatorBasedVmWareOpenShiftStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedStartDeployClusterTask.NAME, OperatorBasedStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedStopDeployClusterTask.NAME, OperatorBasedStopDeployClusterTask::class.java)
+
+            // Cluster Terraform
+            project.tasks.create(TerraformBasedAwsEksStartDeployClusterTask.NAME, TerraformBasedAwsEksStartDeployClusterTask::class.java)
+            project.tasks.create(TerraformBasedAwsEksStopDeployClusterTask.NAME, TerraformBasedAwsEksStopDeployClusterTask::class.java)
+
+            // Cluster Docker Compose
+            project.tasks.create(DockerComposeBasedStartDeployClusterTask.NAME, DockerComposeBasedStartDeployClusterTask::class.java)
+            project.tasks.create(DockerComposeBasedStopDeployClusterTask.NAME, DockerComposeBasedStopDeployClusterTask::class.java)
 
             //Database
             project.tasks.create(DatabaseStartTask.NAME, DatabaseStartTask::class.java)

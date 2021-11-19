@@ -27,32 +27,32 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
             getTls(project, getServerWorkingDir(project))?.let { tls ->
 
                 val genKeyStore = project.tasks.register("tls${KeytoolGenKeyTask.NAME.capitalize()}", KeytoolGenKeyTask::class.java) {
-                    it.keyname = Tls.KEY_NAME
-                    it.type = Tls.KEYSTORE_TYPE
-                    it.typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
-                    it.workDir = tls.confWorkDir()
-                    it.keypass = tls.keyPassword
-                    it.storepass = tls.keyStorePassword
+                    keyname = Tls.KEY_NAME
+                    type = Tls.KEYSTORE_TYPE
+                    typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
+                    workDir = tls.confWorkDir()
+                    keypass = tls.keyPassword
+                    storepass = tls.keyStorePassword
                 }
 
                 val genCert = project.tasks.register("tls${KeytoolExportKeyToCertTask.NAME.capitalize()}", KeytoolExportKeyToCertTask::class.java) {
-                    it.keyname = Tls.KEY_NAME
-                    it.type = Tls.KEYSTORE_TYPE
-                    it.typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
-                    it.workDir = tls.confWorkDir()
-                    it.keypass = tls.keyPassword
-                    it.storepass = tls.keyStorePassword
+                    keyname = Tls.KEY_NAME
+                    type = Tls.KEYSTORE_TYPE
+                    typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
+                    workDir = tls.confWorkDir()
+                    keypass = tls.keyPassword
+                    storepass = tls.keyStorePassword
                 }
                 project.tasks.getByName(genCert.name).dependsOn(genKeyStore)
 
                 val genTrustStore = project.tasks.register("tls${KeytoolImportKeyToTruststoreTask.NAME.capitalize()}", KeytoolImportKeyToTruststoreTask::class.java) {
-                    it.keyname = Tls.KEY_NAME
-                    it.type = Tls.KEYSTORE_TYPE
-                    it.typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
-                    it.truststore = tls.trustStoreName
-                    it.workDir = tls.confWorkDir()
-                    it.keypass = tls.keyPassword
-                    it.storepass = tls.truststorePassword
+                    keyname = Tls.KEY_NAME
+                    type = Tls.KEYSTORE_TYPE
+                    typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
+                    truststore = tls.trustStoreName
+                    workDir = tls.confWorkDir()
+                    keypass = tls.keyPassword
+                    storepass = tls.truststorePassword
                 }
                 project.tasks.getByName(genTrustStore.name).dependsOn(genCert)
                 dependsOn(genKeyStore, genCert, genTrustStore)
@@ -69,8 +69,8 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
     }
 
     private fun updateDeployitConf(tls: Tls?) {
-        project.logger.lifecycle("Configurations TLS overriding for deployit.conf.")
-        val deployitConf = project.file("${tls!!.confWorkDir()}/deployit.conf")
+        project.logger.lifecycle("Configurations TLS overriding for deployconf.")
+        val deployitConf = project.file("${tls!!.confWorkDir()}/deployconf")
         val properties = readPropertiesFile(deployitConf)
         properties["ssl"] = true.toString()
         properties["keystore.type"] = Tls.KEYSTORE_TYPE
@@ -84,7 +84,7 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
 
     private fun updateWrapperConf(tls: Tls?) {
         project.logger.lifecycle("Configurations TLS overriding for xld-wrapper.conf.common.")
-        val wrapperConf = project.file(tls!!.confWorkDir().toString() + "/deployit.conf")
+        val wrapperConf = project.file(tls!!.confWorkDir().toString() + "/deployconf")
         val properties = readPropertiesFile(wrapperConf)
         var pos = 0
         while (pos < 20 && properties.containsKey("wrapper.java.additional.$pos")) {

@@ -34,7 +34,7 @@ open class KeytoolImportKeyToTruststoreTask : KeytoolTask() {
 
     init {
         this.doFirst {
-            this.params = listOf(
+            params = listOf(
                     "-import", "-noprompt", "-alias", keyname!!, "-deststoretype", type,
                     "-file", getInputFile().absolutePath, "-keystore", getOutputFile().absolutePath
             )

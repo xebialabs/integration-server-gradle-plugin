@@ -3,9 +3,10 @@ package ai.digital.integration.server.common.tasks.database
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.util.DbConfigurationUtil
 import ai.digital.integration.server.common.util.DbUtil
+import ai.digital.integration.server.common.util.IntegrationServerUtil
 import ai.digital.integration.server.common.util.PostgresDbUtil
-import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractDbUnitDataDistTask
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
+import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractDbUnitDataDistTask
 import com.fasterxml.jackson.databind.node.TextNode
 import org.dbunit.dataset.xml.FlatXmlDataSet
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
@@ -51,10 +52,8 @@ open class ImportDbUnitDataTask : DefaultTask() {
         val provider = FlatXmlDataSetBuilder()
         provider.isColumnSensing = true
         provider.isCaseSensitiveTableNames = true
-        val destinationDir =
-            project.buildDir.toPath().resolve(PluginConstant.DIST_DESTINATION_NAME).toAbsolutePath().toString()
         val version = DeployExtensionUtil.getExtension(project).xldIsDataVersion
-        val dataFile = Paths.get("${destinationDir}/xld-is-data-${version}-repository/data.xml")
+        val dataFile = Paths.get("${IntegrationServerUtil.getDist(project)}/xld-is-data-${version}-repository/data.xml")
         return provider.build(FileInputStream(dataFile.toFile()))
     }
 

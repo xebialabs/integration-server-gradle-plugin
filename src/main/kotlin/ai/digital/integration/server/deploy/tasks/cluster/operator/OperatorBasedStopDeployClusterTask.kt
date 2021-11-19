@@ -21,32 +21,30 @@ open class OperatorBasedStopDeployClusterTask : DefaultTask() {
 
     init {
         group = PluginConstant.PLUGIN_GROUP
+
+        this.dependsOn(when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
+            OperatorProviderName.AWS_EKS.providerName ->
+                OperatorBasedAwsEksStopDeployClusterTask.NAME
+            OperatorProviderName.AWS_OPENSHIFT.providerName ->
+                OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME
+            OperatorProviderName.AZURE_AKS.providerName ->
+                OperatorBasedAzureAksStopDeployClusterTask.NAME
+            OperatorProviderName.GCP_GKE.providerName ->
+                OperatorBasedGcpGkeStopDeployClusterTask.NAME
+            OperatorProviderName.ON_PREMISE.providerName ->
+                OperatorBasedOnPremStopDeployClusterTask.NAME
+            OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
+                OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME
+            else -> {
+                throw NotSupportedException("Provided operator provider name `$providerName` is not supported. Choose one of ${
+                    OperatorProviderName.values().joinToString()
+                }")
+            }
+        })
     }
 
     @TaskAction
     fun launch() {
-        val dependencies = listOf(
-            when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
-                OperatorProviderName.AWS_EKS.providerName ->
-                    OperatorBasedAwsEksStopDeployClusterTask.NAME
-                OperatorProviderName.AWS_OPENSHIFT.providerName ->
-                    OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME
-                OperatorProviderName.AZURE_AKS.providerName ->
-                    OperatorBasedAzureAksStopDeployClusterTask.NAME
-                OperatorProviderName.GCP_GKE.providerName ->
-                    OperatorBasedGcpGkeStopDeployClusterTask.NAME
-                OperatorProviderName.ON_PREMISE.providerName ->
-                    OperatorBasedOnPremStopDeployClusterTask.NAME
-                OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
-                    OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME
-                else -> {
-                    throw NotSupportedException("Provided operator provider name `$providerName` is not supported. Choose one of ${
-                        OperatorProviderName.values().joinToString()
-                    }")
-                }
-            }
-        )
-
-        this.dependsOn(dependencies)
+        project.logger.lifecycle("Operator based Deploy Cluster is about to stop.")
     }
 }

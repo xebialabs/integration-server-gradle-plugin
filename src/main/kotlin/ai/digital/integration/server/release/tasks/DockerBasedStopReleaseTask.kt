@@ -29,8 +29,8 @@ open class DockerBasedStopReleaseTask : DefaultTask() {
      */
     private fun allowToCleanMountedFiles() {
         project.exec {
-            it.executable = "docker-compose"
-            it.args = arrayListOf("-f",
+            executable = "docker-compose"
+            args = arrayListOf("-f",
                 getDockerComposeFile().path,
                 "exec",
                 "-T",
@@ -39,8 +39,8 @@ open class DockerBasedStopReleaseTask : DefaultTask() {
                 "777",
                 "-R",
                 "/opt/xebialabs/xl-release-server")
-            it.errorOutput = ByteArrayOutputStream()
-            it.isIgnoreExitValue = true
+            errorOutput = ByteArrayOutputStream()
+            isIgnoreExitValue = true
         }
     }
 
@@ -53,8 +53,8 @@ open class DockerBasedStopReleaseTask : DefaultTask() {
         allowToCleanMountedFiles()
 
         project.exec {
-            it.executable = "docker-compose"
-            it.args = arrayListOf("-f", getDockerComposeFile().path, "down", "-v")
+            executable = "docker-compose"
+            args = arrayListOf("-f", getDockerComposeFile().path, "down", "-v")
         }
     }
 }

@@ -28,13 +28,13 @@ class ProcessUtil {
             }
         }
 
-        fun execute(project: Project, executable: String, args: List<String>, logOutput: Boolean = true): String {
-            project.logger.lifecycle("About to execute `$executable ${args.joinToString(" ")}`")
+        fun execute(project: Project, exec: String, arguments: List<String>, logOutput: Boolean = true): String {
+            project.logger.lifecycle("About to execute `$exec ${arguments.joinToString(" ")}`")
             val stdout = ByteArrayOutputStream()
             project.exec {
-                it.args = args
-                it.executable = executable
-                it.standardOutput = stdout
+                args = arguments
+                executable = exec
+                standardOutput = stdout
             }
             val output = stdout.toString(StandardCharsets.UTF_8)
             if (logOutput) {
@@ -91,8 +91,8 @@ class ProcessUtil {
 
         fun chMod(project: Project, mode: String, fileName: String) {
             project.exec {
-                it.executable = "chmod"
-                it.args = listOf("-R", mode, fileName)
+                executable = "chmod"
+                args = listOf("-R", mode, fileName)
             }
         }
 

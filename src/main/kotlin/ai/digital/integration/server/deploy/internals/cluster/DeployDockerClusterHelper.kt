@@ -40,7 +40,8 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun getProfile(): DockerComposeProfile {
-        return DeployExtensionUtil.getExtension(project).clusterProfiles.get().dockerCompose
+        // return DeployExtensionUtil.getExtension(project).clusterProfiles.get().dockerCompose TODO
+        return DockerComposeProfile(project)
     }
 
     private fun getClusterVersion(): String? {
@@ -110,10 +111,10 @@ open class DeployDockerClusterHelper(val project: Project) {
             .replace("{{HA_PORT}}", HTTPUtil.findFreePort().toString())
             .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", IntegrationServerUtil.getDist(project))
             .replace("{{DB_PORT}}", HTTPUtil.findFreePort().toString())
-            .replace("{{POSGRES_COMMAND}}", getProfile().postgresCommand)
-            .replace("{{POSTGRES_IMAGE}}", getProfile().postgresImage)
+            .replace("{{POSGRES_COMMAND}}", getProfile().postgresCommand.get())
+            .replace("{{POSTGRES_IMAGE}}", getProfile().postgresImage.get())
             .replace("{{PUBLIC_PORT}}", getClusterPublicPort())
-            .replace("{{RABBIT_MQ_IMAGE}}", getProfile().rabbitMqImage)
+            .replace("{{RABBIT_MQ_IMAGE}}", getProfile().rabbitMqImage.get())
 
         template.writeText(configuredTemplate)
         openDebugPort(template, serviceName, "4000-4049")
@@ -191,8 +192,8 @@ open class DeployDockerClusterHelper(val project: Project) {
     private fun createNetwork() {
         if (!networkExists()) {
             project.exec {
-                it.executable = "docker"
-                it.args = listOf("network", "create", ClusterConstants.NETWORK_NAME)
+                executable = "docker"
+                args = listOf("network", "create", ClusterConstants.NETWORK_NAME)
             }
         }
     }

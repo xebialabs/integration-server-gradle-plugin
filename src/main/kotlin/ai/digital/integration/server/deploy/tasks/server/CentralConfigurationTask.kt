@@ -62,7 +62,7 @@ open class CentralConfigurationTask : DefaultTask() {
                             "deploy.server.ssl.key-store" to key.keyStoreFile().absolutePath,
                             "deploy.server.ssl.key-store-password" to key.keyStorePassword,
                             "deploy.server.ssl.trust-store" to sec.trustStoreFile().absolutePath,
-                            "deploy.server.ssl.trust-store-password" to sec.truststorePassword,
+                            "deploy.server.ssl.trust-store-password" to sec.truststorePassword
                         ))
                     if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
                         serverYaml["deploy.server.ssl.key-password"] = key.keyPassword

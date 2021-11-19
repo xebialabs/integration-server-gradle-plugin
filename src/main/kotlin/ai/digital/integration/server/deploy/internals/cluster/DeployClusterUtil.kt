@@ -11,11 +11,12 @@ class DeployClusterUtil {
         }
 
         fun getTerraformProvider(project: Project): String {
-            return DeployExtensionUtil.getExtension(project).clusterProfiles.get().terraform.activeProviderName
+//            return DeployExtensionUtil.getExtension(project).clusterProfiles.terraform().activeProviderName TODO:
+            return ""
         }
 
         fun getOperatorProvider(project: Project): String {
-            return DeployExtensionUtil.getExtension(project).clusterProfiles.get().operator.activeProviderName
+            return DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.get()
         }
     }
 }

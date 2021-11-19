@@ -33,8 +33,8 @@ abstract class GitlabStartTask : DockerComposeUp() {
         project.logger.lifecycle("Starting GitLab server.")
 
         project.exec {
-            it.executable = "docker-compose"
-            it.args = arrayListOf("-f", dockerComposeFile.path, "-p", "gitlabServer", "up", "-d")
+            executable = "docker-compose"
+            args = arrayListOf("-f", dockerComposeFile.path, "-p", "gitlabServer", "up", "-d")
         }
 
         WaitForBootUtil.byPort(project, "GitLab server", "http://localhost:11180/") // TODO: port has to be configurable

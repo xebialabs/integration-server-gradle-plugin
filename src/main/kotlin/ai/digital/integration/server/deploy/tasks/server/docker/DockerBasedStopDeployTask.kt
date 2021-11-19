@@ -51,8 +51,8 @@ open class DockerBasedStopDeployTask : DefaultTask() {
         allowToCleanMountedFiles()
 
         project.exec {
-            it.executable = "docker-compose"
-            it.args = arrayListOf("-f", getDockerComposeFile().path, "down", "-v")
+            executable = "docker-compose"
+            args = arrayListOf("-f", getDockerComposeFile().path, "down", "-v")
         }
     }
 }

@@ -36,7 +36,7 @@ open class KeytoolGenKeyTask : KeytoolTask() {
 
     init {
         this.doFirst {
-            this.params = listOf(
+            params = listOf(
                 "-genkey",
                 "-alias",
                 keyname!!,

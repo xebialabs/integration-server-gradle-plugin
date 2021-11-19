@@ -1,14 +1,16 @@
 package ai.digital.integration.server.common.domain.profiles
 
 import ai.digital.integration.server.common.constant.TerraformProviderName
-import ai.digital.integration.server.common.domain.providers.terraform.AwsEksProvider
-import org.gradle.api.model.ObjectFactory
+import org.gradle.api.Project
+import org.gradle.api.tasks.Input
 import org.gradle.kotlin.dsl.property
+import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
-open class TerraformProfile(objects: ObjectFactory) {
-    var activeProviderName = objects.property<String>().value(TerraformProviderName.AWS_EKS.providerName).get()
+open class TerraformProfile @Inject constructor(@Input val name: String, project: Project) : Profile {
+    @Input
+    val activeProviderName = project.objects.property<String>().value(TerraformProviderName.AWS_EKS.providerName)
 
-    var awsEksProvider: AwsEksProvider =
-        objects.property<AwsEksProvider>().value(AwsEksProvider(objects)).get()
+//    var awsEks: AwsEksProvider =
+//        objects.property<AwsEksProvider>().value(AwsEksProvider(objects)).get()
 }

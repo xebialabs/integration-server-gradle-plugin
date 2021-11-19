@@ -22,9 +22,9 @@ open class DownloadAndExtractCliDistTask : DefaultTask() {
             )
 
             val taskName = "${NAME}Exec"
-            this.dependsOn(project.tasks.register(taskName, Copy::class.java) { copy ->
-                copy.from(project.zipTree(project.buildscript.configurations.getByName(SERVER_CLI_DIST).singleFile))
-                copy.into(IntegrationServerUtil.getDist(project))
+            this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
+                from(project.zipTree(project.buildscript.configurations.getByName(SERVER_CLI_DIST).singleFile))
+                into(IntegrationServerUtil.getDist(project))
             })
         }
     }
