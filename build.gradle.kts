@@ -20,7 +20,7 @@ plugins {
     id("signing")
 }
 
-//apply(plugin = "ai.digital.gradle-commit")
+apply(plugin = "ai.digital.gradle-commit")
 
 group = "com.xebialabs.gradle.plugins"
 project.defaultTasks = listOf("build")
