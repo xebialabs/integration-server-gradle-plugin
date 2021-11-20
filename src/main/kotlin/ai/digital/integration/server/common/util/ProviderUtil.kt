@@ -10,10 +10,6 @@ class ProviderUtil {
             return !DeployExtensionUtil.getExtension(project).providers.isEmpty()
         }
 
-        fun getFirstProvider(project: Project): Provider {
-            return DeployExtensionUtil.getExtension(project).providers.first()
-        }
-
         fun getProviders(project: Project): List<Provider> {
             return DeployExtensionUtil.getExtension(project).providers.map { provider: Provider ->
                 provider
