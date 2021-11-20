@@ -1,12 +1,10 @@
 package ai.digital.integration.server.common.util
 
 import ai.digital.integration.server.common.domain.Provider
-import ai.digital.integration.server.common.util.ProviderUtil.Companion.getFirstProvider
 import ai.digital.integration.server.common.util.ProviderUtil.Companion.getProviders
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
-import java.util.*
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
@@ -66,6 +64,13 @@ open class TerraformHelper(val project: Project) {
         )
     }
 
+    private fun destroyTerraformModule(){
+        TerraformUtil.execute(
+            project,
+            listOf("-chdir=${getResolvedTerraformPath(project, TERRAFORM_AWS_DIR_PATH)}", "destroy")
+        )
+    }
+
     private fun getValue(providerProperty: String): String {
         getProviders(project).find { provider -> provider.equals("aws") }
             ?.let { awsProvider ->
@@ -96,6 +101,10 @@ open class TerraformHelper(val project: Project) {
     fun launchCluster() {
         initTerraformModule()
         applyTerraformModule()
+    }
+
+    fun teardownCluster() {
+        destroyTerraformModule()
     }
 
 }
