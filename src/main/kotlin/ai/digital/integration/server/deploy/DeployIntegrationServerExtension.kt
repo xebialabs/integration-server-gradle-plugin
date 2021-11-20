@@ -23,7 +23,7 @@ open class DeployIntegrationServerExtension(
     val satellites: NamedDomainObjectContainer<Satellite>,
     val servers: NamedDomainObjectContainer<Server>,
     val tests: NamedDomainObjectContainer<Test>,
-    val workers: NamedDomainObjectContainer<Worker>
+    val workers: NamedDomainObjectContainer<Worker>,
     val providers: NamedDomainObjectContainer<Provider>
 ) {
 
