@@ -23,14 +23,18 @@ class PermissionServiceUtil {
             permission.debugPort = getDebugPort(project, permission)
             permission.version = getPermissionServiceVersion(project, permission)
             permission.dockerImage = permission.dockerImage
-            permission.enabled = permission.version.isNullOrEmpty()
+            permission.enabled = false
             return permission
         }
 
-        fun getPermissionServiceWorkingDir(project: Project, permission: Permission): String {
+        private fun getPermissionServiceWorkingDir(project: Project, permission: Permission): String {
             val targetDir = IntegrationServerUtil.getDist(project)
             return Paths.get(targetDir, "deploy-permission-service-${permission.version}").toAbsolutePath()
                     .toString()
+        }
+
+        fun getPermissionServiceWorkingDir(project: Project): String {
+            return getPermissionServiceWorkingDir(project, getPermissionService(project))
         }
 
         fun getBinDir(project: Project, permission: Permission): File {

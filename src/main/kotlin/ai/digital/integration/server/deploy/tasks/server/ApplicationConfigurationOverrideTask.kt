@@ -3,6 +3,7 @@ package ai.digital.integration.server.deploy.tasks.server
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.common.util.PropertiesUtil
+import ai.digital.integration.server.deploy.tasks.permission.StartPermissionServiceTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -12,6 +13,7 @@ open class ApplicationConfigurationOverrideTask : DefaultTask() {
         this.group = PLUGIN_GROUP
         this.mustRunAfter(ServerCopyOverlaysTask.NAME)
         this.mustRunAfter(CentralConfigurationTask.NAME)
+//        this.mustRunAfter(StartPermissionServiceTask.NAME)
     }
 
     @TaskAction

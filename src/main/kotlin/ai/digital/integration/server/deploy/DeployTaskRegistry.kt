@@ -18,6 +18,8 @@ import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.permission.DownloadAndExtractPermissionDistTask
+import ai.digital.integration.server.deploy.tasks.permission.PreparePermissionServiceTask
+import ai.digital.integration.server.deploy.tasks.permission.StartPermissionServiceTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
@@ -119,6 +121,8 @@ open class DeployTaskRegistry {
 
             //Permission Service
             project.tasks.create(DownloadAndExtractPermissionDistTask.NAME, DownloadAndExtractPermissionDistTask::class.java)
+            project.tasks.create(PreparePermissionServiceTask.NAME, PreparePermissionServiceTask::class.java)
+            project.tasks.create(StartPermissionServiceTask.NAME, StartPermissionServiceTask::class.java)
         }
     }
 }

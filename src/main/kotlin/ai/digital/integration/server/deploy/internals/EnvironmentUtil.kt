@@ -4,6 +4,7 @@ import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.OsUtil
 import ai.digital.integration.server.common.util.TlsUtil
+import ai.digital.integration.server.deploy.domain.Permission
 import org.gradle.api.Project
 import java.io.File
 
@@ -17,6 +18,10 @@ class EnvironmentUtil {
             val env = getEnv(project, "JDK_JAVA_OPTIONS", cli.debugSuspend, cli.debugPort, null, extraParams)
             env["EXTRA_DEPLOYIT_CLI_CLASSPATH"] = extraClassPath.joinToString(separator = OsUtil.getPathSeparator())
             return env
+        }
+
+        fun getPermissionServiceEnv(project: Project,server: Permission): MutableMap<String, String> {
+            return getEnv(project, "JDK_JAVA_OPTIONS", server.debugSuspend, server.debugPort, null)
         }
 
         fun getEnv(

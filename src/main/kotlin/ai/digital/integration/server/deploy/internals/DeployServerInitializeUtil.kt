@@ -29,6 +29,8 @@ class DeployServerInitializeUtil {
             file.appendText("threads.min=3\n")
             file.appendText("threads.max=24\n")
             file.appendText("xl.spring.cloud.enabled=true\n")
+            file.appendText("xl.permission.external-service=true\n")
+            file.appendText("xl.permission.external-service.uri=http://localhost:8080\n")
         }
 
         fun prepare(project: Project, server: Server) {

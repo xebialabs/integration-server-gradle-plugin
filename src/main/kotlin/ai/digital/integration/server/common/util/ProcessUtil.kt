@@ -15,7 +15,7 @@ class ProcessUtil {
                 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                     mutableListOf("cmd", "/c", "${baseCommand}.cmd")
                 } else {
-                    mutableListOf("./${baseCommand}.sh")
+                    mutableListOf("./${baseCommand}")
                 }
             } else {
                 mutableListOf(baseCommand)

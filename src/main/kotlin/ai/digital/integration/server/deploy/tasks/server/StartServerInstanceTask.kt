@@ -11,6 +11,8 @@ import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.deploy.internals.*
 import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
 import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
+import ai.digital.integration.server.deploy.tasks.permission.PreparePermissionServiceTask
+import ai.digital.integration.server.deploy.tasks.permission.StartPermissionServiceTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.StartSatelliteTask
@@ -42,6 +44,7 @@ open class StartServerInstanceTask : DefaultTask() {
             DownloadAndExtractServerDistTask.NAME,
             PrepareDatabaseTask.NAME,
             PrepareServerTask.NAME,
+            PreparePermissionServiceTask.NAME,
             SetServerLogbackLevelsTask.NAME,
             StartMqTask.NAME,
             ServerYamlPatchTask.NAME
@@ -67,6 +70,9 @@ open class StartServerInstanceTask : DefaultTask() {
                 }
                 if (SatelliteUtil.hasSatellites(project)) {
                     finalizedBy(StartSatelliteTask.NAME)
+                }
+                if (!PermissionServiceUtil.hasPermissionService(project)) {
+                    finalizedBy(StartPermissionServiceTask.NAME)
                 }
             }
 
