@@ -18,9 +18,9 @@ open class DownloadAndExtractSatelliteDistTask : Copy() {
             )
 
             val taskName = "downloadAndExtractSatellite${satellite.name}"
-            val task = project.tasks.register(taskName, Copy::class.java) { copy ->
-                copy.from(project.zipTree(project.buildscript.configurations.getByName(SATELLITE_DIST).singleFile))
-                copy.into(IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, satellite.name))
+            val task = project.tasks.register(taskName, Copy::class.java) {
+                from(project.zipTree(project.buildscript.configurations.getByName(SATELLITE_DIST).singleFile))
+                into(IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, satellite.name))
             }
             this.dependsOn(task)
         }

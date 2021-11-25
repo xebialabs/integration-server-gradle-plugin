@@ -30,9 +30,9 @@ open class DownloadAndExtractServerDistTask : Copy() {
                         )
 
                         val taskName = "$NAME${server.name}"
-                        this.dependsOn(project.tasks.register(taskName, Copy::class.java) { copy ->
-                            copy.from(project.zipTree(project.buildscript.configurations.getByName(distName).singleFile))
-                            copy.into(IntegrationServerUtil.getDist(project))
+                        this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
+                            from(project.zipTree(project.buildscript.configurations.getByName(distName).singleFile))
+                            into(IntegrationServerUtil.getDist(project))
                         })
                     }
                 }

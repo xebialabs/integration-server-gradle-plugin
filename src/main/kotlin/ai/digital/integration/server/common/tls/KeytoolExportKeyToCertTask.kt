@@ -28,7 +28,7 @@ open class KeytoolExportKeyToCertTask : KeytoolTask() {
 
     init {
         this.doFirst {
-            this.params = listOf("-export", "-keystore", getInputFile().absolutePath, "-alias", keyname!!, "-file", getOutputFile().absolutePath)
+            params = listOf("-export", "-keystore", getInputFile().absolutePath, "-alias", keyname!!, "-file", getOutputFile().absolutePath)
         }
     }
 }

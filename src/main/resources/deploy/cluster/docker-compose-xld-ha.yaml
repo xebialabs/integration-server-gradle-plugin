@@ -48,7 +48,7 @@ services:
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/plugins:/opt/xebialabs/xl-deploy-server/plugins:z
 
   rabbitmq:
-    image: "rabbitmq:3.9.8-management-alpine"
+    image: {{RABBIT_MQ_IMAGE}}
     container_name: rabbitmq
     hostname: "rabbit"
     networks:
@@ -63,7 +63,7 @@ services:
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/rabbitmq:/etc/rabbitmq
 
   postgresql:
-    image: postgres:10.5
+    image: {{POSTGRES_IMAGE}}
     container_name: postgresql
     ports:
       - "{{DB_PORT}}:5432"
@@ -71,7 +71,7 @@ services:
       - POSTGRES_DB=xld-db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
-    command: postgres -c 'max_connections=300'
+    command: {{POSGRES_COMMAND}}
     networks:
       - {{DEPLOY_NETWORK_NAME}}
 

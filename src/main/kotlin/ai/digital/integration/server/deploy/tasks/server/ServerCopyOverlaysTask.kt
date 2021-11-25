@@ -18,6 +18,7 @@ open class ServerCopyOverlaysTask : DefaultTask() {
         this.mustRunAfter(CentralConfigurationTask.NAME)
         this.mustRunAfter(CopyServerBuildArtifactsTask.NAME)
         this.finalizedBy(CheckUILibVersionsTask.NAME)
+        val currentTask = this
 
         project.afterEvaluate {
             DeployServerUtil.getServers(project)
@@ -30,7 +31,7 @@ open class ServerCopyOverlaysTask : DefaultTask() {
                         server.overlays.forEach { overlay ->
                             OverlaysUtil.defineOverlay(
                                     project,
-                                    this,
+                                    currentTask,
                                     DeployServerUtil.getServerWorkingDir(project, server),
                                     DeployExtensionUtil.DEPLOY_IS_EXTENSION_NAME,
                                     overlay,

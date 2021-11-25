@@ -7,5 +7,5 @@ data class DbParameters(
     val driverClass: String?,
     val dataFactory: String?,
     val metaFactory: String?,
-    val escapePattern: String?,
+    val escapePattern: String?
 ) : DriverDependencyAware(driverDependency)

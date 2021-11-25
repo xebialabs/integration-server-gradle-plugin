@@ -171,7 +171,7 @@ class DeployServerUtil {
                 "jvmArgs" to jvmArgs,
                 "mainClass" to "com.xebialabs.deployit.DeployitBootstrapper",
                 "programArgs" to listOf("-force-upgrades"),
-                "workDir" to File(getServerWorkingDir(project)),
+                "workDir" to File(getServerWorkingDir(project))
             )
 
             server.stdoutFileName?.let {

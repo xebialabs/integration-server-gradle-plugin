@@ -35,8 +35,8 @@ abstract class StartMqTask : DockerComposeUp() {
         project.logger.lifecycle("Starting ${MqUtil.mqName(project)} MQ.")
 
         project.exec {
-            it.executable = "docker-compose"
-            it.args = arrayListOf("-f",
+            executable = "docker-compose"
+            args = arrayListOf("-f",
                 dockerComposeFile.path,
                 "--project-directory",
                 MqUtil.getMqDirectory(project),

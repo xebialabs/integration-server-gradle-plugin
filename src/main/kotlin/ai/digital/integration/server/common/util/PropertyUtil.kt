@@ -20,7 +20,7 @@ class PropertyUtil {
 
         fun resolveBooleanValue(project: Project, propertyName: String, defaultValue: Any?): Boolean {
             val value = resolveValue(project, propertyName, defaultValue)
-            return value?.toString().toBoolean()
+            return value?.toString()!!.toBoolean()
         }
     }
 }

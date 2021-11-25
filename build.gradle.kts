@@ -10,6 +10,7 @@ buildscript {
 
 plugins {
     kotlin("jvm") version "1.4.20"
+    `kotlin-dsl`
 
     id("com.github.node-gradle.node") version "3.1.0"
     id("idea")
@@ -248,6 +249,11 @@ tasks {
 
     compileTestKotlin {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
+    }
+
+    withType<ValidatePlugins>().configureEach {
+        failOnWarning.set(false)
+        enableStricterValidation.set(false)
     }
 }
 

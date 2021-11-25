@@ -13,14 +13,14 @@ class DockerUtil {
         fun inspect(project: Project, format: String, instanceId: String): String {
             val stdout = ByteArrayOutputStream()
             project.exec {
-                it.executable = "docker"
-                it.args = listOf(
+                executable = "docker"
+                args = listOf(
                     "inspect",
                     "-f",
                     format,
                     instanceId
                 )
-                it.standardOutput = stdout
+                standardOutput = stdout
             }
 
             return stdout.toString(StandardCharsets.UTF_8).trim()

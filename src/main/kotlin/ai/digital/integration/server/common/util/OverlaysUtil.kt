@@ -24,7 +24,7 @@ class OverlaysUtil {
             prefix: String,
             overlay: Map.Entry<String, List<*>>,
             dependedTasks: List<String>,
-            customPrefix: String? = null,
+            customPrefix: String? = null
         ) {
             val configurationName = if (customPrefix != null) {
                 "${customPrefix}${prefix}${overlay.key.capitalize().replace("/", "")}"
@@ -37,11 +37,11 @@ class OverlaysUtil {
             }
 
             val copyTask =
-                project.tasks.register("copy${configurationName.capitalize()}", Copy::class.java) { copy ->
+                project.tasks.register("copy${configurationName.capitalize()}", Copy::class.java) {
                     config.files.forEach { file ->
-                        copy.from(if (shouldUnzip(file)) project.zipTree(file) else file)
+                        from(if (shouldUnzip(file)) project.zipTree(file) else file)
                     }
-                    copy.into("${workingDir}/${overlay.key}")
+                    into("${workingDir}/${overlay.key}")
                 }
             if (dependedTasks.isNotEmpty()) {
                 project.tasks.getByName(copyTask.name).dependsOn(dependedTasks)
@@ -54,7 +54,7 @@ class OverlaysUtil {
             version: String?,
             container: Container,
             libOverlays: MutableList<Any>,
-            dependency: DriverDependencyAware,
+            dependency: DriverDependencyAware
         ) {
             if (version != null && version.isNotEmpty()) {
                 if (container.runtimeDirectory != null) {

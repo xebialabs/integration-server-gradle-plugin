@@ -1,8 +1,8 @@
 package ai.digital.integration.server.deploy.tasks.cli
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.deploy.internals.CliUtil
 import ai.digital.integration.server.common.util.OverlaysUtil
+import ai.digital.integration.server.deploy.internals.CliUtil
 import org.gradle.api.DefaultTask
 
 open class CliOverlaysTask : DefaultTask() {
@@ -17,11 +17,12 @@ open class CliOverlaysTask : DefaultTask() {
         this.mustRunAfter(DownloadAndExtractCliDistTask.NAME)
         this.mustRunAfter(CliCleanDefaultExtTask.NAME)
         this.mustRunAfter(CopyCliBuildArtifactsTask.NAME)
+        val currentTask = this
 
         project.afterEvaluate {
             CliUtil.getCli(project).overlays.forEach { overlay ->
                 OverlaysUtil.defineOverlay(project,
-                    this,
+                    currentTask,
                     CliUtil.getWorkingDir(project),
                     PREFIX,
                     overlay,

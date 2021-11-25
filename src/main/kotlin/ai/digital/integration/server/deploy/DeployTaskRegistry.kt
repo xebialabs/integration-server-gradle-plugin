@@ -1,22 +1,39 @@
 package ai.digital.integration.server.deploy
 
-import ai.digital.integration.server.deploy.tasks.*
-import ai.digital.integration.server.deploy.tasks.anonymizer.ExportDatabaseTask
-import ai.digital.integration.server.deploy.tasks.cli.*
-import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
-import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
-import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
-import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.gitlab.GitlabStartTask
 import ai.digital.integration.server.common.gitlab.GitlabStopTask
 import ai.digital.integration.server.common.mq.ShutdownMqTask
 import ai.digital.integration.server.common.mq.StartMqTask
 import ai.digital.integration.server.common.pluginManager.StartPluginManagerTask
-import ai.digital.integration.server.deploy.tasks.maintenance.CleanupBeforeStartupTask
-import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStartDeployClusterTask
+import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
+import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
+import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
+import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
+import ai.digital.integration.server.deploy.tasks.ShutdownDeployIntegrationServerTask
+import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
+import ai.digital.integration.server.deploy.tasks.anonymizer.ExportDatabaseTask
+import ai.digital.integration.server.deploy.tasks.cli.*
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.maintenance.CleanupBeforeStartupTask
 import ai.digital.integration.server.deploy.tasks.permission.DownloadAndExtractPermissionDistTask
 import ai.digital.integration.server.deploy.tasks.permission.PreparePermissionServiceTask
 import ai.digital.integration.server.deploy.tasks.permission.StartPermissionServiceTask
@@ -45,10 +62,39 @@ open class DeployTaskRegistry {
             project.tasks.create(RunCliTask.NAME, RunCliTask::class.java)
 
             //Cluster
-            project.tasks.create(DockerComposeBasedStartDeployClusterTask.NAME, DockerComposeBasedStartDeployClusterTask::class.java)
-            project.tasks.create(DockerComposeBasedStopDeployClusterTask.NAME, DockerComposeBasedStopDeployClusterTask::class.java)
+
             project.tasks.create(StartDeployClusterTask.NAME, StartDeployClusterTask::class.java)
             project.tasks.create(StopDeployClusterTask.NAME, StopDeployClusterTask::class.java)
+
+            // Cluster Operator
+            project.tasks.create(OperatorBasedAwsEksStartDeployClusterTask.NAME, OperatorBasedAwsEksStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsEksStopDeployClusterTask.NAME, OperatorBasedAwsEksStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedAwsOpenShiftStartDeployClusterTask.NAME, OperatorBasedAwsOpenShiftStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME, OperatorBasedAwsOpenShiftStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedAzureAksStartDeployClusterTask.NAME, OperatorBasedAzureAksStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAzureAksStopDeployClusterTask.NAME, OperatorBasedAzureAksStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedGcpGkeStartDeployClusterTask.NAME, OperatorBasedGcpGkeStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedGcpGkeStopDeployClusterTask.NAME, OperatorBasedGcpGkeStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedOnPremStartDeployClusterTask.NAME, OperatorBasedOnPremStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedOnPremStopDeployClusterTask.NAME, OperatorBasedOnPremStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME, OperatorBasedVmWareOpenShiftStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME, OperatorBasedVmWareOpenShiftStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorBasedStartDeployClusterTask.NAME, OperatorBasedStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedStopDeployClusterTask.NAME, OperatorBasedStopDeployClusterTask::class.java)
+
+            // Cluster Terraform
+            project.tasks.create(TerraformBasedAwsEksStartDeployClusterTask.NAME, TerraformBasedAwsEksStartDeployClusterTask::class.java)
+            project.tasks.create(TerraformBasedAwsEksStopDeployClusterTask.NAME, TerraformBasedAwsEksStopDeployClusterTask::class.java)
+
+            // Cluster Docker Compose
+            project.tasks.create(DockerComposeBasedStartDeployClusterTask.NAME, DockerComposeBasedStartDeployClusterTask::class.java)
+            project.tasks.create(DockerComposeBasedStopDeployClusterTask.NAME, DockerComposeBasedStopDeployClusterTask::class.java)
 
             //Database
             project.tasks.create(DatabaseStartTask.NAME, DatabaseStartTask::class.java)
@@ -56,7 +102,7 @@ open class DeployTaskRegistry {
 
             //Deploy Server
             project.tasks.create(ApplicationConfigurationOverrideTask.NAME,
-                ApplicationConfigurationOverrideTask::class.java)
+                    ApplicationConfigurationOverrideTask::class.java)
             project.tasks.create(CentralConfigurationTask.NAME, CentralConfigurationTask::class.java)
             project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask::class.java)
             project.tasks.create(CopyServerBuildArtifactsTask.NAME, CopyServerBuildArtifactsTask::class.java)
@@ -64,7 +110,7 @@ open class DeployTaskRegistry {
             project.tasks.create(ServerCopyOverlaysTask.NAME, ServerCopyOverlaysTask::class.java)
             project.tasks.create(DockerBasedStopDeployTask.NAME, DockerBasedStopDeployTask::class.java)
             project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME,
-                DownloadAndExtractDbUnitDataDistTask::class.java)
+                    DownloadAndExtractDbUnitDataDistTask::class.java)
             project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask::class.java)
             project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask::class.java)
             project.tasks.create(GenerateSecureAkkaKeysTask.NAME, GenerateSecureAkkaKeysTask::class.java)
@@ -77,7 +123,7 @@ open class DeployTaskRegistry {
             project.tasks.create(ServerYamlPatchTask.NAME, ServerYamlPatchTask::class.java)
             project.tasks.create(StartServerInstanceTask.NAME, StartServerInstanceTask::class.java)
             project.tasks.create(TlsApplicationConfigurationOverrideTask.NAME,
-                TlsApplicationConfigurationOverrideTask::class.java)
+                    TlsApplicationConfigurationOverrideTask::class.java)
 
             //Infrastructure
             project.tasks.create(GitlabStartTask.NAME, GitlabStartTask::class.java)
@@ -86,7 +132,7 @@ open class DeployTaskRegistry {
             //Integration Server
             project.tasks.create(ShutdownDeployIntegrationServerTask.NAME, ShutdownDeployIntegrationServerTask::class.java)
             project.tasks.create(StartDeployIntegrationServerTask.NAME, StartDeployIntegrationServerTask::class.java)
-                .dependsOn(itcfg)
+                    .dependsOn(itcfg)
 
             //Maintenance
             project.tasks.create(CleanupBeforeStartupTask.NAME, CleanupBeforeStartupTask::class.java)
@@ -100,7 +146,7 @@ open class DeployTaskRegistry {
 
             //Satellite
             project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME,
-                DownloadAndExtractSatelliteDistTask::class.java)
+                    DownloadAndExtractSatelliteDistTask::class.java)
             project.tasks.create(PrepareSatellitesTask.NAME, PrepareSatellitesTask::class.java)
             project.tasks.create(SatelliteOverlaysTask.NAME, SatelliteOverlaysTask::class.java)
             project.tasks.create(SatelliteSyncPluginsTask.NAME, SatelliteSyncPluginsTask::class.java)

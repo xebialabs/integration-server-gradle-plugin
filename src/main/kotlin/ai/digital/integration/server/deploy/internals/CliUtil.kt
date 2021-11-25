@@ -88,7 +88,7 @@ class CliUtil {
             scriptSources: List<File>,
             label: String,
             secure: Boolean,
-            test: Test,
+            test: Test
         ) {
             runScripts(project,
                 scriptSources,
@@ -106,7 +106,7 @@ class CliUtil {
             secure: Boolean,
             extraEnvironments: Map<String, String>,
             extraParams: Map<String, String?>,
-            extraClassPath: List<File>,
+            extraClassPath: List<File>
         ) {
             val cli = getCli(project)
 
@@ -123,7 +123,7 @@ class CliUtil {
                 "-host", EntryPointUrlUtil.getHttpHost(),
                 "-socketTimeout", cli.socketTimeout.toString(),
                 "-source", scriptSources.joinToString(separator = ",") { source -> source.absolutePath },
-                "-username", "admin",
+                "-username", "admin"
             ) + extraParamsAsList).toMutableList()
 
             if (DeployServerUtil.isTls(project) || secure) {

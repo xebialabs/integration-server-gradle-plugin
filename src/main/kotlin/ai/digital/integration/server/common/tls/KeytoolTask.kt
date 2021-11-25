@@ -64,10 +64,10 @@ abstract class KeytoolTask: DefaultTask() {
         } else {
             project.logger.lifecycle("Executing keytool with args: " + strings.joinToString(" "))
             project.exec {
-                it.executable =  "keytool"
-                it.args = strings
-                it.workingDir = workDir
-                it.isIgnoreExitValue = true
+                executable =  "keytool"
+                args = strings
+                workingDir = workDir
+                isIgnoreExitValue = true
             }
         }
     }

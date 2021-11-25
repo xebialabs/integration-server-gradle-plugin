@@ -7,5 +7,5 @@ data class MqParameters(
     val driverClass: String,
     val url: String?,
     val userName: String,
-    val password: String,
+    val password: String
 ) : DriverDependencyAware(driverDependency)

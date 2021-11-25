@@ -1,6 +1,10 @@
 package ai.digital.integration.server.deploy
 
 import ai.digital.integration.server.common.domain.*
+import ai.digital.integration.server.common.domain.profiles.DefaultProfileContainer
+import ai.digital.integration.server.common.domain.profiles.OperatorProfile
+import ai.digital.integration.server.common.domain.profiles.Profile
+import ai.digital.integration.server.common.domain.profiles.ProfileContainer
 import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.deploy.domain.Permission
 import ai.digital.integration.server.deploy.domain.Satellite
@@ -9,7 +13,10 @@ import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.container
+import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
+
 
 @Suppress("UnstableApiUsage")
 open class DeployIntegrationServerExtension(
@@ -17,7 +24,7 @@ open class DeployIntegrationServerExtension(
     val satellites: NamedDomainObjectContainer<Satellite>,
     val servers: NamedDomainObjectContainer<Server>,
     val tests: NamedDomainObjectContainer<Test>,
-    val workers: NamedDomainObjectContainer<Worker>,
+    val workers: NamedDomainObjectContainer<Worker>
 ) {
 
     var mqDriverVersions: MutableMap<String, String> = mutableMapOf()
@@ -43,6 +50,13 @@ open class DeployIntegrationServerExtension(
     fun workers(closure: Closure<NamedDomainObjectContainer<Worker>>) {
         workers.configure(closure)
     }
+
+    val clusterProfiles: ProfileContainer =
+        DefaultProfileContainer(project.container(Profile::class) { name ->
+            project.objects.newInstance(OperatorProfile::class, name, project)
+        })
+
+    fun clusterProfiles(action: Action<in ProfileContainer>) = action.execute(clusterProfiles)
 
     val cli = project.objects.property<Cli>().value(Cli(project.objects))
 
