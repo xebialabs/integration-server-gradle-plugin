@@ -20,10 +20,6 @@ class EnvironmentUtil {
             return env
         }
 
-        fun getPermissionServiceEnv(project: Project,server: Permission): MutableMap<String, String> {
-            return getEnv(project, "JDK_JAVA_OPTIONS", server.debugSuspend, server.debugPort, null)
-        }
-
         fun getEnv(
             project: Project,
             variableName: String,

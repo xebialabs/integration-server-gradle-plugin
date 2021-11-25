@@ -11,7 +11,7 @@ open class PreparePermissionServiceTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-//        this.dependsOn(CleanupBeforeStartupTask.NAME)
+        this.dependsOn(DownloadAndExtractPermissionDistTask.NAME)
     }
 
     @TaskAction

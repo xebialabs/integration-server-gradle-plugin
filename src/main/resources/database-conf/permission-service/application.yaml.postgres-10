@@ -1,0 +1,7 @@
+xl:
+  permission-service:
+    database:
+      db-driver-classname: org.postgresql.Driver
+      db-url: jdbc:postgresql://127.0.0.1:{{DB_PORT}}/xldrepo
+      db-username: postgres
+      db-password: demo

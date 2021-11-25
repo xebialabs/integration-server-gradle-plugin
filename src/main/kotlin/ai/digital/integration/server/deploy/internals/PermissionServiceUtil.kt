@@ -20,7 +20,6 @@ class PermissionServiceUtil {
         }
 
         private fun enrichPermissionService(project: Project, permission: Permission): Permission {
-            permission.debugPort = getDebugPort(project, permission)
             permission.version = getPermissionServiceVersion(project, permission)
             permission.dockerImage = permission.dockerImage
             permission.enabled = false
@@ -69,14 +68,6 @@ class PermissionServiceUtil {
                     project.logger.warn("Permissions Service Version is not specified, skipping...")
                     ""
                 }
-            }
-        }
-
-        private fun getDebugPort(project: Project, permission: Permission): Int? {
-            return if (PropertyUtil.resolveBooleanValue(project, "debug", true)) {
-                PropertyUtil.resolveIntValue(project, "permissionServiceDebugPort", permission.debugPort)
-            } else {
-                null
             }
         }
     }

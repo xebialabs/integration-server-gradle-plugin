@@ -1,0 +1,7 @@
+xl:
+  permission-service:
+    database:
+      db-driver-classname: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      db-url: jdbc:sqlserver://localhost:{{DB_PORT}}
+      db-password: xldrepo
+      db-username: xldrepo

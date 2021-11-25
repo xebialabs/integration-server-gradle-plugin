@@ -1,18 +1,16 @@
 package ai.digital.integration.server.deploy.internals
 
-import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.domain.Permission
 import org.gradle.api.Project
 import java.io.File
-import java.nio.file.Path
 
 class PermissionServiceInitializeUtil {
     companion object {
         private fun createFolders(project: Project) {
             project.logger.lifecycle("Preparing Permission service config folder.")
 
-            arrayOf("config", "log").forEach { folderName ->
+            arrayOf("bin/config", "log").forEach { folderName ->
                 val folderPath = "${PermissionServiceUtil.getPermissionServiceWorkingDir(project)}/${folderName}"
                 val folder = File(folderPath)
                 folder.mkdirs()
@@ -21,15 +19,19 @@ class PermissionServiceInitializeUtil {
         }
 
         private fun createConfFile(project: Project, server: Permission) {
-            project.logger.lifecycle("Creating application.properties file")
+            project.logger.lifecycle("Creating application.yaml file")
 
-            val file = project.file("${PermissionServiceUtil.getPermissionServiceWorkingDir(project)}/config/application.properties")
-            file.createNewFile()
+            val serverDir = PermissionServiceUtil.getPermissionServiceWorkingDir(project)
+            val deployRepositoryYaml = File("$serverDir/bin/config/application.yaml")
+            deployRepositoryYaml.createNewFile()
 
-            file.writeText("xl.permission-service.database.db-driver-classname=org.postgresql.Driver\n")
-            file.appendText("xl.permission-service.database.db-url=jdbc:postgresql://localhost:5431/postgres\n")
-            file.appendText("xl.permission-service.database.db-password=postgres\n")
-            file.appendText("xl.permission-service.database.db-username=postgres\n")
+            DbUtil.permissionDbConfig(project)?.let { config ->
+                YamlFileUtil.writeFileValue(deployRepositoryYaml, config)
+            }
+
+            val configuredTemplate = deployRepositoryYaml.readText(Charsets.UTF_8)
+                    .replace("{{DB_PORT}}", DbUtil.getPort(project).toString())
+            deployRepositoryYaml.writeText(configuredTemplate)
         }
 
         fun prepare(project: Project) {
@@ -37,48 +39,6 @@ class PermissionServiceInitializeUtil {
             project.logger.lifecycle("Preparing serve ${server.version} before launching it.")
             createFolders(project)
             createConfFile(project, server)
-        }
-
-        fun startServerFromClasspath(project: Project): Process {
-            project.logger.lifecycle("startServerFromClasspath.")
-            val server = DeployServerUtil.getServer(project)
-
-            val classpath = project.configurations.getByName(DeployConfigurationsUtil.PERMISSION_SERVICE_DIST)
-                    .filter { !it.name.endsWith("-sources.jar") }
-                    .asPath
-            project.logger.lifecycle("Launching Permission Server from classpath ${classpath}.")
-
-            val jvmArgs = mutableListOf<String>()
-            jvmArgs.addAll(server.jvmArgs)
-            server.debugPort?.let {
-                jvmArgs.addAll(JavaUtil.debugJvmArg(project, it, server.debugSuspend))
-            }
-            project.logger.lifecycle("I'm HEREEEEEE")
-            val config = mutableMapOf(
-                    "classpath" to classpath,
-                    "discardIO" to (server.stdoutFileName == null),
-                    "jvmArgs" to jvmArgs,
-                    "mainClass" to "ai.digital.deploy.PermissionsServiceApplication",
-                    "workDir" to File(PermissionServiceUtil.getPermissionServiceWorkingDir(project)),
-            )
-
-            server.stdoutFileName?.let {
-                config["redirectTo"] = File("${DeployServerUtil.getLogDir(project, server)}/${it}")
-            }
-
-            project.properties["integrationServerJVMPath"]?.let {
-                config.putAll(JavaUtil.jvmPath(project, it as String))
-            }
-
-            project.logger.lifecycle("Starting integration test server on port ${server.httpPort} from runtime dir ${server.runtimeDirectory}")
-
-            val process = JavaUtil.execJava(config)
-
-            project.logger.lifecycle("Launched server on PID [${process.pid()}] with command [${
-                process.info().commandLine().orElse("")
-            }].")
-
-            return process
         }
 
         fun grantPermissionsToIntegrationServerFolder(project: Project) {
@@ -92,38 +52,9 @@ class PermissionServiceInitializeUtil {
         }
 
         fun waitForBoot(project: Project, process: Process?) {
-            val url = "http://localhost:4519/deployit/metadata/type"
-//            val server = PermissionServiceUtil.getPermissionService(project)
-            WaitForBootUtil.byPort(project, "Permission", url, process, 10, 10)
+            val server = PermissionServiceUtil.getPermissionService(project)
+            val url = "http://localhost:${server.httpPort}/actuator"
+            WaitForBootUtil.byPort(project, "Permission service", url, process, server.pingRetrySleepTime, server.pingTotalTries)
         }
-
-        fun getDockerImageVersion(project: Project): String {
-            val server = DeployServerUtil.getServer(project)
-            return "${server.dockerImage}:${server.version}"
-        }
-
-        fun getDockerServiceName(project: Project): String {
-            val server = DeployServerUtil.getServer(project)
-            return "deploy-${server.version}"
-        }
-
-//        fun getResolvedDockerFile(project: Project): Path {
-//            val server = DeployServerUtil.getServer(project)
-//            val resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, DeployServerUtil.dockerServerRelativePath)
-//
-//            val serverTemplate = resultComposeFilePath.toFile()
-//
-//            val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-//                    .replace("{{DEPLOY_SERVER_HTTP_PORT}}", server.httpPort.toString())
-//                    .replace("{{DEPLOY_IMAGE_VERSION}}", getDockerImageVersion(project))
-//                    .replace(
-//                            "{{DEPLOY_PLUGINS_TO_EXCLUDE}}",
-//                            server.defaultOfficialPluginsToExclude.joinToString(separator = ",")
-//                    )
-//                    .replace("{{DEPLOY_VERSION}}", server.version.toString())
-//            serverTemplate.writeText(configuredTemplate)
-//
-//            return resultComposeFilePath
-//        }
     }
 }

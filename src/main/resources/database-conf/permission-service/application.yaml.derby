@@ -1,0 +1,7 @@
+xl:
+  permission-service:
+    database:
+      db-driver-classname: org.apache.derby.client.ClientAutoloadedDriver
+      db-url: jdbc:derby://localhost:{{DB_PORT}}/xldrepo;create=true;user=admin;password=admin
+      db-password: admin
+      db-username: admin

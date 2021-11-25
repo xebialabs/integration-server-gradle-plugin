@@ -1,0 +1,7 @@
+xl:
+  permission-service:
+    database:
+      db-driver-classname: com.mysql.jdbc.Driver
+      db-url: jdbc:mysql://localhost:{{DB_PORT}}/xld?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false
+      db-password: xldrepo
+      db-username: xldrepo

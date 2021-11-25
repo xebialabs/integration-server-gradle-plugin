@@ -34,6 +34,11 @@ class DbUtil {
             return {}::class.java.classLoader.getResourceAsStream("database-conf/deploy-repository.yaml.${dbname}")
         }
 
+        private fun permissionDbConfigStream(project: Project): InputStream? {
+            val dbname = databaseName(project)
+            return {}::class.java.classLoader.getResourceAsStream("database-conf/permission-service/application.yaml.${dbname}")
+        }
+
         fun isDerby(project: Project): Boolean {
             val dbname = databaseName(project)
             return isDerby(dbname)
@@ -57,6 +62,11 @@ class DbUtil {
 
         fun dbConfig(project: Project): TreeNode? {
             val from = dbConfigStream(project)
+            return if (from != null) YamlFileUtil.readTree(from) else null
+        }
+
+        fun permissionDbConfig(project: Project): TreeNode? {
+            val from = permissionDbConfigStream(project)
             return if (from != null) YamlFileUtil.readTree(from) else null
         }
 

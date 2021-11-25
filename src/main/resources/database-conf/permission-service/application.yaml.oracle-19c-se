@@ -1,0 +1,7 @@
+xl:
+  permission-service:
+    database:
+      db-driver-classname: oracle.jdbc.OracleDriver
+      db-url: jdbc:oracle:thin:@//localhost:{{DB_PORT}}/xldrepo?oracle.net.disableOob=true
+      db-password: xldrepo
+      db-username: xldrepo

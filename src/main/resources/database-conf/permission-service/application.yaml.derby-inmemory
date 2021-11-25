@@ -1,0 +1,7 @@
+xl:
+  permission-service:
+    database:
+      db-driver-classname: org.apache.derby.iapi.jdbc.AutoloadedDriver
+      db-url: jdbc:derby:memory:db;create=true
+      db-password:
+      db-username:
