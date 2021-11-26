@@ -7,6 +7,9 @@ import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
 open class DockerComposeProfile @Inject constructor(project: Project) : Profile {
+
+    val name: String = "dockerCompose"
+
     @Input
     val rabbitMqImage = project.objects.property<String>().value("rabbitmq:3.9.8-management-alpine")
 
