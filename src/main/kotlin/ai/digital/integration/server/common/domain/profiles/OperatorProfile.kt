@@ -17,7 +17,7 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
     val activeProviderName = project.objects.property<String>().value(OperatorProviderName.ON_PREMISE.providerName)
 
     val awsOpenshift: AwsOpenshiftProvider =
-        DefaultOperatorProviderContainer(project.container(Provider::class) { name ->
+        DefaultOperatorProviderContainer(project.container(Provider::class) { _ ->
             project.objects.newInstance(AwsOpenshiftProvider::class, project)
         }, project).awsOpenshift()
 
@@ -26,7 +26,7 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
     }
 
     val awsEks: AwsEksProvider =
-        DefaultOperatorProviderContainer(project.container(Provider::class) { name ->
+        DefaultOperatorProviderContainer(project.container(Provider::class) { _ ->
             project.objects.newInstance(AwsEksProvider::class, project)
         }, project).awsEks()
 

@@ -4,8 +4,7 @@ import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.tasks.server.CentralConfigurationTask
 import ai.digital.integration.server.deploy.tasks.server.ServerCopyOverlaysTask
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.*
 import org.gradle.process.ExecResult
 import java.io.File
 import java.util.*
@@ -29,6 +28,7 @@ abstract class KeytoolTask: DefaultTask() {
     var keyname: String? = null
 
     @InputDirectory
+    @PathSensitive(PathSensitivity.ABSOLUTE)
     var workDir: File? = null
 
     @Input
@@ -46,6 +46,7 @@ abstract class KeytoolTask: DefaultTask() {
     @Input
     var typeExtension = "p12"
 
+    @OutputFile
     abstract fun getOutputFile(): File
 
     abstract fun skipIfOutputFileExists(): Boolean
