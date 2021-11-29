@@ -9,6 +9,7 @@ import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.Oper
 import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.server.StartDeployServerForOperatorInstanceTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.impldep.org.eclipse.jgit.errors.NotSupportedException
@@ -21,6 +22,8 @@ open class OperatorBasedStartDeployClusterTask : DefaultTask() {
 
     init {
         group = PluginConstant.PLUGIN_GROUP
+
+        this.dependsOn(StartDeployServerForOperatorInstanceTask.NAME)
 
         this.dependsOn(when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
             OperatorProviderName.AWS_EKS.providerName ->

@@ -38,6 +38,7 @@ import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
 import ai.digital.integration.server.deploy.tasks.server.*
 import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
+import ai.digital.integration.server.deploy.tasks.server.operator.OperatorCentralConfigurationTask
 import ai.digital.integration.server.deploy.tasks.tests.IntegrationTestsTask
 import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
@@ -83,6 +84,10 @@ open class DeployTaskRegistry {
 
             project.tasks.create(OperatorBasedStartDeployClusterTask.NAME, OperatorBasedStartDeployClusterTask::class.java)
             project.tasks.create(OperatorBasedStopDeployClusterTask.NAME, OperatorBasedStopDeployClusterTask::class.java)
+
+            project.tasks.create(OperatorCentralConfigurationTask.NAME, OperatorCentralConfigurationTask::class.java)
+            project.tasks.create(StartDeployServerForOperatorInstanceTask.NAME, StartDeployServerForOperatorInstanceTask::class.java)
+
 
             // Cluster Terraform
             project.tasks.create(TerraformBasedAwsEksStartDeployClusterTask.NAME, TerraformBasedAwsEksStartDeployClusterTask::class.java)

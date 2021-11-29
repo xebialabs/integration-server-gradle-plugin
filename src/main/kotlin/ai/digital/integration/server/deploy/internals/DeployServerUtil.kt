@@ -144,8 +144,8 @@ class DeployServerUtil {
             }
         }
 
-        fun waitForBoot(project: Project, process: Process?) {
-            val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type")
+        fun waitForBoot(project: Project, process: Process?, auxiliaryServer: Boolean = false) {
+            val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type", auxiliaryServer)
             val server = getServer(project)
             WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries)
         }
