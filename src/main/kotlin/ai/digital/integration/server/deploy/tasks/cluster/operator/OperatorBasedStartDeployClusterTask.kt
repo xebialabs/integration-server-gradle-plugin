@@ -12,7 +12,6 @@ import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshi
 import ai.digital.integration.server.deploy.tasks.server.StartDeployServerForOperatorInstanceTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
-import org.gradle.internal.impldep.org.eclipse.jgit.errors.NotSupportedException
 
 open class OperatorBasedStartDeployClusterTask : DefaultTask() {
 
@@ -39,7 +38,7 @@ open class OperatorBasedStartDeployClusterTask : DefaultTask() {
             OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
                 OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME
             else -> {
-                throw NotSupportedException("Provided operator provider name `$providerName` is not supported. Choose one of ${
+                throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
                     OperatorProviderName.values().joinToString()
                 }")
             }
@@ -48,6 +47,7 @@ open class OperatorBasedStartDeployClusterTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        project.logger.lifecycle("Operator based Deploy Cluster is about to start.")
+        val providerName = DeployClusterUtil.getOperatorProvider(project)
+        project.logger.lifecycle("Operator based Deploy Cluster with provider $providerName is about to start.")
     }
 }

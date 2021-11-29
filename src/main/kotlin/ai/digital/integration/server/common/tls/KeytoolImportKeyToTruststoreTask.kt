@@ -1,9 +1,6 @@
 package ai.digital.integration.server.common.tls
 
-import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.*
 import java.io.File
 
 @CacheableTask
@@ -17,6 +14,7 @@ open class KeytoolImportKeyToTruststoreTask : KeytoolTask() {
     var truststore: String? = null
 
     @InputFile
+    @PathSensitive(PathSensitivity.ABSOLUTE)
     fun getInputFile(): File {
         return File(workDir!!.absolutePath + "/" + keyname + ".cer")
     }

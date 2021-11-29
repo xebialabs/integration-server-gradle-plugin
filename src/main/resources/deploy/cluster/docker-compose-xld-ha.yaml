@@ -25,6 +25,7 @@ services:
     depends_on:
       - rabbitmq
       - postgresql
+    restart: unless-stopped
     networks:
       - {{DEPLOY_NETWORK_NAME}}
     environment:

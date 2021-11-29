@@ -12,6 +12,7 @@ import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.RetryPolicy
 import org.gradle.api.Project
+import org.gradle.process.internal.ExecException
 import java.io.File
 import java.nio.file.Path
 import java.time.temporal.ChronoUnit
@@ -40,8 +41,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun getProfile(): DockerComposeProfile {
-        // return DeployExtensionUtil.getExtension(project).clusterProfiles.get().dockerCompose TODO
-        return DockerComposeProfile(project)
+        return DeployExtensionUtil.getExtension(project).clusterProfiles.dockerCompose()
     }
 
     private fun getClusterVersion(): String? {
@@ -264,9 +264,16 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun getMasterIp(order: Int): String {
-        return DockerUtil.inspect(project,
-            "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
-            "cluster_xl-deploy-master_${order}")
+        try {
+            return DockerUtil.inspect(project,
+                    "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
+                    "cluster_xl-deploy-master_${order}")
+        } catch (e: ExecException) {
+            // fallback in naming
+            return DockerUtil.inspect(project,
+                    "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
+                    "cluster-xl-deploy-master-${order}")
+        }
     }
 
     fun shutdownCluster() {

@@ -8,7 +8,7 @@ import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerCo
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStopDeployClusterTask
 import org.gradle.api.DefaultTask
-import org.gradle.internal.impldep.org.eclipse.jgit.errors.NotSupportedException
+import org.gradle.api.tasks.TaskAction
 
 open class StopDeployClusterTask : DefaultTask() {
 
@@ -30,17 +30,23 @@ open class StopDeployClusterTask : DefaultTask() {
                         TerraformProviderName.AWS_EKS.providerName ->
                             TerraformBasedAwsEksStopDeployClusterTask.NAME
                         else -> {
-                            throw NotSupportedException("Provided terraform provider name `$providerName` is not supported. Choose one of ${
+                            throw IllegalArgumentException("Provided terraform provider name `$providerName` is not supported. Choose one of ${
                                 TerraformProviderName.values().joinToString()
                             }")
                         }
                     }
                 }
                 else -> {
-                    throw NotSupportedException("Provided profile name `$profileName` is not supported. Choose one of ${
+                    throw IllegalArgumentException("Provided profile name `$profileName` is not supported. Choose one of ${
                         ClusterProfileName.values().joinToString()
                     }")
                 }
             })
+    }
+
+    @TaskAction
+    fun launch() {
+        val profileName = DeployClusterUtil.getProfile(project)
+        project.logger.lifecycle("Deploy Cluster profile $profileName  is about to stop.")
     }
 }
