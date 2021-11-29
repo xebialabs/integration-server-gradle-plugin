@@ -13,4 +13,7 @@ open class AwsOpenshiftProvider @Inject constructor(project: Project) : Provider
 
     @Input
     val host = project.objects.property<String>()
+
+    @Input
+    var operatorImage = project.objects.property<String>().value("xebialabs/deploy-operator:1.2.0-openshift").get()
 }

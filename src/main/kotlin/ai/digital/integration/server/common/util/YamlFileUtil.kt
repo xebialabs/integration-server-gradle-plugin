@@ -38,11 +38,27 @@ class YamlFileUtil {
 
             var current: MutableMap<String, Any> = objectMap
             keyChain.forEach { keyItem ->
-                val value: Any? = current[keyItem]
-                if (value == null) {
-                    current[keyItem] = LinkedHashMap<String, Any>()
+                val pair = if (keyItem.contains("[")) {
+                    Pair(keyItem.substring(0, keyItem.indexOf("[")), true)
+                } else {
+                    Pair(keyItem, false)
                 }
-                current = current[keyItem] as MutableMap<String, Any>
+
+                val pureKeyItem = pair.first
+                val isArray = pair.second
+
+                val value: Any? = current[pureKeyItem]
+                if (value == null) {
+                    current[pureKeyItem] = LinkedHashMap<String, Any>()
+                }
+
+                current = if (isArray) {
+                    val keyItemInd = keyItem.substring(keyItem.indexOf("[") + 1, keyItem.indexOf("]")).toInt()
+                    val array: ArrayList<MutableMap<String, Any>> = current[pureKeyItem] as ArrayList<MutableMap<String, Any>>
+                    array[keyItemInd]
+                } else {
+                    current[pureKeyItem] as MutableMap<String, Any>
+                }
             }
             return Pair(current, tokens.last())
         }

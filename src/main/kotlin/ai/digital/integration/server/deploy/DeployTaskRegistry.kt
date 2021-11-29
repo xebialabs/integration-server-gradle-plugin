@@ -17,11 +17,12 @@ import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerCo
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.CheckingOutDeployKubernetesOperatorTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStartTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftDeployClusterStartTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStopDeployClusterTask
@@ -64,10 +65,10 @@ open class DeployTaskRegistry {
             project.tasks.create(StopDeployClusterTask.NAME, StopDeployClusterTask::class.java)
 
             // Cluster Operator
-            project.tasks.create(OperatorBasedAwsEksStartDeployClusterTask.NAME, OperatorBasedAwsEksStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsEksDeployClusterStartTask.NAME, OperatorBasedAwsEksDeployClusterStartTask::class.java)
             project.tasks.create(OperatorBasedAwsEksStopDeployClusterTask.NAME, OperatorBasedAwsEksStopDeployClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedAwsOpenShiftStartDeployClusterTask.NAME, OperatorBasedAwsOpenShiftStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsOpenShiftDeployClusterStartTask.NAME, OperatorBasedAwsOpenShiftDeployClusterStartTask::class.java)
             project.tasks.create(OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME, OperatorBasedAwsOpenShiftStopDeployClusterTask::class.java)
 
             project.tasks.create(OperatorBasedAzureAksStartDeployClusterTask.NAME, OperatorBasedAzureAksStartDeployClusterTask::class.java)
@@ -85,6 +86,7 @@ open class DeployTaskRegistry {
             project.tasks.create(OperatorBasedStartDeployClusterTask.NAME, OperatorBasedStartDeployClusterTask::class.java)
             project.tasks.create(OperatorBasedStopDeployClusterTask.NAME, OperatorBasedStopDeployClusterTask::class.java)
 
+            project.tasks.create(CheckingOutDeployKubernetesOperatorTask.NAME, CheckingOutDeployKubernetesOperatorTask::class.java)
             project.tasks.create(OperatorCentralConfigurationTask.NAME, OperatorCentralConfigurationTask::class.java)
             project.tasks.create(StartDeployServerForOperatorInstanceTask.NAME, StartDeployServerForOperatorInstanceTask::class.java)
 

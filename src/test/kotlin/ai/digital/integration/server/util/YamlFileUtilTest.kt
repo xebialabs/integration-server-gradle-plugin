@@ -88,4 +88,37 @@ class YamlFileUtilTest {
             destinationFile.deleteOnExit()
         }
     }
+
+    @Test
+    fun updateItemInTheArrayTest() {
+        val initialContent = """
+            apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              labels:
+                control-plane: controller-manager
+              name: xld-operator-controller-manager
+            spec:
+              template:
+                spec:
+                  containers:
+                  - name: kube-rbac-proxy
+                    image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
+                  - name: manager
+                    image: xebialabs/deploy-operator:1.2.0-openshift
+        """
+        val initialFile = File.createTempFile("deploy-server", "initial")
+        initialFile.writeText(initialContent)
+        initialFile.deleteOnExit()
+
+        val destinationFile = File.createTempFile("deploy-server", "updated")
+        destinationFile.deleteOnExit()
+
+        YamlFileUtil.overlayFile(initialFile,
+            mutableMapOf("spec.template.spec.containers[1].image" to "xebialabs/deploy-operator:1.0.0"),
+            destinationFile)
+
+        assertEquals("xebialabs/deploy-operator:1.0.0",
+            YamlFileUtil.readFileKey(destinationFile, "spec.template.spec.containers[1].image"))
+    }
 }

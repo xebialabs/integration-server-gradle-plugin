@@ -1,14 +1,20 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
-import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.common.domain.profiles.OperatorProfile
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import org.gradle.api.Project
 
-abstract class OperatorHelper(val project: Project) {
+const val OPERATOR_FOLDER_NAME: String = "xl-deploy-kubernetes-operator"
 
-    fun cloneRepository() {
-        val buildDirPath = project.buildDir.toPath().toAbsolutePath().toString()
-        val dest = "$buildDirPath/xl-deploy-kubernetes-operator"
-        ProcessUtil.executeCommand(project,
-            "git clone git@github.com:xebialabs/xl-deploy-kubernetes-operator.git $dest")
+const val CR_REL_PATH = "digitalai-deploy/kubernetes/daideploy_cr.yaml"
+
+const val DEPLOYMENT_REL_PATH = "digitalai-deploy/kubernetes/template/deployment.yaml"
+
+abstract class OperatorHelper(val project: Project) {
+    fun getOperatorHomeDir(): String =
+        project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
+
+    fun getProfile(): OperatorProfile {
+        return DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
     }
 }
