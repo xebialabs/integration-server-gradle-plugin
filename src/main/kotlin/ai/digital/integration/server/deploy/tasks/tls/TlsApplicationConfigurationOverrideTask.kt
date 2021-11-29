@@ -69,8 +69,8 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
     }
 
     private fun updateDeployitConf(tls: Tls?) {
-        project.logger.lifecycle("Configurations TLS overriding for deployconf.")
-        val deployitConf = project.file("${tls!!.confWorkDir()}/deployconf")
+        project.logger.lifecycle("Configurations TLS overriding for deployit.conf.")
+        val deployitConf = project.file("${tls!!.confWorkDir()}/deployit.conf")
         val properties = readPropertiesFile(deployitConf)
         properties["ssl"] = true.toString()
         properties["keystore.type"] = Tls.KEYSTORE_TYPE
@@ -84,7 +84,7 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
 
     private fun updateWrapperConf(tls: Tls?) {
         project.logger.lifecycle("Configurations TLS overriding for xld-wrapper.conf.common.")
-        val wrapperConf = project.file(tls!!.confWorkDir().toString() + "/deployconf")
+        val wrapperConf = project.file(tls!!.confWorkDir().toString() + "/deployit.conf")
         val properties = readPropertiesFile(wrapperConf)
         var pos = 0
         while (pos < 20 && properties.containsKey("wrapper.java.additional.$pos")) {
