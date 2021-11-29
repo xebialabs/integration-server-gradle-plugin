@@ -69,7 +69,6 @@ open class CentralConfigurationTask : DefaultTask() {
                     }
                 }
             }
-
         }
 
         YamlFileUtil.overlayFile(
