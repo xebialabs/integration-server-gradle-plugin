@@ -15,7 +15,7 @@ abstract class Provider @Inject constructor(project: Project) {
     val host = project.objects.property<String>()
 
     @Input
-    var operatorImage = project.objects.property<String>().value("xebialabs/deploy-operator:1.2.0-openshift").get()
+    var operatorImage = project.objects.property<String>()
 
     @Input
     var operatorPackageVersion: String = project.objects.property<String>().value("1.0.0").get()

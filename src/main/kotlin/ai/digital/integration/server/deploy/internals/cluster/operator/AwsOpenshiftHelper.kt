@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
 import java.io.File
 
+@Suppress("UnstableApiUsage")
 open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
 
     private fun updateCrFile() {
@@ -18,6 +19,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     fun launchCluster() {
         updateCrFile()
         updateControllerManager()
+        updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
     }
@@ -34,4 +36,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         return getProfile().awsOpenshift
     }
 
+    override fun getOperatorImage(): String {
+        return getProvider().operatorImage.value("xebialabs/deploy-operator:1.2.0-openshift").get()
+    }
 }
