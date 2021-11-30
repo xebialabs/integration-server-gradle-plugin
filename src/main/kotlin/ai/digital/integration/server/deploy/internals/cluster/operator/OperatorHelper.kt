@@ -19,6 +19,7 @@ const val OPERATOR_APPS_REL_PATH = "digitalai-deploy/applications.yaml"
 
 const val OPERATOR_CR_PACKAGE_REL_PATH = "digitalai-deploy/deployment-cr.yaml"
 
+@Suppress("UnstableApiUsage")
 abstract class OperatorHelper(val project: Project) {
     fun getOperatorHomeDir(): String =
         project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
@@ -30,7 +31,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateControllerManager() {
         val file = File(getProviderHomeDir(), CONTROLLER_MANAGER_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-            "spec.template.spec.containers[1].image" to getProvider().operatorImage
+            "spec.template.spec.containers[1].image" to getOperatorImage()
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -57,6 +58,10 @@ abstract class OperatorHelper(val project: Project) {
             "spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}"
         )
         YamlFileUtil.overlayFile(file, pairs)
+    }
+
+    open fun getOperatorImage(): String {
+        return getProvider().operatorImage.value("xebialabs/deploy-operator").get()
     }
 
     abstract fun getProviderHomeDir(): String
