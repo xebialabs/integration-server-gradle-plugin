@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
 import ai.digital.integration.server.common.util.YamlFileUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
+import ai.digital.integration.server.deploy.internals.KubeCtlUtil
 import org.gradle.api.Project
 import java.io.File
 
@@ -16,6 +17,8 @@ const val CONTROLLER_MANAGER_REL_PATH = "digitalai-deploy/kubernetes/template/de
 const val OPERATOR_PACKAGE_REL_PATH = "digitalai-deploy/deployment.yaml"
 
 const val OPERATOR_CR_PACKAGE_REL_PATH = "digitalai-deploy/deployment-cr.yaml"
+
+const val OPERATOR_INFRASTRUCTURE_PATH = "digitalai-deploy/infrastructure.yaml"
 
 abstract class OperatorHelper(val project: Project) {
     fun getOperatorHomeDir(): String =
@@ -45,6 +48,17 @@ abstract class OperatorHelper(val project: Project) {
         val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}"
+        )
+        YamlFileUtil.overlayFile(file, pairs)
+    }
+
+    fun updateInfrastructure(kubeContextInfo: KubeCtlUtil.Companion.KubeContextInfo) {
+        val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
+        val pairs = mutableMapOf<String, Any>(
+            "spec[0].children[0].apiServerURL" to kubeContextInfo.clusterServer,
+            "spec[0].children[0].caCert" to kubeContextInfo.clusterCertificateAuthorityData,
+            "spec[0].children[0].tlsCert" to kubeContextInfo.clientCertificateData,
+            "spec[0].children[0].tlsPrivateKey" to kubeContextInfo.clientKeyData
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
