@@ -1,15 +1,11 @@
-package ai.digital.integration.server.deploy.internals
+package ai.digital.integration.server.common.util
 
-import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.common.domain.InfrastructureInfo
 import org.gradle.api.Project
 import java.io.File
 
 class KubeCtlUtil {
     companion object {
-
-        open class KubeContextInfo(val clusterName: String, val userName: String, val clusterServer: String, val clusterCertificateAuthorityData: String,
-                               val clientCertificateData: String, val clientKeyData: String) {
-        }
 
         fun apply(project: Project, file: File) {
             ProcessUtil.executeCommand(project,
@@ -29,11 +25,11 @@ class KubeCtlUtil {
             return result.contains(storageClass)
         }
 
-        fun getCurrentContextInfo(project: Project): KubeContextInfo {
+        fun getCurrentContextInfo(project: Project): InfrastructureInfo {
             val context = getCurrentContext(project)
             val cluster = getContextCluster(project, context)
             val user = getContextUser(project, context)
-            return KubeContextInfo(
+            return InfrastructureInfo(
                     cluster,
                     user,
                     getClusterServer(project, cluster),

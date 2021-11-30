@@ -3,7 +3,7 @@ package ai.digital.integration.server.deploy.internals.cluster.operator
 import ai.digital.integration.server.common.domain.providers.operator.AzureAksProvider
 import ai.digital.integration.server.common.util.FileUtil
 import ai.digital.integration.server.common.util.ProcessUtil
-import ai.digital.integration.server.deploy.internals.KubeCtlUtil
+import ai.digital.integration.server.common.util.KubeCtlUtil
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Paths
@@ -16,14 +16,16 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val name = azureAksProvider.name.get()
         val skipExisting = azureAksProvider.skipExisting.get()
 
-        createResourceGroup(name, azureAksProvider.location.get(), skipExisting)
-        createCluster(name, azureAksProvider.clusterNodeCount.get(), skipExisting)
-        connectToCluster(name)
-        createStorageClass(name)
+//        createResourceGroup(name, azureAksProvider.location.get(), skipExisting)
+//        createCluster(name, azureAksProvider.clusterNodeCount.get(), skipExisting)
+//        connectToCluster(name)
+        val kubeContextInfo = KubeCtlUtil.getCurrentContextInfo(project)
+//        createStorageClass(name)
 
         updateControllerManager()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateInfrastructure(kubeContextInfo)
     }
 
     fun shutdownCluster() {
@@ -38,11 +40,11 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-azure-eks"
+        return "${getOperatorHomeDir()}/deploy-operator-azure-aks"
     }
 
     fun getProviderWorkDir(): String {
-        return project.buildDir.toPath().resolve("azure-eks-work").toAbsolutePath().toString()
+        return project.buildDir.toPath().resolve("azure-aks-work").toAbsolutePath().toString()
     }
 
     override fun getProvider(): AzureAksProvider {

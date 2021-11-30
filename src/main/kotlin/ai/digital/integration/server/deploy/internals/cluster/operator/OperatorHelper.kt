@@ -1,10 +1,10 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
+import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
 import ai.digital.integration.server.common.util.YamlFileUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
-import ai.digital.integration.server.deploy.internals.KubeCtlUtil
 import org.gradle.api.Project
 import java.io.File
 
@@ -52,13 +52,13 @@ abstract class OperatorHelper(val project: Project) {
         YamlFileUtil.overlayFile(file, pairs)
     }
 
-    fun updateInfrastructure(kubeContextInfo: KubeCtlUtil.Companion.KubeContextInfo) {
+    fun updateInfrastructure(kubeContextInfo: InfrastructureInfo) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
-            "spec[0].children[0].apiServerURL" to kubeContextInfo.clusterServer,
-            "spec[0].children[0].caCert" to kubeContextInfo.clusterCertificateAuthorityData,
-            "spec[0].children[0].tlsCert" to kubeContextInfo.clientCertificateData,
-            "spec[0].children[0].tlsPrivateKey" to kubeContextInfo.clientKeyData
+            "spec[0].children[0].apiServerURL" to kubeContextInfo.apiServerURL,
+            "spec[0].children[0].caCert" to kubeContextInfo.caCert,
+            "spec[0].children[0].tlsCert" to kubeContextInfo.tlsCert,
+            "spec[0].children[0].tlsPrivateKey" to kubeContextInfo.tlsPrivateKey
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
