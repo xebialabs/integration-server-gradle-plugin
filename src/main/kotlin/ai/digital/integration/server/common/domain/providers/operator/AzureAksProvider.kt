@@ -1,10 +1,21 @@
 package ai.digital.integration.server.common.domain.providers.operator
 
 import org.gradle.api.Project
+import org.gradle.api.tasks.Input
+import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 
 @Suppress("UnstableApiUsage")
 open class AzureAksProvider @Inject constructor(project: Project) : Provider(project) {
+
+    @Input
+    val location = project.objects.property<String>().value("eastus")
+
+    @Input
+    val clusterNodeCount = project.objects.property<Int>().value(1)
+
+    @Input
+    val skipExisting = project.objects.property<Boolean>().value(true)
 }
 
