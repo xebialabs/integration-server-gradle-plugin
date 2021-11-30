@@ -18,6 +18,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     fun launchCluster() {
         updateCrFile()
         updateControllerManager()
+        updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
     }

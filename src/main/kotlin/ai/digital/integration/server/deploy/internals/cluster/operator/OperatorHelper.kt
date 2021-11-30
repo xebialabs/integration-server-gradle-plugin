@@ -15,6 +15,8 @@ const val CONTROLLER_MANAGER_REL_PATH = "digitalai-deploy/kubernetes/template/de
 
 const val OPERATOR_PACKAGE_REL_PATH = "digitalai-deploy/deployment.yaml"
 
+const val OPERATOR_APPS_REL_PATH = "digitalai-deploy/applications.yaml"
+
 const val OPERATOR_CR_PACKAGE_REL_PATH = "digitalai-deploy/deployment-cr.yaml"
 
 abstract class OperatorHelper(val project: Project) {
@@ -29,6 +31,14 @@ abstract class OperatorHelper(val project: Project) {
         val file = File(getProviderHomeDir(), CONTROLLER_MANAGER_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec.template.spec.containers[1].image" to getProvider().operatorImage
+        )
+        YamlFileUtil.overlayFile(file, pairs)
+    }
+
+    fun updateOperatorApplications() {
+        val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
+        val pairs = mutableMapOf<String, Any>(
+            "spec[0].children[0].name" to getProvider().operatorPackageVersion
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
