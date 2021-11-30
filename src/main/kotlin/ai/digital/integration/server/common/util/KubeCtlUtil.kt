@@ -21,7 +21,6 @@ class KubeCtlUtil {
 
         fun hasStorageClass(project: Project, storageClass: String): Boolean {
             val result = getAndGrep(project, "storageclass", storageClass)
-            project.logger.lifecycle("RESULT: {} {}", result, result.contains(storageClass))
             return result.contains(storageClass)
         }
 
@@ -42,6 +41,20 @@ class KubeCtlUtil {
         fun getCurrentContext(project: Project): String {
             return ProcessUtil.executeCommand(project,
                     "kubectl config current-context")
+        }
+
+        fun deleteCurrentContext(project: Project) {
+            val context = getCurrentContext(project)
+            val cluster = getContextCluster(project, context)
+            val user = getContextUser(project, context)
+
+            project.logger.info("Delete current context {} with related cluster {} and user {} information", context, cluster, user)
+            ProcessUtil.executeCommand(project,
+                    "kubectl config delete-context $context")
+            ProcessUtil.executeCommand(project,
+                    "kubectl config delete-user $user")
+            ProcessUtil.executeCommand(project,
+                    "kubectl config delete-cluster $cluster")
         }
 
         fun getContextCluster(project: Project, contextName: String): String {

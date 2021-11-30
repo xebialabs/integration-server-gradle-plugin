@@ -1,8 +1,8 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
-import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
+import ai.digital.integration.server.common.util.XlCliUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import org.gradle.api.Project
@@ -21,6 +21,8 @@ const val OPERATOR_INFRASTRUCTURE_PATH = "digitalai-deploy/infrastructure.yaml"
 const val OPERATOR_CR_PACKAGE_REL_PATH = "digitalai-deploy/deployment-cr.yaml"
 
 const val OPERATOR_PACKAGE_REL_PATH = "digitalai-deploy/deployment.yaml"
+
+const val XL_DIGITAL_AI_PATH = "digital-ai.yaml "
 
 @Suppress("UnstableApiUsage")
 abstract class OperatorHelper(val project: Project) {
@@ -63,19 +65,14 @@ abstract class OperatorHelper(val project: Project) {
         YamlFileUtil.overlayFile(file, pairs)
     }
 
-    fun updateInfrastructure(kubeContextInfo: InfrastructureInfo) {
-        val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
-        val pairs = mutableMapOf<String, Any>(
-                "spec[0].children[0].apiServerURL" to kubeContextInfo.apiServerURL,
-                "spec[0].children[0].caCert" to kubeContextInfo.caCert,
-                "spec[0].children[0].tlsCert" to kubeContextInfo.tlsCert,
-                "spec[0].children[0].tlsPrivateKey" to kubeContextInfo.tlsPrivateKey
-        )
-        YamlFileUtil.overlayFile(file, pairs)
+    open fun getOperatorImage(): String {
+        return getProvider().operatorImage.value("xebialabs/deploy-operator:1.2.0").get()
     }
 
-    open fun getOperatorImage(): String {
-        return getProvider().operatorImage.value("xebialabs/deploy-operator").get()
+    open fun applyDigitalAi() {
+        val xlDigitalAiPath = File(getProviderHomeDir(), XL_DIGITAL_AI_PATH)
+        project.logger.lifecycle("Applying Digital AI Deploy platform on cluster ($xlDigitalAiPath)")
+        XlCliUtil.apply(project, xlDigitalAiPath)
     }
 
     abstract fun getProviderHomeDir(): String

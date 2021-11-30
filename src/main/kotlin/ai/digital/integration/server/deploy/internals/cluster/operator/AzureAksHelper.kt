@@ -1,9 +1,8 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
+import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AzureAksProvider
-import ai.digital.integration.server.common.util.FileUtil
-import ai.digital.integration.server.common.util.ProcessUtil
-import ai.digital.integration.server.common.util.KubeCtlUtil
+import ai.digital.integration.server.common.util.*
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Paths
@@ -26,6 +25,8 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
+
+        applyDigitalAi()
     }
 
     fun shutdownCluster() {
@@ -34,9 +35,14 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
         val groupName = resourceGroupName(name)
         val clusterName = aksClusterName(name)
+
+        project.logger.lifecycle("Undeploy operator")
+
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
-        ProcessUtil.executeCommand(project,
-                "az group delete --name $groupName --yes")
+//        ProcessUtil.executeCommand(project,
+//                "az group delete --name $groupName --yes")
+//
+//        KubeCtlUtil.deleteCurrentContext(project)
     }
 
     override fun getProviderHomeDir(): String {
@@ -49,6 +55,17 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
     override fun getProvider(): AzureAksProvider {
         return getProfile().azureAks
+    }
+
+    fun updateInfrastructure(kubeContextInfo: InfrastructureInfo) {
+        val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
+        val pairs = mutableMapOf<String, Any>(
+                "spec[0].children[0].apiServerURL" to kubeContextInfo.apiServerURL,
+                "spec[0].children[0].caCert" to kubeContextInfo.caCert,
+                "spec[0].children[0].tlsCert" to kubeContextInfo.tlsCert,
+                "spec[0].children[0].tlsPrivateKey" to kubeContextInfo.tlsPrivateKey
+        )
+        YamlFileUtil.overlayFile(file, pairs)
     }
 
     fun createStorageClass(name: String) {
