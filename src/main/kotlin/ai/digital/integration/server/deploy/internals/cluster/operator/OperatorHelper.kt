@@ -3,6 +3,7 @@ package ai.digital.integration.server.deploy.internals.cluster.operator
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
+import ai.digital.integration.server.common.util.XlCliUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
@@ -96,6 +97,11 @@ abstract class OperatorHelper(val project: Project) {
 
     open fun getStorageClass(): String {
         return getProvider().storageClass.value("standard").get()
+    }
+
+    open fun applyYamlFiles() {
+        XlCliUtil.download(getProfile().xlCliVersion.get(), getProviderHomeDir())
+        XlCliUtil.xlApply(project, File("${getProviderHomeDir()}/digital-ai.yaml"), File(getProviderHomeDir()))
     }
 
     abstract fun updateInfrastructure(infraInfo: InfrastructureInfo)
