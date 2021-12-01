@@ -102,17 +102,18 @@ class ProcessUtil {
             val stdInput = BufferedReader(InputStreamReader(process.inputStream))
             val stdError = BufferedReader(InputStreamReader(process.errorStream))
 
-            var s: String?
-            while (stdInput.readLine().also { s = it } != null) {
-                project.logger.lifecycle(s)
-                return s.toString()
+            var s = ""
+            var tmp: String?
+
+            while (stdInput.readLine().also { tmp = it } != null) {
+                s += tmp
             }
 
-            while (stdError.readLine().also { s = it } != null) {
-                project.logger.lifecycle(s)
-                return s.toString()
+            while (stdError.readLine().also { tmp = it } != null) {
+                s += tmp
             }
-            return ""
+
+            return s
         }
     }
 }
