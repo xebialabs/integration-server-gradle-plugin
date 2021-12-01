@@ -24,9 +24,7 @@ class KubeBenchUtil {
 
             val testReport: String = ProcessUtil.execute(project, "kubectl", listOf("logs", "pod/$kubeBenchPod"), true)
             File("${getKubeBenchReportDir(project).toAbsolutePath().toString()}/$fileName").writeText(testReport.toString())
-
         }
-
 
         fun getBuildDir(project: Project): String {
             return project.buildDir.toPath().toAbsolutePath().toString()
@@ -34,6 +32,13 @@ class KubeBenchUtil {
 
         fun getKubeBenchReportDir(project: Project): Path {
             return Paths.get("${getBuildDir(project)}/kube-bench-report")
+        }
+
+        fun publishReport(project: Project, slackRoom: String, fileName: String) {
+            ProcessUtil.executeCommand(project,
+                    "curl -X POST -H --silent --data-urlencode \"payload={\\\"text\\\": \\\"${fileName}:\\n\$(cat ${getKubeBenchReportDir(project).toAbsolutePath().toString()}/${fileName}.log | sed \"s/\\\"/'/g\")\\\"}\" ${slackRoom}")
+
+
         }
     }
 }

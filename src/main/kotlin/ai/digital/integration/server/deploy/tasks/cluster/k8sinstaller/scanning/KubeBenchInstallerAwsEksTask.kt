@@ -63,10 +63,11 @@ open class KubeBenchInstallerAwsEksTask : DefaultTask() {
         val identityDetail: String = ProcessUtil.execute(project, "aws", listOf("sts", "get-caller-identity"), true)
         val identity = JSONTokener(identityDetail).nextValue() as JSONObject
         account = identity.get("Account").toString()
-
+        val reportFile = "aws-eks"
         kubeBenchPushAndApply()
-        KubeBenchUtil.generateReport(project, "Aws_Eks_Report.log")
+        KubeBenchUtil.generateReport(project, "${reportFile}.log")
         KubeCtlUtil.delete(project, File("${KubeBenchUtil.getKubeBenchDir(project)}/job-eks.yaml"))
         cleanUp()
+        KubeBenchUtil.publishReport(project, "https://hooks.slack.com/services/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", reportFile)
     }
 }
