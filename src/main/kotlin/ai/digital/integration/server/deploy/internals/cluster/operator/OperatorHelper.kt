@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
+import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
 import ai.digital.integration.server.common.util.YamlFileUtil
@@ -65,6 +66,8 @@ abstract class OperatorHelper(val project: Project) {
     open fun getOperatorImage(): String {
         return getProvider().operatorImage.value("xebialabs/deploy-operator").get()
     }
+
+    abstract fun updateInfrastructure(infraInfo: InfrastructureInfo)
 
     abstract fun getProviderHomeDir(): String
 

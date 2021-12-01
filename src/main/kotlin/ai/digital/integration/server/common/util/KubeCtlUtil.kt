@@ -25,7 +25,7 @@ class KubeCtlUtil {
             return result.contains(storageClass)
         }
 
-        fun getCurrentContextInfo(project: Project): InfrastructureInfo {
+        fun getCurrentContextInfo(project: Project, token: String? = null): InfrastructureInfo {
             val context = getCurrentContext(project)
             val cluster = getContextCluster(project, context)
             val user = getContextUser(project, context)
@@ -33,6 +33,7 @@ class KubeCtlUtil {
                 cluster,
                 user,
                 getClusterServer(project, cluster),
+                token,
                 getClusterCertificateAuthorityData(project, cluster),
                 getUserClientCertificateData(project, user),
                 getUserClientKeyData(project, user)
