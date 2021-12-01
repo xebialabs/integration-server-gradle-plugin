@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
+import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
 import ai.digital.integration.server.common.util.FileUtil
@@ -99,6 +100,8 @@ abstract class OperatorHelper(val project: Project) {
         project.logger.lifecycle("Applying Digital AI Deploy platform on cluster ($xlDigitalAiPath)")
         XlCliUtil.apply(project, xlDigitalAiPath)
     }
+
+    abstract fun updateInfrastructure(infraInfo: InfrastructureInfo)
 
     abstract fun getProviderHomeDir(): String
 

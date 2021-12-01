@@ -47,15 +47,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 //        KubeCtlUtil.deleteCurrentContext(project)
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-azure-aks"
-    }
-
-    override fun getProvider(): AzureAksProvider {
-        return getProfile().azureAks
-    }
-
-    fun updateInfrastructure(kubeContextInfo: InfrastructureInfo) {
+    override fun updateInfrastructure(infraInfo: InfrastructureInfo) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
                 "spec[0].children[0].apiServerURL" to kubeContextInfo.apiServerURL,
@@ -64,6 +56,14 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
                 "spec[0].children[0].tlsPrivateKey" to kubeContextInfo.tlsPrivateKey
         )
         YamlFileUtil.overlayFile(file, pairs)
+    }
+
+    override fun getProviderHomeDir(): String {
+        return "${getOperatorHomeDir()}/deploy-operator-azure-aks"
+    }
+
+    override fun getProvider(): AzureAksProvider {
+        return getProfile().azureAks
     }
 
     fun createStorageClass(name: String) {
