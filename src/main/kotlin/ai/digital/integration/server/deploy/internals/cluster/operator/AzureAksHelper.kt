@@ -38,6 +38,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val clusterName = aksClusterName(name)
 
         project.logger.lifecycle("Undeploy operator")
+        undeployCis()
 
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
 //        ProcessUtil.executeCommand(project,
@@ -48,10 +49,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
     override fun getProviderHomeDir(): String {
         return "${getOperatorHomeDir()}/deploy-operator-azure-aks"
-    }
-
-    fun getProviderWorkDir(): String {
-        return project.buildDir.toPath().resolve("azure-aks-work").toAbsolutePath().toString()
     }
 
     override fun getProvider(): AzureAksProvider {
@@ -75,7 +72,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
         if (!KubeCtlUtil.hasStorageClass(project, fileStorageClassName)) {
             project.logger.lifecycle("Create storage class: {}", fileStorageClassName)
-            val azureFileScTemplateFile = getTemplate("azure-aks/azure-file-sc.yaml")
+            val azureFileScTemplateFile = getTemplate("operator/azure-aks/azure-file-sc.yaml")
             val azureFileScTemplate = azureFileScTemplateFile.readText(Charsets.UTF_8)
                     .replace("{{NAME}}", fileStorageClassName)
             azureFileScTemplateFile.writeText(azureFileScTemplate)
@@ -86,7 +83,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
         if (!KubeCtlUtil.hasStorageClass(project, diskStorageClassName)) {
             project.logger.lifecycle("Create storage class: {}", diskStorageClassName)
-            val azureDiskScTemplateFile = getTemplate("azure-aks/azure-disk-sc.yaml")
+            val azureDiskScTemplateFile = getTemplate("operator/azure-aks/azure-disk-sc.yaml")
             val azureDiskScTemplate = azureDiskScTemplateFile.readText(Charsets.UTF_8)
                     .replace("{{NAME}}", diskStorageClassName)
             azureDiskScTemplateFile.writeText(azureDiskScTemplate)
@@ -163,9 +160,9 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
     }
 
     private fun getTemplate(relativePath: String): File {
-        val homeDir = getProviderWorkDir()
+        val file = File(relativePath)
         val fileStream = {}::class.java.classLoader.getResourceAsStream(relativePath)
-        val resultComposeFilePath = Paths.get(homeDir)
+        val resultComposeFilePath = Paths.get(getProviderWorkDir(), file.name)
         fileStream?.let {
             FileUtil.copyFile(it, resultComposeFilePath)
         }

@@ -2,12 +2,15 @@ package ai.digital.integration.server.deploy.internals.cluster.operator
 
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
+import ai.digital.integration.server.common.util.FileUtil
 import ai.digital.integration.server.common.util.KubeCtlUtil
 import ai.digital.integration.server.common.util.XlCliUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
+import ai.digital.integration.server.deploy.internals.CliUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import org.gradle.api.Project
 import java.io.File
+import java.nio.file.Paths
 
 const val OPERATOR_FOLDER_NAME: String = "xl-deploy-kubernetes-operator"
 
@@ -29,6 +32,9 @@ const val XL_DIGITAL_AI_PATH = "digital-ai.yaml "
 abstract class OperatorHelper(val project: Project) {
     fun getOperatorHomeDir(): String =
             project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
+
+    fun getProviderWorkDir(): String =
+        project.buildDir.toPath().resolve("${getProvider().name}-work").toAbsolutePath().toString()
 
     fun getProfile(): OperatorProfile {
         return DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
@@ -71,8 +77,17 @@ abstract class OperatorHelper(val project: Project) {
                 "deployment.apps/xld-operator-controller-manager"
         )
         resources.forEach { resource ->
-            KubeCtlUtil.wait(project, resource, "Ready", 60)
+            KubeCtlUtil.wait(project, resource, "Available", getProfile().deploymentTimeoutSeconds.get())
         }
+    }
+
+    fun undeployCis() {
+        val fileStream = {}::class.java.classLoader.getResourceAsStream("operator/python/undeploy.py")
+        val resultComposeFilePath = Paths.get(getProviderWorkDir(), "undeploy.py")
+        fileStream?.let {
+            FileUtil.copyFile(it, resultComposeFilePath)
+        }
+        CliUtil.executeScripts(project, listOf(resultComposeFilePath.toFile()), "undeploy.py", false, 4516)
     }
 
     open fun getOperatorImage(): String {

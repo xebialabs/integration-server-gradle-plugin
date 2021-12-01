@@ -111,13 +111,21 @@ class ProcessUtil {
             var error = ""
             line = stdInput.readLine()
             while (line != null) {
-                line.also { input += it }
+                line.also {
+                    if (input != "")
+                        input += System.lineSeparator()
+                    input += it
+                }
                 project.logger.debug(input)
                 line = stdInput.readLine()
             }
             line = stdError.readLine()
             while (line != null) {
-                line.also { error += it }
+                line.also {
+                    if (error != "")
+                        error += System.lineSeparator()
+                    error += it
+                }
                 project.logger.debug(error)
                 line = stdError.readLine()
             }

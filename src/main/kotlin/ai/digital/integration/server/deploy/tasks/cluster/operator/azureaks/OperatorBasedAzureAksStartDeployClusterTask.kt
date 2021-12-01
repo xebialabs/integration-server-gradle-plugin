@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.cluster.operator.AzureAksHelper
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartTask
 import org.gradle.api.tasks.TaskAction
 

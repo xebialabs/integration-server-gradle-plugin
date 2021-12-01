@@ -16,6 +16,9 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
     @Input
     val activeProviderName = project.objects.property<String>().value(OperatorProviderName.ON_PREMISE.providerName)
 
+    @Input
+    val deploymentTimeoutSeconds = project.objects.property<Int>().value(120)
+
     val awsOpenshift: AwsOpenshiftProvider =
         DefaultOperatorProviderContainer(project.container(Provider::class) {
             project.objects.newInstance(AwsOpenshiftProvider::class, project)
