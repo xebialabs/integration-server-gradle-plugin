@@ -12,6 +12,11 @@ class KubeCtlUtil {
                 "kubectl apply -f ${file.absolutePath}")
         }
 
+        fun delete(project: Project, file: File) {
+            ProcessUtil.executeCommand(project,
+                    "kubectl delete -f ${file.absolutePath}")
+        }
+
         fun setDefaultStorageClass(project: Project, oldDefaultStorageClass: String, newDefaultStorageClass: String) {
             ProcessUtil.executeCommand(project,
                 " kubectl patch storageclass $newDefaultStorageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'")
