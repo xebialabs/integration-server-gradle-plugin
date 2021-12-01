@@ -50,10 +50,10 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
     override fun updateInfrastructure(infraInfo: InfrastructureInfo) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
-                "spec[0].children[0].apiServerURL" to kubeContextInfo.apiServerURL,
-                "spec[0].children[0].caCert" to kubeContextInfo.caCert,
-                "spec[0].children[0].tlsCert" to kubeContextInfo.tlsCert,
-                "spec[0].children[0].tlsPrivateKey" to kubeContextInfo.tlsPrivateKey
+                "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,
+                "spec[0].children[0].caCert" to infraInfo.caCert!!,
+                "spec[0].children[0].tlsCert" to infraInfo.tlsCert!!,
+                "spec[0].children[0].tlsPrivateKey" to infraInfo.tlsPrivateKey!!
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
