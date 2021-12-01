@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.internals.cluster.operator
 
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
+import ai.digital.integration.server.common.util.KubeCtlUtil
 import ai.digital.integration.server.common.util.XlCliUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
@@ -63,6 +64,15 @@ abstract class OperatorHelper(val project: Project) {
                 "spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}"
         )
         YamlFileUtil.overlayFile(file, pairs)
+    }
+
+    fun waitForDeployment() {
+        val resources = arrayOf(
+                "deployment.apps/xld-operator-controller-manager"
+        )
+        resources.forEach { resource ->
+            KubeCtlUtil.wait(project, resource, "Ready", 60)
+        }
     }
 
     open fun getOperatorImage(): String {

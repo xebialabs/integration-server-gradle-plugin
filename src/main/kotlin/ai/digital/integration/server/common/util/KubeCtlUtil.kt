@@ -12,6 +12,11 @@ class KubeCtlUtil {
                     "kubectl apply -f ${file.absolutePath}")
         }
 
+        fun wait(project: Project, resource: String, condition: String, timeoutSeconds: Int) {
+            ProcessUtil.executeCommand(project,
+                    "kubectl wait --for condition=$condition --timeout=${timeoutSeconds}s $resource")
+        }
+
         fun setDefaultStorageClass(project: Project, oldDefaultStorageClass: String, newDefaultStorageClass: String) {
             ProcessUtil.executeCommand(project,
                     " kubectl patch storageclass $newDefaultStorageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'")
@@ -38,11 +43,6 @@ class KubeCtlUtil {
             )
         }
 
-        fun getCurrentContext(project: Project): String {
-            return ProcessUtil.executeCommand(project,
-                    "kubectl config current-context")
-        }
-
         fun deleteCurrentContext(project: Project) {
             val context = getCurrentContext(project)
             val cluster = getContextCluster(project, context)
@@ -57,34 +57,39 @@ class KubeCtlUtil {
                     "kubectl config delete-cluster $cluster")
         }
 
+        fun getCurrentContext(project: Project): String {
+            return ProcessUtil.executeCommand(project,
+                    "kubectl config current-context", logOutput = false)
+        }
+
         fun getContextCluster(project: Project, contextName: String): String {
             return ProcessUtil.executeCommand(project,
-                    "kubectl config view -o jsonpath='{.contexts[?(@.name == \"$contextName\")].context.cluster}' --raw")
+                    "kubectl config view -o jsonpath='{.contexts[?(@.name == \"$contextName\")].context.cluster}' --raw", logOutput = false)
         }
 
         fun getContextUser(project: Project, contextName: String): String {
             return ProcessUtil.executeCommand(project,
-                    "kubectl config view -o jsonpath='{.contexts[?(@.name == \"$contextName\")].context.user}' --raw")
+                    "kubectl config view -o jsonpath='{.contexts[?(@.name == \"$contextName\")].context.user}' --raw", logOutput = false)
         }
 
         fun getClusterServer(project: Project, clusterName: String): String {
             return ProcessUtil.executeCommand(project,
-                    "kubectl config view -o jsonpath='{.clusters[?(@.name == \"$clusterName\")].cluster.server}' --raw")
+                    "kubectl config view -o jsonpath='{.clusters[?(@.name == \"$clusterName\")].cluster.server}' --raw", logOutput = false)
         }
 
         fun getClusterCertificateAuthorityData(project: Project, clusterName: String): String {
             return ProcessUtil.executeCommand(project,
-                    "kubectl config view -o jsonpath='{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority-data}' --raw")
+                    "kubectl config view -o jsonpath='{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority-data}' --raw", logOutput = false)
         }
 
         fun getUserClientKeyData(project: Project, userName: String): String {
             return ProcessUtil.executeCommand(project,
-                    "kubectl config view -o jsonpath='{.users[?(@.name == \"$userName\")].user.client-key-data}' --raw")
+                    "kubectl config view -o jsonpath='{.users[?(@.name == \"$userName\")].user.client-key-data}' --raw", logOutput = false)
         }
 
         fun getUserClientCertificateData(project: Project, userName: String): String {
             return ProcessUtil.executeCommand(project,
-                    "kubectl config view -o jsonpath='{.users[?(@.name == \"$userName\")].user.client-certificate-data}' --raw")
+                    "kubectl config view -o jsonpath='{.users[?(@.name == \"$userName\")].user.client-certificate-data}' --raw", logOutput = false)
         }
 
         private fun getAndGrep(project: Project, command: String, grepFor: String): String {

@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.TimeUnit
 
 class ProcessUtil {
     companion object {
@@ -96,23 +97,53 @@ class ProcessUtil {
             }
         }
 
-        fun executeCommand(project: Project, command: String): String {
+        fun executeCommand(project: Project, command: String,
+                           logOutput: Boolean = true,
+                           throwErrorOnFailure: Boolean = true,
+                           waitTimeoutSeconds: Long = 10): String {
             val process: Process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
 
             val stdInput = BufferedReader(InputStreamReader(process.inputStream))
             val stdError = BufferedReader(InputStreamReader(process.errorStream))
 
-            var s: String?
-            while (stdInput.readLine().also { s = it } != null) {
-                project.logger.lifecycle(s)
-                return s.toString()
+            var line: String?
+            var input = ""
+            var error = ""
+            line = stdInput.readLine()
+            while (line != null) {
+                line.also { input += it }
+                project.logger.debug(input)
+                line = stdInput.readLine()
+            }
+            line = stdError.readLine()
+            while (line != null) {
+                line.also { error += it }
+                project.logger.debug(error)
+                line = stdError.readLine()
             }
 
-            while (stdError.readLine().also { s = it } != null) {
-                project.logger.lifecycle(s)
-                return s.toString()
+            if (logOutput) {
+                if (input != "") {
+                    project.logger.lifecycle(input)
+                }
+                if (error != "") {
+                    project.logger.error(error)
+                }
             }
-            return ""
+
+            if (process.waitFor(waitTimeoutSeconds, TimeUnit.SECONDS)) {
+                if (throwErrorOnFailure && process.exitValue() != 0) {
+                    throw RuntimeException("Process '$command' failed with exit value ${process.exitValue()}: $error")
+                }
+            } else if (throwErrorOnFailure) {
+                throw RuntimeException("Process '$command' not finished")
+            }
+
+            return if (error == "") {
+                input
+            } else {
+                input + System.lineSeparator() + error
+            }
         }
     }
 }

@@ -15,11 +15,11 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val name = azureAksProvider.name.get()
         val skipExisting = azureAksProvider.skipExisting.get()
 
-//        createResourceGroup(name, azureAksProvider.location.get(), skipExisting)
-//        createCluster(name, azureAksProvider.clusterNodeCount.get(), skipExisting)
-//        connectToCluster(name)
+        createResourceGroup(name, azureAksProvider.location.get(), skipExisting)
+        createCluster(name, azureAksProvider.clusterNodeCount.get(), skipExisting)
+        connectToCluster(name)
         val kubeContextInfo = KubeCtlUtil.getCurrentContextInfo(project)
-//        createStorageClass(name)
+        createStorageClass(name)
 
         updateControllerManager()
         updateOperatorDeployment()
@@ -27,6 +27,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         updateInfrastructure(kubeContextInfo)
 
         applyDigitalAi()
+        waitForDeployment()
     }
 
     fun shutdownCluster() {
@@ -138,7 +139,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
     fun connectToCluster(name: String) {
         ProcessUtil.executeCommand(project,
-                "az aks get-credentials --resource-group ${resourceGroupName(name)} --name ${aksClusterName(name)}")
+                "az aks get-credentials --resource-group ${resourceGroupName(name)} --name ${aksClusterName(name)} --overwrite-existing")
     }
 
     private fun resourceGroupName(name: String): String {
