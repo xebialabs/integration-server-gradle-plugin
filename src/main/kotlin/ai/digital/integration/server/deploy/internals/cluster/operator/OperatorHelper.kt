@@ -74,10 +74,33 @@ abstract class OperatorHelper(val project: Project) {
 
     fun waitForDeployment() {
         val resources = arrayOf(
-                "deployment.apps/xld-operator-controller-manager"
+                "deployment.apps/xld-operator-controller-manager",
+                "deployment.apps/digitalaideploy-sample-nginx-ingress-controller",
+                "deployment.apps/digitalaideploy-sample-nginx-ingress-controller-default-backend"
         )
         resources.forEach { resource ->
             KubeCtlUtil.wait(project, resource, "Available", getProfile().deploymentTimeoutSeconds.get())
+        }
+    }
+
+    fun waitForMasterPods() {
+        val servers = DeployServerUtil.getServers(project)
+        val resources = List(servers.size) { position ->
+            "pod/digitalaideploy-sample-digitalai-deploy-master-$position"
+        }
+
+        resources.forEach { resource ->
+            KubeCtlUtil.wait(project, resource, "Ready", getProfile().deploymentTimeoutSeconds.get())
+        }
+    }
+
+    fun waitForWorkerPods() {
+        val workers = DeployServerUtil.getServers(project)
+        val resources = List(workers.size) { position ->
+            "pod/digitalaideploy-sample-digitalai-deploy-worker-$position"
+        }
+        resources.forEach { resource ->
+            KubeCtlUtil.wait(project, resource, "Ready", getProfile().deploymentTimeoutSeconds.get())
         }
     }
 

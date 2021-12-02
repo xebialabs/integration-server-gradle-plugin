@@ -31,6 +31,8 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
         applyDigitalAi()
         waitForDeployment()
+        waitForMasterPods()
+        waitForWorkerPods()
 
         waitForBoot(getFqdn(name, location))
     }
@@ -43,7 +45,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         files.forEach { file ->
             val fileStream = {}::class.java.classLoader.getResourceAsStream("operator/conf/$file")
             fileStream?.let {
-                project.logger.lifecycle("COPY $file tp ${Paths.get(getProviderHomeDir(), "digitalai-deploy/kubernetes/$file")}")
+                project.logger.lifecycle("COPY $file to ${Paths.get(getProviderHomeDir(), "digitalai-deploy/kubernetes/$file")}")
                 FileUtil.copyFile(
                         it,
                         Paths.get(getProviderHomeDir(), "digitalai-deploy/kubernetes/$file")
