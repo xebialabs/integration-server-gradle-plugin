@@ -25,7 +25,7 @@ class KubeCtlUtil {
         }
 
         fun hasStorageClass(project: Project, storageClass: String): Boolean {
-            val result = getAndGrep(project, "storageclass", storageClass)
+            val result = getNameAndGrep(project, "storageclass", storageClass)
             return result.contains(storageClass)
         }
 
@@ -51,11 +51,24 @@ class KubeCtlUtil {
 
             project.logger.info("Delete current context {} with related cluster {} and user {} information", context, cluster, user)
             ProcessUtil.executeCommand(project,
-                    "kubectl config delete-context $context")
+                    "kubectl config delete-context $context", throwErrorOnFailure = false)
             ProcessUtil.executeCommand(project,
-                    "kubectl config delete-user $user")
+                    "kubectl config delete-user $user", throwErrorOnFailure = false)
             ProcessUtil.executeCommand(project,
-                    "kubectl config delete-cluster $cluster")
+                    "kubectl config delete-cluster $cluster", throwErrorOnFailure = false)
+        }
+
+        fun deleteAllPvcs(project: Project) {
+            ProcessUtil.executeCommand(project,
+                    "kubectl delete pvc --all", throwErrorOnFailure = false)
+        }
+
+        fun getIngresHost(project: Project, ingressName: String): String {
+            return getWithPath(project, "ing $ingressName", "{.items[*].spec.rules[*].host}")
+        }
+
+        fun getServiceExternalIp(project: Project, serviceName: String): String {
+            return getWithPath(project, "service $serviceName", "{.status.loadBalancer.ingress[*].ip}")
         }
 
         fun getCurrentContext(project: Project): String {
@@ -93,9 +106,14 @@ class KubeCtlUtil {
                     "kubectl config view -o jsonpath='{.users[?(@.name == \"$userName\")].user.client-certificate-data}' --raw", logOutput = false)
         }
 
-        private fun getAndGrep(project: Project, command: String, grepFor: String): String {
+        private fun getNameAndGrep(project: Project, command: String, grepFor: String): String {
             return ProcessUtil.executeCommand(project,
-                    "kubectl get $command | grep $grepFor")
+                    "kubectl get $command -o name | grep $grepFor", throwErrorOnFailure = false, logOutput = false)
+        }
+
+        private fun getWithPath(project: Project, command: String, jsonpath: String): String {
+            return ProcessUtil.executeCommand(project,
+                    "kubectl get $command -o \"jsonpath=$jsonpath\"")
         }
     }
 }

@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AzureAksProvider
 import ai.digital.integration.server.common.util.*
 import org.gradle.api.Project
+import org.gradle.api.provider.Property
 import java.io.File
 import java.nio.file.Paths
 
@@ -14,13 +15,15 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val azureAksProvider: AzureAksProvider = getProvider()
         val name = azureAksProvider.name.get()
         val skipExisting = azureAksProvider.skipExisting.get()
+        val location = azureAksProvider.location.get()
 
-        createResourceGroup(name, azureAksProvider.location.get(), skipExisting)
-        createCluster(name, azureAksProvider.clusterNodeCount.get(), skipExisting)
+        createResourceGroup(name, location, skipExisting)
+        createCluster(name, azureAksProvider.clusterNodeCount, azureAksProvider.clusterNodeVmSize, azureAksProvider.kubernetesVersion, skipExisting)
         connectToCluster(name)
         val kubeContextInfo = KubeCtlUtil.getCurrentContextInfo(project)
         createStorageClass(name)
 
+        copyTempFile()
         updateControllerManager()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
@@ -28,6 +31,25 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
         applyDigitalAi()
         waitForDeployment()
+
+        waitForBoot(getFqdn(name, location))
+    }
+
+    private fun copyTempFile() {
+        // TODO copy working yamls
+        val files = listOf(
+                "daideploy_cr.yaml"
+        )
+        files.forEach { file ->
+            val fileStream = {}::class.java.classLoader.getResourceAsStream("operator/conf/$file")
+            fileStream?.let {
+                project.logger.lifecycle("COPY $file tp ${Paths.get(getProviderHomeDir(), "digitalai-deploy/kubernetes/$file")}")
+                FileUtil.copyFile(
+                        it,
+                        Paths.get(getProviderHomeDir(), "digitalai-deploy/kubernetes/$file")
+                )
+            }
+        }
     }
 
     fun shutdownCluster() {
@@ -35,15 +57,19 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val name = azureAksProvider.name.get()
 
         val groupName = resourceGroupName(name)
+        val location = azureAksProvider.location.get()
         val clusterName = aksClusterName(name)
 
         project.logger.lifecycle("Undeploy operator")
         undeployCis()
 
+        project.logger.lifecycle("Delete all PVCs")
+        KubeCtlUtil.deleteAllPvcs(project)
+
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
-//        ProcessUtil.executeCommand(project,
-//                "az group delete --name $groupName --yes")
-//
+//        deleteResourceGroup(groupName, location)
+
+        project.logger.lifecycle("Delete current context")
 //        KubeCtlUtil.deleteCurrentContext(project)
     }
 
@@ -64,6 +90,10 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
     override fun getProvider(): AzureAksProvider {
         return getProfile().azureAks
+    }
+
+    fun getFqdn(cluster: String, location: String): String {
+        return "${cluster}.${location}.cloudapp.azure.com"
     }
 
     fun createStorageClass(name: String) {
@@ -95,13 +125,17 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         KubeCtlUtil.setDefaultStorageClass(project, "default", fileStorageClassName)
     }
 
+    fun existsResourceGroup(groupName: String, location: String): Boolean {
+        val result = ProcessUtil.executeCommand(project,
+                "az group list --query \"[?location=='$location']\" --output tsv | grep $groupName", throwErrorOnFailure = false, logOutput = false)
+        return result.contains(groupName)
+    }
+
     fun createResourceGroup(name: String, location: String, skipExisting: Boolean) {
         val groupName = resourceGroupName(name)
         var shouldSkipExisting = false
         if (skipExisting) {
-            val result = ProcessUtil.executeCommand(project,
-                    "az group list --query \"[?location=='$location']\" --output tsv | grep $groupName")
-            if (result.contains(groupName)) {
+            if (existsResourceGroup(groupName, location)) {
                 shouldSkipExisting = true
             }
         }
@@ -114,13 +148,23 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         }
     }
 
-    fun createCluster(name: String, clusterNodeCount: Int, skipExisting: Boolean) {
+    fun deleteResourceGroup(groupName: String, location: String) {
+        if (existsResourceGroup(groupName, location)) {
+            project.logger.lifecycle("Create resource group: {}", groupName)
+            ProcessUtil.executeCommand(project,
+                    "az group delete --name $groupName --yes")
+        } else {
+            project.logger.lifecycle("Skipping delete of the resource group: {}", groupName)
+        }
+    }
+
+    fun createCluster(name: String, clusterNodeCount: Property<Int>, clusterNodeVmSize: Property<String>, kubernetesVersion: Property<String>, skipExisting: Boolean) {
         val groupName = resourceGroupName(name)
         val clusterName = aksClusterName(name)
         var shouldSkipExisting = false
         if (skipExisting) {
             val result = ProcessUtil.executeCommand(project,
-                    "az aks list --output tsv | grep $clusterName")
+                    "az aks list --output tsv | grep $clusterName", throwErrorOnFailure = false, logOutput = false)
             if (result.contains(clusterName)) {
                 shouldSkipExisting = true
             }
@@ -129,8 +173,16 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
             project.logger.lifecycle("Skipping creation of the existing AKS cluster: {}", clusterName)
         } else {
             project.logger.lifecycle("Create AKS cluster: {}", clusterName)
+            var additions = ""
+            if (clusterNodeVmSize.isPresent) {
+                additions += " --node-vm-size \"${clusterNodeVmSize.get()}\""
+            }
+            if (kubernetesVersion.isPresent) {
+                additions += " --kubernetes-version \"${kubernetesVersion.get()}\""
+            }
             ProcessUtil.executeCommand(project,
-                    "az aks create --resource-group $groupName --name $clusterName --node-count $clusterNodeCount --generate-ssh-keys --enable-addons monitoring")
+                    "az aks create --resource-group $groupName --name $clusterName --node-count ${clusterNodeCount.getOrElse(2)} " +
+                            "--generate-ssh-keys --enable-addons monitoring $additions")
         }
     }
 

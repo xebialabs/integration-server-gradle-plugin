@@ -116,7 +116,9 @@ class ProcessUtil {
                         input += System.lineSeparator()
                     input += it
                 }
-                project.logger.debug(input)
+                if (logOutput && line != "") {
+                    project.logger.lifecycle(line)
+                }
                 line = stdInput.readLine()
             }
             line = stdError.readLine()
@@ -126,17 +128,10 @@ class ProcessUtil {
                         error += System.lineSeparator()
                     error += it
                 }
-                project.logger.debug(error)
+                if (logOutput && line != "") {
+                    project.logger.error(line)
+                }
                 line = stdError.readLine()
-            }
-
-            if (logOutput) {
-                if (input != "") {
-                    project.logger.lifecycle(input)
-                }
-                if (error != "") {
-                    project.logger.error(error)
-                }
             }
 
             if (process.waitFor(waitTimeoutSeconds, TimeUnit.SECONDS)) {

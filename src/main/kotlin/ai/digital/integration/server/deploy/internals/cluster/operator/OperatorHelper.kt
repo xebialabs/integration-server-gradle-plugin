@@ -3,12 +3,11 @@ package ai.digital.integration.server.deploy.internals.cluster.operator
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
-import ai.digital.integration.server.common.util.FileUtil
-import ai.digital.integration.server.common.util.KubeCtlUtil
-import ai.digital.integration.server.common.util.XlCliUtil
-import ai.digital.integration.server.common.util.YamlFileUtil
+import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.internals.CliUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.EntryPointUrlUtil
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Paths
@@ -35,7 +34,7 @@ abstract class OperatorHelper(val project: Project) {
             project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
     fun getProviderWorkDir(): String =
-        project.buildDir.toPath().resolve("${getProvider().name}-work").toAbsolutePath().toString()
+        project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
 
     fun getProfile(): OperatorProfile {
         return DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
@@ -80,6 +79,12 @@ abstract class OperatorHelper(val project: Project) {
         resources.forEach { resource ->
             KubeCtlUtil.wait(project, resource, "Available", getProfile().deploymentTimeoutSeconds.get())
         }
+    }
+
+    fun waitForBoot(host: String) {
+        val url ="http://$host/xl-deploy/deployit/metadata/type"
+        val server = DeployServerUtil.getServer(project)
+        WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
 
     fun undeployCis() {
