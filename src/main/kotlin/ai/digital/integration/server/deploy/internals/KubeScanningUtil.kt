@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.internals
 
+import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.KubeScanner
 import ai.digital.integration.server.common.util.ProcessUtil
 import net.sf.json.JSONObject
@@ -46,7 +47,11 @@ class KubeScanningUtil {
         fun getAWSAccountId(project: Project): String {
             val identityDetail: String = ProcessUtil.execute(project, "aws", listOf("sts", "get-caller-identity"), false)
             val identity = JSONTokener(identityDetail).nextValue() as JSONObject
-            return "${identity.get("Account")}.dkr.ecr.${KubeScanner.awsRegion}.amazonaws.com"
+            return "${identity.get("Account")}.dkr.ecr.${getKubeScanner(project).awsRegion}.amazonaws.com"
+        }
+
+        fun getKubeScanner(project: Project): KubeScanner {
+            return DeployExtensionUtil.getExtension(project).kubeScanner.get()
         }
 
     }

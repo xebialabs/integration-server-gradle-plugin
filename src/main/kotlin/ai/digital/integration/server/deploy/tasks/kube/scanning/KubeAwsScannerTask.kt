@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.kube.scanning
 
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.common.domain.KubeScanner
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.internals.KubeScanningUtil
 import org.gradle.api.DefaultTask
@@ -12,6 +13,7 @@ open class KubeAwsScannerTask : DefaultTask() {
 
     companion object {
         const val NAME = "kubeAwsScanner"
+        const val reportFile = "aws-eks"
     }
 
     init {
@@ -38,6 +40,7 @@ open class KubeAwsScannerTask : DefaultTask() {
 
         KubeCtlUtil.apply(project, File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
 
+
     }
 
     private fun updateKubeBenchImage() {
@@ -45,12 +48,14 @@ open class KubeAwsScannerTask : DefaultTask() {
         val pairs = mutableMapOf<String, Any>(
                 "spec.template.spec.containers[0].image" to "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:latest"
         )
+       if(KubeScanningUtil.getKubeScanner(project).enableDebug){
+            pairs.put("spec.template.spec.containers[0].command" , mutableListOf("kube-bench", "run", "--targets", "node", "--benchmark", "eks-1.0.1", "-v", "3","logtostrerr"))
+        }
         YamlFileUtil.overlayFile(file, pairs)
     }
 
     @TaskAction
     fun launch() {
-            val reportFile = "aws-eks"
             kubeBenchPushAndApply()
             KubeScanningUtil.generateReport(project, "${reportFile}.log")
     }

@@ -37,7 +37,6 @@ import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshi
 import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.kube.scanning.KubeAwsScannerFinalizerTask
-import ai.digital.integration.server.deploy.tasks.kube.scanning.KubeScanningTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
@@ -93,11 +92,6 @@ open class DeployTaskRegistry {
             project.tasks.create(CheckingOutDeployKubernetesOperatorTask.NAME, CheckingOutDeployKubernetesOperatorTask::class.java)
             project.tasks.create(OperatorCentralConfigurationTask.NAME, OperatorCentralConfigurationTask::class.java)
             project.tasks.create(StartDeployServerForOperatorInstanceTask.NAME, StartDeployServerForOperatorInstanceTask::class.java)
-
-            project.tasks.create(KubeScanningTask.NAME, KubeScanningTask::class.java)
-            project.tasks.create(CheckingOutKubeBenchTask.NAME, CheckingOutKubeBenchTask::class.java)
-            project.tasks.create(KubeAwsScannerTask.NAME, KubeAwsScannerTask::class.java)
-            project.tasks.create(KubeAwsScannerFinalizerTask.NAME, KubeAwsScannerFinalizerTask::class.java)
 
 
             // Cluster Terraform
