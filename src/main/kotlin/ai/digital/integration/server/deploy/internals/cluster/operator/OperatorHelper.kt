@@ -79,8 +79,8 @@ abstract class OperatorHelper(val project: Project) {
     fun waitForDeployment() {
         val resources = arrayOf(
                 "deployment.apps/xld-operator-controller-manager",
-                "deployment.apps/digitalaideploy-sample-nginx-ingress-controller",
-                "deployment.apps/digitalaideploy-sample-nginx-ingress-controller-default-backend"
+                "deployment.apps/dai-xld-nginx-ingress-controller",
+                "deployment.apps/dai-xld-nginx-ingress-controller-default-backend"
         )
         resources.forEach { resource ->
             if (!KubeCtlUtil.wait(project, resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
@@ -91,7 +91,7 @@ abstract class OperatorHelper(val project: Project) {
 
     fun waitForMasterPods() {
         val resources = List(getMasterCount()) { position ->
-            "pod/digitalaideploy-sample-digitalai-deploy-master-$position"
+            "pod/dai-xld-digitalai-deploy-master-$position"
         }
 
         resources.forEach { resource ->
@@ -103,7 +103,7 @@ abstract class OperatorHelper(val project: Project) {
 
     fun waitForWorkerPods() {
         val resources = List(getWorkerCount()) { position ->
-            "pod/digitalaideploy-sample-digitalai-deploy-worker-$position"
+            "pod/dai-xld-digitalai-deploy-worker-$position"
         }
         resources.forEach { resource ->
             if (!KubeCtlUtil.wait(project, resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
@@ -139,14 +139,23 @@ abstract class OperatorHelper(val project: Project) {
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
                 "spec.ImageRepository" to DeployServerUtil.getServer(project).dockerImage!!,
+//                "spec.ImageRepository" to "xebialabs/xl-deploy",
                 "spec.ImageTag" to DeployServerUtil.getServer(project).version!!,
+//                "spec.ImageTag" to "10.2.4",
                 "spec.XldMasterCount" to getMasterCount(),
                 "spec.XldWorkerCount" to getWorkerCount(),
+                "spec.Persistence.XldMasterPvcSize" to "10Gi",
+                "spec.Persistence.XldWorkerPvcSize" to "10Gi",
                 "spec.KeystorePassphrase" to getProvider().keystorePassphrase,
                 "spec.Persistence.StorageClass" to getStorageClass(),
                 "spec.RepositoryKeystore" to getProvider().repositoryKeystore,
+                "spec.postgresql.image.debug" to true,
+                "spec.postgresql.persistence.size" to "10Gi",
                 "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
                 "spec.rabbitmq.persistence.storageClass" to getStorageClass(),
+                "spec.rabbitmq.image.debug" to true,
+                "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
+                "spec.rabbitmq.persistence.size" to "5Gi",
                 "spec.rabbitmq.replicaCount" to 1,
                 "spec.rabbitmq.persistence.replicaCount" to 1,
                 "spec.route.hosts" to arrayOf(getProvider().host),

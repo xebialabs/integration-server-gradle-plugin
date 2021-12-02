@@ -3,7 +3,6 @@ package ai.digital.integration.server.deploy.internals.cluster.operator
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AzureAksProvider
 import ai.digital.integration.server.common.util.*
-import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
@@ -24,7 +23,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val kubeContextInfo = KubeCtlUtil.getCurrentContextInfo(project)
         createStorageClass(azureAksProvider.storageClass.getOrElse(name))
 
-        copyTempFile()
         updateControllerManager()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
@@ -38,23 +36,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         waitForWorkerPods()
 
         waitForBoot(getFqdn(aksClusterName(name), location))
-    }
-
-    private fun copyTempFile() {
-        // TODO copy working yamls
-        val files = listOf(
-                "daideploy_cr1.yaml"
-        )
-        files.forEach { file ->
-            val fileStream = {}::class.java.classLoader.getResourceAsStream("operator/conf/$file")
-            fileStream?.let {
-                project.logger.lifecycle("COPY $file to ${Paths.get(getProviderHomeDir(), "digitalai-deploy/kubernetes/$file")}")
-                FileUtil.copyFile(
-                        it,
-                        Paths.get(getProviderHomeDir(), "digitalai-deploy/kubernetes/$file")
-                )
-            }
-        }
     }
 
     fun shutdownCluster() {
@@ -72,10 +53,10 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         KubeCtlUtil.deleteAllPvcs(project)
 
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
-//        deleteResourceGroup(groupName, location)
+        deleteResourceGroup(groupName, location)
 
         project.logger.lifecycle("Delete current context")
-//        KubeCtlUtil.deleteCurrentContext(project)
+        KubeCtlUtil.deleteCurrentContext(project)
     }
 
     override fun updateInfrastructure(infraInfo: InfrastructureInfo) {
