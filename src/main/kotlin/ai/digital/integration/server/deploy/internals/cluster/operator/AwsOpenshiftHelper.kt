@@ -27,27 +27,30 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateOperatorCrValues()
 
-        val infraInfo = KubeCtlUtil.getCurrentContextInfo(project, getOcApiServerToken())
+        val infraInfo = KubeCtlUtil.getCurrentContextInfo(getOcApiServerToken())
         updateInfrastructure(infraInfo)
+
+        applyYamlFiles()
     }
 
     private fun getOcApiServerToken(): String {
-        val login = project.hasProperty("ocLogin");
-        val password = project.hasProperty("ocPassword");
+        val login = project.property("ocLogin")
+        val password = project.property("ocPassword")
         val basicAuthToken = Base64.getEncoder().encodeToString("$login:$password".toByteArray())
-        val oauthHostName = getProvider().oauthHostName
+        val oauthHostName = getProvider().oauthHostName.get()
 
-        ProcessUtil.executeCommand(project, "oc logout")
+        ProcessUtil.executeCommand("oc logout")
 
-        val command1Output = ProcessUtil.executeCommand(project,
-            "curl -vvv -L -k -c cookie -b cookie  -H \"Authorization: Basic $basicAuthToken\" https://$oauthHostName/oauth/token/request")
+        val command1Output =
+            ProcessUtil.executeCommand("curl -vvv -L -k -c cookie -b cookie  -H \"Authorization: Basic $basicAuthToken\" https://$oauthHostName/oauth/token/request")
         val doc1 = HtmlUtil.htmlToDocument(command1Output)
 
         val code = doc1.select("form input[name=\"code\"]").`val`()
         val csrf = doc1.select("form input[name=\"csrf\"]").`val`()
 
-        val command2Output = ProcessUtil.executeCommand(project,
+        val command2Output = ProcessUtil.executeCommand(
             "curl -vvv -L -k -c cookie -b cookie -d 'code=$code&csrf=$csrf' -H \"Authorization: Basic $basicAuthToken\" https://$oauthHostName/oauth/token/display")
         val doc2 = HtmlUtil.htmlToDocument(command2Output)
         return doc2.select("code").text()
@@ -67,6 +70,10 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
 
     override fun getOperatorImage(): String {
         return getProvider().operatorImage.value("xebialabs/deploy-operator:1.2.0-openshift").get()
+    }
+
+    override fun getStorageClass(): String {
+        return getProvider().storageClass.value("aws-efs").get()
     }
 
     override fun updateInfrastructure(infraInfo: InfrastructureInfo) {

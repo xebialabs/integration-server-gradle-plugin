@@ -80,37 +80,37 @@ class KubeCtlUtil {
             return getWithPath(project, "service $serviceName", "{.status.loadBalancer.ingress[*].ip}")
         }
 
-        fun getCurrentContext(project: Project): String {
+        private fun getCurrentContext(project: Project): String {
             return ProcessUtil.executeCommand(project,
                     "kubectl config current-context", logOutput = false)
         }
 
-        fun getContextCluster(project: Project, contextName: String): String {
+        private fun getContextCluster(project: Project, contextName: String): String {
             return ProcessUtil.executeCommand(project,
                     "kubectl config view -o jsonpath='{.contexts[?(@.name == \"$contextName\")].context.cluster}' --raw", logOutput = false)
         }
 
-        fun getContextUser(project: Project, contextName: String): String {
+        private fun getContextUser(project: Project, contextName: String): String {
             return ProcessUtil.executeCommand(project,
                     "kubectl config view -o jsonpath='{.contexts[?(@.name == \"$contextName\")].context.user}' --raw", logOutput = false)
         }
 
-        fun getClusterServer(project: Project, clusterName: String): String {
+        private fun getClusterServer(project: Project, clusterName: String): String {
             return ProcessUtil.executeCommand(project,
                     "kubectl config view -o jsonpath='{.clusters[?(@.name == \"$clusterName\")].cluster.server}' --raw", logOutput = false)
         }
 
-        fun getClusterCertificateAuthorityData(project: Project, clusterName: String): String {
+        private fun getClusterCertificateAuthorityData(project: Project, clusterName: String): String {
             return ProcessUtil.executeCommand(project,
                     "kubectl config view -o jsonpath='{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority-data}' --raw", logOutput = false)
         }
 
-        fun getUserClientKeyData(project: Project, userName: String): String {
+        private fun getUserClientKeyData(project: Project, userName: String): String {
             return ProcessUtil.executeCommand(project,
                     "kubectl config view -o jsonpath='{.users[?(@.name == \"$userName\")].user.client-key-data}' --raw", logOutput = false)
         }
 
-        fun getUserClientCertificateData(project: Project, userName: String): String {
+        private fun getUserClientCertificateData(project: Project, userName: String): String {
             return ProcessUtil.executeCommand(project,
                     "kubectl config view -o jsonpath='{.users[?(@.name == \"$userName\")].user.client-certificate-data}' --raw", logOutput = false)
         }
