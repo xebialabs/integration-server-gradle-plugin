@@ -29,7 +29,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         updateOperatorDeploymentCr()
         updateOperatorCrValues()
 
-        val infraInfo = KubeCtlUtil.getCurrentContextInfo(getOcApiServerToken())
+        val infraInfo = KubeCtlUtil.getCurrentContextInfo(project, getOcApiServerToken())
         updateInfrastructure(infraInfo)
 
         applyYamlFiles()

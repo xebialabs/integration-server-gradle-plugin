@@ -6,7 +6,7 @@ import java.io.File
 
 class XlCliUtil {
     companion object {
-        fun download(version: String, location: String) {
+        fun download(project: Project, version: String, location: String) {
             val osFolder = when {
                 Os.isFamily(Os.FAMILY_WINDOWS) ->
                     "windows-amd64"
@@ -16,14 +16,19 @@ class XlCliUtil {
                     "linux-amd64"
             }
 
-            ProcessUtil.executeCommand(
-                    "wget https://dist.xebialabs.com/public/xl-cli/$version/$osFolder/xl -P $location")
-            ProcessUtil.executeCommand("chmod +x xl", File(location))
+            if (!ProcessUtil.executeCommand(project, "xl -v", logOutput = false, throwErrorOnFailure = false).contains("XL Cli")) {
+                ProcessUtil.executeCommand(project,
+                        "wget https://dist.xebialabs.com/public/xl-cli/$version/$osFolder/xl -P $location")
+                ProcessUtil.executeCommand(project, "chmod +x xl", File(location))
+            }
         }
 
         fun xlApply(project: Project, file: File, workDir: File) {
-            val output = ProcessUtil.executeCommand("xl apply -v -f ${file.name}", workDir)
-            project.logger.lifecycle(output)
+            if (ProcessUtil.executeCommand(project, "xl -v", logOutput = false, throwErrorOnFailure = false).contains("XL Cli")) {
+                ProcessUtil.executeCommand(project, "xl apply -v -f ${File(workDir, file.name).absolutePath}")
+            } else {
+                ProcessUtil.executeCommand(project, "xl apply -v -f ${file.name}", workDir)
+            }
         }
     }
 }

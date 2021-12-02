@@ -97,7 +97,14 @@ class ProcessUtil {
             }
         }
 
-        fun executeCommand(project: Project, command: String,
+        fun executeCommand(command: String,
+                           workDir: File? = null,
+                           throwErrorOnFailure: Boolean = true,
+                           waitTimeoutSeconds: Long = 10): String {
+            return executeCommand(null, command, workDir, false, throwErrorOnFailure, waitTimeoutSeconds)
+        }
+
+        fun executeCommand(project: Project?, command: String,
                            workDir: File? = null,
                            logOutput: Boolean = true,
                            throwErrorOnFailure: Boolean = true,
@@ -121,7 +128,7 @@ class ProcessUtil {
                         input += System.lineSeparator()
                     input += it
                 }
-                if (logOutput && line != "") {
+                if (logOutput && line != "" && project != null) {
                     project.logger.lifecycle(line)
                 }
                 line = stdInput.readLine()
@@ -133,7 +140,7 @@ class ProcessUtil {
                         error += System.lineSeparator()
                     error += it
                 }
-                if (logOutput && line != "") {
+                if (logOutput && line != "" && project != null) {
                     project.logger.error(line)
                 }
                 line = stdError.readLine()

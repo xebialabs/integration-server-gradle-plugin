@@ -29,7 +29,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
 
-        applyDigitalAi()
+        applyYamlFiles()
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()
