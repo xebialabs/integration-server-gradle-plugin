@@ -3,6 +3,7 @@ package ai.digital.integration.server.deploy.internals.cluster.operator
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AzureAksProvider
 import ai.digital.integration.server.common.util.*
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
@@ -21,26 +22,28 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         createCluster(name, azureAksProvider.clusterNodeCount, azureAksProvider.clusterNodeVmSize, azureAksProvider.kubernetesVersion, skipExisting)
         connectToCluster(name)
         val kubeContextInfo = KubeCtlUtil.getCurrentContextInfo(project)
-        createStorageClass(name)
+        createStorageClass(azureAksProvider.storageClass.getOrElse(name))
 
         copyTempFile()
         updateControllerManager()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
+        updateOperatorCrValues()
+        updateCrValues()
 
         applyYamlFiles()
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()
 
-        waitForBoot(getFqdn(name, location))
+        waitForBoot(getFqdn(aksClusterName(name), location))
     }
 
     private fun copyTempFile() {
         // TODO copy working yamls
         val files = listOf(
-                "daideploy_cr.yaml"
+                "daideploy_cr1.yaml"
         )
         files.forEach { file ->
             val fileStream = {}::class.java.classLoader.getResourceAsStream("operator/conf/$file")
@@ -86,12 +89,35 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         YamlFileUtil.overlayFile(file, pairs)
     }
 
+    private fun updateCrValues() {
+        val azureAksProvider: AzureAksProvider = getProvider()
+
+        val name = azureAksProvider.name.get()
+        val cluster = aksClusterName(name)
+        val location = azureAksProvider.location.get()
+
+        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+        val pairs = mutableMapOf(
+                "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to cluster),
+                "spec.ingress.hosts" to arrayOf(getFqdn(cluster, location))
+        )
+        YamlFileUtil.overlayFile(file, pairs)
+    }
+
     override fun getProviderHomeDir(): String {
         return "${getOperatorHomeDir()}/deploy-operator-azure-aks"
     }
 
     override fun getProvider(): AzureAksProvider {
         return getProfile().azureAks
+    }
+
+    override fun getStorageClass(): String {
+        return fileStorageClassName(getProvider().storageClass.getOrElse(getProvider().name.get()))
+    }
+
+    override fun getDbStorageClass(): String {
+        return diskStorageClassName(getProvider().storageClass.getOrElse(getProvider().name.get()))
     }
 
     fun getFqdn(cluster: String, location: String): String {
@@ -201,14 +227,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         return name
     }
 
-    private fun diskStorageClassName(name: String): String {
-        return "${name}-disk-storage-class"
-    }
-
-    private fun fileStorageClassName(name: String): String {
-        return "${name}-file-storage-class"
-    }
-
     private fun aksSshKeyName(name: String): String {
         return "${name}-ssh-key"
     }
@@ -221,6 +239,14 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
         return resultComposeFilePath.toFile()
+    }
+
+    private fun diskStorageClassName(name: String): String {
+        return "${name}-disk-storage-class"
+    }
+
+    private fun fileStorageClassName(name: String): String {
+        return "${name}-file-storage-class"
     }
 }
 

@@ -7,6 +7,7 @@ import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.internals.CliUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Files
@@ -82,28 +83,32 @@ abstract class OperatorHelper(val project: Project) {
                 "deployment.apps/digitalaideploy-sample-nginx-ingress-controller-default-backend"
         )
         resources.forEach { resource ->
-            KubeCtlUtil.wait(project, resource, "Available", getProfile().deploymentTimeoutSeconds.get())
+            if (!KubeCtlUtil.wait(project, resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
+                throw RuntimeException("Resource $resource  is not available")
+            }
         }
     }
 
     fun waitForMasterPods() {
-        val servers = DeployServerUtil.getServers(project)
-        val resources = List(servers.size) { position ->
+        val resources = List(getMasterCount()) { position ->
             "pod/digitalaideploy-sample-digitalai-deploy-master-$position"
         }
 
         resources.forEach { resource ->
-            KubeCtlUtil.wait(project, resource, "Ready", getProfile().deploymentTimeoutSeconds.get())
+            if (!KubeCtlUtil.wait(project, resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
+                throw RuntimeException("Resource $resource is not ready")
+            }
         }
     }
 
     fun waitForWorkerPods() {
-        val workers = DeployServerUtil.getServers(project)
-        val resources = List(workers.size) { position ->
+        val resources = List(getWorkerCount()) { position ->
             "pod/digitalaideploy-sample-digitalai-deploy-worker-$position"
         }
         resources.forEach { resource ->
-            KubeCtlUtil.wait(project, resource, "Ready", getProfile().deploymentTimeoutSeconds.get())
+            if (!KubeCtlUtil.wait(project, resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
+                throw RuntimeException("Resource $resource is not ready")
+            }
         }
     }
 
@@ -119,7 +124,11 @@ abstract class OperatorHelper(val project: Project) {
         fileStream?.let {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
-        CliUtil.executeScripts(project, listOf(resultComposeFilePath.toFile()), "undeploy.py", false, 4516)
+        try {
+            CliUtil.executeScripts(project, listOf(resultComposeFilePath.toFile()), "undeploy.py", false, 4516)
+        } catch (e: RuntimeException) {
+            project.logger.warn("Undeploy didn't run. Check if operator's deploy server is running on port 4516: ${e.message}")
+        }
     }
 
     open fun getOperatorImage(): String {
@@ -129,13 +138,17 @@ abstract class OperatorHelper(val project: Project) {
     fun updateOperatorCrValues() {
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
+                "spec.ImageRepository" to DeployServerUtil.getServer(project).dockerImage!!,
                 "spec.ImageTag" to DeployServerUtil.getServer(project).version!!,
+                "spec.XldMasterCount" to getMasterCount(),
+                "spec.XldWorkerCount" to getWorkerCount(),
                 "spec.KeystorePassphrase" to getProvider().keystorePassphrase,
                 "spec.Persistence.StorageClass" to getStorageClass(),
                 "spec.RepositoryKeystore" to getProvider().repositoryKeystore,
-                "spec.postgresql.persistence.storageClass" to getStorageClass(),
+                "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
                 "spec.rabbitmq.persistence.storageClass" to getStorageClass(),
-                "spec.rabbitmq.persistence.replicaCount" to "1",
+                "spec.rabbitmq.replicaCount" to 1,
+                "spec.rabbitmq.persistence.replicaCount" to 1,
                 "spec.route.hosts" to arrayOf(getProvider().host),
                 "spec.xldLicense" to getLicense()
         )
@@ -148,8 +161,20 @@ abstract class OperatorHelper(val project: Project) {
         return Base64.getEncoder().encodeToString(content.toByteArray())
     }
 
+    open fun getMasterCount(): Int {
+        return DeployServerUtil.getServers(project).size
+    }
+
+    open fun getWorkerCount(): Int {
+        return WorkerUtil.getNumberOfWorkers(project)
+    }
+
     open fun getStorageClass(): String {
         return getProvider().storageClass.value("standard").get()
+    }
+
+    open fun getDbStorageClass(): String {
+        return getStorageClass()
     }
 
     open fun applyYamlFiles() {

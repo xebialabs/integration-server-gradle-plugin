@@ -22,6 +22,7 @@ class KubeCtlUtil {
                 if (result.contains("condition met")) {
                     return true
                 }
+                Thread.sleep(1000)
             }
             return false
         }
