@@ -12,7 +12,7 @@ import org.gradle.util.ConfigureUtil
 internal class DefaultOperatorProviderContainer(delegate: NamedDomainObjectContainer<Provider>, project: Project) :
     OperatorProviderContainer, NamedDomainObjectContainer<Provider> by delegate {
 
-    private var _activeProviderName: Property<String> = project.objects.property<String>()
+    private var _activeProviderName: Property<String> = project.objects.property()
 
     override var activeProviderName: String
         get() = _activeProviderName.get()

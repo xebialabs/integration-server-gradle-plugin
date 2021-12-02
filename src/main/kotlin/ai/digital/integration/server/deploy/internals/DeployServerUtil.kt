@@ -134,6 +134,11 @@ class DeployServerUtil {
             return Paths.get(getServerWorkingDir(project, server), "log").toFile()
         }
 
+        fun getConfDir(project: Project): File {
+            val server = getServer(project)
+            return Paths.get(getServerWorkingDir(project, server), "conf").toFile()
+        }
+
         fun grantPermissionsToIntegrationServerFolder(project: Project) {
             if (isDockerBased(project)) {
                 val workDir = IntegrationServerUtil.getDist(project)

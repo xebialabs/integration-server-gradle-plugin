@@ -53,7 +53,7 @@ open class OperatorBasedStartDeployClusterTask : DefaultTask() {
     private fun cloneRepository() {
         val buildDirPath = project.buildDir.toPath().toAbsolutePath().toString()
         val dest = "$buildDirPath/xl-deploy-kubernetes-operator"
-        ProcessUtil.executeCommand(project,
+        ProcessUtil.executeCommand(
             "git clone git@github.com:xebialabs/xl-deploy-kubernetes-operator.git $dest")
     }
 }

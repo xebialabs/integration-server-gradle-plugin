@@ -1,8 +1,7 @@
-package ai.digital.integration.server.deploy.internals
+package ai.digital.integration.server.common.util
 
-import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.KubeScanner
-import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import net.sf.json.JSONObject
 import net.sf.json.util.JSONTokener
 import org.gradle.api.Project
@@ -26,13 +25,13 @@ class KubeScanningUtil {
         }
 
         fun generateReport(project: Project, fileName: String) {
-            ProcessUtil.executeCommand(project, "mkdir ${getKubeScanningReportDir(project).toAbsolutePath()}")
-            ProcessUtil.executeCommand(project, "cd ${getKubeScanningReportDir(project).toAbsolutePath()}")
-            val kubeBenchPod = ProcessUtil.executeCommand(project, "kubectl get po | awk '/kube-bench/{print \$1}'")
+            ProcessUtil.executeCommand( "mkdir ${getKubeScanningReportDir(project).toAbsolutePath()}")
+            ProcessUtil.executeCommand( "cd ${getKubeScanningReportDir(project).toAbsolutePath()}")
+            val kubeBenchPod = ProcessUtil.executeCommand( "kubectl get po | awk '/kube-bench/{print \$1}'")
             var status: String
             var count = DEFAULT_RETRY_TRIES
             do {
-                status = ProcessUtil.executeCommand(project, "kubectl get pods ${kubeBenchPod} -o 'jsonpath={..status.containerStatuses[0].state.terminated.reason}'")
+                status = ProcessUtil.executeCommand( "kubectl get pods $kubeBenchPod -o 'jsonpath={..status.containerStatuses[0].state.terminated.reason}'")
                 TimeUnit.SECONDS.sleep(DEFAULT_RETRY_SLEEP_TIME.toLong())
             } while (status != "Completed" && count-- > 0)
 
