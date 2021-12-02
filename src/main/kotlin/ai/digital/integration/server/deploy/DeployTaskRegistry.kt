@@ -17,10 +17,9 @@ import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerCo
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStopDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.k8sinstaller.scanning.CheckingOutKubeBenchTask
-import ai.digital.integration.server.deploy.tasks.cluster.k8sinstaller.scanning.KubeBenchInstallerAwsEksTask
+import ai.digital.integration.server.deploy.tasks.kube.scanning.CheckingOutKubeBenchTask
+import ai.digital.integration.server.deploy.tasks.kube.scanning.KubeAwsScannerTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.CheckingOutDeployKubernetesOperatorTask
-import ai.digital.integration.server.deploy.tasks.cluster.k8sinstaller.scanning.KubeBenchInstallerTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStartTask
@@ -37,6 +36,8 @@ import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshi
 import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.kube.scanning.KubeAwsScannerFinalizerTask
+import ai.digital.integration.server.deploy.tasks.kube.scanning.KubeScanningTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
@@ -92,9 +93,11 @@ open class DeployTaskRegistry {
             project.tasks.create(CheckingOutDeployKubernetesOperatorTask.NAME, CheckingOutDeployKubernetesOperatorTask::class.java)
             project.tasks.create(OperatorCentralConfigurationTask.NAME, OperatorCentralConfigurationTask::class.java)
             project.tasks.create(StartDeployServerForOperatorInstanceTask.NAME, StartDeployServerForOperatorInstanceTask::class.java)
-            project.tasks.create(KubeBenchInstallerAwsEksTask.NAME, KubeBenchInstallerAwsEksTask::class.java)
-            project.tasks.create(CheckingOutKubeBenchTask.NAME, CheckingOutKubeBenchTask::class.java)
 
+            project.tasks.create(KubeScanningTask.NAME, KubeScanningTask::class.java)
+            project.tasks.create(CheckingOutKubeBenchTask.NAME, CheckingOutKubeBenchTask::class.java)
+            project.tasks.create(KubeAwsScannerTask.NAME, KubeAwsScannerTask::class.java)
+            project.tasks.create(KubeAwsScannerFinalizerTask.NAME, KubeAwsScannerFinalizerTask::class.java)
 
 
             // Cluster Terraform

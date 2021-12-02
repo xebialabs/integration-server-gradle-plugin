@@ -1,14 +1,14 @@
-package ai.digital.integration.server.deploy.tasks.cluster.k8sinstaller.scanning
+package ai.digital.integration.server.deploy.tasks.kube.scanning
 
 import ai.digital.integration.server.common.util.ProcessUtil
-import ai.digital.integration.server.deploy.internals.KubeBenchUtil
+import ai.digital.integration.server.deploy.internals.KubeScanningUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
 open class CheckingOutKubeBenchTask : DefaultTask() {
 
     companion object {
-        const val NAME = "checkingOutKubeBenchTask"
+        const val NAME = "checkingOutKubeBench"
     }
 
     @TaskAction
@@ -19,6 +19,6 @@ open class CheckingOutKubeBenchTask : DefaultTask() {
 
     private fun cloneRepository() {
         ProcessUtil.executeCommand(project,
-                "git clone https://github.com/aquasecurity/kube-bench.git ${KubeBenchUtil.getKubeBenchDir(project)}")
+                "git clone https://github.com/aquasecurity/kube-bench.git ${KubeScanningUtil.getKubeBenchDir(project)}")
     }
 }
