@@ -79,7 +79,7 @@ abstract class OperatorHelper(val project: Project) {
             "spec.postgresql.persistence.storageClass" to getStorageClass(),
             "spec.rabbitmq.persistence.storageClass" to getStorageClass(),
             "spec.rabbitmq.persistence.replicaCount" to "1",
-            "spec.route.hosts" to arrayOf(getProvider().host),
+            "spec.route.hosts" to arrayOf(getProvider().host.get()),
             "spec.xldLicense" to getLicense()
         )
         YamlFileUtil.overlayFile(file, pairs)
