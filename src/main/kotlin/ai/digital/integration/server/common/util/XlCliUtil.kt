@@ -6,7 +6,7 @@ import java.io.File
 
 class XlCliUtil {
     companion object {
-        fun download(version: String, location: String) {
+        fun download(version: String, location: File) {
             val osFolder = when {
                 Os.isFamily(Os.FAMILY_WINDOWS) ->
                     "windows-amd64"
@@ -17,8 +17,8 @@ class XlCliUtil {
             }
 
             ProcessUtil.executeCommand(
-                "wget https://dist.xebialabs.com/public/xl-cli/$version/$osFolder/xl -P $location")
-            ProcessUtil.executeCommand("chmod +x xl", File(location))
+                "wget https://dist.xebialabs.com/public/xl-cli/$version/$osFolder/xl", location)
+            ProcessUtil.executeCommand("chmod +x xl", location)
         }
 
         fun xlApply(project: Project, file: File, workDir: File) {

@@ -100,7 +100,7 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     open fun applyYamlFiles() {
-        XlCliUtil.download(getProfile().xlCliVersion.get(), getProviderHomeDir())
+        XlCliUtil.download(getProfile().xlCliVersion.get(), File(getProviderHomeDir()))
         XlCliUtil.xlApply(project, File("${getProviderHomeDir()}/digital-ai.yaml"), File(getProviderHomeDir()))
     }
 

@@ -5,10 +5,10 @@ services:
     image: {{DEPLOY_IMAGE_VERSION}}
     container_name: deploy-{{DEPLOY_VERSION}}
     environment:
-      ADMIN_PASSWORD: admin
-      ACCEPT_EULA: 'Y'
-      GENERATE_XL_CONFIG: "false"
-      PLUGINS_TO_EXCLUDE: {{DEPLOY_PLUGINS_TO_EXCLUDE}}
+      - ADMIN_PASSWORD=admin
+      - ACCEPT_EULA=Y
+      - GENERATE_XL_CONFIG=false
+      - PLUGINS_TO_EXCLUDE={{DEPLOY_PLUGINS_TO_EXCLUDE}}
     ports:
       - {{DEPLOY_SERVER_HTTP_PORT}}:4516
     volumes:
