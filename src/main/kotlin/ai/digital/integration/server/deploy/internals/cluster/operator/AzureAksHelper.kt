@@ -8,7 +8,6 @@ import org.gradle.api.provider.Property
 import java.io.File
 import java.nio.file.Paths
 
-// TODO login with az
 open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
     fun launchCluster() {
@@ -235,10 +234,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         return name
     }
 
-    private fun aksSshKeyName(name: String): String {
-        return "${name}-ssh-key"
-    }
-
     private fun getTemplate(relativePath: String): File {
         val file = File(relativePath)
         val fileStream = {}::class.java.classLoader.getResourceAsStream(relativePath)
@@ -257,4 +252,3 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         return "${name}-file-storage-class"
     }
 }
-

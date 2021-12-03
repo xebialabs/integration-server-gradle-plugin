@@ -187,8 +187,8 @@ abstract class OperatorHelper(val project: Project) {
     open fun applyYamlFiles() {
         val xlDigitalAiPath = File(getProviderHomeDir(), XL_DIGITAL_AI_PATH)
         project.logger.lifecycle("Applying Digital AI Deploy platform on cluster ($xlDigitalAiPath)")
-        XlCliUtil.download(project, getProfile().xlCliVersion.get(), getProviderHomeDir())
-        XlCliUtil.xlApply(project, xlDigitalAiPath, File(getProviderHomeDir()))
+        XlCliUtil.download(getProfile().xlCliVersion.get(), File(getProviderHomeDir()))
+        XlCliUtil.xlApply(xlDigitalAiPath, File(getProviderHomeDir()))
     }
 
     abstract fun updateInfrastructure(infraInfo: InfrastructureInfo)
