@@ -1,7 +1,6 @@
 package ai.digital.integration.server.common.util
 
 import org.apache.tools.ant.taskdefs.condition.Os
-import org.gradle.api.Project
 import java.io.File
 
 class XlCliUtil {
@@ -17,13 +16,12 @@ class XlCliUtil {
             }
 
             ProcessUtil.executeCommand(
-                "wget https://dist.xebialabs.com/public/xl-cli/$version/$osFolder/xl", location)
+                    "wget https://dist.xebialabs.com/public/xl-cli/$version/$osFolder/xl", location)
             ProcessUtil.executeCommand("chmod +x xl", location)
         }
 
-        fun xlApply(project: Project, file: File, workDir: File) {
-            val output = ProcessUtil.executeCommand("xl apply -v -f ${file.name}", workDir)
-            project.logger.lifecycle(output)
+        fun xlApply(file: File, workDir: File) {
+            ProcessUtil.executeCommand("./xl apply -v -f ${file.name}", workDir)
         }
     }
 }
