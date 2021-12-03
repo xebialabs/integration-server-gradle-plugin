@@ -113,7 +113,7 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     fun waitForBoot(host: String) {
-        val url ="http://$host/xl-deploy/deployit/metadata/type"
+        val url = "http://$host/xl-deploy/deployit/metadata/type"
         val server = DeployServerUtil.getServer(project)
         WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
