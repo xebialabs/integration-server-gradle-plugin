@@ -25,7 +25,7 @@ open class AzureAksProvider @Inject constructor(project: Project) : Provider(pro
     val clusterNodeVmSize = project.objects.property<String>()
 
     @Input
-    var kubernetesVersion = project.objects.property<String>()
+    val kubernetesVersion = project.objects.property<String>()
 
     @Input
     val skipExisting = project.objects.property<Boolean>().value(true)
