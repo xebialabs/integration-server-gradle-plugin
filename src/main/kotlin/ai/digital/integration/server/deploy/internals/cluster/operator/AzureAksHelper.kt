@@ -116,31 +116,25 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
                     "az logout", throwErrorOnFailure = false)
         }
     }
-    private fun createStorageClass(name: String) {
-        val fileStorageClassName = fileStorageClassName(name)
-        val diskStorageClassName = diskStorageClassName(name)
 
-        if (!KubeCtlUtil.hasStorageClass(project, fileStorageClassName)) {
-            project.logger.lifecycle("Create storage class: {}", fileStorageClassName)
-            val azureFileScTemplateFile = getTemplate("operator/azure-aks/azure-file-sc.yaml")
+    private fun createStorageClassFromFile(storageClassName: String, filePath: String) {
+        if (!KubeCtlUtil.hasStorageClass(project, storageClassName)) {
+            project.logger.lifecycle("Create storage class: {}", storageClassName)
+            val azureFileScTemplateFile = getTemplate(filePath)
             val azureFileScTemplate = azureFileScTemplateFile.readText(Charsets.UTF_8)
-                    .replace("{{NAME}}", fileStorageClassName)
+                    .replace("{{NAME}}", storageClassName)
             azureFileScTemplateFile.writeText(azureFileScTemplate)
             KubeCtlUtil.apply(project, azureFileScTemplateFile)
         } else {
-            project.logger.lifecycle("Skipping creation of the existing storage class: {}", fileStorageClassName)
+            project.logger.lifecycle("Skipping creation of the existing storage class: {}", storageClassName)
         }
+    }
 
-        if (!KubeCtlUtil.hasStorageClass(project, diskStorageClassName)) {
-            project.logger.lifecycle("Create storage class: {}", diskStorageClassName)
-            val azureDiskScTemplateFile = getTemplate("operator/azure-aks/azure-disk-sc.yaml")
-            val azureDiskScTemplate = azureDiskScTemplateFile.readText(Charsets.UTF_8)
-                    .replace("{{NAME}}", diskStorageClassName)
-            azureDiskScTemplateFile.writeText(azureDiskScTemplate)
-            KubeCtlUtil.apply(project, azureDiskScTemplateFile)
-        } else {
-            project.logger.lifecycle("Skipping creation of the existing storage class: {}", diskStorageClassName)
-        }
+    private fun createStorageClass(name: String) {
+        val fileStorageClassName = fileStorageClassName(name)
+        createStorageClassFromFile(fileStorageClassName, "operator/azure-aks/azure-file-sc.yaml")
+        val diskStorageClassName = diskStorageClassName(name)
+        createStorageClassFromFile(diskStorageClassName, "operator/azure-aks/azure-disk-sc.yaml")
 
         KubeCtlUtil.setDefaultStorageClass(project, "default", fileStorageClassName)
     }
@@ -153,11 +147,10 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
     private fun createResourceGroup(name: String, location: String, skipExisting: Boolean) {
         val groupName = resourceGroupName(name)
-        var shouldSkipExisting = false
-        if (skipExisting) {
-            if (existsResourceGroup(groupName, location)) {
-                shouldSkipExisting = true
-            }
+        val shouldSkipExisting = if (skipExisting) {
+            existsResourceGroup(groupName, location)
+        } else {
+            false
         }
         if (shouldSkipExisting) {
             project.logger.lifecycle("Skipping creation of the existing resource group: {}", groupName)
@@ -181,25 +174,19 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
     private fun createCluster(name: String, clusterNodeCount: Property<Int>, clusterNodeVmSize: Property<String>, kubernetesVersion: Property<String>, skipExisting: Boolean) {
         val groupName = resourceGroupName(name)
         val clusterName = aksClusterName(name)
-        var shouldSkipExisting = false
-        if (skipExisting) {
+        val shouldSkipExisting = if (skipExisting) {
             val result = ProcessUtil.executeCommand(project,
                     "az aks list --output tsv | grep $clusterName", throwErrorOnFailure = false, logOutput = false)
-            if (result.contains(clusterName)) {
-                shouldSkipExisting = true
-            }
+            result.contains(clusterName)
+        } else {
+            false
         }
         if (shouldSkipExisting) {
             project.logger.lifecycle("Skipping creation of the existing AKS cluster: {}", clusterName)
         } else {
             project.logger.lifecycle("Create AKS cluster: {}", clusterName)
-            var additions = ""
-            if (clusterNodeVmSize.isPresent) {
-                additions += " --node-vm-size \"${clusterNodeVmSize.get()}\""
-            }
-            if (kubernetesVersion.isPresent) {
-                additions += " --kubernetes-version \"${kubernetesVersion.get()}\""
-            }
+            val additions = clusterNodeVmSize.map { " --node-vm-size \"$it\"" }.getOrElse("") +
+                    kubernetesVersion.map { " --kubernetes-version \"$it\"" }.getOrElse("")
             ProcessUtil.executeCommand(project,
                     "az aks create --resource-group $groupName --name $clusterName --node-count ${clusterNodeCount.getOrElse(2)} " +
                             "--generate-ssh-keys --enable-addons monitoring $additions")

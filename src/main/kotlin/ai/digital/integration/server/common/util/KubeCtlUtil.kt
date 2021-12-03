@@ -15,9 +15,8 @@ class KubeCtlUtil {
         fun wait(project: Project, resource: String, condition: String, timeoutSeconds: Int): Boolean {
             project.logger.lifecycle("Waiting for resource $resource to be $condition")
             val expectedEndTime = System.currentTimeMillis()+ timeoutSeconds * 1000
-            var result: String
             while (expectedEndTime > System.currentTimeMillis()) {
-                result = ProcessUtil.executeCommand(project,
+                val result = ProcessUtil.executeCommand(project,
                         "kubectl wait --for condition=$condition --timeout=${timeoutSeconds}s $resource", throwErrorOnFailure = false)
                 if (result.contains("condition met")) {
                     return true

@@ -2,10 +2,7 @@ package ai.digital.integration.server.common.util
 
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
-import java.io.BufferedReader
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.InputStreamReader
+import java.io.*
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
@@ -119,32 +116,15 @@ class ProcessUtil {
             val stdInput = BufferedReader(InputStreamReader(process.inputStream))
             val stdError = BufferedReader(InputStreamReader(process.errorStream))
 
-            var line: String?
-            var input = ""
-            var error = ""
-            line = stdInput.readLine()
-            while (line != null) {
-                line.also {
-                    if (input != "")
-                        input += System.lineSeparator()
-                    input += it
-                }
+            val input = readLines(stdInput) { line ->
                 if (logOutput && line != "" && project != null) {
                     project.logger.lifecycle(line)
                 }
-                line = stdInput.readLine()
             }
-            line = stdError.readLine()
-            while (line != null) {
-                line.also {
-                    if (error != "")
-                        error += System.lineSeparator()
-                    error += it
-                }
+            val error = readLines(stdError) { line ->
                 if (logOutput && line != "" && project != null) {
                     project.logger.error(line)
                 }
-                line = stdError.readLine()
             }
 
             if (process.waitFor(waitTimeoutSeconds, TimeUnit.SECONDS)) {
@@ -160,6 +140,20 @@ class ProcessUtil {
             } else {
                 input + System.lineSeparator() + error
             }
+        }
+
+        private fun readLines(reader: BufferedReader, lineHandler: (String) -> Unit): String {
+            var result = ""
+            var line = ""
+            while (reader.readLine().also { line = it } != null) {
+                line.also {
+                    if (result != "")
+                        result += System.lineSeparator()
+                    result += it
+                }
+                lineHandler(line)
+            }
+            return result
         }
     }
 }
