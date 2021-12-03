@@ -35,7 +35,7 @@ const val XL_DIGITAL_AI_PATH = "digital-ai.yaml "
 @Suppress("UnstableApiUsage")
 abstract class OperatorHelper(val project: Project) {
     fun getOperatorHomeDir(): String =
-        project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
+            project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
     fun getProviderWorkDir(): String =
             project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
@@ -47,7 +47,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateControllerManager() {
         val file = File(getProviderHomeDir(), CONTROLLER_MANAGER_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-            "spec.template.spec.containers[1].image" to getOperatorImage()
+                "spec.template.spec.containers[1].image" to getOperatorImage()
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -55,7 +55,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateOperatorApplications() {
         val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-            "spec[0].children[0].name" to getProvider().operatorPackageVersion
+                "spec[0].children[0].name" to getProvider().operatorPackageVersion
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -63,7 +63,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateOperatorDeployment() {
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-            "spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion}"
+                "spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion}"
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -71,7 +71,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateOperatorDeploymentCr() {
         val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-            "spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}"
+                "spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}"
         )
         YamlFileUtil.overlayFile(file, pairs)
     }

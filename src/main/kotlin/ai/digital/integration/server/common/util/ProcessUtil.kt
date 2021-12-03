@@ -109,11 +109,12 @@ class ProcessUtil {
                            logOutput: Boolean = true,
                            throwErrorOnFailure: Boolean = true,
                            waitTimeoutSeconds: Long = 10): String {
+            val execCommand = arrayOf("sh", "-c", command)
             val process: Process =
                     if (workDir != null)
-                        Runtime.getRuntime().exec(arrayOf("sh", "-c", command), null, workDir)
+                        Runtime.getRuntime().exec(execCommand, null, workDir)
                     else
-                        Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
+                        Runtime.getRuntime().exec(execCommand)
 
             val stdInput = BufferedReader(InputStreamReader(process.inputStream))
             val stdError = BufferedReader(InputStreamReader(process.errorStream))

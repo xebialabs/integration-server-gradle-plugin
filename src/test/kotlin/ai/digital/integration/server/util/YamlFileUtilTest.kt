@@ -126,16 +126,7 @@ class YamlFileUtilTest {
 
     @Test
     fun updateItemMultiDocYamlTest() {
-        val initialFile = File.createTempFile("deploy-server", "initial")
-
-        val fileStream = {}::class.java.classLoader.getResourceAsStream("yaml/applications.yaml")
-        fileStream?.let {
-            FileUtil.copyFile(it, initialFile.toPath())
-        }
-        initialFile.deleteOnExit()
-
-        val destinationFile = File.createTempFile("deploy-server", "updated")
-        destinationFile.deleteOnExit()
+        val (initialFile, destinationFile) = getInitialAndUpdatedFiles("yaml/applications.yaml")
 
         YamlFileUtil.overlayFile(initialFile,
             mutableMapOf("spec[0].children[0].name" to "1.0.1"),
@@ -149,5 +140,37 @@ class YamlFileUtilTest {
             val expectedResult = if (s.hasNext()) s.next() else ""
             assertEquals(expectedResult, destinationFile.readText())
         }
+    }
+
+    @Test
+    fun updateAppWithFileTest() {
+        val (initialFile, destinationFile) = getInitialAndUpdatedFiles("yaml/app-with-file.yaml")
+
+        YamlFileUtil.overlayFile(initialFile,
+            mutableMapOf("spec[0].children[0].name" to "1.0.1"),
+            destinationFile)
+
+        val expectedResultSteam =
+            {}::class.java.classLoader.getResourceAsStream("yaml/app-with-file-expected-update.yaml")
+
+        expectedResultSteam?.let {
+            val s: Scanner = Scanner(it).useDelimiter("\\A")
+            val expectedResult = if (s.hasNext()) s.next() else ""
+            assertEquals(expectedResult, destinationFile.readText())
+        }
+    }
+
+    private fun getInitialAndUpdatedFiles(resource: String): Pair<File, File> {
+        val initialFile = File.createTempFile("deploy-server", "initial")
+
+        val fileStream = {}::class.java.classLoader.getResourceAsStream(resource)
+        fileStream?.let {
+            FileUtil.copyFile(it, initialFile.toPath())
+        }
+        initialFile.deleteOnExit()
+
+        val destinationFile = File.createTempFile("deploy-server", "updated")
+        destinationFile.deleteOnExit()
+        return Pair(initialFile, destinationFile)
     }
 }
