@@ -17,6 +17,9 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val skipExisting = azureAksProvider.skipExisting.get()
         val location = azureAksProvider.location.get()
 
+        validateAzCli()
+        loginAzCli(azureAksProvider.azUsername.orNull, azureAksProvider.azPassword.orNull)
+
         createResourceGroup(name, location, skipExisting)
         createCluster(name, azureAksProvider.clusterNodeCount, azureAksProvider.clusterNodeVmSize, azureAksProvider.kubernetesVersion, skipExisting)
         connectToCluster(name)
@@ -57,6 +60,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
         project.logger.lifecycle("Delete current context")
         KubeCtlUtil.deleteCurrentContext(project)
+        logoutAzCli(azureAksProvider.azUsername.orNull, azureAksProvider.azPassword.orNull)
     }
 
     override fun updateInfrastructure(infraInfo: InfrastructureInfo) {
@@ -66,21 +70,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
                 "spec[0].children[0].caCert" to infraInfo.caCert!!,
                 "spec[0].children[0].tlsCert" to infraInfo.tlsCert!!,
                 "spec[0].children[0].tlsPrivateKey" to infraInfo.tlsPrivateKey!!
-        )
-        YamlFileUtil.overlayFile(file, pairs)
-    }
-
-    private fun updateCrValues() {
-        val azureAksProvider: AzureAksProvider = getProvider()
-
-        val name = azureAksProvider.name.get()
-        val cluster = aksClusterName(name)
-        val location = azureAksProvider.location.get()
-
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
-        val pairs = mutableMapOf(
-                "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to cluster),
-                "spec.ingress.hosts" to arrayOf(getFqdn(cluster, location))
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -101,11 +90,34 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         return diskStorageClassName(getProvider().storageClass.getOrElse(getProvider().name.get()))
     }
 
-    fun getFqdn(cluster: String, location: String): String {
+    private fun getFqdn(cluster: String, location: String): String {
         return "${cluster}.${location}.cloudapp.azure.com"
     }
 
-    fun createStorageClass(name: String) {
+    private fun validateAzCli() {
+        val result = ProcessUtil.executeCommand(project,
+                "az -v", throwErrorOnFailure = false, logOutput = false)
+        if (!result.contains("azure-cli")) {
+            throw RuntimeException("No azure-cli \"az\" in the path. Please verify your installation")
+        }
+    }
+
+    private fun loginAzCli(username: String?, password: String?) {
+        if (username != null && password != null) {
+            project.logger.lifecycle("Login user")
+            ProcessUtil.executeCommand(project,
+                    "az login -u $username -p $password", throwErrorOnFailure = false, logOutput = false)
+        }
+    }
+
+    private fun logoutAzCli(username: String?, password: String?) {
+        if (username != null && password != null) {
+            project.logger.lifecycle("Logout user")
+            ProcessUtil.executeCommand(project,
+                    "az logout", throwErrorOnFailure = false)
+        }
+    }
+    private fun createStorageClass(name: String) {
         val fileStorageClassName = fileStorageClassName(name)
         val diskStorageClassName = diskStorageClassName(name)
 
@@ -134,13 +146,13 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         KubeCtlUtil.setDefaultStorageClass(project, "default", fileStorageClassName)
     }
 
-    fun existsResourceGroup(groupName: String, location: String): Boolean {
+    private fun existsResourceGroup(groupName: String, location: String): Boolean {
         val result = ProcessUtil.executeCommand(project,
                 "az group list --query \"[?location=='$location']\" --output tsv | grep $groupName", throwErrorOnFailure = false, logOutput = false)
         return result.contains(groupName)
     }
 
-    fun createResourceGroup(name: String, location: String, skipExisting: Boolean) {
+    private fun createResourceGroup(name: String, location: String, skipExisting: Boolean) {
         val groupName = resourceGroupName(name)
         var shouldSkipExisting = false
         if (skipExisting) {
@@ -157,7 +169,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         }
     }
 
-    fun deleteResourceGroup(groupName: String, location: String) {
+    private fun deleteResourceGroup(groupName: String, location: String) {
         if (existsResourceGroup(groupName, location)) {
             project.logger.lifecycle("Create resource group: {}", groupName)
             ProcessUtil.executeCommand(project,
@@ -167,7 +179,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         }
     }
 
-    fun createCluster(name: String, clusterNodeCount: Property<Int>, clusterNodeVmSize: Property<String>, kubernetesVersion: Property<String>, skipExisting: Boolean) {
+    private fun createCluster(name: String, clusterNodeCount: Property<Int>, clusterNodeVmSize: Property<String>, kubernetesVersion: Property<String>, skipExisting: Boolean) {
         val groupName = resourceGroupName(name)
         val clusterName = aksClusterName(name)
         var shouldSkipExisting = false
@@ -195,9 +207,24 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         }
     }
 
-    fun connectToCluster(name: String) {
+    private fun connectToCluster(name: String) {
         ProcessUtil.executeCommand(project,
                 "az aks get-credentials --resource-group ${resourceGroupName(name)} --name ${aksClusterName(name)} --overwrite-existing")
+    }
+
+    private fun updateCrValues() {
+        val azureAksProvider: AzureAksProvider = getProvider()
+
+        val name = azureAksProvider.name.get()
+        val cluster = aksClusterName(name)
+        val location = azureAksProvider.location.get()
+
+        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+        val pairs = mutableMapOf(
+                "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to cluster),
+                "spec.ingress.hosts" to arrayOf(getFqdn(cluster, location))
+        )
+        YamlFileUtil.overlayFile(file, pairs)
     }
 
     private fun resourceGroupName(name: String): String {

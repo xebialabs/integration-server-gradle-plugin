@@ -16,19 +16,13 @@ class XlCliUtil {
                     "linux-amd64"
             }
 
-            if (!ProcessUtil.executeCommand(project, "xl -v", logOutput = false, throwErrorOnFailure = false).contains("XL Cli")) {
-                ProcessUtil.executeCommand(project,
-                        "wget https://dist.xebialabs.com/public/xl-cli/$version/$osFolder/xl -P $location")
-                ProcessUtil.executeCommand(project, "chmod +x xl", File(location))
-            }
+            ProcessUtil.executeCommand(project,
+                    "wget https://dist.xebialabs.com/public/xl-cli/$version/$osFolder/xl -P $location")
+            ProcessUtil.executeCommand(project, "chmod +x xl", File(location))
         }
 
         fun xlApply(project: Project, file: File, workDir: File) {
-            if (ProcessUtil.executeCommand(project, "xl -v", logOutput = false, throwErrorOnFailure = false).contains("XL Cli")) {
-                ProcessUtil.executeCommand(project, "xl apply -v -f ${File(workDir, file.name).absolutePath}")
-            } else {
-                ProcessUtil.executeCommand(project, "xl apply -v -f ${file.name}", workDir)
-            }
+            ProcessUtil.executeCommand(project, "./xl apply -v -f ${file.name}", workDir)
         }
     }
 }

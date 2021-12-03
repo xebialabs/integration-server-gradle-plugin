@@ -111,7 +111,7 @@ class ProcessUtil {
                            waitTimeoutSeconds: Long = 10): String {
             val process: Process =
                     if (workDir != null)
-                        Runtime.getRuntime().exec(arrayOf("sh", "-c", command), arrayOf(), workDir)
+                        Runtime.getRuntime().exec(arrayOf("sh", "-c", command), null, workDir)
                     else
                         Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
 

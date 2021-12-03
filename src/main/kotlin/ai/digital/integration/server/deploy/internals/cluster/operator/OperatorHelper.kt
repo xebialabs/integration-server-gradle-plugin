@@ -139,9 +139,7 @@ abstract class OperatorHelper(val project: Project) {
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
                 "spec.ImageRepository" to DeployServerUtil.getServer(project).dockerImage!!,
-//                "spec.ImageRepository" to "xebialabs/xl-deploy",
                 "spec.ImageTag" to DeployServerUtil.getServer(project).version!!,
-//                "spec.ImageTag" to "10.2.4",
                 "spec.XldMasterCount" to getMasterCount(),
                 "spec.XldWorkerCount" to getWorkerCount(),
                 "spec.Persistence.XldMasterPvcSize" to "10Gi",
