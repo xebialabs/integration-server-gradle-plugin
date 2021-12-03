@@ -13,16 +13,7 @@ import java.util.*
 @Suppress("UnstableApiUsage")
 open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
 
-    private fun updateCrFile() {
-        val file = File(getProviderHomeDir(), CR_REL_PATH)
-        val pairs = mutableMapOf<String, Any>(
-            "spec.postgresql.postgresqlExtendedConf.listenAddresses" to "*"
-        )
-        YamlFileUtil.overlayFile(file, pairs)
-    }
-
     fun launchCluster() {
-        updateCrFile()
         updateControllerManager()
         updateOperatorApplications()
         updateOperatorDeployment()

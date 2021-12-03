@@ -156,7 +156,7 @@ abstract class OperatorHelper(val project: Project) {
             "spec.rabbitmq.persistence.size" to "1Gi",
             "spec.rabbitmq.replicaCount" to 1,
             "spec.rabbitmq.persistence.replicaCount" to 1,
-            "spec.route.hosts" to arrayOf(getProvider().host),
+            "spec.route.hosts" to arrayOf(getProvider().host.get()),
             "spec.xldLicense" to getLicense()
         )
         YamlFileUtil.overlayFile(file, pairs)
