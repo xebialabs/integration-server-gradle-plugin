@@ -144,8 +144,8 @@ class ProcessUtil {
 
         private fun readLines(reader: BufferedReader, lineHandler: (String) -> Unit): String {
             var result = ""
-            var line: String
-            while (reader.readLine().also { line = it } != null) {
+            var line = ""
+            while (reader.readLine().also { if (it != null) line = it } != null) {
                 line.also {
                     if (result != "")
                         result += System.lineSeparator()
