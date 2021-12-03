@@ -138,26 +138,26 @@ abstract class OperatorHelper(val project: Project) {
     fun updateOperatorCrValues() {
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-                "spec.ImageRepository" to DeployServerUtil.getServer(project).dockerImage!!,
-                "spec.ImageTag" to DeployServerUtil.getServer(project).version!!,
-                "spec.XldMasterCount" to getMasterCount(),
-                "spec.XldWorkerCount" to getWorkerCount(),
-                "spec.Persistence.XldMasterPvcSize" to "1Gi",
-                "spec.Persistence.XldWorkerPvcSize" to "1Gi",
-                "spec.KeystorePassphrase" to getProvider().keystorePassphrase,
-                "spec.Persistence.StorageClass" to getStorageClass(),
-                "spec.RepositoryKeystore" to getProvider().repositoryKeystore,
-                "spec.postgresql.image.debug" to true,
-                "spec.postgresql.persistence.size" to "5Gi",
-                "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
-                "spec.rabbitmq.persistence.storageClass" to getStorageClass(),
-                "spec.rabbitmq.image.debug" to true,
-                "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
-                "spec.rabbitmq.persistence.size" to "1Gi",
-                "spec.rabbitmq.replicaCount" to 1,
-                "spec.rabbitmq.persistence.replicaCount" to 1,
-                "spec.route.hosts" to arrayOf(getProvider().host),
-                "spec.xldLicense" to getLicense()
+            "spec.ImageRepository" to DeployServerUtil.getServer(project).dockerImage!!,
+            "spec.ImageTag" to DeployServerUtil.getServer(project).version!!,
+            "spec.XldMasterCount" to getMasterCount(),
+            "spec.XldWorkerCount" to getWorkerCount(),
+            "spec.Persistence.XldMasterPvcSize" to "1Gi",
+            "spec.Persistence.XldWorkerPvcSize" to "1Gi",
+            "spec.KeystorePassphrase" to getProvider().keystorePassphrase,
+            "spec.Persistence.StorageClass" to getStorageClass(),
+            "spec.RepositoryKeystore" to getProvider().repositoryKeystore,
+            "spec.postgresql.image.debug" to true,
+            "spec.postgresql.persistence.size" to "5Gi",
+            "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
+            "spec.rabbitmq.persistence.storageClass" to getStorageClass(),
+            "spec.rabbitmq.image.debug" to true,
+            "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
+            "spec.rabbitmq.persistence.size" to "1Gi",
+            "spec.rabbitmq.replicaCount" to 1,
+            "spec.rabbitmq.persistence.replicaCount" to 1,
+            "spec.route.hosts" to arrayOf(getProvider().host),
+            "spec.xldLicense" to getLicense()
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
