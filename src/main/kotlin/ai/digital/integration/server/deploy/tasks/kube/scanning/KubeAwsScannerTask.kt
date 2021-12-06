@@ -27,19 +27,17 @@ open class KubeAwsScannerTask : DefaultTask() {
             executable = "cd"
             args = listOf(KubeScanningUtil.getKubeBenchDir(project))
         }
-        ProcessUtil.execute(project, "aws", listOf("ecr", "create-repository", "--repository-name", "k8s/kube-bench", "--image-tag-mutability", "MUTABLE"), false)
+        ProcessUtil.execute(project, "aws", listOf("ecr", "--region", "${KubeScanningUtil.getRegion(project)}", "create-repository", "--repository-name", "k8s/kube-bench", "--image-tag-mutability", "MUTABLE"), false)
 
         ProcessUtil.executeCommand(
-                "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${KubeScanningUtil.getAWSAccountId(project)}")
+                "aws ecr --region ${KubeScanningUtil.getRegion(project)} get-login-password --region ${KubeScanningUtil.getRegion(project)} | docker login --username AWS --password-stdin ${KubeScanningUtil.getAWSAccountId(project)}")
         ProcessUtil.execute(project, "docker", listOf("build", "-t", "k8s/kube-bench", KubeScanningUtil.getKubeBenchDir(project)), false)
         ProcessUtil.execute(project, "docker", listOf("tag", "k8s/kube-bench:latest", "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:latest"), false)
         ProcessUtil.execute(project, "docker", listOf("push", "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:latest"), false)
 
         updateKubeBenchImage()
 
-        KubeCtlUtil.apply(File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
-
-
+        KubeCtlUtil.apply(project, File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
     }
 
     private fun updateKubeBenchImage() {
@@ -47,15 +45,15 @@ open class KubeAwsScannerTask : DefaultTask() {
         val pairs = mutableMapOf<String, Any>(
                 "spec.template.spec.containers[0].image" to "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:latest"
         )
-       if(KubeScanningUtil.getKubeScanner(project).enableDebug){
-            pairs.put("spec.template.spec.containers[0].command" , mutableListOf("kube-bench", "run", "--targets", "node", "--benchmark", "eks-1.0.1", "-v", "3","logtostrerr"))
+        if (KubeScanningUtil.getKubeScanner(project).enableDebug) {
+            pairs.put("spec.template.spec.containers[0].command", mutableListOf("kube-bench", "run", "--targets", "node", "--benchmark", "eks-1.0.1", "-v", "3", "logtostrerr"))
         }
         YamlFileUtil.overlayFile(file, pairs)
     }
 
     @TaskAction
     fun launch() {
-            kubeBenchPushAndApply()
-            KubeScanningUtil.generateReport(project, "${reportFile}.log")
+        kubeBenchPushAndApply()
+        KubeScanningUtil.generateReport(project, "${reportFile}.log")
     }
 }

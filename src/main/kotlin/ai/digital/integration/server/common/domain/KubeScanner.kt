@@ -1,12 +1,16 @@
 package ai.digital.integration.server.common.domain
 
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.tasks.Input
 import org.gradle.kotlin.dsl.property
 
 @Suppress("UnstableApiUsage")
 open class KubeScanner(objects: ObjectFactory) {
 
+    @Input
     var enableDebug: Boolean = objects.property<Boolean>().value(false).get()
 
-    var awsRegion: String = objects.property<String>().value("us-east-1").get()
+    @Input
+    var awsRegion = objects.property<String?>().orNull
+
 }

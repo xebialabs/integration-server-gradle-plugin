@@ -16,10 +16,26 @@ open class KubeAwsScannerFinalizerTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
+        deleteEksJob()
+        dockerLogout()
+        deleteRepository()
+        deleteDockerImage()
+    }
+
+    private fun deleteEksJob() {
         KubeCtlUtil.delete(project, File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
+    }
+
+    private fun dockerLogout() {
         ProcessUtil.execute(project, "docker", listOf("logout"), false)
+    }
+
+    private fun deleteRepository() {
         ProcessUtil.executeCommand(
-                "aws ecr delete-repository --repository-name k8s/kube-bench --force")
+                "aws ecr --region ${KubeScanningUtil.getRegion(project)} delete-repository --repository-name k8s/kube-bench --force")
+    }
+
+    private fun deleteDockerImage() {
         ProcessUtil.executeCommand(
                 "docker image rm ${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench")
         ProcessUtil.executeCommand(

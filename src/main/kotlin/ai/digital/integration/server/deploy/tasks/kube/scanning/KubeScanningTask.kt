@@ -17,7 +17,7 @@ open class KubeScanningTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        project.logger.lifecycle("Kube Scanning!!")
+        project.logger.lifecycle("Kube scanning is in progress.")
     }
 
 }

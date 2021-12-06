@@ -25,13 +25,13 @@ class KubeScanningUtil {
         }
 
         fun generateReport(project: Project, fileName: String) {
-            ProcessUtil.executeCommand( "mkdir ${getKubeScanningReportDir(project).toAbsolutePath()}")
-            ProcessUtil.executeCommand( "cd ${getKubeScanningReportDir(project).toAbsolutePath()}")
-            val kubeBenchPod = ProcessUtil.executeCommand( "kubectl get po | awk '/kube-bench/{print \$1}'")
+            ProcessUtil.executeCommand("mkdir ${getKubeScanningReportDir(project).toAbsolutePath()}")
+            ProcessUtil.executeCommand("cd ${getKubeScanningReportDir(project).toAbsolutePath()}")
+            val kubeBenchPod = ProcessUtil.executeCommand("kubectl get po | awk '/kube-bench/{print \$1}'")
             var status: String
             var count = DEFAULT_RETRY_TRIES
             do {
-                status = ProcessUtil.executeCommand( "kubectl get pods $kubeBenchPod -o 'jsonpath={..status.containerStatuses[0].state.terminated.reason}'")
+                status = ProcessUtil.executeCommand("kubectl get pods $kubeBenchPod -o 'jsonpath={..status.containerStatuses[0].state.terminated.reason}'")
                 TimeUnit.SECONDS.sleep(DEFAULT_RETRY_SLEEP_TIME.toLong())
             } while (status != "Completed" && count-- > 0)
 
@@ -46,11 +46,19 @@ class KubeScanningUtil {
         fun getAWSAccountId(project: Project): String {
             val identityDetail: String = ProcessUtil.execute(project, "aws", listOf("sts", "get-caller-identity"), false)
             val identity = JSONTokener(identityDetail).nextValue() as JSONObject
-            return "${identity.get("Account")}.dkr.ecr.${getKubeScanner(project).awsRegion}.amazonaws.com"
+            return "${identity.get("Account")}.dkr.ecr.${getRegion(project)}.amazonaws.com"
         }
 
         fun getKubeScanner(project: Project): KubeScanner {
             return DeployExtensionUtil.getExtension(project).kubeScanner.get()
+        }
+
+        fun getRegion(project: Project): String {
+            val executeCommand = ProcessUtil.executeCommand(project, "aws configure get region", logOutput = true)
+            return getKubeScanner(project).awsRegion
+                    ?: (if (executeCommand.isNotEmpty()) {
+                        executeCommand
+                    } else throw Exception("Region not defined"))
         }
 
     }
