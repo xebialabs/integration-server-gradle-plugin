@@ -1,18 +1,18 @@
 ---
-apiVersion: "xl-deploy/v1"
-kind: "Applications"
+apiVersion: xl-deploy/v1
+kind: Applications
 spec:
-- name: "Applications/your-app"
-  type: "udm.Application"
+- name: Applications/your-app
+  type: udm.Application
   children:
-  - name: "1.0.1"
-    type: "udm.DeploymentPackage"
+  - name: 1.0.1
+    type: udm.DeploymentPackage
 ---
-apiVersion: "xl-deploy/v1"
-kind: "Applications"
+apiVersion: xl-deploy/v1
+kind: Applications
 spec:
-- name: "Applications/my-app"
-  type: "udm.Application"
+- name: Applications/my-app
+  type: udm.Application
   children:
-  - name: "1.0.1"
-    type: "udm.DeploymentPackage"
+  - name: 1.0.1
+    type: udm.DeploymentPackage

@@ -19,6 +19,7 @@ class YamlFileUtil {
         private val mapper: ObjectMapper = ObjectMapper(
             YAMLFactory()
                 .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
         )
 
         // Creates different key chain, depends on what is the first key, contains a dot or not for a first key.
@@ -96,7 +97,7 @@ class YamlFileUtil {
                 itemContents.joinToString(prefix = "---\n", separator = "---\n")
             } else {
                 itemContents[0]
-            }.replace("file: \"", "file: !file \"")
+            }.replace("file: ", "file: !file ")
 
             destinationFile.writeText(
                 fileContent

@@ -1,12 +1,12 @@
-apiVersion: "xl-deploy/v1"
-kind: "Applications"
+apiVersion: xl-deploy/v1
+kind: Applications
 spec:
-- name: "Applications/xld-operator-app"
-  type: "udm.Application"
+- name: Applications/xld-operator-app
+  type: udm.Application
   children:
-  - name: "1.0.1"
-    type: "udm.DeploymentPackage"
+  - name: 1.0.1
+    type: udm.DeploymentPackage
     deployables:
-    - name: "manager-rolebinding"
-      type: "openshift.ResourcesFile"
-      file: !file "kubernetes/template/manager-rolebinding.yaml"
+    - name: manager-rolebinding
+      type: openshift.ResourcesFile
+      file: !file kubernetes/template/manager-rolebinding.yaml
