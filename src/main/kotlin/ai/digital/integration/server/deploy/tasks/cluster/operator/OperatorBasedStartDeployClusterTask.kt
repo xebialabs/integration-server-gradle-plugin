@@ -46,14 +46,6 @@ open class OperatorBasedStartDeployClusterTask : DefaultTask() {
     @TaskAction
     fun launch() {
         val providerName = DeployClusterUtil.getOperatorProvider(project)
-        project.logger.lifecycle("Operator based Deploy Cluster with provider $providerName is about to start.")
-        cloneRepository()
-    }
-
-    private fun cloneRepository() {
-        val buildDirPath = project.buildDir.toPath().toAbsolutePath().toString()
-        val dest = "$buildDirPath/xl-deploy-kubernetes-operator"
-        ProcessUtil.executeCommand(
-            "git clone git@github.com:xebialabs/xl-deploy-kubernetes-operator.git $dest")
+        project.logger.lifecycle("Operator based Deploy Cluster with provider $providerName has started.")
     }
 }

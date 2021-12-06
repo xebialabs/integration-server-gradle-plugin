@@ -14,7 +14,7 @@ import java.net.URL
 class YamlFileUtil {
     companion object {
 
-        val yamlFactory: YAMLFactory = YAMLFactory.builder().build()
+        private val yamlFactory: YAMLFactory = YAMLFactory.builder().build()
 
         private val mapper: ObjectMapper = ObjectMapper(
             YAMLFactory()
@@ -96,9 +96,11 @@ class YamlFileUtil {
                 itemContents.joinToString(prefix = "---\n", separator = "---\n")
             } else {
                 itemContents[0]
-            }
+            }.replace("file: \"", "file: !file \"")
 
-            destinationFile.writeText(fileContent)
+            destinationFile.writeText(
+                fileContent
+            )
         }
 
         private fun mingleValues(pairs: MutableMap<String, Any>, destinationFile: File) {
