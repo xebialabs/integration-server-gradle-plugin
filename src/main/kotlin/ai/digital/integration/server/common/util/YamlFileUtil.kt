@@ -19,6 +19,7 @@ class YamlFileUtil {
         private val mapper: ObjectMapper = ObjectMapper(
             YAMLFactory()
                 .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
         )
 
         // Creates different key chain, depends on what is the first key, contains a dot or not for a first key.
@@ -53,13 +54,17 @@ class YamlFileUtil {
 
                 val value: Any? = current[pureKeyItem]
                 if (value == null) {
-                    current[pureKeyItem] = LinkedHashMap<String, Any>()
+                    current[pureKeyItem] =
+                        if (isArray) ArrayList<MutableMap<String, Any>>() else LinkedHashMap<String, Any>()
                 }
 
                 current = if (isArray) {
                     val keyItemInd = keyItem.substring(keyItem.indexOf("[") + 1, keyItem.indexOf("]")).toInt()
                     val array: ArrayList<MutableMap<String, Any>> =
                         current[pureKeyItem] as ArrayList<MutableMap<String, Any>>
+                    while (array.size <= keyItemInd) {
+                        array.add(LinkedHashMap())
+                    }
                     array[keyItemInd]
                 } else {
                     current[pureKeyItem] as MutableMap<String, Any>
@@ -96,7 +101,7 @@ class YamlFileUtil {
                 itemContents.joinToString(prefix = "---\n", separator = "---\n")
             } else {
                 itemContents[0]
-            }.replace("file: \"", "file: !file \"")
+            }.replace("file: ", "file: !file ")
 
             destinationFile.writeText(
                 fileContent
