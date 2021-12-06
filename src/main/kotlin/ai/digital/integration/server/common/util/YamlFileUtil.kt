@@ -54,13 +54,17 @@ class YamlFileUtil {
 
                 val value: Any? = current[pureKeyItem]
                 if (value == null) {
-                    current[pureKeyItem] = LinkedHashMap<String, Any>()
+                    current[pureKeyItem] =
+                        if (isArray) ArrayList<MutableMap<String, Any>>() else LinkedHashMap<String, Any>()
                 }
 
                 current = if (isArray) {
                     val keyItemInd = keyItem.substring(keyItem.indexOf("[") + 1, keyItem.indexOf("]")).toInt()
                     val array: ArrayList<MutableMap<String, Any>> =
                         current[pureKeyItem] as ArrayList<MutableMap<String, Any>>
+                    while (array.size <= keyItemInd) {
+                        array.add(LinkedHashMap())
+                    }
                     array[keyItemInd]
                 } else {
                     current[pureKeyItem] as MutableMap<String, Any>
