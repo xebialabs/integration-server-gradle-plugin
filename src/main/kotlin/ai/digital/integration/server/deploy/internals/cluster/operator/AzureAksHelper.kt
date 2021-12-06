@@ -37,7 +37,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         waitForMasterPods()
         waitForWorkerPods()
 
-        waitForBoot(getFqdn(aksClusterName(name), location))
+        waitForBoot()
     }
 
     fun shutdownCluster() {
@@ -89,8 +89,14 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         return diskStorageClassName(getProvider().storageClass.getOrElse(getProvider().name.get()))
     }
 
-    private fun getFqdn(cluster: String, location: String): String {
-        return "${cluster}.${location}.cloudapp.azure.com"
+    override fun getFqdn(): String {
+        val azureAksProvider: AzureAksProvider = getProvider()
+        val location = azureAksProvider.location.get()
+        return "${getHost()}.${location}.cloudapp.azure.com"
+    }
+
+    override fun getContextRoot(): String {
+        return "/xl-deploy/"
     }
 
     private fun validateAzCli() {
@@ -199,18 +205,12 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
     }
 
     private fun updateCrValues() {
-        val azureAksProvider: AzureAksProvider = getProvider()
-
-        val name = azureAksProvider.name.get()
-        val cluster = aksClusterName(name)
-        val location = azureAksProvider.location.get()
-
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
-        val pairs = mutableMapOf(
-                "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to cluster),
-                "spec.ingress.hosts" to arrayOf(getFqdn(cluster, location))
+        val pairs: MutableMap<String, Any> = mutableMapOf(
+                "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to getHost()),
+                "spec.ingress.hosts" to arrayOf(getFqdn())
         )
-        YamlFileUtil.overlayFile(file, pairs)
+        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
     private fun resourceGroupName(name: String): String {
