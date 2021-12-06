@@ -96,9 +96,10 @@ class ProcessUtil {
 
         fun executeCommand(command: String,
                            workDir: File? = null,
+                           logOutput: Boolean = true,
                            throwErrorOnFailure: Boolean = true,
                            waitTimeoutSeconds: Long = 10): String {
-            return executeCommand(null, command, workDir, false, throwErrorOnFailure, waitTimeoutSeconds)
+            return executeCommand(null, command, workDir, logOutput, throwErrorOnFailure, waitTimeoutSeconds)
         }
 
         fun executeCommand(project: Project?, command: String,
