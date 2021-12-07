@@ -22,7 +22,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         createResourceGroup(name, location, skipExisting)
         createCluster(name, azureAksProvider.clusterNodeCount, azureAksProvider.clusterNodeVmSize, azureAksProvider.kubernetesVersion, skipExisting)
         connectToCluster(name)
-        val kubeContextInfo = KubeCtlUtil.getCurrentContextInfo(project)
+        val kubeContextInfo = getKubectlHelper().getCurrentContextInfo()
         createStorageClass(azureAksProvider.storageClass.getOrElse(name))
 
         updateControllerManager()
@@ -53,13 +53,13 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         undeployCis()
 
         project.logger.lifecycle("Delete all PVCs")
-        KubeCtlUtil.deleteAllPvcs(project)
+        getKubectlHelper().deleteAllPvcs()
 
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
         deleteResourceGroup(groupName, location)
 
         project.logger.lifecycle("Delete current context")
-        KubeCtlUtil.deleteCurrentContext(project)
+        getKubectlHelper().deleteCurrentContext()
         logoutAzCli(azureAksProvider.azUsername.orNull, azureAksProvider.azPassword.orNull)
     }
 
@@ -125,13 +125,13 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
     }
 
     private fun createStorageClassFromFile(storageClassName: String, filePath: String) {
-        if (!KubeCtlUtil.hasStorageClass(project, storageClassName)) {
+        if (!getKubectlHelper().hasStorageClass(storageClassName)) {
             project.logger.lifecycle("Create storage class: {}", storageClassName)
             val azureFileScTemplateFile = getTemplate(filePath)
             val azureFileScTemplate = azureFileScTemplateFile.readText(Charsets.UTF_8)
                     .replace("{{NAME}}", storageClassName)
             azureFileScTemplateFile.writeText(azureFileScTemplate)
-            KubeCtlUtil.apply(project, azureFileScTemplateFile)
+            getKubectlHelper().applyFile(azureFileScTemplateFile)
         } else {
             project.logger.lifecycle("Skipping creation of the existing storage class: {}", storageClassName)
         }
@@ -143,7 +143,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val diskStorageClassName = diskStorageClassName(name)
         createStorageClassFromFile(diskStorageClassName, "operator/azure-aks/azure-disk-sc.yaml")
 
-        KubeCtlUtil.setDefaultStorageClass(project, "default", fileStorageClassName)
+        getKubectlHelper().setDefaultStorageClass( "default", fileStorageClassName)
     }
 
     private fun existsResourceGroup(groupName: String, location: String): Boolean {
