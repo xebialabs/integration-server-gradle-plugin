@@ -27,13 +27,14 @@ open class KubeAwsScannerTask : DefaultTask() {
             executable = "cd"
             args = listOf(KubeScanningUtil.getKubeBenchDir(project))
         }
-        ProcessUtil.execute(project, "aws", listOf("ecr", "--region", "${KubeScanningUtil.getRegion(project)}", "create-repository", "--repository-name", "k8s/kube-bench", "--image-tag-mutability", "MUTABLE"), false)
+        ProcessUtil.executeCommand(project, "aws ecr --region ${KubeScanningUtil.getRegion(project)} create-repository --repository-name k8s/kube-bench --image-tag-mutability MUTABLE", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
 
-        ProcessUtil.executeCommand(
-                "aws ecr --region ${KubeScanningUtil.getRegion(project)} get-login-password --region ${KubeScanningUtil.getRegion(project)} | docker login --username AWS --password-stdin ${KubeScanningUtil.getAWSAccountId(project)}")
-        ProcessUtil.execute(project, "docker", listOf("build", "-t", "k8s/kube-bench", KubeScanningUtil.getKubeBenchDir(project)), false)
-        ProcessUtil.execute(project, "docker", listOf("tag", "k8s/kube-bench:latest", "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:latest"), false)
-        ProcessUtil.execute(project, "docker", listOf("push", "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:latest"), false)
+        ProcessUtil.executeCommand(project,
+                "aws ecr --region ${KubeScanningUtil.getRegion(project)} get-login-password --region ${KubeScanningUtil.getRegion(project)} | docker login --username AWS --password-stdin ${KubeScanningUtil.getAWSAccountId(project)}",
+                logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
+        ProcessUtil.executeCommand(project, "docker build -t k8s/kube-bench ${KubeScanningUtil.getKubeBenchDir(project)}", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
+        ProcessUtil.executeCommand(project, "docker tag k8s/kube-bench:latest ${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:latest", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
+        ProcessUtil.executeCommand(project, "docker push ${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:latest", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
 
         updateKubeBenchImage()
 

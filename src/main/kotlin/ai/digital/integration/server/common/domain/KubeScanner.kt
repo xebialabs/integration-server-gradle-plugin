@@ -13,4 +13,7 @@ open class KubeScanner(objects: ObjectFactory) {
     @Input
     var awsRegion = objects.property<String?>().orNull
 
+    @Input
+    var logOutput = objects.property<Boolean>().value(false).get()
+
 }

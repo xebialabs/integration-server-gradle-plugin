@@ -13,8 +13,10 @@ import java.util.concurrent.TimeUnit
 class KubeScanningUtil {
     companion object {
 
-        const val DEFAULT_RETRY_SLEEP_TIME: Int = 10
-        const val DEFAULT_RETRY_TRIES: Int = 3
+        private const val DEFAULT_RETRY_SLEEP_TIME: Int = 10
+        private const val DEFAULT_RETRY_TRIES: Int = 3
+        private val region = ProcessUtil.executeCommand("aws configure get region")
+        private val identityDetail: String = ProcessUtil.executeCommand("aws sts get-caller-identity")
 
         private fun getKubeScanningDir(project: Project): String {
             return "${project.buildDir.toPath().toAbsolutePath()}/kube-scanning"
@@ -27,7 +29,7 @@ class KubeScanningUtil {
         fun generateReport(project: Project, fileName: String) {
             ProcessUtil.executeCommand("mkdir ${getKubeScanningReportDir(project).toAbsolutePath()}")
             ProcessUtil.executeCommand("cd ${getKubeScanningReportDir(project).toAbsolutePath()}")
-            val kubeBenchPod = ProcessUtil.executeCommand("kubectl get po | awk '/kube-bench/{print \$1}'")
+            val kubeBenchPod = ProcessUtil.executeCommand(project, "kubectl get po | awk '/kube-bench/{print \$1}'", logOutput = getKubeScanner(project).logOutput)
             var status: String
             var count = DEFAULT_RETRY_TRIES
             do {
@@ -44,7 +46,6 @@ class KubeScanningUtil {
         }
 
         fun getAWSAccountId(project: Project): String {
-            val identityDetail: String = ProcessUtil.execute(project, "aws", listOf("sts", "get-caller-identity"), false)
             val identity = JSONTokener(identityDetail).nextValue() as JSONObject
             return "${identity.get("Account")}.dkr.ecr.${getRegion(project)}.amazonaws.com"
         }
@@ -54,10 +55,9 @@ class KubeScanningUtil {
         }
 
         fun getRegion(project: Project): String {
-            val executeCommand = ProcessUtil.executeCommand(project, "aws configure get region", logOutput = true)
             return getKubeScanner(project).awsRegion
-                    ?: (if (executeCommand.isNotEmpty()) {
-                        executeCommand
+                    ?: (if (region.isNotEmpty()) {
+                        region
                     } else throw Exception("Region not defined"))
         }
 

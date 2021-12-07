@@ -116,6 +116,7 @@ class ProcessUtil {
             val stdInput = BufferedReader(InputStreamReader(process.inputStream))
             val stdError = BufferedReader(InputStreamReader(process.errorStream))
 
+            project?.logger?.lifecycle("About to execute $command")
             val input = readLines(stdInput) { line ->
                 if (logOutput && line != "" && project != null) {
                     project.logger.lifecycle(line)

@@ -27,19 +27,19 @@ open class KubeAwsScannerFinalizerTask : DefaultTask() {
     }
 
     private fun dockerLogout() {
-        ProcessUtil.execute(project, "docker", listOf("logout"), false)
+        ProcessUtil.executeCommand(project, "docker logout", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
     }
 
     private fun deleteRepository() {
-        ProcessUtil.executeCommand(
-                "aws ecr --region ${KubeScanningUtil.getRegion(project)} delete-repository --repository-name k8s/kube-bench --force")
+        ProcessUtil.executeCommand(project,
+                "aws ecr --region ${KubeScanningUtil.getRegion(project)} delete-repository --repository-name k8s/kube-bench --force", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
     }
 
     private fun deleteDockerImage() {
-        ProcessUtil.executeCommand(
-                "docker image rm ${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench")
-        ProcessUtil.executeCommand(
-                "docker image rm k8s/kube-bench")
+        ProcessUtil.executeCommand(project,
+                "docker image rm ${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
+        ProcessUtil.executeCommand(project,
+                "docker image rm k8s/kube-bench", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
     }
 
 }
