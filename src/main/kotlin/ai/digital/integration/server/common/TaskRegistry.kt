@@ -2,10 +2,6 @@ package ai.digital.integration.server.common
 
 import ai.digital.integration.server.common.tasks.ShutdownIntegrationServerTask
 import ai.digital.integration.server.common.tasks.StartIntegrationServerTask
-import ai.digital.integration.server.deploy.tasks.kube.scanning.CheckingOutKubeBenchTask
-import ai.digital.integration.server.deploy.tasks.kube.scanning.KubeAwsScannerFinalizerTask
-import ai.digital.integration.server.deploy.tasks.kube.scanning.KubeAwsScannerTask
-import ai.digital.integration.server.deploy.tasks.kube.scanning.KubeScanningTask
 import org.gradle.api.Project
 
 class TaskRegistry {

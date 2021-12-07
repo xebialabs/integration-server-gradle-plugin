@@ -22,14 +22,11 @@ open class KubeAwsScannerTask : DefaultTask() {
 
     }
 
-    private fun kubeBenchPushAndApply() {
+    private fun kubeBenchBuildAndPushImage(ecrKubeBenchImage: String) {
         createEcrRepoAndLogin()
-        val ecrKubeBenchImage = "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:${KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion}"
         KubeScanningUtil.buildKubeBench(project)
         createECRImageTag(ecrKubeBenchImage)
         pushImageToECR(ecrKubeBenchImage)
-        updateKubeBenchImage(ecrKubeBenchImage)
-        KubeCtlUtil.apply(project, File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
     }
 
     private fun createEcrRepoAndLogin() {
@@ -50,18 +47,20 @@ open class KubeAwsScannerTask : DefaultTask() {
 
     private fun updateKubeBenchImage(ecrKubeBenchImage: String) {
         val file = File(KubeScanningUtil.getKubeBenchDir(project), "job-eks.yaml")
+        val existingCommand = YamlFileUtil.readFileKey(file, "spec.template.spec.containers[0].command") as MutableList<String>
         val pairs = mutableMapOf<String, Any>(
                 "spec.template.spec.containers[0].image" to ecrKubeBenchImage,
-                "spec.template.spec.containers[0].command" to KubeScanningUtil.getCommand(project,file)
+                "spec.template.spec.containers[0].command" to KubeScanningUtil.getCommand(project, existingCommand)
         )
-        //pairs.put("spec.template.spec.containers[0].command", mutableListOf<String>("kube-bench", "run", "--targets", "node", "--benchmark", "eks-1.0.1", "-v", "3"))
-
-        YamlFileUtil.overlayFile(file, pairs)
+        YamlFileUtil.overlayFile(file, pairs, false)
     }
 
     @TaskAction
     fun launch() {
-       kubeBenchPushAndApply()
-       KubeScanningUtil.generateReport(project, "${reportFile}.log")
+        val ecrKubeBenchImage = "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:${KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion}"
+        kubeBenchBuildAndPushImage(ecrKubeBenchImage)
+        updateKubeBenchImage(ecrKubeBenchImage)
+        KubeCtlUtil.apply(project, File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
+        KubeScanningUtil.generateReport(project, "${reportFile}.log")
     }
 }

@@ -17,8 +17,6 @@ import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerCo
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStopDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.kube.scanning.CheckingOutKubeBenchTask
-import ai.digital.integration.server.deploy.tasks.kube.scanning.KubeAwsScannerTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.CheckingOutDeployKubernetesOperatorTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopDeployClusterTask

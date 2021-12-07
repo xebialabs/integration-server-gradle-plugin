@@ -8,9 +8,6 @@ import org.gradle.kotlin.dsl.property
 open class KubeScanner(objects: ObjectFactory) {
 
     @Input
-    var enableDebug: Boolean = objects.property<Boolean>().value(false).get()
-
-    @Input
     var awsRegion = objects.property<String?>().orNull
 
     @Input

@@ -14,18 +14,19 @@ open class CheckingOutKubeBenchTask : DefaultTask() {
     @TaskAction
     fun launch() {
         project.logger.lifecycle("Checking out kube-bench repo")
-        cloneRepository()
+        val benchVersion = KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion
+        cloneRepository(benchVersion)
     }
 
-    private fun cloneRepository() {
+    private fun cloneRepository(benchVersion: String) {
         var tag = ""
-        if (KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion != "latest") {
+        if (benchVersion != "latest") {
             tag = "--branch " +
-                    "${KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion} "
+                    "$benchVersion "
         }
         ProcessUtil.executeCommand(project,
                 "git clone " +
-                        "${tag}" +
+                        tag +
                         "https://github.com/aquasecurity/kube-bench.git" +
                         " ${KubeScanningUtil.getKubeBenchDir(project)}",
                 logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
