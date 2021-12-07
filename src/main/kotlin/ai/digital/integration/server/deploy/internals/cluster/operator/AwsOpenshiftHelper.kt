@@ -3,7 +3,7 @@ package ai.digital.integration.server.deploy.internals.cluster.operator
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AwsOpenshiftProvider
 import ai.digital.integration.server.common.util.HtmlUtil
-import ai.digital.integration.server.common.util.KubeCtlUtil
+import ai.digital.integration.server.common.util.KubeCtlHelper
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
@@ -20,24 +20,41 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         updateOperatorDeploymentCr()
         updateOperatorCrValues()
 
-        val infraInfo = KubeCtlUtil.getCurrentContextInfo(project, getOcApiServerToken())
+        val infraInfo = getKubectlHelper().getCurrentContextInfo(getOcApiServerToken())
         updateInfrastructure(infraInfo)
 
         applyYamlFiles()
+        waitForDeployment()
+        waitForMasterPods()
+        waitForWorkerPods()
+
+        waitForBoot()
+    }
+
+    private fun waitForPods() {
+
+    }
+
+    private fun exec(command: String): String {
+        val workDir = File(getProviderHomeDir())
+        return ProcessUtil.executeCommand(command, workDir)
+    }
+
+    private fun ocLogout() {
+        try {
+            exec("oc logout")
+        } catch (e: Exception) {
+            // ignore, if throws exception, it only means that already loged out, safe to ignore.
+        }
     }
 
     private fun getOcApiServerToken(): String {
-        fun exec(command: String): String {
-            val workDir = File(getProviderHomeDir())
-            return ProcessUtil.executeCommand(command, workDir)
-        }
-
         val login = project.property("ocLogin")
         val password = project.property("ocPassword")
         val basicAuthToken = Base64.getEncoder().encodeToString("$login:$password".toByteArray())
         val oauthHostName = getProvider().oauthHostName.get()
 
-        exec("oc logout")
+        ocLogout()
 
         val command1Output =
             exec("curl -vvv -L -k -c cookie -b cookie  -H \"Authorization: Basic $basicAuthToken\" https://$oauthHostName/oauth/token/request")
@@ -53,7 +70,13 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     }
 
     fun shutdownCluster() {
+        project.logger.lifecycle("Undeploy operator")
+        undeployCis()
 
+        project.logger.lifecycle("Delete all PVCs")
+        getKubectlHelper().deleteAllPvcs()
+
+        ocLogout()
     }
 
     override fun getProviderHomeDir(): String {
@@ -80,4 +103,12 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
+
+    override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, true)
+
+    override fun hasIngress(): Boolean = false
+
+    override fun getWorkerPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-worker-$position"
+
+    override fun getMasterPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-master-$position"
 }
