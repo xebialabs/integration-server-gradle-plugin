@@ -170,7 +170,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
     private fun deleteResourceGroup(groupName: String, location: String) {
         if (existsResourceGroup(groupName, location)) {
-            project.logger.lifecycle("Create resource group: {}", groupName)
+            project.logger.lifecycle("Delete resource group: {}", groupName)
             ProcessUtil.executeCommand(project,
                     "az group delete --name $groupName --yes")
         } else {
