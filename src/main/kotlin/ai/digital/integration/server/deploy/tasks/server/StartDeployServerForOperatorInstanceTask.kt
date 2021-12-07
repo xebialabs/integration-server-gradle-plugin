@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.util.DbUtil
@@ -35,10 +36,10 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
         })
     }
 
-    private fun start() {
+    private fun start(server: Server) {
         project.exec {
             executable = "docker-compose"
-            args = listOf("-f", DeployServerUtil.getResolvedDockerFile(project).toFile().toString(), "up", "-d")
+            args = listOf("-f", DeployServerUtil.getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
         }
     }
 
@@ -53,7 +54,7 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
             .forEach { server ->
                 project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
                 allowToWriteMountedHostFolders()
-                start()
+                start(server)
                 DeployServerUtil.waitForBoot(project, null, auxiliaryServer = true)
             }
     }

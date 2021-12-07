@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.Server
+import ai.digital.integration.server.common.domain.profiles.DockerComposeProfile
 import ai.digital.integration.server.common.util.*
 import org.gradle.api.Project
 import java.io.File
@@ -9,8 +10,6 @@ import java.nio.file.Paths
 
 class DeployServerUtil {
     companion object {
-
-        private const val dockerServerRelativePath = "deploy/server-docker-compose.yaml"
 
         fun isTls(project: Project): Boolean {
             return getServer(project).tls
@@ -65,7 +64,7 @@ class DeployServerUtil {
         fun getServerWorkingDir(project: Project, server: Server): String {
             return when {
                 isDockerBased(project) -> {
-                    val workDir = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, "deploy")
+                    val workDir = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, "deploy-${server.version}")
                     workDir.toAbsolutePath().toString()
                 }
                 server.runtimeDirectory == null -> {
@@ -198,33 +197,55 @@ class DeployServerUtil {
             return process
         }
 
-        fun getDockerImageVersion(project: Project): String {
-            val server = getServer(project)
+        fun getDockerImageVersion(server: Server): String {
             return "${server.dockerImage}:${server.version}"
         }
 
-        fun getDockerServiceName(project: Project): String {
-            val server = getServer(project)
+        fun getDockerServiceName(server: Server): String {
             return "deploy-${server.version}"
         }
 
-        fun getResolvedDockerFile(project: Project): Path {
-            val server = getServer(project)
-            val resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, dockerServerRelativePath)
+        private fun getOldDockerServerPath(project: Project): String {
+            if(isPreviousInstallationServerDefined(project)) {
+                val rootPath = IntegrationServerUtil.getDist(project)
+                val oldDockerServer = DeployExtensionUtil.getExtension(project).servers.first { oldServer -> oldServer.previousInstallation }
+                return rootPath+"/deploy-${oldDockerServer.version}"
+            }
+            return "."
+        }
+
+        fun getResolvedDockerFile(project: Project, server: Server): Path {
+            val dockerComposeStream = {}::class.java.classLoader.getResourceAsStream(dockerServerRelativePath())
+            val newPath = "deploy-${server.version}/server-docker-compose.yaml"
+            val destinationPath = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, newPath)
+            dockerComposeStream?.let {
+                FileUtil.copyFile(it, destinationPath)
+            }
+            val resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, newPath)
 
             val serverTemplate = resultComposeFilePath.toFile()
 
+            val forceUpgrade = isPreviousInstallationServerDefined(project) && !server.previousInstallation
+
             val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
                 .replace("{{DEPLOY_SERVER_HTTP_PORT}}", server.httpPort.toString())
-                .replace("{{DEPLOY_IMAGE_VERSION}}", getDockerImageVersion(project))
+                .replace("{{DEPLOY_IMAGE_VERSION}}", getDockerImageVersion(server))
                 .replace(
                     "{{DEPLOY_PLUGINS_TO_EXCLUDE}}",
                     server.defaultOfficialPluginsToExclude.joinToString(separator = ",")
                 )
                 .replace("{{DEPLOY_VERSION}}", server.version.toString())
+                .replace("{{DEPLOY_FORCE_UPGRADE}}", forceUpgrade.toString())
+                .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", getOldDockerServerPath(project))
+            println("********************************")
+            println(configuredTemplate)
             serverTemplate.writeText(configuredTemplate)
 
             return resultComposeFilePath
+        }
+
+        private fun dockerServerRelativePath(): String {
+            return   "deploy/server-docker-compose.yaml"
         }
     }
 }
