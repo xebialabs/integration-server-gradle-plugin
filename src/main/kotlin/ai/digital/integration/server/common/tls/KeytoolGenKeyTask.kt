@@ -17,7 +17,7 @@ open class KeytoolGenKeyTask : KeytoolTask() {
     var ip = "127.0.0.1"
 
     @Input
-    var dns = getHttpHost()
+    var dns = getHttpHost(project)
 
     @Input
     var validity: String = 360.toString()

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
+import org.jetbrains.kotlin.gradle.targets.js.npm.min
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.InputStream
@@ -16,11 +17,14 @@ class YamlFileUtil {
 
         private val yamlFactory: YAMLFactory = YAMLFactory.builder().build()
 
-        private val mapper: ObjectMapper = ObjectMapper(
-            YAMLFactory()
-                .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
-                .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
-        )
+        private fun createMapper(minimizeQuotes: Boolean): ObjectMapper {
+            val factory = YAMLFactory.builder()
+                    .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+            if (minimizeQuotes) {
+                factory.enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
+            }
+            return ObjectMapper(factory.build())
+        }
 
         // Creates different key chain, depends on what is the first key, contains a dot or not for a first key.
         private fun calcKeyChain(objectMap: MutableMap<String, Any>, tokens: List<String>): Array<String> {
@@ -86,10 +90,11 @@ class YamlFileUtil {
         }
 
         @Suppress("UNCHECKED_CAST")
-        private fun mingleValues(source: URL, pairs: MutableMap<String, Any>, destinationFile: File) {
+        private fun mingleValues(source: URL, pairs: MutableMap<String, Any>, destinationFile: File, minimizeQuotes: Boolean = true) {
+            val mapper = createMapper(minimizeQuotes)
             val yamlParser = yamlFactory.createParser(source)
             val aggregatedValue: MappingIterator<MutableMap<String, Any>> =
-                mapper.readValues(yamlParser, MutableMap::class.java) as MappingIterator<MutableMap<String, Any>>
+                    mapper.readValues(yamlParser, MutableMap::class.java) as MappingIterator<MutableMap<String, Any>>
 
             val itemContents = mutableListOf<String>()
             aggregatedValue.forEach { item ->
@@ -108,7 +113,8 @@ class YamlFileUtil {
             )
         }
 
-        private fun mingleValues(pairs: MutableMap<String, Any>, destinationFile: File) {
+        private fun mingleValues(pairs: MutableMap<String, Any>, destinationFile: File, minimizeQuotes: Boolean = true) {
+            val mapper = createMapper(minimizeQuotes)
             val aggregatedValue = LinkedHashMap<String, Any>()
             addPair(aggregatedValue, pairs)
             mapper.writeValue(destinationFile, aggregatedValue)
@@ -122,12 +128,12 @@ class YamlFileUtil {
          * @param pairs
          * @param destinationFile
          */
-        fun overlayFile(sourceFle: File, pairs: MutableMap<String, Any>, destinationFile: File) {
+        fun overlayFile(sourceFle: File, pairs: MutableMap<String, Any>, destinationFile: File, minimizeQuotes: Boolean = true) {
             if (!sourceFle.exists()) {
                 sourceFle.createNewFile()
-                mingleValues(pairs, destinationFile)
+                mingleValues(pairs, destinationFile, minimizeQuotes)
             } else {
-                mingleValues(sourceFle.toURI().toURL(), pairs, destinationFile)
+                mingleValues(sourceFle.toURI().toURL(), pairs, destinationFile, minimizeQuotes)
             }
         }
 
@@ -138,12 +144,12 @@ class YamlFileUtil {
          * @param sourceAndDestinationFle
          * @param pairs
          */
-        fun overlayFile(sourceAndDestinationFle: File, pairs: MutableMap<String, Any>) {
+        fun overlayFile(sourceAndDestinationFle: File, pairs: MutableMap<String, Any>, minimizeQuotes: Boolean = true) {
             if (!sourceAndDestinationFle.exists()) {
                 sourceAndDestinationFle.createNewFile()
-                mingleValues(pairs, sourceAndDestinationFle)
+                mingleValues(pairs, sourceAndDestinationFle, minimizeQuotes)
             } else {
-                mingleValues(sourceAndDestinationFle.toURI().toURL(), pairs, sourceAndDestinationFle)
+                mingleValues(sourceAndDestinationFle.toURI().toURL(), pairs, sourceAndDestinationFle, minimizeQuotes)
             }
         }
 
@@ -156,26 +162,30 @@ class YamlFileUtil {
          * @param pairs
          * @param destinationFile
          */
-        fun overlayResource(resource: URL, pairs: MutableMap<String, Any>, destinationFile: File) {
-            return mingleValues(resource, pairs, destinationFile)
+        fun overlayResource(resource: URL, pairs: MutableMap<String, Any>, destinationFile: File, minimizeQuotes: Boolean = true) {
+            return mingleValues(resource, pairs, destinationFile, minimizeQuotes)
         }
 
         @Suppress("UNCHECKED_CAST")
-        fun readFileKey(file: File, key: String): Any? {
+        fun readFileKey(file: File, key: String, minimizeQuotes: Boolean = true): Any? {
+            val mapper = createMapper(minimizeQuotes)
             return readKey(mapper.readValue(file, MutableMap::class.java) as MutableMap<String, Any>, key)
         }
 
-        fun readTree(resource: InputStream): TreeNode {
+        fun readTree(resource: InputStream, minimizeQuotes: Boolean = true): TreeNode {
+            val mapper = createMapper(minimizeQuotes)
             return mapper.readTree(resource)
         }
 
-        fun readValues(resource: InputStream) {
+        fun readValues(resource: InputStream, minimizeQuotes: Boolean = true) {
+            val mapper = createMapper(minimizeQuotes)
             val yaml = Yaml()
             val values = yaml.loadAll(resource).toMutableList()
             mapper.writeValue(File("/tmp/multi.yaml"), values)
         }
 
-        fun writeFileValue(sourceFle: File, value: Any) {
+        fun writeFileValue(sourceFle: File, value: Any, minimizeQuotes: Boolean = true) {
+            val mapper = createMapper(minimizeQuotes)
             if (!sourceFle.exists()) {
                 File(sourceFle.parent).mkdirs()
                 sourceFle.createNewFile()

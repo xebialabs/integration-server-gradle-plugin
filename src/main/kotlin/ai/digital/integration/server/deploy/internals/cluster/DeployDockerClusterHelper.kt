@@ -154,6 +154,7 @@ open class DeployDockerClusterHelper(val project: Project) {
                 "services.$serviceName.ports" to listOf("$range:$privateDebugPort")
             )
             YamlFileUtil.overlayFile(template, pairs)
+            fixDockerComposeVersion(template)
         }
     }
 
@@ -171,6 +172,15 @@ open class DeployDockerClusterHelper(val project: Project) {
         }
         val pairs = mutableMapOf<String, Any>("services.xl-deploy-worker.command" to commandArgs)
         YamlFileUtil.overlayFile(template, pairs)
+        fixDockerComposeVersion(template)
+    }
+
+    private fun fixDockerComposeVersion(template: File) {
+        // fix for docker-compose version
+        val fixedTemplate = template.readText(Charsets.UTF_8)
+                .replace("version: 3.4", "version: \"3.4\"")
+
+        template.writeText(fixedTemplate)
     }
 
     private fun getTemplate(path: String): File {
