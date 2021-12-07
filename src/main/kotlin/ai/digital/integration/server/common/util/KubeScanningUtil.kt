@@ -65,5 +65,15 @@ class KubeScanningUtil {
             ProcessUtil.executeCommand(project, "docker build -t k8s/kube-bench:${getKubeScanner(project).kubeBenchTagVersion} ${getKubeBenchDir(project)}", logOutput = getKubeScanner(project).logOutput)
         }
 
+        fun getCommand(project: Project , template: File): ArrayList<String> {
+            val variables =  YamlFileUtil.readFileKey(template, "spec.template.spec.containers[0].command") as ArrayList<String>
+            return if(getKubeScanner(project).command.size > 0) {
+                variables.addAll(getKubeScanner(project).command)
+                variables
+            } else {
+                variables
+            }
+        }
+
     }
 }

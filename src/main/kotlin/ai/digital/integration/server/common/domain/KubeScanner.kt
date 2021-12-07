@@ -18,4 +18,8 @@ open class KubeScanner(objects: ObjectFactory) {
 
     @Input
     var kubeBenchTagVersion = objects.property<String?>().value("latest").get()
+
+    @Input
+    var command: MutableList<String> = objects.listProperty(String::class.java).value(mutableListOf<String>()).get()
+
 }

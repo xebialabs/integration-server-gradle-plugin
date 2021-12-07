@@ -23,19 +23,12 @@ open class KubeAwsScannerTask : DefaultTask() {
     }
 
     private fun kubeBenchPushAndApply() {
-        project.exec {
-            executable = "cd"
-            args = listOf(KubeScanningUtil.getKubeBenchDir(project))
-        }
-
         createEcrRepoAndLogin()
         val ecrKubeBenchImage = "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:${KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion}"
-
         KubeScanningUtil.buildKubeBench(project)
         createECRImageTag(ecrKubeBenchImage)
         pushImageToECR(ecrKubeBenchImage)
         updateKubeBenchImage(ecrKubeBenchImage)
-
         KubeCtlUtil.apply(project, File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
     }
 
@@ -58,17 +51,17 @@ open class KubeAwsScannerTask : DefaultTask() {
     private fun updateKubeBenchImage(ecrKubeBenchImage: String) {
         val file = File(KubeScanningUtil.getKubeBenchDir(project), "job-eks.yaml")
         val pairs = mutableMapOf<String, Any>(
-                "spec.template.spec.containers[0].image" to ecrKubeBenchImage
+                "spec.template.spec.containers[0].image" to ecrKubeBenchImage,
+                "spec.template.spec.containers[0].command" to KubeScanningUtil.getCommand(project,file)
         )
-        if (KubeScanningUtil.getKubeScanner(project).enableDebug) {
-            pairs.put("spec.template.spec.containers[0].command", mutableListOf("kube-bench", "run", "--targets", "node", "--benchmark", "eks-1.0.1", "-v", "3", "logtostrerr"))
-        }
+        //pairs.put("spec.template.spec.containers[0].command", mutableListOf<String>("kube-bench", "run", "--targets", "node", "--benchmark", "eks-1.0.1", "-v", "3"))
+
         YamlFileUtil.overlayFile(file, pairs)
     }
 
     @TaskAction
     fun launch() {
-        kubeBenchPushAndApply()
-        KubeScanningUtil.generateReport(project, "${reportFile}.log")
+       kubeBenchPushAndApply()
+       KubeScanningUtil.generateReport(project, "${reportFile}.log")
     }
 }
