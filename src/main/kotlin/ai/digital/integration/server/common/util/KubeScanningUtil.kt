@@ -61,5 +61,9 @@ class KubeScanningUtil {
                     } else throw Exception("Region not defined"))
         }
 
+        fun buildKubeBench(project: Project) {
+            ProcessUtil.executeCommand(project, "docker build -t k8s/kube-bench:${getKubeScanner(project).kubeBenchTagVersion} ${getKubeBenchDir(project)}", logOutput = getKubeScanner(project).logOutput)
+        }
+
     }
 }

@@ -27,24 +27,38 @@ open class KubeAwsScannerTask : DefaultTask() {
             executable = "cd"
             args = listOf(KubeScanningUtil.getKubeBenchDir(project))
         }
+
+        createEcrRepoAndLogin()
+        val ecrKubeBenchImage = "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:${KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion}"
+
+        KubeScanningUtil.buildKubeBench(project)
+        createECRImageTag(ecrKubeBenchImage)
+        pushImageToECR(ecrKubeBenchImage)
+        updateKubeBenchImage(ecrKubeBenchImage)
+
+        KubeCtlUtil.apply(project, File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
+    }
+
+    private fun createEcrRepoAndLogin() {
         ProcessUtil.executeCommand(project, "aws ecr --region ${KubeScanningUtil.getRegion(project)} create-repository --repository-name k8s/kube-bench --image-tag-mutability MUTABLE", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
 
         ProcessUtil.executeCommand(project,
                 "aws ecr --region ${KubeScanningUtil.getRegion(project)} get-login-password --region ${KubeScanningUtil.getRegion(project)} | docker login --username AWS --password-stdin ${KubeScanningUtil.getAWSAccountId(project)}",
                 logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
-        ProcessUtil.executeCommand(project, "docker build -t k8s/kube-bench ${KubeScanningUtil.getKubeBenchDir(project)}", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
-        ProcessUtil.executeCommand(project, "docker tag k8s/kube-bench:latest ${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:latest", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
-        ProcessUtil.executeCommand(project, "docker push ${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:latest", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
-
-        updateKubeBenchImage()
-
-        KubeCtlUtil.apply(project, File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
     }
 
-    private fun updateKubeBenchImage() {
+    private fun createECRImageTag(ecrKubeBenchImage: String) {
+        ProcessUtil.executeCommand(project, "docker tag k8s/kube-bench:${KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion} $ecrKubeBenchImage", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
+    }
+
+    private fun pushImageToECR(ecrKubeBenchImage: String) {
+        ProcessUtil.executeCommand(project, "docker push $ecrKubeBenchImage", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
+    }
+
+    private fun updateKubeBenchImage(ecrKubeBenchImage: String) {
         val file = File(KubeScanningUtil.getKubeBenchDir(project), "job-eks.yaml")
         val pairs = mutableMapOf<String, Any>(
-                "spec.template.spec.containers[0].image" to "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:latest"
+                "spec.template.spec.containers[0].image" to ecrKubeBenchImage
         )
         if (KubeScanningUtil.getKubeScanner(project).enableDebug) {
             pairs.put("spec.template.spec.containers[0].command", mutableListOf("kube-bench", "run", "--targets", "node", "--benchmark", "eks-1.0.1", "-v", "3", "logtostrerr"))

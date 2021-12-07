@@ -16,9 +16,9 @@ open class KubeAwsScannerFinalizerTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        deleteEksJob()
         dockerLogout()
         deleteRepository()
+        deleteEksJob()
         deleteDockerImage()
     }
 
@@ -37,9 +37,9 @@ open class KubeAwsScannerFinalizerTask : DefaultTask() {
 
     private fun deleteDockerImage() {
         ProcessUtil.executeCommand(project,
-                "docker image rm ${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
+                "docker image rm ${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:${KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion}", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
         ProcessUtil.executeCommand(project,
-                "docker image rm k8s/kube-bench", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
+                "docker image rm k8s/kube-bench:${KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion}", logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
     }
 
 }

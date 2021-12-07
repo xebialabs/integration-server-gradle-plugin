@@ -16,4 +16,6 @@ open class KubeScanner(objects: ObjectFactory) {
     @Input
     var logOutput = objects.property<Boolean>().value(false).get()
 
+    @Input
+    var kubeBenchTagVersion = objects.property<String?>().value("latest").get()
 }

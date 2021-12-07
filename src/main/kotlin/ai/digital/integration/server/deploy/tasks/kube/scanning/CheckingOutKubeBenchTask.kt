@@ -18,7 +18,17 @@ open class CheckingOutKubeBenchTask : DefaultTask() {
     }
 
     private fun cloneRepository() {
-        ProcessUtil.executeCommand(
-                "git clone https://github.com/aquasecurity/kube-bench.git ${KubeScanningUtil.getKubeBenchDir(project)}")
+        var tag = ""
+        if (KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion != "latest") {
+            tag = "--branch " +
+                    "${KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion} "
+        }
+        ProcessUtil.executeCommand(project,
+                "git clone " +
+                        "${tag}" +
+                        "https://github.com/aquasecurity/kube-bench.git" +
+                        " ${KubeScanningUtil.getKubeBenchDir(project)}",
+                logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
+
     }
 }
