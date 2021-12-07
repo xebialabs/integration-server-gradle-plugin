@@ -37,6 +37,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         waitForMasterPods()
         waitForWorkerPods()
 
+        createClusterMetadata()
         waitForBoot()
     }
 

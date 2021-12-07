@@ -36,6 +36,8 @@ const val XL_DIGITAL_AI_PATH = "digital-ai.yaml "
 abstract class OperatorHelper(val project: Project) {
 
     companion object {
+        private const val operatorMetadataPath = "deploy/operator/operator-metadata.properties"
+
         fun getOperatorHelper(project: Project): OperatorHelper {
             return when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
                 OperatorProviderName.AWS_EKS.providerName ->
@@ -137,6 +139,17 @@ abstract class OperatorHelper(val project: Project) {
         }
     }
 
+    fun createClusterMetadata() {
+        val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, operatorMetadataPath)
+        path.parent.toFile().mkdirs()
+        val props = Properties()
+        props["cluster.port"] = getPort()
+        props["cluster.context-root"] = getContextRoot()
+        props["cluster.host"] = getHost()
+        props["cluster.fqdn"] = getFqdn()
+        PropertiesUtil.writePropertiesFile(path.toFile(), props)
+    }
+
     fun waitForBoot() {
         val url = "http://${getFqdn()}/xl-deploy/deployit/metadata/type"
         val server = DeployServerUtil.getServer(project)
@@ -232,7 +245,9 @@ abstract class OperatorHelper(val project: Project) {
         XlCliUtil.xlApply(project, xlDigitalAiPath, File(getProviderHomeDir()))
     }
 
-    abstract fun updateInfrastructure(infraInfo: InfrastructureInfo)
+    open fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+
+    }
 
     abstract fun getProviderHomeDir(): String
 
