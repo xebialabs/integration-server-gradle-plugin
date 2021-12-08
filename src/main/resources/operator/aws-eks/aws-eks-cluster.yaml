@@ -15,8 +15,8 @@ Parameters:
     Default: "deploy-operator-ssh-key"
   NodeGroupName:
     Type: String
-    Description: Unique identifier for the Node Group.
-    Default: nodegrp1
+    Description: "Unique identifier for the Node Group."
+    Default: "deploy-operator-cluster-nodegroup"
 Mappings:
   PartitionMap:
     aws:
@@ -195,7 +195,7 @@ Resources:
     Properties:
       ClusterName: !Sub ${ClusterName}
       NodeRole: !GetAtt NodeInstanceRole.Arn
-      NodegroupName: !Sub ${ClusterName}-${NodeGroupName}-01
+      NodegroupName: !Sub ${NodeGroupName}
       RemoteAccess:
         Ec2SshKey: !Sub ${KeyName}
       ScalingConfig:

@@ -13,13 +13,13 @@ open class AwsEksProvider @Inject constructor(project: Project) : Provider(proje
     val region = project.objects.property<String>().value("us-east-1")
 
     @Input
-    val stack = project.objects.property<String>().value("deploy-operator-itest")
+    val stack = project.objects.property<String>().value("deploy-operator-test")
 
     @Input
-    val clusterName = project.objects.property<String>().value("deploy-operator-cluster-itest")
+    val clusterName = project.objects.property<String>().value("deploy-operator-cluster-test")
 
     @Input
-    val nodeGrpName = project.objects.property<String>().value("deploy-operator-cluster-nodegrp")
+    val nodeGroupName = project.objects.property<String>().value("deploy-operator-cluster-nodegroup")
 
     @Input
     val clusterNodeCount = project.objects.property<Int>().value(4)
