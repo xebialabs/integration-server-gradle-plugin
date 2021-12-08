@@ -1,6 +1,5 @@
 package ai.digital.integration.server.deploy.tasks.kube.scanning
 
-import ai.digital.integration.server.common.util.KubeCtlUtil
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.KubeScanningUtil
 
@@ -23,7 +22,7 @@ open class KubeAwsScannerFinalizerTask : DefaultTask() {
     }
 
     private fun deleteEksJob() {
-        KubeCtlUtil.delete(project, File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
+        KubeScanningUtil.getKubectlHelper(project).deleteFile(File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
     }
 
     private fun dockerLogout() {

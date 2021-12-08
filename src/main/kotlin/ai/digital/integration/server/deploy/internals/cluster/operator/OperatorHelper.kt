@@ -36,6 +36,8 @@ const val XL_DIGITAL_AI_PATH = "digital-ai.yaml "
 abstract class OperatorHelper(val project: Project) {
 
     companion object {
+        private const val operatorMetadataPath = "deploy/operator/operator-metadata.properties"
+
         fun getOperatorHelper(project: Project): OperatorHelper {
             return when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
                 OperatorProviderName.AWS_EKS.providerName ->
@@ -60,10 +62,10 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     fun getOperatorHomeDir(): String =
-            project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
+        project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
     fun getProviderWorkDir(): String =
-            project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
+        project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
 
     fun getProfile(): OperatorProfile {
         return DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
@@ -72,7 +74,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateControllerManager() {
         val file = File(getProviderHomeDir(), CONTROLLER_MANAGER_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-                "spec.template.spec.containers[1].image" to getOperatorImage()
+            "spec.template.spec.containers[1].image" to getOperatorImage()
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -80,7 +82,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateOperatorApplications() {
         val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-                "spec[0].children[0].name" to getProvider().operatorPackageVersion
+            "spec[0].children[0].name" to getProvider().operatorPackageVersion
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -88,7 +90,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateOperatorDeployment() {
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-                "spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion}"
+            "spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion}"
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -96,45 +98,53 @@ abstract class OperatorHelper(val project: Project) {
     fun updateOperatorDeploymentCr() {
         val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-                "spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}"
+            "spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}"
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
 
     fun waitForDeployment() {
-        val resources = arrayOf(
-                "deployment.apps/xld-operator-controller-manager",
-                "deployment.apps/dai-xld-nginx-ingress-controller",
-                "deployment.apps/dai-xld-nginx-ingress-controller-default-backend"
-        )
+        val resources = if (hasIngress()) arrayOf(
+            "deployment.apps/xld-operator-controller-manager",
+            "deployment.apps/dai-xld-nginx-ingress-controller",
+            "deployment.apps/dai-xld-nginx-ingress-controller-default-backend"
+        ) else arrayOf("deployment.apps/xld-operator-controller-manager")
+
         resources.forEach { resource ->
-            if (!KubeCtlUtil.wait(project, resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
+            if (!getKubectlHelper().wait(resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
                 throw RuntimeException("Resource $resource  is not available")
             }
         }
     }
 
     fun waitForMasterPods() {
-        val resources = List(getMasterCount()) { position ->
-            "pod/dai-xld-digitalai-deploy-master-$position"
-        }
+        val resources = List(getMasterCount()) { position -> getMasterPodName(position) }
 
         resources.forEach { resource ->
-            if (!KubeCtlUtil.wait(project, resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
+            if (!getKubectlHelper().wait(resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
                 throw RuntimeException("Resource $resource is not ready")
             }
         }
     }
 
     fun waitForWorkerPods() {
-        val resources = List(getWorkerCount()) { position ->
-            "pod/dai-xld-digitalai-deploy-worker-$position"
-        }
+        val resources = List(getWorkerCount()) { position -> getWorkerPodName(position) }
         resources.forEach { resource ->
-            if (!KubeCtlUtil.wait(project, resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
+            if (!getKubectlHelper().wait(resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
                 throw RuntimeException("Resource $resource is not ready")
             }
         }
+    }
+
+    fun createClusterMetadata() {
+        val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, operatorMetadataPath)
+        path.parent.toFile().mkdirs()
+        val props = Properties()
+        props["cluster.port"] = getPort()
+        props["cluster.context-root"] = getContextRoot()
+        props["cluster.host"] = getHost()
+        props["cluster.fqdn"] = getFqdn()
+        PropertiesUtil.writePropertiesFile(path.toFile(), props)
     }
 
     fun waitForBoot() {
@@ -150,7 +160,10 @@ abstract class OperatorHelper(val project: Project) {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
         try {
-            CliUtil.executeScripts(project, listOf(resultComposeFilePath.toFile()), "undeploy.py", auxiliaryServer = true)
+            CliUtil.executeScripts(project,
+                listOf(resultComposeFilePath.toFile()),
+                "undeploy.py",
+                auxiliaryServer = true)
         } catch (e: RuntimeException) {
             project.logger.warn("Undeploy didn't run. Check if operator's deploy server is running on port 4516: ${e.message}")
         }
@@ -232,9 +245,19 @@ abstract class OperatorHelper(val project: Project) {
         XlCliUtil.xlApply(project, xlDigitalAiPath, File(getProviderHomeDir()))
     }
 
-    abstract fun updateInfrastructure(infraInfo: InfrastructureInfo)
+    open fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+
+    }
 
     abstract fun getProviderHomeDir(): String
 
     abstract fun getProvider(): Provider
+
+    open fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project)
+
+    open fun hasIngress(): Boolean = true
+
+    open fun getWorkerPodName(position: Int) = "pod/dai-xld-digitalai-deploy-worker-$position"
+
+    open fun getMasterPodName(position: Int) = "pod/dai-xld-digitalai-deploy-master-$position"
 }

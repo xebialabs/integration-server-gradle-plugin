@@ -7,8 +7,8 @@ def undeploy(ci):
     else:
         print("Skip undeploy of " + ci + ", already exists")
 
-xld_cr_id = "Environments/kubernetes-envs/xld/xld-cr"
+xld_cr = "Environments/kubernetes-envs/xld/xld-cr"
 xld_operator_app = "Environments/kubernetes-envs/xld/xld-operator-app"
 
-undeploy(xld_cr_id)
+undeploy(xld_cr)
 undeploy(xld_operator_app)

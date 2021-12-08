@@ -20,6 +20,6 @@ open class CheckingOutDeployKubernetesOperatorTask : DefaultTask() {
         val buildDirPath = project.buildDir.toPath().toAbsolutePath().toString()
         val dest = "$buildDirPath/xl-deploy-kubernetes-operator"
         ProcessUtil.executeCommand(
-            "git clone git@github.com:xebialabs/xl-deploy-kubernetes-operator.git $dest")
+            "git clone git@github.com:xebialabs/xl-deploy-kubernetes-operator.git \"$dest\"")
     }
 }

@@ -16,7 +16,6 @@ class KubeScanningUtil {
         private const val DEFAULT_RETRY_SLEEP_TIME: Int = 10
         private const val DEFAULT_RETRY_TRIES: Int = 3
         private val region = ProcessUtil.executeCommand("aws configure get region")
-        private val identityDetail: String = ProcessUtil.executeCommand("aws sts get-caller-identity")
 
         private fun getKubeScanningDir(project: Project): String {
             return "${project.buildDir.toPath().toAbsolutePath()}/kube-scanning"
@@ -46,6 +45,7 @@ class KubeScanningUtil {
         }
 
         fun getAWSAccountId(project: Project): String {
+            val identityDetail: String = ProcessUtil.executeCommand("aws sts get-caller-identity")
             val identity = JSONTokener(identityDetail).nextValue() as JSONObject
             return "${identity.get("Account")}.dkr.ecr.${getRegion(project)}.amazonaws.com"
         }
@@ -71,6 +71,8 @@ class KubeScanningUtil {
             }
             return existingCommand
         }
+
+        fun getKubectlHelper(project: Project): KubeCtlHelper = KubeCtlHelper(project)
 
     }
 }

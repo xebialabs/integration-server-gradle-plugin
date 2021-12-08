@@ -60,7 +60,7 @@ open class KubeAwsScannerTask : DefaultTask() {
         val ecrKubeBenchImage = "${KubeScanningUtil.getAWSAccountId(project)}/k8s/kube-bench:${KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion}"
         kubeBenchBuildAndPushImage(ecrKubeBenchImage)
         updateKubeBenchImage(ecrKubeBenchImage)
-        KubeCtlUtil.apply(project, File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
+        KubeScanningUtil.getKubectlHelper(project).applyFile(File("${KubeScanningUtil.getKubeBenchDir(project)}/job-eks.yaml"))
         KubeScanningUtil.generateReport(project, "${reportFile}.log")
     }
 }
