@@ -117,6 +117,6 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     private fun createOcContext() {
         project.logger.lifecycle("Updating kube config for Open Shift")
         exec("export KUBECONFIG=~/.kube/config")
-        exec("oc login ${getApiServerUrl()} -u ${getOcLogin()} -p ${getOcPassword()}")
+        exec("oc login ${getApiServerUrl()} --username ${getOcLogin()} --password \"${getOcPassword()}\"")
     }
 }
