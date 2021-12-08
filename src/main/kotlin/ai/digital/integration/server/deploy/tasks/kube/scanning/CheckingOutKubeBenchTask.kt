@@ -14,15 +14,15 @@ open class CheckingOutKubeBenchTask : DefaultTask() {
     @TaskAction
     fun launch() {
         project.logger.lifecycle("Checking out kube-bench repo")
-        val benchVersion = KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion
-        cloneRepository(benchVersion)
+        val tagVersion = KubeScanningUtil.getKubeScanner(project).kubeBenchTagVersion
+        cloneRepository(tagVersion)
     }
 
-    private fun cloneRepository(benchVersion: String) {
+    private fun cloneRepository(tagVersion: String) {
         var tag = ""
-        if (benchVersion != "latest") {
+        if (tagVersion != "latest") {
             tag = "--branch " +
-                    "$benchVersion "
+                    "$tagVersion "
         }
         ProcessUtil.executeCommand(project,
                 "git clone " +
