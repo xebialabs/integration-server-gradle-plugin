@@ -13,13 +13,15 @@ import java.util.*
 open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
 
     fun launchCluster() {
+        createOcContext()
+
         updateControllerManager()
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateOperatorCrValues()
 
-        updateInfrastructure(getProvider().apiServerURL.get(), getOcApiServerToken())
+        updateInfrastructure(getApiServerUrl(), getOcApiServerToken())
 
         applyYamlFiles()
         waitForDeployment()
@@ -43,9 +45,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     }
 
     private fun getOcApiServerToken(): String {
-        val login = project.property("ocLogin")
-        val password = project.property("ocPassword")
-        val basicAuthToken = Base64.getEncoder().encodeToString("$login:$password".toByteArray())
+        val basicAuthToken = Base64.getEncoder().encodeToString("${getOcLogin()}:${getOcPassword()}".toByteArray())
         val oauthHostName = getProvider().oauthHostName.get()
 
         ocLogout()
@@ -105,4 +105,15 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     override fun getWorkerPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-worker-$position"
 
     override fun getMasterPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-master-$position"
+
+    private fun getApiServerUrl() = getProvider().apiServerURL.get()
+
+    private fun getOcLogin() = project.property("ocLogin")
+
+    private fun getOcPassword() = project.property("ocPassword")
+
+    private fun createOcContext() {
+        exec("export KUBECONFIG=~/.kube/config")
+        exec("oc login ${getApiServerUrl()} -u ${getOcLogin()} -p ${getOcPassword()}")
+    }
 }
