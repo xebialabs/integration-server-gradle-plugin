@@ -24,6 +24,8 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         updateInfrastructure(getApiServerUrl(), getOcApiServerToken())
 
         applyYamlFiles()
+
+        ocLogin()
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()
