@@ -1,11 +1,11 @@
 ---
-title: How to run a kube scanner integration test
-tags: [integration-test]
+title: How to run a Kube Scanning tests
+tags: [kube-scanning-tests]
 ---
 
 ### Introduction
 
-Create your Kube Scanner integration test, for your custom plugin by running k8s cluster.
+Create your Kube scanning test, for your custom plugin in against running kubernetes cluster.
 Here we are using the [Kube-bench](https://github.com/aquasecurity/kube-bench/tree/0d1bd2bbd95608957be024c12d03a0510325e5e2) tool that checks the Kubernetes cluster is deployed securely by running the necessary checks documented in the CIS Kubernetes Benchmark.
 
 
@@ -24,7 +24,7 @@ deployIntegrationServer {
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
 |awsRegion|Optional| |By default it will read from config [~/.aws/config] file.|
-|logOutput|Optional|false| To Log the command and output executed while running the integration test.
+|logOutput|Optional|false| To Log the command and output executed while running the test.
 |kubeBenchTagVersion|Optional|latest|By default it will use the latest main branch. | 
 |command|Optional|["kube-bench", "run", "--targets", "node","--benchmark", "eks-1.0"]| List of [command](https://github.com/aquasecurity/kube-bench/blob/main/docs/flags-and-commands.md) for running the test.
 
@@ -47,15 +47,14 @@ Great, we now have the setup done. Let's figure out how it works.
     * Create the repository in AWS ECR 
     * Take docker build of kube-bench with tag
     * Push the created image to AWS ECR
-    * We will update the job-eks.yaml with the latest image which we generate in a previous step and run the job.
+    * Update the job-eks.yaml with the latest image which we generate in a previous step and run the job.
 
 ![kube-bench-aws-eks-command](./pics/run-kube-scanning-test/kube-bench-aws-command.png)
-    
-:::info
-    job-eks.yaml job runs on the worker node EKS cluster.
 
-
-* Once the above command execution is completed, we can find the report in build/kube-scanning/report/aws-eks.log, like the below sample log.
+* Once the above command execution is completed, we can find the report in build/kube-scanning/report folder, like the below sample log.
  
  ![kube-bench-aws-eks-report](./pics/run-kube-scanning-test/kube-bench-aws-eks-report.png)
+ 
+:::info  
+![note](./pics/run-kube-scanning-test/worker-node-note.png)
  
