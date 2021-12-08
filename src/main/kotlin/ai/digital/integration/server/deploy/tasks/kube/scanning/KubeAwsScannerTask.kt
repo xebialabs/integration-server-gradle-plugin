@@ -19,7 +19,6 @@ open class KubeAwsScannerTask : DefaultTask() {
         group = PluginConstant.PLUGIN_GROUP
         this.dependsOn(CheckingOutKubeBenchTask.NAME)
         this.finalizedBy(KubeAwsScannerFinalizerTask.NAME)
-
     }
 
     private fun kubeBenchBuildAndPushImage(ecrKubeBenchImage: String) {

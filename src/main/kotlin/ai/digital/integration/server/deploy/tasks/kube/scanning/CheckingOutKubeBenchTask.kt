@@ -1,7 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.kube.scanning
 
-import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.KubeScanningUtil
+import ai.digital.integration.server.common.util.ProcessUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -25,11 +25,11 @@ open class CheckingOutKubeBenchTask : DefaultTask() {
                     "$tagVersion "
         }
         ProcessUtil.executeCommand(project,
-                "git clone " +
-                        tag +
-                        "https://github.com/aquasecurity/kube-bench.git" +
-                        " ${KubeScanningUtil.getKubeBenchDir(project)}",
-                logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
+            "git clone " +
+                    tag +
+                    "https://github.com/aquasecurity/kube-bench.git" +
+                    " \"${KubeScanningUtil.getKubeBenchDir(project)}\"",
+            logOutput = KubeScanningUtil.getKubeScanner(project).logOutput)
 
     }
 }
