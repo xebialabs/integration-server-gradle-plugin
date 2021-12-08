@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common.util
 
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.Project
 import java.io.File
@@ -21,13 +22,13 @@ class DockerComposeUtil {
             return ProcessUtil.execute(project, "docker-compose", args, logOutput)
         }
 
-        fun allowToCleanMountedFiles(project: Project, dockerComposeFile: File) {
+        fun allowToCleanMountedFiles(project: Project, server: Server, dockerComposeFile: File) {
             try {
                 val args = arrayListOf("-f",
                     dockerComposeFile.path,
                     "exec",
                     "-T",
-                    DeployServerUtil.getDockerServiceName(project),
+                    DeployServerUtil.getDockerServiceName(server),
                     "chmod",
                     "777",
                     "-R",
