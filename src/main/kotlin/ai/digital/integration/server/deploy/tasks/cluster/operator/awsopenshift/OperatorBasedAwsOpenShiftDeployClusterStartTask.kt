@@ -18,6 +18,6 @@ open class OperatorBasedAwsOpenShiftDeployClusterStartTask : OperatorBasedStartT
 
     @TaskAction
     fun launch() {
-//        AwsOpenshiftHelper(project).launchCluster() TODO: revert this comment
+        AwsOpenshiftHelper(project).launchCluster()
     }
 }
