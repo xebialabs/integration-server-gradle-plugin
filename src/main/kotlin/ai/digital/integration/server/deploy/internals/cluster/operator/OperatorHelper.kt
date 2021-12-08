@@ -29,7 +29,7 @@ const val OPERATOR_CR_VALUES_REL_PATH = "digitalai-deploy/kubernetes/daideploy_c
 
 const val OPERATOR_PACKAGE_REL_PATH = "digitalai-deploy/deployment.yaml"
 
-const val XL_DIGITAL_AI_PATH = "digital-ai.yaml "
+const val XL_DIGITAL_AI_PATH = "digital-ai.yaml"
 
 @Suppress("UnstableApiUsage")
 abstract class OperatorHelper(val project: Project) {
