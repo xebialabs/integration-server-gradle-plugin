@@ -22,7 +22,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         createResourceGroup(name, location, skipExisting)
         createCluster(name, azureAksProvider.clusterNodeCount, azureAksProvider.clusterNodeVmSize, azureAksProvider.kubernetesVersion, skipExisting)
         connectToCluster(name)
-        val kubeContextInfo = KubeCtlUtil.getCurrentContextInfo(project)
+        val kubeContextInfo = getKubectlHelper().getCurrentContextInfo()
         createStorageClass(azureAksProvider.storageClass.getOrElse(name))
 
         updateControllerManager()
@@ -37,7 +37,8 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         waitForMasterPods()
         waitForWorkerPods()
 
-        waitForBoot(getFqdn(aksClusterName(name), location))
+        createClusterMetadata()
+        waitForBoot()
     }
 
     fun shutdownCluster() {
@@ -52,13 +53,13 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         undeployCis()
 
         project.logger.lifecycle("Delete all PVCs")
-        KubeCtlUtil.deleteAllPvcs(project)
+        getKubectlHelper().deleteAllPvcs()
 
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
         deleteResourceGroup(groupName, location)
 
         project.logger.lifecycle("Delete current context")
-        KubeCtlUtil.deleteCurrentContext(project)
+        getKubectlHelper().deleteCurrentContext()
         logoutAzCli(azureAksProvider.azUsername.orNull, azureAksProvider.azPassword.orNull)
     }
 
@@ -89,8 +90,14 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         return diskStorageClassName(getProvider().storageClass.getOrElse(getProvider().name.get()))
     }
 
-    private fun getFqdn(cluster: String, location: String): String {
-        return "${cluster}.${location}.cloudapp.azure.com"
+    override fun getFqdn(): String {
+        val azureAksProvider: AzureAksProvider = getProvider()
+        val location = azureAksProvider.location.get()
+        return "${getHost()}.${location}.cloudapp.azure.com"
+    }
+
+    override fun getContextRoot(): String {
+        return "/xl-deploy/"
     }
 
     private fun validateAzCli() {
@@ -118,13 +125,13 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
     }
 
     private fun createStorageClassFromFile(storageClassName: String, filePath: String) {
-        if (!KubeCtlUtil.hasStorageClass(project, storageClassName)) {
+        if (!getKubectlHelper().hasStorageClass(storageClassName)) {
             project.logger.lifecycle("Create storage class: {}", storageClassName)
             val azureFileScTemplateFile = getTemplate(filePath)
             val azureFileScTemplate = azureFileScTemplateFile.readText(Charsets.UTF_8)
                     .replace("{{NAME}}", storageClassName)
             azureFileScTemplateFile.writeText(azureFileScTemplate)
-            KubeCtlUtil.apply(project, azureFileScTemplateFile)
+            getKubectlHelper().applyFile(azureFileScTemplateFile)
         } else {
             project.logger.lifecycle("Skipping creation of the existing storage class: {}", storageClassName)
         }
@@ -136,7 +143,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val diskStorageClassName = diskStorageClassName(name)
         createStorageClassFromFile(diskStorageClassName, "operator/azure-aks/azure-disk-sc.yaml")
 
-        KubeCtlUtil.setDefaultStorageClass(project, "default", fileStorageClassName)
+        getKubectlHelper().setDefaultStorageClass( "default", fileStorageClassName)
     }
 
     private fun existsResourceGroup(groupName: String, location: String): Boolean {
@@ -163,7 +170,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
     private fun deleteResourceGroup(groupName: String, location: String) {
         if (existsResourceGroup(groupName, location)) {
-            project.logger.lifecycle("Create resource group: {}", groupName)
+            project.logger.lifecycle("Delete resource group: {}", groupName)
             ProcessUtil.executeCommand(project,
                     "az group delete --name $groupName --yes")
         } else {
@@ -199,18 +206,12 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
     }
 
     private fun updateCrValues() {
-        val azureAksProvider: AzureAksProvider = getProvider()
-
-        val name = azureAksProvider.name.get()
-        val cluster = aksClusterName(name)
-        val location = azureAksProvider.location.get()
-
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
-        val pairs = mutableMapOf(
-                "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to cluster),
-                "spec.ingress.hosts" to arrayOf(getFqdn(cluster, location))
+        val pairs: MutableMap<String, Any> = mutableMapOf(
+                "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to getHost()),
+                "spec.ingress.hosts" to arrayOf(getFqdn())
         )
-        YamlFileUtil.overlayFile(file, pairs)
+        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
     private fun resourceGroupName(name: String): String {

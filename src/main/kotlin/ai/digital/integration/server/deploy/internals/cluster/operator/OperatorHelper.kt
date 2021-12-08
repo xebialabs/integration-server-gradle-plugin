@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
+import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
@@ -8,6 +9,7 @@ import ai.digital.integration.server.deploy.internals.CliUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
+import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Files
@@ -15,8 +17,6 @@ import java.nio.file.Paths
 import java.util.*
 
 const val OPERATOR_FOLDER_NAME: String = "xl-deploy-kubernetes-operator"
-
-const val CR_REL_PATH = "digitalai-deploy/kubernetes/daideploy_cr.yaml"
 
 const val CONTROLLER_MANAGER_REL_PATH = "digitalai-deploy/kubernetes/template/deployment.yaml"
 
@@ -34,11 +34,38 @@ const val XL_DIGITAL_AI_PATH = "digital-ai.yaml "
 
 @Suppress("UnstableApiUsage")
 abstract class OperatorHelper(val project: Project) {
+
+    companion object {
+        private const val operatorMetadataPath = "deploy/operator/operator-metadata.properties"
+
+        fun getOperatorHelper(project: Project): OperatorHelper {
+            return when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
+                OperatorProviderName.AWS_EKS.providerName ->
+                    AwsEksHelper(project)
+                OperatorProviderName.AWS_OPENSHIFT.providerName ->
+                    AwsOpenshiftHelper(project)
+                OperatorProviderName.AZURE_AKS.providerName ->
+                    AzureAksHelper(project)
+                OperatorProviderName.GCP_GKE.providerName ->
+                    GcpGkeHelper(project)
+                OperatorProviderName.ON_PREMISE.providerName ->
+                    OnPremHelper(project)
+                OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
+                    VmwareOpenshiftHelper(project)
+                else -> {
+                    throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
+                        OperatorProviderName.values().joinToString()
+                    }")
+                }
+            }
+        }
+    }
+
     fun getOperatorHomeDir(): String =
-            project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
+        project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
     fun getProviderWorkDir(): String =
-            project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
+        project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
 
     fun getProfile(): OperatorProfile {
         return DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
@@ -47,7 +74,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateControllerManager() {
         val file = File(getProviderHomeDir(), CONTROLLER_MANAGER_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-                "spec.template.spec.containers[1].image" to getOperatorImage()
+            "spec.template.spec.containers[1].image" to getOperatorImage()
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -55,7 +82,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateOperatorApplications() {
         val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-                "spec[0].children[0].name" to getProvider().operatorPackageVersion
+            "spec[0].children[0].name" to getProvider().operatorPackageVersion
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -63,7 +90,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateOperatorDeployment() {
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-                "spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion}"
+            "spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion}"
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -71,49 +98,57 @@ abstract class OperatorHelper(val project: Project) {
     fun updateOperatorDeploymentCr() {
         val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
-                "spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}"
+            "spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}"
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
 
     fun waitForDeployment() {
-        val resources = arrayOf(
-                "deployment.apps/xld-operator-controller-manager",
-                "deployment.apps/dai-xld-nginx-ingress-controller",
-                "deployment.apps/dai-xld-nginx-ingress-controller-default-backend"
-        )
+        val resources = if (hasIngress()) arrayOf(
+            "deployment.apps/xld-operator-controller-manager",
+            "deployment.apps/dai-xld-nginx-ingress-controller",
+            "deployment.apps/dai-xld-nginx-ingress-controller-default-backend"
+        ) else arrayOf("deployment.apps/xld-operator-controller-manager")
+
         resources.forEach { resource ->
-            if (!KubeCtlUtil.wait(project, resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
+            if (!getKubectlHelper().wait(resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
                 throw RuntimeException("Resource $resource  is not available")
             }
         }
     }
 
     fun waitForMasterPods() {
-        val resources = List(getMasterCount()) { position ->
-            "pod/dai-xld-digitalai-deploy-master-$position"
-        }
+        val resources = List(getMasterCount()) { position -> getMasterPodName(position) }
 
         resources.forEach { resource ->
-            if (!KubeCtlUtil.wait(project, resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
+            if (!getKubectlHelper().wait(resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
                 throw RuntimeException("Resource $resource is not ready")
             }
         }
     }
 
     fun waitForWorkerPods() {
-        val resources = List(getWorkerCount()) { position ->
-            "pod/dai-xld-digitalai-deploy-worker-$position"
-        }
+        val resources = List(getWorkerCount()) { position -> getWorkerPodName(position) }
         resources.forEach { resource ->
-            if (!KubeCtlUtil.wait(project, resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
+            if (!getKubectlHelper().wait(resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
                 throw RuntimeException("Resource $resource is not ready")
             }
         }
     }
 
-    fun waitForBoot(host: String) {
-        val url = "http://$host/xl-deploy/deployit/metadata/type"
+    fun createClusterMetadata() {
+        val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, operatorMetadataPath)
+        path.parent.toFile().mkdirs()
+        val props = Properties()
+        props["cluster.port"] = getPort()
+        props["cluster.context-root"] = getContextRoot()
+        props["cluster.host"] = getHost()
+        props["cluster.fqdn"] = getFqdn()
+        PropertiesUtil.writePropertiesFile(path.toFile(), props)
+    }
+
+    fun waitForBoot() {
+        val url = "http://${getFqdn()}/xl-deploy/deployit/metadata/type"
         val server = DeployServerUtil.getServer(project)
         WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
@@ -125,7 +160,10 @@ abstract class OperatorHelper(val project: Project) {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
         try {
-            CliUtil.executeScripts(project, listOf(resultComposeFilePath.toFile()), "undeploy.py", false, 4516)
+            CliUtil.executeScripts(project,
+                listOf(resultComposeFilePath.toFile()),
+                "undeploy.py",
+                auxiliaryServer = true)
         } catch (e: RuntimeException) {
             project.logger.warn("Undeploy didn't run. Check if operator's deploy server is running on port 4516: ${e.message}")
         }
@@ -156,10 +194,10 @@ abstract class OperatorHelper(val project: Project) {
             "spec.rabbitmq.persistence.size" to "1Gi",
             "spec.rabbitmq.replicaCount" to 1,
             "spec.rabbitmq.persistence.replicaCount" to 1,
-            "spec.route.hosts" to arrayOf(getProvider().host.get()),
+            "spec.route.hosts" to arrayOf(getHost()),
             "spec.xldLicense" to getLicense()
         )
-        YamlFileUtil.overlayFile(file, pairs)
+        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
     private fun getLicense(): String {
@@ -184,16 +222,42 @@ abstract class OperatorHelper(val project: Project) {
         return getStorageClass()
     }
 
+    open fun getFqdn(): String {
+        return getProvider().host.orElse(getProvider().name).get()
+    }
+
+    open fun getContextRoot(): String {
+        return ""
+    }
+
+    open fun getHost(): String {
+        return getProvider().host.orElse(getProvider().name).get()
+    }
+
+    open fun getPort(): String {
+        return "80"
+    }
+
     open fun applyYamlFiles() {
         val xlDigitalAiPath = File(getProviderHomeDir(), XL_DIGITAL_AI_PATH)
         project.logger.lifecycle("Applying Digital AI Deploy platform on cluster ($xlDigitalAiPath)")
         XlCliUtil.download(getProfile().xlCliVersion.get(), File(getProviderHomeDir()))
-        XlCliUtil.xlApply(xlDigitalAiPath, File(getProviderHomeDir()))
+        XlCliUtil.xlApply(project, xlDigitalAiPath, File(getProviderHomeDir()))
     }
 
-    abstract fun updateInfrastructure(infraInfo: InfrastructureInfo)
+    open fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+
+    }
 
     abstract fun getProviderHomeDir(): String
 
     abstract fun getProvider(): Provider
+
+    open fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project)
+
+    open fun hasIngress(): Boolean = true
+
+    open fun getWorkerPodName(position: Int) = "pod/dai-xld-digitalai-deploy-worker-$position"
+
+    open fun getMasterPodName(position: Int) = "pod/dai-xld-digitalai-deploy-master-$position"
 }
