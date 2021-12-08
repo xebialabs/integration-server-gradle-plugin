@@ -10,10 +10,10 @@ class KubeScannerRegistry {
 
     companion object {
         fun register(project: Project) {
-            project.tasks.create(KubeScanningTask.NAME, KubeScanningTask::class.java)
             project.tasks.create(CheckingOutKubeBenchTask.NAME, CheckingOutKubeBenchTask::class.java)
-            project.tasks.create(KubeAwsScannerTask.NAME, KubeAwsScannerTask::class.java)
             project.tasks.create(KubeAwsScannerFinalizerTask.NAME, KubeAwsScannerFinalizerTask::class.java)
+            project.tasks.create(KubeAwsScannerTask.NAME, KubeAwsScannerTask::class.java)
+            project.tasks.create(KubeScanningTask.NAME, KubeScanningTask::class.java)
         }
     }
 }

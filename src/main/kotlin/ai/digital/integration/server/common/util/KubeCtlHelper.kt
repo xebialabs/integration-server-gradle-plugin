@@ -14,7 +14,7 @@ open class KubeCtlHelper(val project: Project, val isOpenShift: Boolean = false)
     }
 
     fun deleteFile(file: File) {
-        ProcessUtil.executeCommand( project,"kubectl delete -f ${file.absolutePath}")
+        ProcessUtil.executeCommand(project, "kubectl delete -f ${file.absolutePath}")
     }
 
     fun wait(resource: String, condition: String, timeoutSeconds: Int): Boolean {

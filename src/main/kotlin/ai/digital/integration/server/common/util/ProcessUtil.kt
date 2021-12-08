@@ -2,7 +2,10 @@ package ai.digital.integration.server.common.util
 
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
-import java.io.*
+import java.io.BufferedReader
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
@@ -94,40 +97,47 @@ class ProcessUtil {
             }
         }
 
-        fun executeCommand(command: String,
-                           workDir: File? = null,
-                           logOutput: Boolean = true,
-                           throwErrorOnFailure: Boolean = true,
-                           waitTimeoutSeconds: Long = 10): String {
+        fun executeCommand(
+            command: String,
+            workDir: File? = null,
+            logOutput: Boolean = true,
+            throwErrorOnFailure: Boolean = true,
+            waitTimeoutSeconds: Long = 10
+        ): String {
             return executeCommand(null, command, workDir, logOutput, throwErrorOnFailure, waitTimeoutSeconds)
         }
 
-        fun executeCommand(project: Project?, command: String,
-                           workDir: File? = null,
-                           logOutput: Boolean = true,
-                           throwErrorOnFailure: Boolean = true,
-                           waitTimeoutSeconds: Long = 10): String {
+        fun executeCommand(
+            project: Project?, command: String,
+            workDir: File? = null,
+            logOutput: Boolean = true,
+            throwErrorOnFailure: Boolean = true,
+            waitTimeoutSeconds: Long = 10
+        ): String {
+            fun print(msg: String, error: Boolean = false) {
+                if (project != null && msg.isNotEmpty() && logOutput) {
+                    if (error) {
+                        project.logger.error(msg)
+                    } else {
+                        project.logger.lifecycle(msg)
+                    }
+                }
+            }
+
             val execCommand = arrayOf("sh", "-c", command)
             val process: Process =
-                    if (workDir != null)
-                        Runtime.getRuntime().exec(execCommand, null, workDir)
-                    else
-                        Runtime.getRuntime().exec(execCommand)
+                if (workDir != null)
+                    Runtime.getRuntime().exec(execCommand, null, workDir)
+                else
+                    Runtime.getRuntime().exec(execCommand)
 
             val stdInput = BufferedReader(InputStreamReader(process.inputStream))
             val stdError = BufferedReader(InputStreamReader(process.errorStream))
 
-            project?.logger?.lifecycle("About to execute $command")
-            val input = readLines(stdInput) { line ->
-                if (logOutput && line != "" && project != null) {
-                    project.logger.lifecycle(line)
-                }
-            }
-            val error = readLines(stdError) { line ->
-                if (logOutput && line != "" && project != null) {
-                    project.logger.error(line)
-                }
-            }
+            print("About to execute $command")
+
+            val input = readLines(stdInput) { line -> print(line) }
+            val error = readLines(stdError) { line -> print(line, true) }
 
             if (process.waitFor(waitTimeoutSeconds, TimeUnit.SECONDS)) {
                 if (throwErrorOnFailure && process.exitValue() != 0) {

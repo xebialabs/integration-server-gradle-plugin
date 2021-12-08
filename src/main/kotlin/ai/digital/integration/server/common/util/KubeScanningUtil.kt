@@ -12,10 +12,8 @@ import java.util.concurrent.TimeUnit
 
 class KubeScanningUtil {
     companion object {
-
         private const val DEFAULT_RETRY_SLEEP_TIME: Int = 10
         private const val DEFAULT_RETRY_TRIES: Int = 3
-        private val region = ProcessUtil.executeCommand("aws configure get region")
 
         private fun getKubeScanningDir(project: Project): String {
             return "${project.buildDir.toPath().toAbsolutePath()}/kube-scanning"
@@ -28,11 +26,14 @@ class KubeScanningUtil {
         fun generateReport(project: Project, fileName: String) {
             ProcessUtil.executeCommand("mkdir ${getKubeScanningReportDir(project).toAbsolutePath()}")
             ProcessUtil.executeCommand("cd ${getKubeScanningReportDir(project).toAbsolutePath()}")
-            val kubeBenchPod = ProcessUtil.executeCommand(project, "kubectl get po | awk '/kube-bench/{print \$1}'", logOutput = getKubeScanner(project).logOutput)
+            val kubeBenchPod = ProcessUtil.executeCommand(project,
+                "kubectl get po | awk '/kube-bench/{print \$1}'",
+                logOutput = getKubeScanner(project).logOutput)
             var status: String
             var count = DEFAULT_RETRY_TRIES
             do {
-                status = ProcessUtil.executeCommand("kubectl get pods $kubeBenchPod -o 'jsonpath={..status.containerStatuses[0].state.terminated.reason}'")
+                status =
+                    ProcessUtil.executeCommand("kubectl get pods $kubeBenchPod -o 'jsonpath={..status.containerStatuses[0].state.terminated.reason}'")
                 TimeUnit.SECONDS.sleep(DEFAULT_RETRY_SLEEP_TIME.toLong())
             } while (status != "Completed" && count-- > 0)
 
@@ -56,13 +57,12 @@ class KubeScanningUtil {
 
         fun getRegion(project: Project): String {
             return getKubeScanner(project).awsRegion
-                    ?: (if (region.isNotEmpty()) {
-                        region
-                    } else throw Exception("Region not defined"))
         }
 
         fun buildKubeBench(project: Project) {
-            ProcessUtil.executeCommand(project, "docker build -t k8s/kube-bench:${getKubeScanner(project).kubeBenchTagVersion} ${getKubeBenchDir(project)}", logOutput = getKubeScanner(project).logOutput)
+            ProcessUtil.executeCommand(project,
+                "docker build -t k8s/kube-bench:${getKubeScanner(project).kubeBenchTagVersion} ${getKubeBenchDir(project)}",
+                logOutput = getKubeScanner(project).logOutput)
         }
 
         fun getCommand(project: Project, existingCommand: MutableList<String>): MutableList<String> {
