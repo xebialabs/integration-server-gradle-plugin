@@ -13,7 +13,7 @@ open class OperatorBasedAwsOpenShiftDeployClusterStopTask : OperatorBasedStopTas
 
     init {
         group = PluginConstant.PLUGIN_GROUP
-        this.dependsOn(dependsOnTasks())
+        this.finalizedBy(finalizedBy())
     }
 
     @TaskAction

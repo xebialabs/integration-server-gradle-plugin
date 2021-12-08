@@ -13,7 +13,7 @@ open class OperatorBasedVmWareOpenShiftStopDeployClusterTask : OperatorBasedStop
 
     init {
         group = PluginConstant.PLUGIN_GROUP
-        this.dependsOn(dependsOnTasks())
+        this.finalizedBy(finalizedBy())
     }
 
     @TaskAction

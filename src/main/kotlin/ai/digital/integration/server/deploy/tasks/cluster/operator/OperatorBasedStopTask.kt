@@ -5,7 +5,7 @@ import org.gradle.api.DefaultTask
 
 abstract class OperatorBasedStopTask : DefaultTask() {
 
-    fun dependsOnTasks(): Array<String> {
+    fun finalizedBy(): Array<String> {
         return arrayOf(
             StopDeployServerForOperatorInstanceTask.NAME
         )
