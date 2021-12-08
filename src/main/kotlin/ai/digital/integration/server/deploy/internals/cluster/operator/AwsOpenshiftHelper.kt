@@ -1,6 +1,5 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
-import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AwsOpenshiftProvider
 import ai.digital.integration.server.common.util.HtmlUtil
 import ai.digital.integration.server.common.util.KubeCtlHelper
@@ -20,8 +19,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         updateOperatorDeploymentCr()
         updateOperatorCrValues()
 
-        val infraInfo = getKubectlHelper().getCurrentContextInfo(getOcApiServerToken())
-        updateInfrastructure(infraInfo)
+        updateInfrastructure(getProvider().apiServerURL.get(), getOcApiServerToken())
 
         applyYamlFiles()
         waitForDeployment()
@@ -29,10 +27,6 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         waitForWorkerPods()
 
         waitForBoot()
-    }
-
-    private fun waitForPods() {
-
     }
 
     private fun exec(command: String): String {
@@ -95,11 +89,11 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         return getProvider().storageClass.value("aws-efs").get()
     }
 
-    override fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+    private fun updateInfrastructure(apiServerURL: String, token: String) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
-            "spec[0].children[0].serverUrl" to infraInfo.apiServerURL!!,
-            "spec[0].children[0].openshiftToken" to infraInfo.token!!
+            "spec[0].children[0].serverUrl" to apiServerURL,
+            "spec[0].children[0].openshiftToken" to token
         )
         YamlFileUtil.overlayFile(file, pairs)
     }

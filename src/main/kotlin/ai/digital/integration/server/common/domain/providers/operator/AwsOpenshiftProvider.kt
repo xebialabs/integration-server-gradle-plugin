@@ -10,4 +10,7 @@ import javax.inject.Inject
 open class AwsOpenshiftProvider @Inject constructor(project: Project) : Provider(project) {
     @Input
     val oauthHostName = project.objects.property<String>()
+
+    @Input
+    val apiServerURL = project.objects.property<String>()
 }
