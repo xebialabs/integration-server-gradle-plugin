@@ -10,7 +10,7 @@ open class KubeCtlHelper(val project: Project, val isOpenShift: Boolean = false)
 
     fun applyFile(file: File) {
         ProcessUtil.executeCommand(project,
-            "$command apply -f ${file.absolutePath}")
+            "$command apply -f \"${file.absolutePath}\"")
     }
 
     fun deleteFile(file: File) {
