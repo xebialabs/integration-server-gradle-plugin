@@ -1,6 +1,5 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
-import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AwsOpenshiftProvider
 import ai.digital.integration.server.common.util.HtmlUtil
 import ai.digital.integration.server.common.util.KubeCtlHelper
@@ -14,14 +13,15 @@ import java.util.*
 open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
 
     fun launchCluster() {
+        createOcContext()
+
         updateControllerManager()
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateOperatorCrValues()
 
-        val infraInfo = getKubectlHelper().getCurrentContextInfo(getOcApiServerToken())
-        updateInfrastructure(infraInfo)
+        updateInfrastructure(getApiServerUrl(), getOcApiServerToken())
 
         applyYamlFiles()
         waitForDeployment()
@@ -29,10 +29,6 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         waitForWorkerPods()
 
         waitForBoot()
-    }
-
-    private fun waitForPods() {
-
     }
 
     private fun exec(command: String): String {
@@ -49,9 +45,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     }
 
     private fun getOcApiServerToken(): String {
-        val login = project.property("ocLogin")
-        val password = project.property("ocPassword")
-        val basicAuthToken = Base64.getEncoder().encodeToString("$login:$password".toByteArray())
+        val basicAuthToken = Base64.getEncoder().encodeToString("${getOcLogin()}:${getOcPassword()}".toByteArray())
         val oauthHostName = getProvider().oauthHostName.get()
 
         ocLogout()
@@ -95,11 +89,13 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         return getProvider().storageClass.value("aws-efs").get()
     }
 
-    override fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+    private fun updateInfrastructure(apiServerURL: String, token: String) {
+        project.logger.lifecycle("Updating operator's infrastructure")
+
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
-            "spec[0].children[0].serverUrl" to infraInfo.apiServerURL!!,
-            "spec[0].children[0].openshiftToken" to infraInfo.token!!
+            "spec[0].children[0].serverUrl" to apiServerURL,
+            "spec[0].children[0].openshiftToken" to token
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -111,4 +107,16 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     override fun getWorkerPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-worker-$position"
 
     override fun getMasterPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-master-$position"
+
+    private fun getApiServerUrl() = getProvider().apiServerURL.get()
+
+    private fun getOcLogin() = project.property("ocLogin")
+
+    private fun getOcPassword() = project.property("ocPassword")
+
+    private fun createOcContext() {
+        project.logger.lifecycle("Updating kube config for Open Shift")
+        exec("export KUBECONFIG=~/.kube/config")
+        exec("oc login ${getApiServerUrl()} --username ${getOcLogin()} --password \"${getOcPassword()}\"")
+    }
 }

@@ -1,7 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator
 
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
-import ai.digital.integration.server.deploy.tasks.server.StartDeployServerForOperatorInstanceTask
+import ai.digital.integration.server.deploy.tasks.server.operator.StartDeployServerForOperatorInstanceTask
 import org.gradle.api.DefaultTask
 
 abstract class OperatorBasedStartTask : DefaultTask() {

@@ -55,6 +55,7 @@ open class OperatorCentralConfigurationTask : DefaultTask() {
             File("${serverDir}/centralConfiguration/deploy-task.yaml"),
             mutableMapOf(
                 "deploy.task.in-process-worker" to "true",
+                "deploy.task.planner.registries.timeout" to "5 minutes",
                 "deploy.task.queue.name" to "xld-tasks-queue",
                 "deploy.task.queue.archive-queue-name" to "xld-archive-queue")
         )

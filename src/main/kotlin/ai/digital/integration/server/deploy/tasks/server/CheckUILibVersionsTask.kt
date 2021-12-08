@@ -53,7 +53,7 @@ open class CheckUILibVersionsTask : DefaultTask() {
             }?.substring(prefix.length)
     }
 
-    private fun extractPluginMetadata(xldpZip: ZipFile, internalJarEntry: ZipEntry): List<Map<String, Any?>> {
+    private fun extractPluginMetadata(xldpZip: ZipFile, internalJarEntry: ZipEntry): Map<String, Any?> {
         val zipStream = ZipInputStream(xldpZip.getInputStream(internalJarEntry))
         zipStream.use { stream ->
             var entry = stream.nextEntry
@@ -70,34 +70,33 @@ open class CheckUILibVersionsTask : DefaultTask() {
             }
 
             return if (pluginName != null && versions != null)
-                listOf(mapOf(
+                mapOf(
                     "plugin" to pluginName,
                     "versions" to versions
-                ))
+                )
             else
-                listOf()
+                mapOf()
         }
     }
 
     private fun checkForMismatch(libName: String, plugins: List<Map<String, Any?>>): List<Map<String, Any?>>? {
-
         val pluginVersions: List<Map<String, Any?>> = plugins.map { plugin ->
             val version = (plugin["versions"] as Map<String, Any?>)[libName]
-            return if (version != null)
-                listOf(mapOf(
+            if (version != null)
+                mapOf(
                     "plugin" to plugin["plugin"],
                     "version" to version
-                ))
+                )
             else
-                listOf()
-        }.flatten()
+                mapOf()
+        }
 
-        val mismatch: Boolean = pluginVersions.flatMap { current ->
+        val mismatchSet = pluginVersions.flatMap { current ->
             val version = current["version"] as String
-            listOf(version)
-        }.isNotEmpty()
+            setOf(version)
+        }.toSet()
 
-        return if (mismatch)
+        return if (mismatchSet.size > 1)
             pluginVersions
         else
             null
@@ -110,7 +109,7 @@ open class CheckUILibVersionsTask : DefaultTask() {
             file.name.endsWith(".xldp")
         }.map { plugin ->
             project.logger.lifecycle("Extracting plugin's metadata from the plugin $plugin")
-            return if (plugin.length() > 0) {
+            if (plugin.length() > 0) {
                 val xldpZip = ZipFile(plugin)
                 val internalJarEntry = xldpZip.entries()
                     .toList()
@@ -120,11 +119,13 @@ open class CheckUILibVersionsTask : DefaultTask() {
                 if (internalJarEntry != null)
                     extractPluginMetadata(xldpZip, internalJarEntry)
                 else
-                    listOf()
+                    mapOf()
             } else {
                 project.logger.lifecycle("Skipping the check of $plugin as the content is empty.")
-                listOf()
+                mapOf()
             }
+        }.filter { map ->
+            map.isNotEmpty()
         }
     }
 
@@ -133,16 +134,17 @@ open class CheckUILibVersionsTask : DefaultTask() {
             (map["versions"] as Map<String, Any?>).keys
         }.toSet()
 
+
         return allLibs.map { lib ->
             val mismatch = checkForMismatch(lib, metadata)
-            return if (mismatch != null)
-                listOf(mapOf(
+            if (mismatch != null)
+                mapOf(
                     "lib" to lib,
                     "versions" to mismatch
-                ))
+                )
             else
-                emptyList()
-        }
+                mapOf()
+        }.filter { map -> map.isNotEmpty() }
     }
 
     private fun formatErrorMessage(mismatches: List<Map<String, Any?>>): String {

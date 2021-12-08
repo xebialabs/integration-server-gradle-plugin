@@ -1,5 +1,6 @@
 package ai.digital.integration.server
 
+import ai.digital.integration.server.common.KubeScannerRegistry
 import ai.digital.integration.server.common.TaskRegistry
 import ai.digital.integration.server.common.util.DbUtil.Companion.getPort
 import ai.digital.integration.server.common.util.TaskUtil.Companion.dontFailOnException
@@ -65,6 +66,7 @@ class IntegrationServerPlugin : Plugin<Project> {
             }
 
             TaskRegistry.register(project)
+            KubeScannerRegistry.register(project)
         }
     }
 }

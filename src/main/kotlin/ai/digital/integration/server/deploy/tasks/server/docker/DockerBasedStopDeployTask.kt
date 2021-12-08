@@ -1,7 +1,6 @@
 package ai.digital.integration.server.deploy.tasks.server.docker
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.tasks.server.PrepareServerTask
@@ -23,38 +22,21 @@ open class DockerBasedStopDeployTask : DefaultTask() {
     }
 
     @InputFiles
-    fun getDockerComposeFile(server: Server): File {
-        return DeployServerUtil.getResolvedDockerFile(project, server).toFile()
-    }
-
-    /**
-     * Ignoring an exception as only certain folders and files (which were mounted) belong to a docker user.
-     */
-    private fun allowToCleanMountedFiles(server: Server) {
-        val args = arrayListOf("-f",
-            getDockerComposeFile(server).path,
-            "exec",
-            "-T",
-            DeployServerUtil.getDockerServiceName(server),
-            "chmod",
-            "777",
-            "-R",
-            "/opt/xebialabs/xl-deploy-server")
-        DockerComposeUtil.execute(project, args, true)
+    fun getDockerComposeFile(): File {
+        return DeployServerUtil.getResolvedDockerFile(project).toFile()
     }
 
     @TaskAction
     fun run() {
-        DeployServerUtil.getServers(project)
-            .forEach { server ->
-                project.logger.lifecycle("Stopping Deploy Server from a docker image ${
-                    DeployServerUtil.getDockerImageVersion(server)
-                }")
-                allowToCleanMountedFiles(server)
-                project.exec {
-                    executable = "docker-compose"
-                    args = arrayListOf("-f", getDockerComposeFile(server).path, "down", "-v")
-                }
-            }
+        project.logger.lifecycle("Stopping Deploy Server from a docker image ${
+            DeployServerUtil.getDockerImageVersion(project)
+        }")
+
+        DockerComposeUtil.allowToCleanMountedFiles(project, getDockerComposeFile())
+
+        project.exec {
+            executable = "docker-compose"
+            args = arrayListOf("-f", getDockerComposeFile().path, "down", "-v")
+        }
     }
 }

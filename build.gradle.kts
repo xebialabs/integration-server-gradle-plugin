@@ -91,7 +91,7 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     publishing {
         publications {
             register("mavenJava", MavenPublication::class) {
-                from(components["java"])
+                from(components["kotlin"])
 
                 groupId = "com.xebialabs.gradle.plugins"
                 artifactId = "integration-server-gradle-plugin"
