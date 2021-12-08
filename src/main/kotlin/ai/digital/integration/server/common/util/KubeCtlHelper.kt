@@ -4,7 +4,7 @@ import ai.digital.integration.server.common.domain.InfrastructureInfo
 import org.gradle.api.Project
 import java.io.File
 
-open class KubeCtlHelper(val project: Project, val isOpenShift: Boolean = false) {
+open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     val command = if (isOpenShift) "oc" else "kubectl"
 
