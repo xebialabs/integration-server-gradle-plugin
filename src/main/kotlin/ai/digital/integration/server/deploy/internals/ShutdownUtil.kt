@@ -13,7 +13,7 @@ class ShutdownUtil {
         private fun waitForShutdown(project: Project) {
             val server = DeployServerUtil.getServer(project)
             val triesLeft = server.pingTotalTries
-            println("triesLeft "+triesLeft)
+
             var success = false
             while (triesLeft > 0 && !success) {
                 try {
@@ -32,8 +32,6 @@ class ShutdownUtil {
                     }
 
                 } catch (ignored: Exception) {
-                    println("**************************")
-                    println(ignored.message)
                     project.logger.lifecycle("XL Deploy server successfully shutdown.")
                     success = true
                     break
@@ -46,7 +44,6 @@ class ShutdownUtil {
 
         fun shutdownServer(project: Project) {
             val server = DeployServerUtil.getServer(project)
-            println(server.dockerImage+ "server.dockerImage")
             try {
                 val port = server.httpPort
                 project.logger.lifecycle("Trying to shutdown integration server on port $port")
@@ -61,9 +58,6 @@ class ShutdownUtil {
                 project.logger.lifecycle("Integration server at port $port is now shutdown")
 
             } catch (ignored: Exception) {
-                println(ignored)
-                println(ignored.message)
-                println(ignored.localizedMessage)
                 project.logger.lifecycle("Integration server on port ${server.httpPort} is not running")
             }
         }

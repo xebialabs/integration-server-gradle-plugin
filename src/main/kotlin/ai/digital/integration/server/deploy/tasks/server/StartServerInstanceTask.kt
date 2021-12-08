@@ -7,12 +7,10 @@ import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.util.DbUtil
-import ai.digital.integration.server.common.util.DockerUtil
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.deploy.internals.*
 import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
 import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
-import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.StartSatelliteTask
@@ -126,18 +124,15 @@ open class StartServerInstanceTask : DefaultTask() {
 
     private fun start(server: Server): Process? {
         return if (!DeployServerUtil.isDockerBased(project)) {
-            if (!server.previousInstallation) {
-                maybeTearDown()
-                if (hasToBeStartedFromClasspath(server)) {
-                    DeployServerUtil.startServerFromClasspath(project)
-                } else {
-                    if (DeployServerUtil.isPreviousInstallationServerDefined(project)) {
-                        runWithPreviousInstallation(server)
-                    }
-                    startServer(server)
+            maybeTearDown()
+            if (hasToBeStartedFromClasspath(server)) {
+                DeployServerUtil.startServerFromClasspath(project)
+            } else {
+                if (DeployServerUtil.isPreviousInstallationServerDefined(project)) {
+                    runWithPreviousInstallation(server)
                 }
+                startServer(server)
             }
-            null
         } else {
             project.exec {
                 executable = "docker-compose"
@@ -158,12 +153,14 @@ open class StartServerInstanceTask : DefaultTask() {
     @TaskAction
     fun launch() {
         DeployServerUtil.getServers(project)
+            .filter { server -> !server.previousInstallation || DeployServerUtil.isDockerBased(project) }
             .forEach { server ->
                 project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
                 allowToWriteMountedHostFolders()
                 val process = start(server)
                 DeployServerUtil.waitForBoot(project, process)
-                if(DeployServerUtil.isPreviousInstallationServerDefined(project) && server.previousInstallation)
+
+                if(DeployServerUtil.isDockerBased(project) && server.previousInstallation)
                     maybeTearDown()
             }
     }

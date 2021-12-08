@@ -1,7 +1,6 @@
 package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.Server
-import ai.digital.integration.server.common.domain.profiles.DockerComposeProfile
 import ai.digital.integration.server.common.util.*
 import org.gradle.api.Project
 import java.io.File
@@ -237,8 +236,7 @@ class DeployServerUtil {
                 .replace("{{DEPLOY_VERSION}}", server.version.toString())
                 .replace("{{DEPLOY_FORCE_UPGRADE}}", forceUpgrade.toString())
                 .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", getOldDockerServerPath(project))
-            println("********************************")
-            println(configuredTemplate)
+
             serverTemplate.writeText(configuredTemplate)
 
             return resultComposeFilePath
