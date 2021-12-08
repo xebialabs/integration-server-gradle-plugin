@@ -13,6 +13,10 @@ open class KubeCtlHelper(val project: Project, val isOpenShift: Boolean = false)
             "$command apply -f ${file.absolutePath}")
     }
 
+    fun deleteFile(file: File) {
+        ProcessUtil.executeCommand(project, "kubectl delete -f ${file.absolutePath}")
+    }
+
     fun wait(resource: String, condition: String, timeoutSeconds: Int): Boolean {
         project.logger.lifecycle("Waiting for resource $resource to be $condition")
         val expectedEndTime = System.currentTimeMillis() + timeoutSeconds * 1000

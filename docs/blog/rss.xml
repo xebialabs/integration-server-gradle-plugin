@@ -4,9 +4,16 @@
         <title>Integration Server Blog</title>
         <link>https://xebialabs.github.io/integration-server-gradle-plugin/blog</link>
         <description>Integration Server Blog</description>
-        <lastBuildDate>Thu, 02 Sep 2021 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 08 Dec 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[How to run a Kube Scanning tests]]></title>
+            <link>https://xebialabs.github.io/integration-server-gradle-plugin/blog/2021/12/08/run-kube-scanning-test</link>
+            <guid>How to run a Kube Scanning tests</guid>
+            <pubDate>Wed, 08 Dec 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[Introduction]]></description>
+        </item>
         <item>
             <title><![CDATA[How to run a simple integration test]]></title>
             <link>https://xebialabs.github.io/integration-server-gradle-plugin/blog/2021/09/02/run-integration-test</link>
