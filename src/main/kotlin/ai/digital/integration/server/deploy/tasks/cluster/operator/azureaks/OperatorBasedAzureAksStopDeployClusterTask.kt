@@ -13,7 +13,6 @@ open class OperatorBasedAzureAksStopDeployClusterTask : OperatorBasedStopTask() 
 
     init {
         group = PluginConstant.PLUGIN_GROUP
-        this.finalizedBy(finalizedBy())
     }
 
     @TaskAction

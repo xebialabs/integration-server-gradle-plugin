@@ -13,7 +13,6 @@ open class OperatorBasedGcpGkeStopDeployClusterTask : OperatorBasedStopTask() {
 
     init {
         group = PluginConstant.PLUGIN_GROUP
-        this.finalizedBy(finalizedBy())
     }
 
     @TaskAction

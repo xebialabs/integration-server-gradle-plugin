@@ -36,6 +36,10 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         return ProcessUtil.executeCommand(command, workDir)
     }
 
+    private fun ocLogin() {
+        exec("oc login ${getApiServerUrl()} --username ${getOcLogin()} --password \"${getOcPassword()}\"")
+    }
+
     private fun ocLogout() {
         try {
             exec("oc logout")
@@ -64,6 +68,8 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     }
 
     fun shutdownCluster() {
+        ocLogin()
+
         project.logger.lifecycle("Undeploy operator")
         undeployCis()
 
@@ -117,6 +123,6 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     private fun createOcContext() {
         project.logger.lifecycle("Updating kube config for Open Shift")
         exec("export KUBECONFIG=~/.kube/config")
-        exec("oc login ${getApiServerUrl()} --username ${getOcLogin()} --password \"${getOcPassword()}\"")
+        ocLogin()
     }
 }
