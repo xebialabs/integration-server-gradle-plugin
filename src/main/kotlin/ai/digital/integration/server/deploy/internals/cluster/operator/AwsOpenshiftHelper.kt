@@ -90,6 +90,8 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     }
 
     private fun updateInfrastructure(apiServerURL: String, token: String) {
+        project.logger.lifecycle("Updating operator's infrastructure")
+
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec[0].children[0].serverUrl" to apiServerURL,
@@ -113,6 +115,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     private fun getOcPassword() = project.property("ocPassword")
 
     private fun createOcContext() {
+        project.logger.lifecycle("Updating kube config for Open Shift")
         exec("export KUBECONFIG=~/.kube/config")
         exec("oc login ${getApiServerUrl()} -u ${getOcLogin()} -p ${getOcPassword()}")
     }

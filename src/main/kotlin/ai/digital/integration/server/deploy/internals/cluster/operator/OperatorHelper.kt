@@ -71,6 +71,7 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     fun updateControllerManager() {
+        project.logger.lifecycle("Updating operator's controller manager")
         val file = File(getProviderHomeDir(), CONTROLLER_MANAGER_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec.template.spec.containers[1].image" to getOperatorImage()
@@ -79,6 +80,8 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     fun updateOperatorApplications() {
+        project.logger.lifecycle("Updating operator's applications")
+
         val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec[0].children[0].name" to getProvider().operatorPackageVersion
@@ -87,6 +90,8 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     fun updateOperatorDeployment() {
+        project.logger.lifecycle("Updating operator's deployment")
+
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion}"
@@ -95,6 +100,8 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     fun updateOperatorDeploymentCr() {
+        project.logger.lifecycle("Updating operator's deployment CR")
+
         val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}"
@@ -173,6 +180,8 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     fun updateOperatorCrValues() {
+        project.logger.lifecycle("Updating operator's CR values")
+
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec.ImageRepository" to DeployServerUtil.getServer(project).dockerImage!!,
@@ -238,6 +247,8 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     open fun applyYamlFiles() {
+        project.logger.lifecycle("Applying prepared Yaml files")
+
         val xlDigitalAiPath = File(getProviderHomeDir(), XL_DIGITAL_AI_PATH)
         project.logger.lifecycle("Applying Digital AI Deploy platform on cluster ($xlDigitalAiPath)")
         XlCliUtil.download(getProfile().xlCliVersion.get(), File(getProviderHomeDir()))
