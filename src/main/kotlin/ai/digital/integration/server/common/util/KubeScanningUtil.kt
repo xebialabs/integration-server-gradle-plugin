@@ -56,7 +56,7 @@ class KubeScanningUtil {
         }
 
         fun getRegion(project: Project): String {
-            return getKubeScanner(project).awsRegion
+            return getKubeScanner(project).awsRegion ?: throw RuntimeException("AWS Region has to be explicitly defined")
         }
 
         fun buildKubeBench(project: Project) {
