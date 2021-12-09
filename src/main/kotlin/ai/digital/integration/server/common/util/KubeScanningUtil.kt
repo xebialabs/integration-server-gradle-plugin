@@ -61,7 +61,7 @@ class KubeScanningUtil {
 
         fun buildKubeBench(project: Project) {
             ProcessUtil.executeCommand(project,
-                "docker build -t k8s/kube-bench:${getKubeScanner(project).kubeBenchTagVersion} ${getKubeBenchDir(project)}",
+                "docker build -t k8s/kube-bench:${getKubeScanner(project).kubeBenchTagVersion} \"${getKubeBenchDir(project)}\"",
                 logOutput = getKubeScanner(project).logOutput)
         }
 
