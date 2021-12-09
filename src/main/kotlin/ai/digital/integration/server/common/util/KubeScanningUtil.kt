@@ -38,7 +38,7 @@ class KubeScanningUtil {
             } while (status != "Completed" && count-- > 0)
 
             val testReport: String = ProcessUtil.execute(project, "kubectl", listOf("logs", "pod/$kubeBenchPod"), true)
-            File("\"${getKubeScanningReportDir(project).toAbsolutePath()}/$fileName\"").writeText(testReport)
+            File("${getKubeScanningReportDir(project).toAbsolutePath()}/$fileName").writeText(testReport)
         }
 
         private fun getKubeScanningReportDir(project: Project): Path {
