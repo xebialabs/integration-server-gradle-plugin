@@ -30,4 +30,10 @@ open class AwsEksProvider @Inject constructor(project: Project) : Provider(proje
     @Input
     val kubernetesVersion = project.objects.property<String>().value("1.20")
 
+    @Input
+    val accessKey = project.objects.property<String>()
+
+    @Input
+    val accessSecret = project.objects.property<String>()
+
 }

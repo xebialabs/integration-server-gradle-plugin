@@ -63,7 +63,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         logoutAzCli(azureAksProvider.azUsername.orNull, azureAksProvider.azPassword.orNull)
     }
 
-    fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+    private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
                 "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,

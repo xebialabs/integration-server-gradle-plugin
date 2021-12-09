@@ -26,6 +26,14 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         updateOperatorDeploymentCr()
         updateOperatorCrValues()
         updateCrValues()
+
+        applyYamlFiles()
+        waitForDeployment()
+        waitForMasterPods()
+        waitForWorkerPods()
+
+        createClusterMetadata()
+        waitForBoot()
     }
 
     private fun createSshKey() {
@@ -139,13 +147,13 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
     private fun checkClusterConnectivity() {
         ProcessUtil.executeCommand(project,
-                "kubectl get all")
+                "kubectl get node")
     }
 
     fun shutdownCluster() {
         val awsEksProvider: AwsEksProvider = getProvider()
-        deleteSshKey(awsEksProvider)
-        deleteCluster(awsEksProvider)
+       // deleteSshKey(awsEksProvider)
+       // deleteCluster(awsEksProvider)
     }
 
     private fun deleteSshKey(awsEksProvider: AwsEksProvider) {
@@ -184,19 +192,26 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         return getProvider().storageClass.value("gp2").get()
     }
 
-    override fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+    private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
+        val awsEksProvider: AwsEksProvider = getProvider()
         val pairs = mutableMapOf<String, Any>(
                 "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,
                 "spec[0].children[0].caCert" to infraInfo.caCert!!,
-                "spec[0].children[0].tlsCert" to infraInfo.tlsCert!!,
-                "spec[0].children[0].tlsPrivateKey" to infraInfo.tlsPrivateKey!!
+                "spec[0].children[0].accessKey" to awsEksProvider.accessKey.get()!!,
+                "spec[0].children[0].accessSecret" to awsEksProvider.accessSecret.get()!!,
+                "spec[0].children[0].regionName" to awsEksProvider.region.get()!!,
+                "spec[0].children[0].clusterName" to awsEksProvider.clusterName.get()!!
         )
         YamlFileUtil.overlayFile(file, pairs)
     }
 
     override fun getFqdn(): String {
         return "deploy.digitalai-testing.com"
+    }
+
+    override fun getContextRoot(): String {
+        return "/xl-deploy/"
     }
 
 }
