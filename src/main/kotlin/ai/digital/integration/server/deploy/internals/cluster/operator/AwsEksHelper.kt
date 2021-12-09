@@ -1,9 +1,11 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
+import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AwsEksProvider
 import ai.digital.integration.server.common.util.FileUtil
 
 import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Paths
@@ -14,12 +16,23 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         createSshKey()
         createCluster()
         checkClusterStatus()
+        updateKubeConfig()
+        checkClusterConnectivity()
+        val kubeContextInfo = getKubectlHelper().getCurrentContextInfo()
+        updateInfrastructure(kubeContextInfo)
 
+        updateControllerManager()
+        updateOperatorDeployment()
+        updateOperatorDeploymentCr()
+        updateOperatorCrValues()
+        updateCrValues()
     }
 
     private fun createSshKey() {
         ProcessUtil.executeCommand(project,
-                "aws --region ${getProvider().region.get()} ec2 create-key-pair --key-name ${getProvider().sshKeyName.get()}",
+                "aws --region ${getProvider().region.get()} " +
+                        "ec2 create-key-pair " +
+                        "--key-name ${getProvider().sshKeyName.get()}",
                 logOutput = true)
     }
 
@@ -93,7 +106,6 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         }
     }
 
-
     private fun wait(status: String, command: String, resource: String): Boolean {
         val expectedEndTime = System.currentTimeMillis() + 1200000 // 20 mins
         while (expectedEndTime > System.currentTimeMillis()) {
@@ -109,12 +121,45 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         return false
     }
 
+    private fun updateKubeConfig(){
+        val awsEksProvider: AwsEksProvider = getProvider()
+        ProcessUtil.executeCommand(project,
+                "aws eks --region ${awsEksProvider.region.get()} " +
+                        "update-kubeconfig " +
+                        "--name ${awsEksProvider.clusterName.get()}")
+    }
+
+    private fun updateCrValues() {
+        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+        val pairs: MutableMap<String, Any> = mutableMapOf(
+                "spec.ingress.hosts" to arrayOf(getFqdn())
+        )
+        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+    }
+
+    private fun checkClusterConnectivity() {
+        ProcessUtil.executeCommand(project,
+                "kubectl get all")
+    }
+
     fun shutdownCluster() {
         val awsEksProvider: AwsEksProvider = getProvider()
-        val region = awsEksProvider.region.get()
-        val sshKey = awsEksProvider.sshKeyName.get()
-        //ProcessUtil.executeCommand(project, "aws --region  $region ec2 delete-key-pair --key-name $sshKey")
-        //ProcessUtil.executeCommand(project, "aws --region  $region cloudformation delete-stack --stack-name ${awsEksProvider.stack.get()}")
+        deleteSshKey(awsEksProvider)
+        deleteCluster(awsEksProvider)
+    }
+
+    private fun deleteSshKey(awsEksProvider: AwsEksProvider) {
+        ProcessUtil.executeCommand(project,
+                "aws --region ${awsEksProvider.region.get()}" +
+                        " ec2 delete-key-pair " +
+                        "--key-name ${awsEksProvider.sshKeyName.get()}")
+    }
+
+    private fun deleteCluster(awsEksProvider: AwsEksProvider) {
+        ProcessUtil.executeCommand(project,
+                "aws --region ${awsEksProvider.region.get()}" +
+                        " cloudformation delete-stack " +
+                        "--stack-name ${awsEksProvider.stack.get()}")
     }
 
     private fun getTemplate(relativePath: String): File {
@@ -133,6 +178,25 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
     override fun getProvider(): AwsEksProvider {
         return getProfile().awsEks
+    }
+
+    override fun getStorageClass(): String {
+        return getProvider().storageClass.value("gp2").get()
+    }
+
+    override fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+        val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
+        val pairs = mutableMapOf<String, Any>(
+                "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,
+                "spec[0].children[0].caCert" to infraInfo.caCert!!,
+                "spec[0].children[0].tlsCert" to infraInfo.tlsCert!!,
+                "spec[0].children[0].tlsPrivateKey" to infraInfo.tlsPrivateKey!!
+        )
+        YamlFileUtil.overlayFile(file, pairs)
+    }
+
+    override fun getFqdn(): String {
+        return "deploy.digitalai-testing.com"
     }
 
 }
