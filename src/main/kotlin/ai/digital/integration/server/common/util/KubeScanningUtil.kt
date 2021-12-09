@@ -24,8 +24,8 @@ class KubeScanningUtil {
         }
 
         fun generateReport(project: Project, fileName: String) {
-            ProcessUtil.executeCommand("mkdir ${getKubeScanningReportDir(project).toAbsolutePath()}")
-            ProcessUtil.executeCommand("cd ${getKubeScanningReportDir(project).toAbsolutePath()}")
+            ProcessUtil.executeCommand("mkdir \"${getKubeScanningReportDir(project).toAbsolutePath()}\"")
+            ProcessUtil.executeCommand("cd \"${getKubeScanningReportDir(project).toAbsolutePath()}\"")
             val kubeBenchPod = ProcessUtil.executeCommand(project,
                 "kubectl get po | awk '/kube-bench/{print \$1}'",
                 logOutput = getKubeScanner(project).logOutput)
@@ -38,7 +38,7 @@ class KubeScanningUtil {
             } while (status != "Completed" && count-- > 0)
 
             val testReport: String = ProcessUtil.execute(project, "kubectl", listOf("logs", "pod/$kubeBenchPod"), true)
-            File("${getKubeScanningReportDir(project).toAbsolutePath()}/$fileName").writeText(testReport)
+            File("\"${getKubeScanningReportDir(project).toAbsolutePath()}/$fileName\"").writeText(testReport)
         }
 
         private fun getKubeScanningReportDir(project: Project): Path {
