@@ -10,9 +10,6 @@ import javax.inject.Inject
 open class AzureAksProvider @Inject constructor(project: Project) : Provider(project) {
 
     @Input
-    val location = project.objects.property<String>().value("germanywestcentral")
-
-    @Input
     val clusterNodeCount = project.objects.property<Int>().value(2)
 
     @Input
@@ -20,6 +17,9 @@ open class AzureAksProvider @Inject constructor(project: Project) : Provider(pro
 
     @Input
     val kubernetesVersion = project.objects.property<String>()
+
+    @Input
+    val location = project.objects.property<String>().value("germanywestcentral")
 
     @Input
     val skipExisting = project.objects.property<Boolean>().value(true)
