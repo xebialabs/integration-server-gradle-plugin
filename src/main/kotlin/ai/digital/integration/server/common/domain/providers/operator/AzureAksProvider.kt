@@ -10,12 +10,6 @@ import javax.inject.Inject
 open class AzureAksProvider @Inject constructor(project: Project) : Provider(project) {
 
     @Input
-    val azUsername = project.objects.property<String>()
-
-    @Input
-    val azPassword = project.objects.property<String>()
-
-    @Input
     val location = project.objects.property<String>().value("germanywestcentral")
 
     @Input
@@ -29,5 +23,9 @@ open class AzureAksProvider @Inject constructor(project: Project) : Provider(pro
 
     @Input
     val skipExisting = project.objects.property<Boolean>().value(true)
+
+    val azUsername = project.property("azUsername").toString()
+
+    val azPassword = project.property("azPassword").toString()
 }
 
