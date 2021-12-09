@@ -22,7 +22,7 @@ class XlCliUtil {
         }
 
         fun xlApply(project: Project, file: File, workDir: File) {
-            ProcessUtil.executeCommand(project, "./xl apply -v -f ${file.name}", workDir)
+            ProcessUtil.executeCommand(project, "./xl apply -v -f \"${file.name}\"", workDir)
         }
     }
 }

@@ -21,9 +21,9 @@ import ai.digital.integration.server.deploy.tasks.cluster.operator.CheckingOutDe
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStartTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStopTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftDeployClusterStartTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftDeployClusterStopTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStartDeployClusterTask
@@ -40,6 +40,8 @@ import ai.digital.integration.server.deploy.tasks.satellite.*
 import ai.digital.integration.server.deploy.tasks.server.*
 import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
 import ai.digital.integration.server.deploy.tasks.server.operator.OperatorCentralConfigurationTask
+import ai.digital.integration.server.deploy.tasks.server.operator.StartDeployServerForOperatorInstanceTask
+import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
 import ai.digital.integration.server.deploy.tasks.tests.IntegrationTestsTask
 import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
@@ -66,10 +68,10 @@ open class DeployTaskRegistry {
 
             // Cluster Operator
             project.tasks.create(OperatorBasedAwsEksDeployClusterStartTask.NAME, OperatorBasedAwsEksDeployClusterStartTask::class.java)
-            project.tasks.create(OperatorBasedAwsEksStopDeployClusterTask.NAME, OperatorBasedAwsEksStopDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsEksDeployClusterStopTask.NAME, OperatorBasedAwsEksDeployClusterStopTask::class.java)
 
             project.tasks.create(OperatorBasedAwsOpenShiftDeployClusterStartTask.NAME, OperatorBasedAwsOpenShiftDeployClusterStartTask::class.java)
-            project.tasks.create(OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME, OperatorBasedAwsOpenShiftStopDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsOpenShiftDeployClusterStopTask.NAME, OperatorBasedAwsOpenShiftDeployClusterStopTask::class.java)
 
             project.tasks.create(OperatorBasedAzureAksStartDeployClusterTask.NAME, OperatorBasedAzureAksStartDeployClusterTask::class.java)
             project.tasks.create(OperatorBasedAzureAksStopDeployClusterTask.NAME, OperatorBasedAzureAksStopDeployClusterTask::class.java)
@@ -89,6 +91,7 @@ open class DeployTaskRegistry {
             project.tasks.create(CheckingOutDeployKubernetesOperatorTask.NAME, CheckingOutDeployKubernetesOperatorTask::class.java)
             project.tasks.create(OperatorCentralConfigurationTask.NAME, OperatorCentralConfigurationTask::class.java)
             project.tasks.create(StartDeployServerForOperatorInstanceTask.NAME, StartDeployServerForOperatorInstanceTask::class.java)
+            project.tasks.create(StopDeployServerForOperatorInstanceTask.NAME, StopDeployServerForOperatorInstanceTask::class.java)
 
 
             // Cluster Terraform

@@ -4,13 +4,17 @@ import ai.digital.integration.server.common.domain.InfrastructureInfo
 import org.gradle.api.Project
 import java.io.File
 
-open class KubeCtlHelper(val project: Project, val isOpenShift: Boolean = false) {
+open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     val command = if (isOpenShift) "oc" else "kubectl"
 
     fun applyFile(file: File) {
         ProcessUtil.executeCommand(project,
-            "$command apply -f ${file.absolutePath}")
+            "$command apply -f \"${file.absolutePath}\"")
+    }
+
+    fun deleteFile(file: File) {
+        ProcessUtil.executeCommand(project, "kubectl delete -f ${file.absolutePath}")
     }
 
     fun wait(resource: String, condition: String, timeoutSeconds: Int): Boolean {
@@ -40,7 +44,7 @@ open class KubeCtlHelper(val project: Project, val isOpenShift: Boolean = false)
         return result.contains(storageClass)
     }
 
-    fun getCurrentContextInfo(token: String? = null): InfrastructureInfo {
+    fun getCurrentContextInfo(): InfrastructureInfo {
         val context = getCurrentContext()
         val cluster = getContextCluster(context)
         val user = getContextUser(context)
@@ -48,7 +52,6 @@ open class KubeCtlHelper(val project: Project, val isOpenShift: Boolean = false)
             cluster,
             user,
             getClusterServer(cluster),
-            token,
             getClusterCertificateAuthorityData(cluster),
             getUserClientCertificateData(user),
             getUserClientKeyData(user)

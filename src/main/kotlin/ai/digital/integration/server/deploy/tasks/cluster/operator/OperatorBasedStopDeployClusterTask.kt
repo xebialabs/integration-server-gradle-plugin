@@ -3,12 +3,13 @@ package ai.digital.integration.server.deploy.tasks.cluster.operator
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStopTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftDeployClusterStopTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -23,9 +24,9 @@ open class OperatorBasedStopDeployClusterTask : DefaultTask() {
 
         this.dependsOn(when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
             OperatorProviderName.AWS_EKS.providerName ->
-                OperatorBasedAwsEksStopDeployClusterTask.NAME
+                OperatorBasedAwsEksDeployClusterStopTask.NAME
             OperatorProviderName.AWS_OPENSHIFT.providerName ->
-                OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME
+                OperatorBasedAwsOpenShiftDeployClusterStopTask.NAME
             OperatorProviderName.AZURE_AKS.providerName ->
                 OperatorBasedAzureAksStopDeployClusterTask.NAME
             OperatorProviderName.GCP_GKE.providerName ->
@@ -40,6 +41,7 @@ open class OperatorBasedStopDeployClusterTask : DefaultTask() {
                 }")
             }
         })
+        this.finalizedBy(StopDeployServerForOperatorInstanceTask.NAME)
     }
 
     @TaskAction

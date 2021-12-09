@@ -83,4 +83,8 @@ open class DeployIntegrationServerExtension(
     val maintenance = project.objects.property<Maintenance>().value(Maintenance(project.objects))
 
     fun maintenance(action: Action<in Maintenance>) = action.execute(maintenance.get())
+
+    val kubeScanner = project.objects.property<KubeScanner>().value(KubeScanner(project.objects))
+
+    fun kubeScanner(action: Action<in KubeScanner>) = action.execute(kubeScanner.get())
 }

@@ -1,11 +1,11 @@
-package ai.digital.integration.server.deploy.tasks.server
+package ai.digital.integration.server.deploy.tasks.server.operator
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
-import ai.digital.integration.server.deploy.tasks.server.operator.OperatorCentralConfigurationTask
+import ai.digital.integration.server.deploy.tasks.server.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.closureOf

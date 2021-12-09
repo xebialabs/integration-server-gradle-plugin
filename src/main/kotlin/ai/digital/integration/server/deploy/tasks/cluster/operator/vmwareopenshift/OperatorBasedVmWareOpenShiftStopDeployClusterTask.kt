@@ -2,10 +2,10 @@ package ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopensh
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.cluster.operator.VmwareOpenshiftHelper
-import org.gradle.api.DefaultTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedVmWareOpenShiftStopDeployClusterTask : DefaultTask() {
+open class OperatorBasedVmWareOpenShiftStopDeployClusterTask : OperatorBasedStopTask() {
 
     companion object {
         const val NAME = "operatorBasedVmWareOpenShiftStopDeployCluster"
