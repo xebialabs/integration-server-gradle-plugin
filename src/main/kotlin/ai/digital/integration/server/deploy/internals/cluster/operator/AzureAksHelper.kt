@@ -19,7 +19,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val location = azureAksProvider.location.get()
 
         validateAzCli()
-        loginAzCli(azureAksProvider.azUsername, azureAksProvider.azPassword)
+        loginAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
 
         createResourceGroup(name, location, skipExisting)
         createCluster(name,
@@ -66,7 +66,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
         project.logger.lifecycle("Delete current context")
         getKubectlHelper().deleteCurrentContext()
-        logoutAzCli(azureAksProvider.azUsername, azureAksProvider.azPassword)
+        logoutAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
     }
 
     private fun updateInfrastructure(infraInfo: InfrastructureInfo) {

@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 
 @Suppress("UnstableApiUsage")
-open class AzureAksProvider @Inject constructor(project: Project) : Provider(project) {
+open class AzureAksProvider @Inject constructor(val project: Project) : Provider(project) {
 
     @Input
     val clusterNodeCount = project.objects.property<Int>().value(2)
@@ -24,8 +24,8 @@ open class AzureAksProvider @Inject constructor(project: Project) : Provider(pro
     @Input
     val skipExisting = project.objects.property<Boolean>().value(true)
 
-    val azUsername = project.property("azUsername").toString()
+    fun getAzUsername(): String = project.property("azUsername").toString()
 
-    val azPassword = project.property("azPassword").toString()
+    fun getAzPassword(): String = project.property("azPassword").toString()
 }
 
