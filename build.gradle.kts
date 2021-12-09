@@ -10,7 +10,7 @@ buildscript {
 
 plugins {
     kotlin("jvm") version "1.4.20"
-    `kotlin-dsl`
+    `kotlin-dsl-base`
 
     id("com.github.node-gradle.node") version "3.1.0"
     id("idea")
@@ -90,8 +90,8 @@ tasks.named<Test>("test") {
 if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     publishing {
         publications {
-            register("mavenJava", MavenPublication::class) {
-                from(components["kotlin"])
+            register("pluginMaven", MavenPublication::class) {
+                from(components["java"])
 
                 groupId = "com.xebialabs.gradle.plugins"
                 artifactId = "integration-server-gradle-plugin"
@@ -164,7 +164,7 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     }
 
     signing {
-        sign(publishing.publications["mavenJava"])
+        sign(publishing.publications["pluginMaven"])
     }
 
     nexusPublishing {
@@ -178,7 +178,7 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
 } else {
     publishing {
         publications {
-            register("mavenJava", MavenPublication::class) {
+            register("pluginMaven", MavenPublication::class) {
                 from(components["java"])
             }
         }

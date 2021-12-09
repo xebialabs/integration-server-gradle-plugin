@@ -24,8 +24,8 @@ class KubeScanningUtil {
         }
 
         fun generateReport(project: Project, fileName: String) {
-            ProcessUtil.executeCommand("mkdir ${getKubeScanningReportDir(project).toAbsolutePath()}")
-            ProcessUtil.executeCommand("cd ${getKubeScanningReportDir(project).toAbsolutePath()}")
+            ProcessUtil.executeCommand("mkdir \"${getKubeScanningReportDir(project).toAbsolutePath()}\"")
+            ProcessUtil.executeCommand("cd \"${getKubeScanningReportDir(project).toAbsolutePath()}\"")
             val kubeBenchPod = ProcessUtil.executeCommand(project,
                 "kubectl get po | awk '/kube-bench/{print \$1}'",
                 logOutput = getKubeScanner(project).logOutput)
@@ -61,7 +61,7 @@ class KubeScanningUtil {
 
         fun buildKubeBench(project: Project) {
             ProcessUtil.executeCommand(project,
-                "docker build -t k8s/kube-bench:${getKubeScanner(project).kubeBenchTagVersion} ${getKubeBenchDir(project)}",
+                "docker build -t k8s/kube-bench:${getKubeScanner(project).kubeBenchTagVersion} \"${getKubeBenchDir(project)}\"",
                 logOutput = getKubeScanner(project).logOutput)
         }
 
