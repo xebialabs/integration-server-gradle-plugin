@@ -111,7 +111,8 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
     private fun configView(jsonPath: String, fallbackJsonPath: String): String {
         val data = configView(jsonPath)
         return if (data == "") {
-            configView(fallbackJsonPath)
+            val path = configView(fallbackJsonPath)
+            File(path).readText()
         } else {
             data
         }
