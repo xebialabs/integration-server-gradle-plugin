@@ -53,16 +53,16 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val location = azureAksProvider.location.get()
         val clusterName = aksClusterName(name)
 
-        project.logger.lifecycle("Undeploy operator")
+        project.logger.lifecycle("Operator is being undeployed")
         undeployCis()
 
-        project.logger.lifecycle("Delete all PVCs")
+        project.logger.lifecycle("PVCs are being deleted")
         getKubectlHelper().deleteAllPVCs()
 
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
         deleteResourceGroup(groupName, location)
 
-        project.logger.lifecycle("Delete current context")
+        project.logger.lifecycle("Current cluster context is being deleted")
         getKubectlHelper().deleteCurrentContext()
         logoutAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
     }
