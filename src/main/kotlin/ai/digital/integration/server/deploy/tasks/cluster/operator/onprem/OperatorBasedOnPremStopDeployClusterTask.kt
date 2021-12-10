@@ -13,6 +13,7 @@ open class OperatorBasedOnPremStopDeployClusterTask : OperatorBasedStopTask() {
 
     init {
         group = PluginConstant.PLUGIN_GROUP
+        dependsOn(dependsOnTasks())
     }
 
     @TaskAction
