@@ -266,4 +266,14 @@ abstract class OperatorHelper(val project: Project) {
     open fun getWorkerPodName(position: Int) = "pod/dai-xld-digitalai-deploy-worker-$position"
 
     open fun getMasterPodName(position: Int) = "pod/dai-xld-digitalai-deploy-master-$position"
+
+    fun getTemplate(relativePath: String): File {
+        val file = File(relativePath)
+        val fileStream = {}::class.java.classLoader.getResourceAsStream(relativePath)
+        val resultComposeFilePath = Paths.get(getProviderWorkDir(), file.name)
+        fileStream?.let {
+            FileUtil.copyFile(it, resultComposeFilePath)
+        }
+        return resultComposeFilePath.toFile()
+    }
 }

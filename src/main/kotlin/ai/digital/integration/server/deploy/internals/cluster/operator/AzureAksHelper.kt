@@ -222,16 +222,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         return name
     }
 
-    private fun getTemplate(relativePath: String): File {
-        val file = File(relativePath)
-        val fileStream = {}::class.java.classLoader.getResourceAsStream(relativePath)
-        val resultComposeFilePath = Paths.get(getProviderWorkDir(), file.name)
-        fileStream?.let {
-            FileUtil.copyFile(it, resultComposeFilePath)
-        }
-        return resultComposeFilePath.toFile()
-    }
-
     private fun diskStorageClassName(name: String): String {
         return "${name}-disk-storage-class"
     }

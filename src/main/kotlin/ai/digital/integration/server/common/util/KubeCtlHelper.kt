@@ -59,20 +59,24 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
     }
 
     fun deleteCurrentContext() {
-        val context = getCurrentContext()
-        val cluster = getContextCluster(context)
-        val user = getContextUser(context)
+        try {
+            val context = getCurrentContext()
+            val cluster = getContextCluster(context)
+            val user = getContextUser(context)
 
-        project.logger.info("Delete current context {} with related cluster {} and user {} information",
-            context,
-            cluster,
-            user)
-        ProcessUtil.executeCommand(project,
-            "$command config delete-context $context", throwErrorOnFailure = false)
-        ProcessUtil.executeCommand(project,
-            "$command config delete-user $user", throwErrorOnFailure = false)
-        ProcessUtil.executeCommand(project,
-            "$command config delete-cluster $cluster", throwErrorOnFailure = false)
+            project.logger.info("Delete current context {} with related cluster {} and user {} information",
+                    context,
+                    cluster,
+                    user)
+            ProcessUtil.executeCommand(project,
+                    "$command config delete-context $context", throwErrorOnFailure = false)
+            ProcessUtil.executeCommand(project,
+                    "$command config delete-user $user", throwErrorOnFailure = false)
+            ProcessUtil.executeCommand(project,
+                    "$command config delete-cluster $cluster", throwErrorOnFailure = false)
+        } catch (e: RuntimeException) {
+            project.logger.info("Skipping delete of current context because: {}", e.message)
+        }
     }
 
     fun deleteAllPvcs() {
@@ -111,22 +115,46 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
             logOutput = false)
     }
 
-    private fun getClusterCertificateAuthorityData(clusterName: String): String {
-        return ProcessUtil.executeCommand(project,
+    fun getClusterCertificateAuthorityData(clusterName: String): String {
+        val data = ProcessUtil.executeCommand(project,
             "$command config view -o jsonpath='{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority-data}' --raw",
             logOutput = false)
+        return if (data == "") {
+            val path = ProcessUtil.executeCommand(project,
+                    "$command config view -o jsonpath='{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority}' --raw",
+                    logOutput = false)
+            File(path).readText()
+        } else {
+            data
+        }
     }
 
     private fun getUserClientKeyData(userName: String): String {
-        return ProcessUtil.executeCommand(project,
+        val data = ProcessUtil.executeCommand(project,
             "$command config view -o jsonpath='{.users[?(@.name == \"$userName\")].user.client-key-data}' --raw",
             logOutput = false)
+        return if (data == "") {
+            val path = ProcessUtil.executeCommand(project,
+                    "$command config view -o jsonpath='{.users[?(@.name == \"$userName\")].user.client-key}' --raw",
+                    logOutput = false)
+            File(path).readText()
+        } else {
+            data
+        }
     }
 
     private fun getUserClientCertificateData(userName: String): String {
-        return ProcessUtil.executeCommand(project,
+        val data = ProcessUtil.executeCommand(project,
             "$command config view -o jsonpath='{.users[?(@.name == \"$userName\")].user.client-certificate-data}' --raw",
             logOutput = false)
+        return if (data == "") {
+            val path = ProcessUtil.executeCommand(project,
+                    "$command config view -o jsonpath='{.users[?(@.name == \"$userName\")].user.client-certificate}' --raw",
+                    logOutput = false)
+            File(path).readText()
+        } else {
+            data
+        }
     }
 
     private fun getNameAndGrep(params: String, grepFor: String): String {
