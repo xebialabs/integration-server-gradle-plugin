@@ -6,6 +6,8 @@ import ai.digital.integration.server.common.util.FileUtil
 
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
+import net.sf.json.JSONObject
+import net.sf.json.util.JSONTokener
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Paths
@@ -33,6 +35,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         waitForWorkerPods()
 
         createClusterMetadata()
+        updateRoute53()
         waitForBoot()
     }
 
@@ -114,8 +117,8 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         }
     }
 
-    private fun wait(status: String, command: String, resource: String): Boolean {
-        val expectedEndTime = System.currentTimeMillis() + 1200000 // 20 mins
+    private fun wait(status: String, command: String, resource: String, totalTimeInSec: Int = 1200000, sleepTime:Long = 300000): Boolean {
+        val expectedEndTime = System.currentTimeMillis() + totalTimeInSec // 20 mins
         while (expectedEndTime > System.currentTimeMillis()) {
             val result = ProcessUtil.executeCommand(project,
                     "$command",
@@ -124,7 +127,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                 return true
             }
             project.logger.lifecycle("$resource resource  \"$status\" status not met, retry after 5 minutes. ")
-            Thread.sleep(300000) //5 mins
+            Thread.sleep(sleepTime) //5 mins
         }
         return false
     }
@@ -150,10 +153,69 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                 "kubectl get node")
     }
 
+    private fun updateRoute53(){
+
+        val templateFile = updateRoute53Json()
+        val changeInfo = UpdateRoute53RecordSet(templateFile)
+        checkRoute53Status(changeInfo)
+
+    }
+    private fun updateRoute53Json(): File{
+        val awsRoute53TemplateFile = getTemplate("operator/aws-eks/aws-route53-record-update.json")
+        val hostname = ProcessUtil.executeCommand(project,
+                "kubectl get service dai-xld-nginx-ingress-controller -o=jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\"")
+        val hostZoneId = ProcessUtil.executeCommand(project,
+                "aws elb describe-load-balancers" +
+                        " --load-balancer-name " +
+                        "${hostname.substring(0,32)} " +
+                        "--query LoadBalancerDescriptions[*].CanonicalHostedZoneNameID --output text")
+
+        val awsRoute53Template = awsRoute53TemplateFile.readText(Charsets.UTF_8)
+                .replace("{{HOSTNAME}}", "dualstack.$hostname")
+                .replace("{{HOSTZONEID}}",hostZoneId)
+        awsRoute53TemplateFile.writeText(awsRoute53Template)
+        return awsRoute53TemplateFile
+    }
+
+    private fun UpdateRoute53RecordSet(awsRoute53TemplateFile: File): String {
+        return ProcessUtil.executeCommand(project,
+                "aws route53 " +
+                        "change-resource-record-sets " +
+                        "--hosted-zone-id Z0621108QZWN6SHNIF6I " +
+                        "--change-batch file://${awsRoute53TemplateFile}")
+    }
+
+    private fun checkRoute53Status(route53Change: String){
+        val route53ChangeId = JSONTokener(route53Change).nextValue() as JSONObject
+        val changeInfo = route53ChangeId.get("ChangeInfo") as JSONObject
+
+        val route53GetChange = "aws route53 " +
+                "get-change " +
+                "--id=${changeInfo.get("Id")} " +
+                "--query=ChangeInfo.Status"
+
+        val changeStatus = wait("INSYNC",
+                route53GetChange,
+                "Route 53 change record set", 300000, 1000)
+
+        project.logger.lifecycle("Route 53 Status $changeStatus")
+    }
+
     fun shutdownCluster() {
         val awsEksProvider: AwsEksProvider = getProvider()
-       // deleteSshKey(awsEksProvider)
-       // deleteCluster(awsEksProvider)
+        project.logger.lifecycle("Undeploy operator")
+        undeployCis()
+
+        project.logger.lifecycle("Delete all PVCs")
+        getKubectlHelper().deleteAllPvcs()
+
+        project.logger.lifecycle("Delete cluster and ssh key")
+        deleteSshKey(awsEksProvider)
+        deleteCluster(awsEksProvider)
+
+        project.logger.lifecycle("Delete current context")
+        getKubectlHelper().deleteCurrentContext()
+
     }
 
     private fun deleteSshKey(awsEksProvider: AwsEksProvider) {

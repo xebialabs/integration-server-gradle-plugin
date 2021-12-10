@@ -1,0 +1,14 @@
+{
+  "Comment": "Updating Alias resource record sets in Route 53",
+  "Changes": [{
+    "Action": "UPSERT",
+    "ResourceRecordSet": {
+      "Name": "deploy.digitalai-testing.com",
+      "Type": "A",
+      "AliasTarget":{
+        "HostedZoneId": "{{HOSTZONEID}}",
+        "DNSName": "{{HOSTNAME}}",
+        "EvaluateTargetHealth": false
+      }}
+  }]
+}
