@@ -9,21 +9,22 @@ sidebar_position: 5
 ```groovy title=build.gradle
 deployIntegrationServer {
     cli {}
-    cluster{}
-    servers {}
+    cluster {}
+    clusterProfiles {}
     database {}
     maintenance {}
-    workers {}
-    satellites {}
     mqDriverVersions {}
-    xldIsDataVersion {}
+    satellites {}
+    servers {}
     tests {}
+    xldIsDataVersion {}
+    workers {}
 }
 ```
 
 |Name|Description|
 | :---: | :---: |
-|cli|The configuration section for Deploy CLI client to run Jython scripts against Deploy server intance.|
+|cli|The configuration section for Deploy CLI client to run Jython scripts against Deploy server instance.|
 |database|Database configuration, you can find this section helpful for overriding database driving versions or having more database level logs.|
 |mqDriverVersions|Points to the version of MQ to use, in case you wish to adapt it to your own version.|
 |satellites|You can configure as many satellites as you need here.|
@@ -76,8 +77,10 @@ deployIntegrationServer {
 ```groovy title=build.gradle
 deployIntegrationServer {
     cluster {
+        debugSuspend = true
         enable = true
         enableDebug = true
+        profile = 'operator'
         publicPort = 1000
     }
 }
@@ -88,9 +91,10 @@ deployIntegrationServer {
 |debugSuspend|Optional|false|Suspend the start of the process before the remoting tool is attached. Take in mind that you have to attach to all processes to be able to completely run the cluster.|
 |enable|Optional|false|If true, cluster setup will be enabled.|
 |enableDebug|Optional|false|If true, debug will be enabled on all masters and workers. The exposed ports to connect will be randomly defined. You can check with `docker ps` which port was exposed for debugging.|
+|profile|Optional|dockerCompose|The way to run the setup. There are 2 possible ways now: dockerCompose or operator. If you use operator, you have to configure `clusterProfiles` section too.
 |publicPort|Optional|8080|The port to connect to the cluster.|
 
-Currently, there is only a docker compose based setup available. The minimum configuration you have to provide is:
+Example for dockerCompose configuration:
 
 ```groovy title=build.gradle
 deployIntegrationServer {
@@ -122,6 +126,88 @@ should always match.
 Example where to check for debugging ports to attach:
 
 ![Example](./pics/cluster-debug-docker-ps.png)
+
+Example for operator configuration:
+
+```shell script
+    ...
+    cluster {
+        enable = true
+        profile = 'operator'
+        publicPort = 10001
+    }
+    clusterProfiles {
+        operator {
+            activeProviderName = "aws-openshift"
+            awsOpenshift {
+                apiServerURL = 'https://yourhost.openshiftapps.com:6443'
+                host = 'router-default.yourhost.openshiftapps.com'
+                name = 'aws-openshift-test-cluster'
+                oauthHostName = "oauth-openshift.yourhost.openshiftapps.com"
+                operatorImage = 'acierto/deploy-operator:1.0.6-openshift'
+                operatorPackageVersion = "1.0.7"
+            }
+        }
+    }
+    ...
+```
+
+## Cluster profiles for operator
+
+```shell script
+clusterProfiles {
+    operator {
+        activeProviderName = "aws-openshift"
+        awsOpenshift {
+            apiServerURL = 'https://api.acierto.lnfl.p1.openshiftapps.com:6443'
+            host = 'router-default.apps.acierto.lnfl.p1.openshiftapps.com'
+            name = 'aws-openshift-test-cluster'
+            oauthHostName = "oauth-openshift.apps.acierto.lnfl.p1.openshiftapps.com"
+            operatorImage = 'acierto/deploy-operator:1.0.6-openshift'
+            operatorPackageVersion = "1.0.1"
+        }
+        azureAks {
+            clusterNodeCount = 3
+            clusterNodeVmSize = 3
+            kubernetesVersion = '1.20'
+            location = '...'
+            name = 'azure-aks-test-cluster'
+            skipExisting = false
+        }
+    }
+}
+```
+
+### AWS Openshift profile
+
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|apiServerURL|Mandatory|-|The URL to your OpenShift cluster server API|
+|host|Mandatory|-|The public host on which cluster will be available to interact with. Basically it is your OpenShift router URL.|
+|keystorePassphrase|Optional|test123|Keystore password to encrypt sensitive information in CIs|
+|name|Mandatory|-|The name of your cluster.|
+|operatorImage|Optional|xebialabs/deploy-operator:1.2.0-openshift|The image of operator which is going to be used to install the Deploy cluster|
+|operatorPackageVersion|Optional|1.0.0|We deploy operator with help of Deploy, this is a version which will be used as a application package version.|
+|oauthHostName|Mandatory|-|OAuth host name of your OpenShift cluster. It is used to get a new token based on your credentials. This token is required to interact with OpenShift cluster.|
+|repositoryKeystore|Optional|Provided|Keystore to encrypt sensitive information in CIs|
+|storageClass|Optional|aws-efs|You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.|
+
+### Azure EKS profile
+
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|clusterNodeCount||||
+|clusterNodeVmSize||||
+|host|Mandatory|-|The public host on which cluster will be available to interact with. Basically it is your OpenShift router URL.|
+|kubernetesVersion||||
+|keystorePassphrase|Optional|test123|Keystore password to encrypt sensitive information in CIs|
+|location||||
+|name|Mandatory|-|The name of your cluster.|
+|operatorImage|Optional|xebialabs/deploy-operator:1.2.0-openshift|The image of operator which is going to be used to install the Deploy cluster|
+|operatorPackageVersion|Optional|1.0.0|We deploy operator with help of Deploy, this is a version which will be used as a application package version.|
+|repositoryKeystore|Optional|Provided|Keystore to encrypt sensitive information in CIs|
+|skipExisting||||
+|storageClass|Optional|aws-efs|You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.|
 
 ## Servers section
 
