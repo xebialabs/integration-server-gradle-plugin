@@ -76,7 +76,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         undeployCis()
 
         project.logger.lifecycle("Delete all PVCs")
-        getKubectlHelper().deleteAllPvcs()
+        getKubectlHelper().deleteAllPVCs()
 
         ocLogout()
     }

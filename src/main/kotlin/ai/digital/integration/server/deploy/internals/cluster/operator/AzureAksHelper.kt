@@ -2,13 +2,11 @@ package ai.digital.integration.server.deploy.internals.cluster.operator
 
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AzureAksProvider
-import ai.digital.integration.server.common.util.FileUtil
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
-import java.nio.file.Paths
 
 open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
@@ -59,7 +57,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         undeployCis()
 
         project.logger.lifecycle("Delete all PVCs")
-        getKubectlHelper().deleteAllPvcs()
+        getKubectlHelper().deleteAllPVCs()
 
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
         deleteResourceGroup(groupName, location)

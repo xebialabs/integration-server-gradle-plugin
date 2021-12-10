@@ -51,7 +51,7 @@ open class OnPremHelper(project: Project): OperatorHelper(project) {
         undeployCis()
 
         project.logger.lifecycle("Delete all PVCs")
-        getKubectlHelper().deleteAllPvcs()
+        getKubectlHelper().deleteAllPVCs()
 
         project.logger.lifecycle("Delete minikube cluster {} ", clusterName)
         deleteCluster(name)
