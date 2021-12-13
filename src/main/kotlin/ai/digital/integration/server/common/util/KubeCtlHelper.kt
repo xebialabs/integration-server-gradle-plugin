@@ -47,7 +47,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         return result.contains(storageClass)
     }
 
-    fun getCurrentContextInfo(): InfrastructureInfo {
+    fun getCurrentContextInfo(skip:Boolean = false): InfrastructureInfo {
         val context = getCurrentContext()
         val cluster = getContextCluster(context)
         val user = getContextUser(context)
@@ -56,8 +56,8 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
             user,
             getClusterServer(cluster),
             getClusterCertificateAuthorityData(cluster),
-            getUserClientCertificateData(user),
-            getUserClientKeyData(user)
+            if(!skip) getUserClientCertificateData(user) else null,
+            if(!skip) getUserClientKeyData(user) else null
         )
         project.logger.lifecycle("kubeContextInfo {}", info)
         return info
@@ -127,7 +127,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
             "{.users[?(@.name == \"$userName\")].user.client-key}")
 
 
-    private fun getUserClientCertificateData(userName: String) =
+    private fun getUserClientCertificateData(userName: String): String =
         configView("{.users[?(@.name == \"$userName\")].user.client-certificate-data}",
             "{.users[?(@.name == \"$userName\")].user.client-certificate}")
 

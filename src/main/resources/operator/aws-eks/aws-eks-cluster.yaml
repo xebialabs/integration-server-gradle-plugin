@@ -17,6 +17,14 @@ Parameters:
     Type: String
     Description: "Unique identifier for the Node Group."
     Default: "deploy-operator-cluster-nodegroup"
+  NodeDesiredSize:
+    Type: Number
+    Description: "Node Count desired size."
+    Default: "4"
+  KubernetesVersion:
+    Type: Number
+    Description: "Kubernetes version."
+    Default: "1.20"
 Mappings:
   PartitionMap:
     aws:
@@ -200,7 +208,7 @@ Resources:
         Ec2SshKey: !Sub ${KeyName}
       ScalingConfig:
         MinSize: 2
-        DesiredSize: 4
+        DesiredSize: !Sub ${NodeDesiredSize}
         MaxSize: 8
       Labels:
         Key1: Value1
@@ -208,7 +216,7 @@ Resources:
       Subnets:
         - Ref: subnetA
         - Ref: subnetB
-      Version: "1.20"
+      Version: !Sub ${KubernetesVersion}
 
 Outputs:
   VPCID:

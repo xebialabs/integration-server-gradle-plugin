@@ -36,4 +36,7 @@ open class AwsEksProvider @Inject constructor(project: Project) : Provider(proje
     @Input
     val accessSecret = project.objects.property<String>()
 
+    @Input
+    val skipExisting = project.objects.property<Boolean>().value(true)
+
 }
