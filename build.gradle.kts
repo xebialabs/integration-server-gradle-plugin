@@ -68,6 +68,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${properties["kotlin"]}")
     implementation("org.jetbrains.kotlin:kotlin-reflect:${properties["kotlin"]}")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${properties["kotlin"]}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${properties["coroutinesVersion"]}")
     implementation("org.postgresql:postgresql:${properties["driverVersions.postgres"]}")
 
 

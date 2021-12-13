@@ -37,12 +37,14 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         updateCrValues()
 
         applyYamlFiles()
+        turnOnLogging()
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()
 
         createClusterMetadata()
         waitForBoot()
+        turnOffLogging()
     }
 
     fun shutdownCluster() {

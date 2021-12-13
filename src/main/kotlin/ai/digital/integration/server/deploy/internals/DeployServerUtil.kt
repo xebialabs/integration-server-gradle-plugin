@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.internals
 
+import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import org.gradle.api.Project
@@ -88,6 +89,13 @@ class DeployServerUtil {
             return !getServer(project).dockerImage.isNullOrBlank()
         }
 
+        fun getCluster(project: Project): Cluster {
+            return DeployExtensionUtil.getExtension(project).cluster.get()
+        }
+
+        fun isClusterEnabled(project: Project): Boolean {
+            return getCluster(project).enable
+        }
 
         private fun getServerVersion(project: Project, server: Server): String? {
             return if (!server.version.isNullOrBlank()) {
@@ -137,7 +145,9 @@ class DeployServerUtil {
 
         fun getLogDir(project: Project): File {
             val server = getServer(project)
-            return Paths.get(getServerWorkingDir(project, server), "log").toFile()
+            val logDir = Paths.get(getServerWorkingDir(project, server), "log").toFile()
+            logDir.mkdirs()
+            return logDir
         }
 
         fun getConfDir(project: Project): File {
@@ -157,7 +167,7 @@ class DeployServerUtil {
 
         fun waitForBoot(project: Project, process: Process?, auxiliaryServer: Boolean = false) {
             fun saveLogs() {
-                if (isDockerBased(project)) {
+                if (isDockerBased(project) || isClusterEnabled(project)) {
                     saveServerLogsToFile(project, "deploy-${getServer(project).version}")
                 }
             }
@@ -173,7 +183,6 @@ class DeployServerUtil {
         private fun saveServerLogsToFile(project: Project, containerName: String) {
             val logContent = DockerUtil.dockerLogs(project, containerName)
             val logDir = getLogDir(project)
-            logDir.mkdirs()
             File(logDir, "$containerName.log").writeText(logContent, StandardCharsets.UTF_8)
         }
 
@@ -247,6 +256,13 @@ class DeployServerUtil {
             serverTemplate.writeText(configuredTemplate)
 
             return resultComposeFilePath
+        }
+
+        fun runDockerBasedInstance(project: Project) {
+            project.exec {
+                executable = "docker-compose"
+                args = listOf("-f", getResolvedDockerFile(project).toFile().toString(), "up", "-d")
+            }
         }
     }
 }

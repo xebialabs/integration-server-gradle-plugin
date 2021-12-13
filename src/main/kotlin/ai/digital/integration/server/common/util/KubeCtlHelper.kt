@@ -1,8 +1,10 @@
 package ai.digital.integration.server.common.util
 
 import ai.digital.integration.server.common.domain.InfrastructureInfo
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.Project
 import java.io.File
+import java.nio.charset.StandardCharsets
 
 open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
@@ -30,6 +32,19 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
             Thread.sleep(1000)
         }
         return false
+    }
+
+    fun savePodLogs(podName: String) {
+        val name = if (podName.startsWith("pod/")) podName.substring(4) else podName
+        try {
+            val logContent = ProcessUtil.executeCommand(project,
+                command = "$command logs $name",
+                logOutput = false)
+            val logDir = DeployServerUtil.getLogDir(project)
+            File(logDir, "$name.log").writeText(logContent, StandardCharsets.UTF_8)
+        } catch (e: Exception) {
+            // ignore, if throws exception, it means that pod is still waiting to start
+        }
     }
 
     fun setDefaultStorageClass(oldDefaultStorageClass: String, newDefaultStorageClass: String) {
@@ -134,10 +149,5 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
     private fun getNameAndGrep(params: String, grepFor: String): String {
         return ProcessUtil.executeCommand(project,
             "$command get $params -o name | grep $grepFor", throwErrorOnFailure = false, logOutput = false)
-    }
-
-    private fun getWithPath(command: String, jsonpath: String): String {
-        return ProcessUtil.executeCommand(project,
-            "$command get $command -o \"jsonpath=$jsonpath\"")
     }
 }
