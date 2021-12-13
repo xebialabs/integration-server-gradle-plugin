@@ -53,6 +53,6 @@ open class StartDeployClusterTask : DefaultTask() {
     @TaskAction
     fun launch() {
         val profileName = DeployClusterUtil.getProfile(project)
-        project.logger.lifecycle("Deploy Cluster profile $profileName is about to start.")
+        project.logger.lifecycle("Deploy Cluster profile $profileName has started.")
     }
 }

@@ -189,7 +189,7 @@ clusterProfiles {
 |operatorImage|Optional|xebialabs/deploy-operator:1.2.0-openshift|The image of operator which is going to be used to install the Deploy cluster|
 |operatorPackageVersion|Optional|1.0.0|We deploy operator with help of Deploy, this is a version which will be used as a application package version.|
 |oauthHostName|Mandatory|-|OAuth host name of your OpenShift cluster. It is used to get a new token based on your credentials. This token is required to interact with OpenShift cluster.|
-|repositoryKeystore|Optional|<Provided>|Keystore to encrypt sensitive information in CIs|
+|repositoryKeystore|Optional|Provided|Keystore to encrypt sensitive information in CIs|
 |storageClass|Optional|aws-efs|You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.|
 
 ### Azure EKS profile
@@ -205,7 +205,7 @@ clusterProfiles {
 |name|Mandatory|-|The name of your cluster.|
 |operatorImage|Optional|xebialabs/deploy-operator:1.2.0-openshift|The image of operator which is going to be used to install the Deploy cluster|
 |operatorPackageVersion|Optional|1.0.0|We deploy operator with help of Deploy, this is a version which will be used as a application package version.|
-|repositoryKeystore|Optional|<Provided>|Keystore to encrypt sensitive information in CIs|
+|repositoryKeystore|Optional|Provided|Keystore to encrypt sensitive information in CIs|
 |skipExisting||||
 |storageClass|Optional|aws-efs|You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.|
 

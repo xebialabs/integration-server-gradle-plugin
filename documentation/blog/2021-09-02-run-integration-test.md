@@ -10,7 +10,7 @@ Documentation is applicable for a version **10.3.0-902.1243** or later.
 The version of the plugin contains not random values, but you can read it next way
 10.3.0 means that it works for Deploy 10.3.0
 
-After minus the information of the time when it was released: <br/>
+After the dash is the information about the time when it was released: <br/>
 902 - 2nd of September <br/>
 1020 - 10:20 AM <br/>
 
