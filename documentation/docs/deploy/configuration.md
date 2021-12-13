@@ -265,7 +265,7 @@ deployIntegrationServer {
            version = '10.2.2'
            yamlPatches = [
                'centralConfiguration/deploy-server.yaml': [
-                   'deploy.server.hostname': 'test.xebialabs.com',
+                   'deploy.server.aggregation-timeout': 5 seconds,
                    'deploy.server.label': 'XLD'
                ]
            ]     

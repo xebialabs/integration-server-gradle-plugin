@@ -45,10 +45,7 @@ open class CentralConfigurationTask : DefaultTask() {
 
         project.logger.lifecycle("Creating custom deploy-server.yaml")
 
-        val serverYaml: MutableMap<String, Any> = mutableMapOf(
-            "deploy.server.port" to HTTPUtil.findFreePort(),
-            "deploy.server.hostname" to "127.0.0.1"
-        )
+        val serverYaml: MutableMap<String, Any> = mutableMapOf()
 
         if (DeployServerUtil.isAkkaSecured(project)) {
             val secured = TlsUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
