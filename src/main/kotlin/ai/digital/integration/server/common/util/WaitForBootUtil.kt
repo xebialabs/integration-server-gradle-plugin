@@ -44,7 +44,8 @@ class WaitForBootUtil {
         fun byPort(
             project: Project, name: String, url: String, process: Process?,
             pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME,
-            pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES
+            pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES,
+            callback: () -> Unit = {}
         ) {
             project.logger.lifecycle("Waiting for $name to start on URL: $url.")
             var triesLeft = pingTotalTries
@@ -55,6 +56,7 @@ class WaitForBootUtil {
                     http.get(mutableMapOf<String, Any>())
                     success = true
                 } catch (ignored: Exception) {
+                    callback()
                 }
                 triesLeft = waitForNext(project, process, triesLeft, success, pingRetrySleepTime)
             }

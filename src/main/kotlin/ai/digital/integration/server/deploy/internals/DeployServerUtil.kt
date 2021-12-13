@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import org.gradle.api.Project
 import java.io.File
+import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -134,6 +135,11 @@ class DeployServerUtil {
             return Paths.get(getServerWorkingDir(project, server), "log").toFile()
         }
 
+        fun getLogDir(project: Project): File {
+            val server = getServer(project)
+            return Paths.get(getServerWorkingDir(project, server), "log").toFile()
+        }
+
         fun getConfDir(project: Project): File {
             val server = getServer(project)
             return Paths.get(getServerWorkingDir(project, server), "conf").toFile()
@@ -150,9 +156,25 @@ class DeployServerUtil {
         }
 
         fun waitForBoot(project: Project, process: Process?, auxiliaryServer: Boolean = false) {
+            fun saveLogs() {
+                if (isDockerBased(project)) {
+                    saveServerLogsToFile(project, "deploy-${getServer(project).version}")
+                }
+            }
+
             val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type", auxiliaryServer)
             val server = getServer(project)
-            WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries)
+            WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries) {
+                saveLogs()
+            }
+            saveLogs()
+        }
+
+        private fun saveServerLogsToFile(project: Project, containerName: String) {
+            val logContent = DockerUtil.dockerLogs(project, containerName)
+            val logDir = getLogDir(project)
+            logDir.mkdirs()
+            File(logDir, "$containerName.log").writeText(logContent, StandardCharsets.UTF_8)
         }
 
         fun startServerFromClasspath(project: Project): Process {
