@@ -13,6 +13,7 @@ open class OperatorBasedAwsEksDeployClusterStopTask : OperatorBasedStopTask() {
 
     init {
         group = PluginConstant.PLUGIN_GROUP
+        this.dependsOn(dependsOnTasks())
     }
 
     @TaskAction

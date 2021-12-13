@@ -2,13 +2,11 @@ package ai.digital.integration.server.deploy.internals.cluster.operator
 
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AzureAksProvider
-import ai.digital.integration.server.common.util.FileUtil
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
-import java.nio.file.Paths
 
 open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
@@ -55,16 +53,16 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val location = azureAksProvider.location.get()
         val clusterName = aksClusterName(name)
 
-        project.logger.lifecycle("Undeploy operator")
+        project.logger.lifecycle("Operator is being undeployed")
         undeployCis()
 
-        project.logger.lifecycle("Delete all PVCs")
-        getKubectlHelper().deleteAllPvcs()
+        project.logger.lifecycle("PVCs are being deleted")
+        getKubectlHelper().deleteAllPVCs()
 
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
         deleteResourceGroup(groupName, location)
 
-        project.logger.lifecycle("Delete current context")
+        project.logger.lifecycle("Current cluster context is being deleted")
         getKubectlHelper().deleteCurrentContext()
         logoutAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
     }
@@ -236,16 +234,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
     private fun aksClusterName(name: String): String {
         return name
-    }
-
-    private fun getTemplate(relativePath: String): File {
-        val file = File(relativePath)
-        val fileStream = {}::class.java.classLoader.getResourceAsStream(relativePath)
-        val resultComposeFilePath = Paths.get(getProviderWorkDir(), file.name)
-        fileStream?.let {
-            FileUtil.copyFile(it, resultComposeFilePath)
-        }
-        return resultComposeFilePath.toFile()
     }
 
     private fun diskStorageClassName(name: String): String {
