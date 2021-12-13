@@ -22,6 +22,9 @@ In the root file **build.gradle** of your project define a plugin dependency lik
 buildscript {
     repositories {
         mavenCentral()
+        maven { // Public repository of Digital.ai, for example from here served CLI
+            url 'https://nexus.xebialabs.com/nexus/content/repositories/digitalai-public'
+        }
         mavenLocal() // Optional, only required if you'll develop changes to the plugin.
     }
 
