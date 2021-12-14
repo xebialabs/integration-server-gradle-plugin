@@ -187,7 +187,9 @@ clusterProfiles {
 }
 ```
 
-### AWS Openshift profile `activeProviderName = "aws-openshift"`
+### AWS Openshift profile 
+
+`activeProviderName = "aws-openshift"`
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
@@ -201,13 +203,15 @@ clusterProfiles {
 |repositoryKeystore|Optional|Provided|Keystore to encrypt sensitive information in CIs|
 |storageClass|Optional|aws-efs|You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.|
 
-### Azure EKS profile `activeProviderName = "azure-aks"`
+### Azure EKS profile 
+
+`activeProviderName = "azure-aks"`
 
 |          Name          |   Type    |             Default Value             |                                                  Description                                                   |
 |:----------------------:|:---------:|:-------------------------------------:|:--------------------------------------------------------------------------------------------------------------:|
 |       azUsername       | Mandatory |                   -                   |                                  Azure username to be used with az cli tool.                                   |
 |       azPassword       | Mandatory |                   -                   |                                  Azure password to be used with az cli tool.                                   |
-|    clusterNodeCount    | Optional  |                   2                   |                  Number of the nodes that will be created during cluster creation on Azuere.                   |
+|    clusterNodeCount    | Optional  |                   2                   |                   Number of the nodes that will be created during cluster creation on Azure.                   |
 |   clusterNodeVmSize    | Optional  | Standard_DS2_v2 (Azure default value) |                                          Node VM size named on Azure.                                          |
 |   kubernetesVersion    | Optional  |     Default Azure version is 1.20     |                      The kubernetes version that will be custom string for each provider.                      |
 |        location        | Mandatory |                   -                   |                 The Azure location that represents geo location where cluster will be running.                 |
@@ -218,7 +222,9 @@ clusterProfiles {
 |      storageClass      | Optional  |                   -                   |         Storage class prefix. On Azure with prefix are created new classes for file and disk storage.          |
 
 
-### Onprem Minikube profile `activeProviderName = "onprem"`
+### Onprem Minikube profile 
+
+`activeProviderName = "onprem"`
 
 |          Name          |   Type    |              Default Value               |                                                  Description                                                   |
 |:----------------------:|:---------:|:----------------------------------------:|:--------------------------------------------------------------------------------------------------------------:|
