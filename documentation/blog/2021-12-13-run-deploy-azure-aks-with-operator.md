@@ -1,5 +1,5 @@
 ---
-title: How to run a Deploy Cluster on Aws OpenShift setup with help of operator 
+title: How to run a Deploy Cluster on Azure AKS setup with help of operator 
 tags: [cluster-operator]
 ---
 
@@ -11,14 +11,12 @@ Documentation is applicable for a version **10.4.0-1209.942** or later.
 
 There are a couple of prerequisites which have to be performed in order to run the automation.
 You have to:
-* [create a cluster itself on AWS OpenShift](https://docs.openshift.com/rosa/rosa_getting_started/rosa-creating-cluster.html).
-* [install oc on your machine](https://docs.openshift.com/container-platform/4.2/cli_reference/openshift_cli/getting-started-cli.html). 
+* You should install [Azure CLI locally](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 * add to your `~/.gradle/properties` 2 values:
 ```shell script
-ocLogin=...
-ocPassword=... 
+azUsername=...
+azPassword=... 
 ```
-* [create EFS class storage](https://docs.openshift.com/container-platform/4.2/storage/persistent_storage/persistent-storage-efs.html)
 
 ## How the full flow works
 
@@ -27,7 +25,7 @@ ocPassword=...
 * Installing [XL CLI](https://docs.xebialabs.com/v.10.3/deploy/how-to/install-the-xl-cli/) to apply YAML files 
 * Verifying that deployment was successful and all required resources were created in kubernetes. If something went wrong, you'll be notified about it in logs.
 
-You can also check this [documentation](https://xebialabs.github.io/xl-deploy-kubernetes-operator/docs/manual/openshift) for 
+You can also check this [operator Azure AKS documentation](https://xebialabs.github.io/xl-deploy-kubernetes-operator/docs/manual/azure-aks) for 
 more information.
 
 All of this is automated and can be triggered by `./gradlew clean :core:startIntegrationServer --stacktrace` with the configuration that is similar
@@ -59,14 +57,12 @@ deployIntegrationServer {
     }
     clusterProfiles {
         operator {
-            activeProviderName = "aws-openshift"
-            awsOpenshift {
-                apiServerURL = 'https://api.yourhost.lnfl.p1.openshiftapps.com:6443'
-                host = 'router-default.apps.yourhost.lnfl.p1.openshiftapps.com'
-                name = 'aws-openshift-test-cluster'
-                oauthHostName = "oauth-openshift.apps.yourhost.lnfl.p1.openshiftapps.com"
-                operatorImage = 'acierto/deploy-operator:1.0.6-openshift'
-                operatorPackageVersion = "1.0.1"
+            activeProviderName = "azure-aks"
+            azureAks {
+                name = 'azure-aks-test-cluster'
+                clusterNodeCount = 3
+                clusterNodeVmSize = 'Standard_DS2_v2'
+                location = 'northcentralus'
             }
         }
     }
@@ -76,9 +72,13 @@ deployIntegrationServer {
             pingRetrySleepTime = 10
             pingTotalTries = 120
             version = "${xlDeployTrialVersion}"
+            overlays = [
+                    conf: [
+                            fileTree(dir: "$rootDir/config/conf", includes: ["*.*"])
+                    ],
+            ]
         }
         server02 {
-
         }
     }
     workers {
@@ -92,7 +92,8 @@ deployIntegrationServer {
 ```
 
 The cluster will be created with amount of servers and workers specified in the configuration. For this case,
- it will create 2 masters and 2 workers. The final URL to connect to UI is: `router-default.apps.yourhost.lnfl.p1.openshiftapps.com`.
- In case if you want to update the operator and use your own, you can change `operatorImage`. As you can see from this 
- example, that's exactly what happened. `acierto/deploy-operator:1.0.6-openshift` is not the official operator.
- Information about `apiServerURL`, `host` and `oauthHostName` you should check in your OpenShift Cluster console. 
+ it will create 2 masters and 2 workers. The final URL to connect to UI is: 
+ `http://azure-aks-test-cluster.northcentralus.cloudapp.azure.com/xl-deploy/#/explorer` (composed of operator provider name and location).
+In case if you want to update the operator and use your own, you can change `operatorImage`. 
+Cluster will create with 3 cluster nodes with default node-vm-size `Standard_DS2_v2` with 7GiB and 2vCPU. 
+The location of the cluster will be `northcentralus`, check with `az account list-locations` for other location.

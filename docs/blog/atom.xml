@@ -2,11 +2,25 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xebialabs.github.io/integration-server-gradle-plugin/blog</id>
     <title>Integration Server Blog</title>
-    <updated>2021-12-10T00:00:00.000Z</updated>
+    <updated>2021-12-13T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xebialabs.github.io/integration-server-gradle-plugin/blog"/>
     <subtitle>Integration Server Blog</subtitle>
     <icon>https://xebialabs.github.io/integration-server-gradle-plugin/img/digital_ai_deploy.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[How to run a Deploy Cluster on Azure AKS setup with help of operator]]></title>
+        <id>How to run a Deploy Cluster on Azure AKS setup with help of operator</id>
+        <link href="https://xebialabs.github.io/integration-server-gradle-plugin/blog/2021/12/13/run-deploy-azure-aks-with-operator"/>
+        <updated>2021-12-13T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Requirements]]></summary>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[How to run a Deploy Cluster on Minikube local setup with help of operator]]></title>
+        <id>How to run a Deploy Cluster on Minikube local setup with help of operator</id>
+        <link href="https://xebialabs.github.io/integration-server-gradle-plugin/blog/2021/12/13/run-deploy-minikube-with-operator"/>
+        <updated>2021-12-13T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Requirements]]></summary>
+    </entry>
     <entry>
         <title type="html"><![CDATA[How to run a Deploy Cluster on Aws OpenShift setup with help of operator]]></title>
         <id>How to run a Deploy Cluster on Aws OpenShift setup with help of operator</id>
