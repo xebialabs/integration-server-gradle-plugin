@@ -2,10 +2,10 @@ package ai.digital.integration.server.deploy.tasks.cluster.operator.onprem
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.cluster.operator.OnPremHelper
-import org.gradle.api.DefaultTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedOnPremStopDeployClusterTask : DefaultTask() {
+open class OperatorBasedOnPremStopDeployClusterTask : OperatorBasedStopTask() {
 
     companion object {
         const val NAME = "operatorBasedOnPremStopDeployCluster"
@@ -13,6 +13,7 @@ open class OperatorBasedOnPremStopDeployClusterTask : DefaultTask() {
 
     init {
         group = PluginConstant.PLUGIN_GROUP
+        dependsOn(dependsOnTasks())
     }
 
     @TaskAction

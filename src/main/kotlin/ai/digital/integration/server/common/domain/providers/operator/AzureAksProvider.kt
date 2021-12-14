@@ -7,11 +7,25 @@ import javax.inject.Inject
 
 
 @Suppress("UnstableApiUsage")
-open class AzureAksProvider @Inject constructor(project: Project) : Provider {
-    @Input
-    val name = project.objects.property<String>()
+open class AzureAksProvider @Inject constructor(val project: Project) : Provider(project) {
 
     @Input
-    val host = project.objects.property<String>()
+    val clusterNodeCount = project.objects.property<Int>().value(2)
+
+    @Input
+    val clusterNodeVmSize = project.objects.property<String>()
+
+    @Input
+    val kubernetesVersion = project.objects.property<String>()
+
+    @Input
+    val location = project.objects.property<String>().value("germanywestcentral")
+
+    @Input
+    val skipExisting = project.objects.property<Boolean>().value(true)
+
+    fun getAzUsername(): String = project.property("azUsername").toString()
+
+    fun getAzPassword(): String = project.property("azPassword").toString()
 }
 

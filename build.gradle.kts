@@ -10,7 +10,7 @@ buildscript {
 
 plugins {
     kotlin("jvm") version "1.4.20"
-    `kotlin-dsl`
+    `kotlin-dsl-base`
 
     id("com.github.node-gradle.node") version "3.1.0"
     id("idea")
@@ -57,6 +57,7 @@ dependencies {
     implementation("commons-io:commons-io:${properties["commonsIOVersion"]}")
     implementation("com.palantir.gradle.docker:gradle-docker:${properties["dockerPluginVersion"]}")
     implementation("de.vandermeer:asciitable:${properties["asciitableVersion"]}")
+    implementation("org.jsoup:jsoup:${properties["jsoupVersion"]}")
     implementation("mysql:mysql-connector-java:${properties["driverVersions.mysql"]}")
     implementation("net.jodah:failsafe:${properties["failsafeVersion"]}")
     implementation("org.codehaus.groovy.modules.http-builder:http-builder:${properties["httpBuilderVersion"]}") {
@@ -67,6 +68,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${properties["kotlin"]}")
     implementation("org.jetbrains.kotlin:kotlin-reflect:${properties["kotlin"]}")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${properties["kotlin"]}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${properties["coroutinesVersion"]}")
     implementation("org.postgresql:postgresql:${properties["driverVersions.postgres"]}")
 
 
@@ -89,7 +91,7 @@ tasks.named<Test>("test") {
 if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     publishing {
         publications {
-            register("mavenJava", MavenPublication::class) {
+            register("pluginMaven", MavenPublication::class) {
                 from(components["java"])
 
                 groupId = "com.xebialabs.gradle.plugins"
@@ -163,7 +165,7 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
     }
 
     signing {
-        sign(publishing.publications["mavenJava"])
+        sign(publishing.publications["pluginMaven"])
     }
 
     nexusPublishing {
@@ -177,7 +179,7 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
 } else {
     publishing {
         publications {
-            register("mavenJava", MavenPublication::class) {
+            register("pluginMaven", MavenPublication::class) {
                 from(components["java"])
             }
         }

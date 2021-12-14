@@ -6,10 +6,17 @@ import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
-open class OnPremiseProvider @Inject constructor(project: Project) : Provider {
-    @Input
-    val name = project.objects.property<String>()
+open class OnPremiseProvider @Inject constructor(project: Project) : Provider(project) {
 
     @Input
-    val host = project.objects.property<String>()
+    val clusterNodeMemory = project.objects.property<Int>()
+
+    @Input
+    val clusterNodeCpus = project.objects.property<Int>()
+
+    @Input
+    val kubernetesVersion = project.objects.property<String>().value("1.20.0")
+
+    @Input
+    val skipExisting = project.objects.property<Boolean>().value(true)
 }

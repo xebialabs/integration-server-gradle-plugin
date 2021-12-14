@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.domain.DbParameters
 import ai.digital.integration.server.common.util.HTTPUtil.Companion.findFreePort
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import com.fasterxml.jackson.core.TreeNode
+import com.fasterxml.jackson.databind.node.TextNode
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.io.InputStream
@@ -58,6 +59,16 @@ class DbUtil {
         fun dbConfig(project: Project): TreeNode? {
             val from = dbConfigStream(project)
             return if (from != null) YamlFileUtil.readTree(from) else null
+        }
+
+        fun getDbPropValue(project: Project, propName: String): String {
+            val dbConfig = dbConfig(project)
+
+            dbConfig?.let { config ->
+                return (config.get("xl.repository").get("database").get(propName) as TextNode).textValue()
+            }
+
+            return ""
         }
 
         private fun enrichDatabase(project: Project, database: Database): Database {

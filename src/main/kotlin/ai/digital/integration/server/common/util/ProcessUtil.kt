@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.TimeUnit
 
 class ProcessUtil {
     companion object {
@@ -96,23 +97,75 @@ class ProcessUtil {
             }
         }
 
-        fun executeCommand(project: Project, command: String): String {
-            val process: Process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
+        fun executeCommand(
+            command: String,
+            workDir: File? = null,
+            logOutput: Boolean = true,
+            throwErrorOnFailure: Boolean = true,
+            waitTimeoutSeconds: Long = 10
+        ): String {
+            return executeCommand(null, command, workDir, logOutput, throwErrorOnFailure, waitTimeoutSeconds)
+        }
+
+        fun executeCommand(
+            project: Project?, command: String,
+            workDir: File? = null,
+            logOutput: Boolean = true,
+            throwErrorOnFailure: Boolean = true,
+            waitTimeoutSeconds: Long = 10
+        ): String {
+            fun print(msg: String, error: Boolean = false) {
+                if (project != null && msg.isNotEmpty() && logOutput) {
+                    if (error) {
+                        project.logger.error(msg)
+                    } else {
+                        project.logger.lifecycle(msg)
+                    }
+                }
+            }
+
+            val execCommand = arrayOf("sh", "-c", command)
+            val process: Process =
+                if (workDir != null)
+                    Runtime.getRuntime().exec(execCommand, null, workDir)
+                else
+                    Runtime.getRuntime().exec(execCommand)
 
             val stdInput = BufferedReader(InputStreamReader(process.inputStream))
             val stdError = BufferedReader(InputStreamReader(process.errorStream))
 
-            var s: String?
-            while (stdInput.readLine().also { s = it } != null) {
-                project.logger.lifecycle(s)
-                return s.toString()
+            print("About to execute `$command`")
+
+            val input = readLines(stdInput) { line -> print(line) }
+            val error = readLines(stdError) { line -> print(line, true) }
+
+            if (process.waitFor(waitTimeoutSeconds, TimeUnit.SECONDS)) {
+                if (throwErrorOnFailure && process.exitValue() != 0) {
+                    throw RuntimeException("Process '$command' failed with exit value ${process.exitValue()}: $error")
+                }
+            } else if (throwErrorOnFailure) {
+                throw RuntimeException("Process '$command' not finished")
             }
 
-            while (stdError.readLine().also { s = it } != null) {
-                project.logger.lifecycle(s)
-                return s.toString()
+            return if (error == "") {
+                input
+            } else {
+                input + System.lineSeparator() + error
             }
-            return ""
+        }
+
+        private fun readLines(reader: BufferedReader, lineHandler: (String) -> Unit): String {
+            var result = ""
+            var line = ""
+            while (reader.readLine().also { if (it != null) line = it } != null) {
+                line.also {
+                    if (result != "")
+                        result += System.lineSeparator()
+                    result += it
+                }
+                lineHandler(line)
+            }
+            return result
         }
     }
 }

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[8600],{509:function(e){e.exports=JSON.parse('{"allTagsPath":"/integration-server-gradle-plugin/blog/tags","slug":"/integration-server-gradle-plugin/blog/tags/kube-scanning-tests","name":"kube-scanning-tests","count":1,"permalink":"/integration-server-gradle-plugin/blog/tags/kube-scanning-tests"}')}}]);

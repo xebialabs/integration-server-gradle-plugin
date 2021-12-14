@@ -1,8 +1,9 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
+import ai.digital.integration.server.common.domain.providers.operator.Provider
 import org.gradle.api.Project
 
-open class AwsEksHelper(val project: Project) {
+open class AwsEksHelper(project: Project): OperatorHelper(project) {
 
     fun launchCluster() {
 
@@ -10,6 +11,14 @@ open class AwsEksHelper(val project: Project) {
 
     fun shutdownCluster() {
 
+    }
+
+    override fun getProviderHomeDir(): String {
+        return "${getOperatorHomeDir()}/deploy-operator-aws-eks"
+    }
+
+    override fun getProvider(): Provider {
+        return getProfile().awsEks
     }
 
 }

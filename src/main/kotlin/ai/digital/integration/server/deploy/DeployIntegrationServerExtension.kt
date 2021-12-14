@@ -1,10 +1,9 @@
 package ai.digital.integration.server.deploy
 
+import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.domain.*
+import ai.digital.integration.server.common.domain.profiles.*
 import ai.digital.integration.server.common.domain.profiles.DefaultProfileContainer
-import ai.digital.integration.server.common.domain.profiles.OperatorProfile
-import ai.digital.integration.server.common.domain.profiles.Profile
-import ai.digital.integration.server.common.domain.profiles.ProfileContainer
 import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.deploy.domain.Satellite
 import ai.digital.integration.server.deploy.domain.Worker
@@ -53,7 +52,19 @@ open class DeployIntegrationServerExtension(
 
     val clusterProfiles: ProfileContainer =
         DefaultProfileContainer(project.container(Profile::class) { name ->
-            project.objects.newInstance(OperatorProfile::class, name, project)
+            when (name) {
+                ClusterProfileName.DOCKER_COMPOSE.profileName ->
+                    project.objects.newInstance(DockerComposeProfile::class, project)
+                ClusterProfileName.OPERATOR.profileName ->
+                    project.objects.newInstance(OperatorProfile::class, name, project)
+                ClusterProfileName.TERRAFORM.profileName ->
+                    project.objects.newInstance(TerraformProfile::class, name, project)
+                else ->
+                    throw IllegalArgumentException("Profile name `$name` is not supported. Choose one of ${
+                        ClusterProfileName.values().joinToString { profileEnum -> profileEnum.profileName }
+                    }")
+            }
+
         })
 
     fun providers(closure: Closure<NamedDomainObjectContainer<Provider>>) {
@@ -75,4 +86,8 @@ open class DeployIntegrationServerExtension(
     val maintenance = project.objects.property<Maintenance>().value(Maintenance(project.objects))
 
     fun maintenance(action: Action<in Maintenance>) = action.execute(maintenance.get())
+
+    val kubeScanner = project.objects.property<KubeScanner>().value(KubeScanner(project.objects))
+
+    fun kubeScanner(action: Action<in KubeScanner>) = action.execute(kubeScanner.get())
 }

@@ -16,8 +16,14 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
     @Input
     val activeProviderName = project.objects.property<String>().value(OperatorProviderName.ON_PREMISE.providerName)
 
+    @Input
+    val deploymentTimeoutSeconds = project.objects.property<Int>().value(900)
+
+    @Input
+    val xlCliVersion = project.objects.property<String>().value("10.2.3")
+
     val awsOpenshift: AwsOpenshiftProvider =
-        DefaultOperatorProviderContainer(project.container(Provider::class) { name ->
+        DefaultOperatorProviderContainer(project.container(Provider::class) {
             project.objects.newInstance(AwsOpenshiftProvider::class, project)
         }, project).awsOpenshift()
 
@@ -26,38 +32,38 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
     }
 
     val awsEks: AwsEksProvider =
-        DefaultOperatorProviderContainer(project.container(Provider::class) { name ->
+        DefaultOperatorProviderContainer(project.container(Provider::class) {
             project.objects.newInstance(AwsEksProvider::class, project)
         }, project).awsEks()
 
     fun awsEks(action: Action<in AwsEksProvider>) = action.execute(awsEks)
 
-    val azureAks: OperatorProviderContainer =
-        DefaultOperatorProviderContainer(project.container(Provider::class) { name ->
-            project.objects.newInstance(AzureAksProvider::class, name, project)
-        }, project)
+    val azureAks: AzureAksProvider =
+        DefaultOperatorProviderContainer(project.container(Provider::class) {
+            project.objects.newInstance(AzureAksProvider::class, project)
+        }, project).azureAks()
 
-    fun azureAks(action: Action<in OperatorProviderContainer>) = action.execute(azureAks)
+    fun azureAks(action: Action<in AzureAksProvider>) = action.execute(azureAks)
 
-    val gcpGke: OperatorProviderContainer =
-        DefaultOperatorProviderContainer(project.container(Provider::class) { name ->
-            project.objects.newInstance(AzureAksProvider::class, name, project)
-        }, project)
+    val gcpGke: GcpGkeProvider =
+        DefaultOperatorProviderContainer(project.container(Provider::class) {
+            project.objects.newInstance(GcpGkeProvider::class, project)
+        }, project).gcpGke()
 
-    fun gcpGke(action: Action<in OperatorProviderContainer>) = action.execute(gcpGke)
+    fun gcpGke(action: Action<in GcpGkeProvider>) = action.execute(gcpGke)
 
-    val onPremise: OperatorProviderContainer =
-        DefaultOperatorProviderContainer(project.container(Provider::class) { name ->
-            project.objects.newInstance(AzureAksProvider::class, name, project)
-        }, project)
+    val onPremise: OnPremiseProvider =
+        DefaultOperatorProviderContainer(project.container(Provider::class) {
+            project.objects.newInstance(OnPremiseProvider::class, project)
+        }, project).onPremise()
 
-    fun onPremise(action: Action<in OperatorProviderContainer>) = action.execute(onPremise)
+    fun onPremise(action: Action<in OnPremiseProvider>) = action.execute(onPremise)
 
-    val vmwareOpenshift: OperatorProviderContainer =
-        DefaultOperatorProviderContainer(project.container(Provider::class) { name ->
-            project.objects.newInstance(AzureAksProvider::class, name, project)
-        }, project)
+    val vmwareOpenshift: VmwareOpenshiftProvider =
+        DefaultOperatorProviderContainer(project.container(Provider::class) {
+            project.objects.newInstance(VmwareOpenshiftProvider::class, project)
+        }, project).vmwareOpenshift()
 
-    fun vmwareOpenshift(action: Action<in OperatorProviderContainer>) = action.execute(vmwareOpenshift)
+    fun vmwareOpenshift(action: Action<in VmwareOpenshiftProvider>) = action.execute(vmwareOpenshift)
 
 }

@@ -7,10 +7,10 @@ import javax.inject.Inject
 
 
 @Suppress("UnstableApiUsage")
-open class AwsOpenshiftProvider @Inject constructor(project: Project) : Provider {
+open class AwsOpenshiftProvider @Inject constructor(project: Project) : Provider(project) {
     @Input
-    val name = project.objects.property<String>()
+    val apiServerURL = project.objects.property<String>()
 
     @Input
-    val host = project.objects.property<String>()
+    val oauthHostName = project.objects.property<String>()
 }

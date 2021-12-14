@@ -2,10 +2,10 @@ package ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.cluster.operator.GcpGkeHelper
-import org.gradle.api.DefaultTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedGcpGkeStartDeployClusterTask : DefaultTask() {
+open class OperatorBasedGcpGkeStartDeployClusterTask : OperatorBasedStartTask() {
 
     companion object {
         const val NAME = "operatorBasedGcpGkeStartDeployCluster"
@@ -13,6 +13,7 @@ open class OperatorBasedGcpGkeStartDeployClusterTask : DefaultTask() {
 
     init {
         group = PluginConstant.PLUGIN_GROUP
+        this.dependsOn(dependsOnTasks())
     }
 
     @TaskAction

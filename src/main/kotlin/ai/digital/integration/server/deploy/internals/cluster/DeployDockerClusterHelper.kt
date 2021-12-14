@@ -1,6 +1,5 @@
 package ai.digital.integration.server.deploy.internals.cluster
 
-import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.DockerComposeProfile
 import ai.digital.integration.server.common.util.*
@@ -12,6 +11,7 @@ import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.RetryPolicy
 import org.gradle.api.Project
+import org.gradle.process.internal.ExecException
 import java.io.File
 import java.nio.file.Path
 import java.time.temporal.ChronoUnit
@@ -35,23 +35,14 @@ open class DeployDockerClusterHelper(val project: Project) {
     private val workerToIp = mutableMapOf<Int, String>()
     private var lbIp: String? = null
 
-    private fun getCluster(): Cluster {
-        return DeployExtensionUtil.getExtension(project).cluster.get()
-    }
-
     private fun getProfile(): DockerComposeProfile {
-        // return DeployExtensionUtil.getExtension(project).clusterProfiles.get().dockerCompose TODO
-        return DockerComposeProfile(project)
+        return DeployExtensionUtil.getExtension(project).clusterProfiles.dockerCompose()
     }
 
     private fun getClusterVersion(): String? {
         val server = getServers().first()
         // Worker should be of the same version as server, otherwise it won't start.
         return server.version
-    }
-
-    fun isClusterEnabled(): Boolean {
-        return getCluster().enable
     }
 
     private fun getServers(): List<Server> {
@@ -91,7 +82,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     fun getClusterPublicPort(): String {
-        return getCluster().publicPort.toString()
+        return DeployServerUtil.getCluster(project).publicPort.toString()
     }
 
     private fun createClusterMetadata() {
@@ -140,11 +131,11 @@ open class DeployDockerClusterHelper(val project: Project) {
     private fun openDebugPort(template: File, serviceName: String, range: String) {
 
         fun getServiceOpts(): String {
-            val suspend = if (getCluster().debugSuspend) "y" else "n"
+            val suspend = if (DeployServerUtil.getCluster(project).debugSuspend) "y" else "n"
             return "DEPLOYIT_SERVER_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=${suspend},address=*:$privateDebugPort"
         }
 
-        if (getCluster().enableDebug) {
+        if (DeployServerUtil.getCluster(project).enableDebug) {
             val variables = getEnvironmentVariables(template, serviceName)
             variables.add(getServiceOpts())
             variables.sort()
@@ -154,6 +145,7 @@ open class DeployDockerClusterHelper(val project: Project) {
                 "services.$serviceName.ports" to listOf("$range:$privateDebugPort")
             )
             YamlFileUtil.overlayFile(template, pairs)
+            fixDockerComposeVersion(template)
         }
     }
 
@@ -171,6 +163,15 @@ open class DeployDockerClusterHelper(val project: Project) {
         }
         val pairs = mutableMapOf<String, Any>("services.xl-deploy-worker.command" to commandArgs)
         YamlFileUtil.overlayFile(template, pairs)
+        fixDockerComposeVersion(template)
+    }
+
+    private fun fixDockerComposeVersion(template: File) {
+        // fix for docker-compose version
+        val fixedTemplate = template.readText(Charsets.UTF_8)
+            .replace("version: 3.4", "version: \"3.4\"")
+
+        template.writeText(fixedTemplate)
     }
 
     private fun getTemplate(path: String): File {
@@ -264,9 +265,16 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun getMasterIp(order: Int): String {
-        return DockerUtil.inspect(project,
-            "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
-            "cluster_xl-deploy-master_${order}")
+        try {
+            return DockerUtil.inspect(project,
+                "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
+                "cluster_xl-deploy-master_${order}")
+        } catch (e: ExecException) {
+            // fallback in naming
+            return DockerUtil.inspect(project,
+                "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
+                "cluster-xl-deploy-master-${order}")
+        }
     }
 
     fun shutdownCluster() {
