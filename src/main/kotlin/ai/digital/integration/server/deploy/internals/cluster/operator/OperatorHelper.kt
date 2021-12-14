@@ -9,7 +9,10 @@ import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Files
@@ -210,6 +213,11 @@ abstract class OperatorHelper(val project: Project) {
                 "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
                 "spec.rabbitmq.persistence.size" to "1Gi",
                 "spec.rabbitmq.replicaCount" to 1,
+                "spec.rabbitmq.extraConfiguration" to
+                        listOf(
+                            "load_definitions = /app/xld-load_definition.json",
+                            "raft.wal_max_size_bytes = 1048576"
+                        ).joinToString(separator = "\n", postfix = "\n"),
                 "spec.rabbitmq.persistence.replicaCount" to 1,
                 "spec.route.hosts" to arrayOf(getHost()),
                 "spec.xldLicense" to getLicense())
