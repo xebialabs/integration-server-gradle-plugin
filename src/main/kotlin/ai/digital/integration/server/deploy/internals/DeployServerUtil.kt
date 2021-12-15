@@ -1,9 +1,11 @@
 package ai.digital.integration.server.deploy.internals
 
+import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import org.gradle.api.Project
 import java.io.File
+import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -21,11 +23,15 @@ class DeployServerUtil {
         }
 
         fun getServer(project: Project): Server {
-            return enrichServer(project, DeployExtensionUtil.getExtension(project).servers.first { server -> !server.previousInstallation})
+            return enrichServer(project,
+                DeployExtensionUtil.getExtension(project).servers.first { server -> !server.previousInstallation })
         }
 
         fun getServers(project: Project): List<Server> {
-            return DeployExtensionUtil.getExtension(project).servers.map { server: Server -> enrichServer(project, server) }
+            return DeployExtensionUtil.getExtension(project).servers.map { server: Server ->
+                enrichServer(project,
+                    server)
+            }
         }
 
         fun getPreviousInstallationServer(project: Project): Server {
@@ -38,14 +44,13 @@ class DeployServerUtil {
 
         private fun enrichServer(project: Project, server: Server): Server {
             server.debugPort = getDebugPort(project, server)
-            if (server.previousInstallation) {
-                server.httpPort = getHttpPort(project, server)
-            } else {
-                server.version = getServerVersion(project, server)
-                if (isPreviousInstallationServerDefined(project)) {
-                    server.httpPort = getPreviousInstallationServer(project).httpPort
-                }
+            server.httpPort = getHttpPort(project, server)
+            server.version = getServerVersion(project, server)
+
+            if (isPreviousInstallationServerDefined(project)) {
+                server.httpPort = getPreviousInstallationServer(project).httpPort
             }
+
             server.dockerImage?.let {
                 server.runtimeDirectory = null
             }
@@ -84,6 +89,13 @@ class DeployServerUtil {
             return !getServer(project).dockerImage.isNullOrBlank()
         }
 
+        fun getCluster(project: Project): Cluster {
+            return DeployExtensionUtil.getExtension(project).cluster.get()
+        }
+
+        fun isClusterEnabled(project: Project): Boolean {
+            return getCluster(project).enable
+        }
 
         private fun getServerVersion(project: Project, server: Server): String? {
             return if (!server.version.isNullOrBlank()) {
@@ -131,6 +143,18 @@ class DeployServerUtil {
             return Paths.get(getServerWorkingDir(project, server), "log").toFile()
         }
 
+        fun getLogDir(project: Project): File {
+            val server = getServer(project)
+            val logDir = Paths.get(getServerWorkingDir(project, server), "log").toFile()
+            logDir.mkdirs()
+            return logDir
+        }
+
+        fun getConfDir(project: Project): File {
+            val server = getServer(project)
+            return Paths.get(getServerWorkingDir(project, server), "conf").toFile()
+        }
+
         fun grantPermissionsToIntegrationServerFolder(project: Project) {
             if (isDockerBased(project)) {
                 val workDir = IntegrationServerUtil.getDist(project)
@@ -141,10 +165,25 @@ class DeployServerUtil {
             }
         }
 
-        fun waitForBoot(project: Project, process: Process?) {
-            val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type")
+        fun waitForBoot(project: Project, process: Process?, auxiliaryServer: Boolean = false) {
+            fun saveLogs() {
+                if (isDockerBased(project) || isClusterEnabled(project)) {
+                    saveServerLogsToFile(project, "deploy-${getServer(project).version}")
+                }
+            }
+
+            val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type", auxiliaryServer)
             val server = getServer(project)
-            WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries)
+            WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries) {
+                saveLogs()
+            }
+            saveLogs()
+        }
+
+        private fun saveServerLogsToFile(project: Project, containerName: String) {
+            val logContent = DockerUtil.dockerLogs(project, containerName)
+            val logDir = getLogDir(project)
+            File(logDir, "$containerName.log").writeText(logContent, StandardCharsets.UTF_8)
         }
 
         fun startServerFromClasspath(project: Project): Process {
@@ -168,7 +207,7 @@ class DeployServerUtil {
                 "jvmArgs" to jvmArgs,
                 "mainClass" to "com.xebialabs.deployit.DeployitBootstrapper",
                 "programArgs" to listOf("-force-upgrades"),
-                "workDir" to File(getServerWorkingDir(project)),
+                "workDir" to File(getServerWorkingDir(project))
             )
 
             server.stdoutFileName?.let {
@@ -207,16 +246,23 @@ class DeployServerUtil {
             val serverTemplate = resultComposeFilePath.toFile()
 
             val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-                .replace("DEPLOY_SERVER_HTTP_PORT", server.httpPort.toString())
-                .replace("DEPLOY_IMAGE_VERSION", getDockerImageVersion(project))
+                .replace("{{DEPLOY_SERVER_HTTP_PORT}}", server.httpPort.toString())
+                .replace("{{DEPLOY_IMAGE_VERSION}}", getDockerImageVersion(project))
                 .replace(
-                    "DEPLOY_PLUGINS_TO_EXCLUDE",
+                    "{{DEPLOY_PLUGINS_TO_EXCLUDE}}",
                     server.defaultOfficialPluginsToExclude.joinToString(separator = ",")
                 )
-                .replace("DEPLOY_VERSION", server.version.toString())
+                .replace("{{DEPLOY_VERSION}}", server.version.toString())
             serverTemplate.writeText(configuredTemplate)
 
             return resultComposeFilePath
+        }
+
+        fun runDockerBasedInstance(project: Project) {
+            project.exec {
+                executable = "docker-compose"
+                args = listOf("-f", getResolvedDockerFile(project).toFile().toString(), "up", "-d")
+            }
         }
     }
 }

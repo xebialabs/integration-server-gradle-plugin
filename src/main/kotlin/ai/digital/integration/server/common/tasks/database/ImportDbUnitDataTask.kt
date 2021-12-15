@@ -3,10 +3,10 @@ package ai.digital.integration.server.common.tasks.database
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.util.DbConfigurationUtil
 import ai.digital.integration.server.common.util.DbUtil
+import ai.digital.integration.server.common.util.IntegrationServerUtil
 import ai.digital.integration.server.common.util.PostgresDbUtil
-import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractDbUnitDataDistTask
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
-import com.fasterxml.jackson.databind.node.TextNode
+import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractDbUnitDataDistTask
 import org.dbunit.dataset.xml.FlatXmlDataSet
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import org.dbunit.operation.DatabaseOperation
@@ -29,20 +29,10 @@ open class ImportDbUnitDataTask : DefaultTask() {
         }
     }
 
-    private fun getDbPropValue(propName: String): String {
-        val dbConfig = DbUtil.dbConfig(project)
-
-        dbConfig?.let { config ->
-            return (config.get("xl.repository").get("database").get(propName) as TextNode).textValue()
-        }
-
-        return ""
-    }
-
     private fun getConfiguration(): Triple<String, String, String> {
-        val username = getDbPropValue("db-username")
-        val password = getDbPropValue("db-password")
-        val url = getDbPropValue("db-url")
+        val username = DbUtil.getDbPropValue(project, "db-username")
+        val password = DbUtil.getDbPropValue(project, "db-password")
+        val url = DbUtil.getDbPropValue(project, "db-url")
 
         return Triple(username, password, url)
     }
@@ -51,10 +41,8 @@ open class ImportDbUnitDataTask : DefaultTask() {
         val provider = FlatXmlDataSetBuilder()
         provider.isColumnSensing = true
         provider.isCaseSensitiveTableNames = true
-        val destinationDir =
-            project.buildDir.toPath().resolve(PluginConstant.DIST_DESTINATION_NAME).toAbsolutePath().toString()
         val version = DeployExtensionUtil.getExtension(project).xldIsDataVersion
-        val dataFile = Paths.get("${destinationDir}/xld-is-data-${version}-repository/data.xml")
+        val dataFile = Paths.get("${IntegrationServerUtil.getDist(project)}/xld-is-data-${version}-repository/data.xml")
         return provider.build(FileInputStream(dataFile.toFile()))
     }
 

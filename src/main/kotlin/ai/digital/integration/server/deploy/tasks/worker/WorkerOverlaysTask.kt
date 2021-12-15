@@ -37,6 +37,7 @@ open class WorkerOverlaysTask : DefaultTask() {
         this.onlyIf {
             WorkerUtil.hasWorkers(project)
         }
+        val currentTask = this
 
         project.afterEvaluate {
             WorkerUtil.getWorkers(project).forEach { worker ->
@@ -51,7 +52,7 @@ open class WorkerOverlaysTask : DefaultTask() {
                 } else {
                     worker.overlays.forEach { overlay ->
                         OverlaysUtil.defineOverlay(project,
-                            this,
+                            currentTask,
                             WorkerUtil.getWorkerWorkingDir(project, worker),
                             PREFIX,
                             overlay,

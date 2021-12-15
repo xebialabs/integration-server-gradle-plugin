@@ -1,7 +1,6 @@
 package ai.digital.integration.server.deploy.domain
 
 open class Satellite(val name: String) {
-
     var akkaStreamingPort: Int = 8480
     var debugPort: Int? = null
     var debugSuspend: Boolean = false

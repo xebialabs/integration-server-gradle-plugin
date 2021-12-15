@@ -17,8 +17,8 @@ open class StartReleaseIntegrationServerTask : DefaultTask() {
 
     private fun start(): Process? {
         project.exec {
-            it.executable = "docker-compose"
-            it.args = listOf("-f", ReleaseServerUtil.getResolvedDockerFile(project).toFile().toString(), "up", "-d")
+            executable = "docker-compose"
+            args = listOf("-f", ReleaseServerUtil.getResolvedDockerFile(project).toFile().toString(), "up", "-d")
         }
         return null
     }

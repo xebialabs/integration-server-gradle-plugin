@@ -3,7 +3,7 @@ xl.repository:
     root: build/artifacts
   database:
     db-driver-classname: "org.apache.derby.client.ClientAutoloadedDriver"
-    db-url: "jdbc:derby://localhost:1527/xldrepo;create=true;user=admin;password=admin"
+    db-url: "jdbc:derby://localhost:{{DB_PORT}}/xldrepo;create=true;user=admin;password=admin"
     db-username: "admin"
     db-password: "admin"
     leak-detection-threshold: 2 minutes

@@ -5,7 +5,7 @@ import groovy.lang.Closure
 import org.gradle.api.NamedDomainObjectContainer
 
 open class ReleaseIntegrationServerExtension(
-    val servers: NamedDomainObjectContainer<Server>,
+    val servers: NamedDomainObjectContainer<Server>
 ) {
 
     fun servers(closure: Closure<NamedDomainObjectContainer<Server>>) {

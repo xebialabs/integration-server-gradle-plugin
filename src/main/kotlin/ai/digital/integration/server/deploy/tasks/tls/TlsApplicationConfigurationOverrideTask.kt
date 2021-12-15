@@ -27,32 +27,32 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
             getTls(project, getServerWorkingDir(project))?.let { tls ->
 
                 val genKeyStore = project.tasks.register("tls${KeytoolGenKeyTask.NAME.capitalize()}", KeytoolGenKeyTask::class.java) {
-                    it.keyname = Tls.KEY_NAME
-                    it.type = Tls.KEYSTORE_TYPE
-                    it.typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
-                    it.workDir = tls.confWorkDir()
-                    it.keypass = tls.keyPassword
-                    it.storepass = tls.keyStorePassword
+                    keyname = Tls.KEY_NAME
+                    type = Tls.KEYSTORE_TYPE
+                    typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
+                    workDir = tls.confWorkDir()
+                    keypass = tls.keyPassword
+                    storepass = tls.keyStorePassword
                 }
 
                 val genCert = project.tasks.register("tls${KeytoolExportKeyToCertTask.NAME.capitalize()}", KeytoolExportKeyToCertTask::class.java) {
-                    it.keyname = Tls.KEY_NAME
-                    it.type = Tls.KEYSTORE_TYPE
-                    it.typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
-                    it.workDir = tls.confWorkDir()
-                    it.keypass = tls.keyPassword
-                    it.storepass = tls.keyStorePassword
+                    keyname = Tls.KEY_NAME
+                    type = Tls.KEYSTORE_TYPE
+                    typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
+                    workDir = tls.confWorkDir()
+                    keypass = tls.keyPassword
+                    storepass = tls.keyStorePassword
                 }
                 project.tasks.getByName(genCert.name).dependsOn(genKeyStore)
 
                 val genTrustStore = project.tasks.register("tls${KeytoolImportKeyToTruststoreTask.NAME.capitalize()}", KeytoolImportKeyToTruststoreTask::class.java) {
-                    it.keyname = Tls.KEY_NAME
-                    it.type = Tls.KEYSTORE_TYPE
-                    it.typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
-                    it.truststore = tls.trustStoreName
-                    it.workDir = tls.confWorkDir()
-                    it.keypass = tls.keyPassword
-                    it.storepass = tls.truststorePassword
+                    keyname = Tls.KEY_NAME
+                    type = Tls.KEYSTORE_TYPE
+                    typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
+                    truststore = tls.trustStoreName
+                    workDir = tls.confWorkDir()
+                    keypass = tls.keyPassword
+                    storepass = tls.truststorePassword
                 }
                 project.tasks.getByName(genTrustStore.name).dependsOn(genCert)
                 dependsOn(genKeyStore, genCert, genTrustStore)

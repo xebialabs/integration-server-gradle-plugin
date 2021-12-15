@@ -48,7 +48,7 @@ open class StartSatelliteTask : DefaultTask() {
                 "redirectTo" to if (!satellite.stdoutFileName.isNullOrEmpty()) File("${
                     SatelliteUtil.getSatelliteLogDir(project,
                         satellite)
-                }/${satellite.stdoutFileName}") else null,
+                }/${satellite.stdoutFileName}") else null
             ))
             project.logger.lifecycle(
                 "Satellite '${satellite.name}' successfully started on PID [${process.pid()}] with command [${

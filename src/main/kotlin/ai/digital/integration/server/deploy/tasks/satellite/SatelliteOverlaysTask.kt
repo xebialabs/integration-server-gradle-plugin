@@ -15,11 +15,12 @@ open class SatelliteOverlaysTask : DefaultTask() {
     init {
         this.group = PLUGIN_GROUP
         this.mustRunAfter(DownloadAndExtractSatelliteDistTask.NAME)
+        val currentTask = this
 
         project.afterEvaluate {
             SatelliteUtil.getSatellites(project).forEach { satellite ->
                 satellite.overlays.forEach { overlay ->
-                    OverlaysUtil.defineOverlay(project, this,
+                    OverlaysUtil.defineOverlay(project, currentTask,
                         SatelliteUtil.getSatelliteWorkingDir(project, satellite),
                         PREFIX,
                         overlay,

@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.domain.DbParameters
 import ai.digital.integration.server.common.util.HTTPUtil.Companion.findFreePort
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import com.fasterxml.jackson.core.TreeNode
+import com.fasterxml.jackson.databind.node.TextNode
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.io.InputStream
@@ -23,7 +24,7 @@ class DbUtil {
         const val DERBY_NETWORK = "derby-network"
         const val DERBY_INMEMORY = "derby-inmemory"
 
-        private val randomDerbyPort: Int = findFreePort()
+        private val randomDatabasePort: Int = findFreePort()
 
         fun databaseName(project: Project): String {
             return PropertyUtil.resolveValue(project, "database", DERBY_INMEMORY).toString()
@@ -60,12 +61,22 @@ class DbUtil {
             return if (from != null) YamlFileUtil.readTree(from) else null
         }
 
+        fun getDbPropValue(project: Project, propName: String): String {
+            val dbConfig = dbConfig(project)
+
+            dbConfig?.let { config ->
+                return (config.get("xl.repository").get("database").get(propName) as TextNode).textValue()
+            }
+
+            return ""
+        }
+
         private fun enrichDatabase(project: Project, database: Database): Database {
-            database.derbyPort =
-                if (project.hasProperty("derbyPort"))
-                    Integer.valueOf(project.property("derbyPort").toString())
+            database.databasePort =
+                if (project.hasProperty("databasePort"))
+                    Integer.valueOf(project.property("databasePort").toString())
                 else
-                    randomDerbyPort
+                    randomDatabasePort
 
             database.logSql =
                 if (project.hasProperty("logSql"))
@@ -74,6 +85,10 @@ class DbUtil {
                     database.logSql
 
             return database
+        }
+
+        fun getPort(project: Project): Int {
+            return getDatabase(project).databasePort ?: randomDatabasePort
         }
 
         fun getDatabase(project: Project): Database {
@@ -152,6 +167,13 @@ class DbUtil {
                 else -> derbyNetworkParams
             }
 
+        }
+
+        fun getResolvedDBDockerComposeFile(resultComposeFilePath: Path, project: Project) {
+            val serverTemplate = resultComposeFilePath.toFile()
+            val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
+                .replace("{{DB_PORT}}", getPort(project).toString())
+            serverTemplate.writeText(configuredTemplate)
         }
     }
 }

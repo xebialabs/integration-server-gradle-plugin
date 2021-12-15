@@ -32,11 +32,9 @@ open class CentralConfigurationTask : DefaultTask() {
             YamlFileUtil.writeFileValue(deployRepositoryYaml, config)
         }
 
-        if (DbUtil.isDerbyNetwork(project)) {
-            val port = DbUtil.getDatabase(project).derbyPort
-            val dbUrl = "jdbc:derby://localhost:$port/xldrepo;create=true;user=admin;password=admin"
-            YamlFileUtil.overlayFile(deployRepositoryYaml, mutableMapOf("xl.repository.database.db-url" to dbUrl))
-        }
+        val configuredTemplate = deployRepositoryYaml.readText(Charsets.UTF_8)
+            .replace("{{DB_PORT}}", DbUtil.getPort(project).toString())
+        deployRepositoryYaml.writeText(configuredTemplate)
     }
 
     private fun createCentralConfigurationFiles(server: Server) {
@@ -64,14 +62,13 @@ open class CentralConfigurationTask : DefaultTask() {
                             "deploy.server.ssl.key-store" to key.keyStoreFile().absolutePath,
                             "deploy.server.ssl.key-store-password" to key.keyStorePassword,
                             "deploy.server.ssl.trust-store" to sec.trustStoreFile().absolutePath,
-                            "deploy.server.ssl.trust-store-password" to sec.truststorePassword,
+                            "deploy.server.ssl.trust-store-password" to sec.truststorePassword
                         ))
                     if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
                         serverYaml["deploy.server.ssl.key-password"] = key.keyPassword
                     }
                 }
             }
-
         }
 
         YamlFileUtil.overlayFile(

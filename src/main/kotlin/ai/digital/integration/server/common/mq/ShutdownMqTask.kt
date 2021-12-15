@@ -27,8 +27,8 @@ open class ShutdownMqTask : DefaultTask() {
         project.logger.lifecycle("Shutting down ${MqUtil.mqName(project)} MQ.")
 
         project.exec {
-            it.executable = "docker-compose"
-            it.args = arrayListOf("-f",
+            executable = "docker-compose"
+            args = arrayListOf("-f",
                 getDockerComposeFile().path,
                 "--project-directory",
                 MqUtil.getMqDirectory(project),

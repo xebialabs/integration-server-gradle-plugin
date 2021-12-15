@@ -77,9 +77,10 @@ class CliUtil {
             }
         }
 
-        fun executeScripts(project: Project, scriptSources: List<File>, label: String, secure: Boolean) {
+        fun executeScripts(project: Project, scriptSources: List<File>, label: String, secure: Boolean = false , deployPort: Int? = null,
+                           auxiliaryServer: Boolean = false) {
             if (scriptSources.isNotEmpty()) {
-                runScripts(project, scriptSources, label, secure, mapOf(), mapOf(), listOf())
+                runScripts(project, scriptSources, label, secure, mapOf(), mapOf(), listOf(), deployPort, auxiliaryServer)
             }
         }
 
@@ -88,7 +89,7 @@ class CliUtil {
             scriptSources: List<File>,
             label: String,
             secure: Boolean,
-            test: Test,
+            test: Test
         ) {
             runScripts(project,
                 scriptSources,
@@ -106,7 +107,9 @@ class CliUtil {
             secure: Boolean,
             extraEnvironments: Map<String, String>,
             extraParams: Map<String, String?>,
-            extraClassPath: List<File>,
+            extraClassPath: List<File> ,
+            deployPort: Int? = null,
+            auxiliaryServer: Boolean = false
         ) {
             val cli = getCli(project)
 
@@ -116,14 +119,14 @@ class CliUtil {
                 .flatten()
 
             val params = (arrayListOf(
-                "-context", EntryPointUrlUtil.getContextRoot(project),
+                "-context", EntryPointUrlUtil.getContextRoot(project, auxiliaryServer),
                 "-expose-proxies",
                 "-password", "admin",
-                "-port", EntryPointUrlUtil.getHttpPort(project),
-                "-host", EntryPointUrlUtil.getHttpHost(),
+                "-port", deployPort?.toString() ?: EntryPointUrlUtil.getHttpPort(project, auxiliaryServer),
+                "-host", EntryPointUrlUtil.getHttpHost(project, auxiliaryServer),
                 "-socketTimeout", cli.socketTimeout.toString(),
                 "-source", scriptSources.joinToString(separator = ",") { source -> source.absolutePath },
-                "-username", "admin",
+                "-username", "admin"
             ) + extraParamsAsList).toMutableList()
 
             if (DeployServerUtil.isTls(project) || secure) {

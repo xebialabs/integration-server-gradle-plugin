@@ -56,32 +56,32 @@ open class GenerateSecureAkkaKeysTask : DefaultTask() {
 
     private fun generateKey(name: String, keyPassword: String, keyStorePassword: String, akkaSecured: AkkaSecured): MutableList<TaskProvider<*>> {
         val genKeyStore = project.tasks.register("akkaSecure${name.capitalize()}${KeytoolGenKeyTask.NAME.capitalize()}", KeytoolGenKeyTask::class.java) {
-            it.keyname = name
-            it.type = AkkaSecured.KEYSTORE_TYPE
-            it.typeExtension = AkkaSecured.KEYSTORE_TYPE_EXTENSION
-            it.workDir = akkaSecured.confWorkDir()
-            it.keypass = keyPassword
-            it.storepass = keyStorePassword
+            keyname = name
+            type = AkkaSecured.KEYSTORE_TYPE
+            typeExtension = AkkaSecured.KEYSTORE_TYPE_EXTENSION
+            workDir = akkaSecured.confWorkDir()
+            keypass = keyPassword
+            storepass = keyStorePassword
         }
 
         val genCert = project.tasks.register("akkaSecure${name.capitalize()}${KeytoolExportKeyToCertTask.NAME.capitalize()}", KeytoolExportKeyToCertTask::class.java) {
-            it.keyname = name
-            it.type = AkkaSecured.KEYSTORE_TYPE
-            it.typeExtension = AkkaSecured.KEYSTORE_TYPE_EXTENSION
-            it.workDir = akkaSecured.confWorkDir()
-            it.keypass = keyPassword
-            it.storepass = keyStorePassword
+            keyname = name
+            type = AkkaSecured.KEYSTORE_TYPE
+            typeExtension = AkkaSecured.KEYSTORE_TYPE_EXTENSION
+            workDir = akkaSecured.confWorkDir()
+            keypass = keyPassword
+            storepass = keyStorePassword
         }
         project.tasks.getByName(genCert.name).dependsOn(genKeyStore)
 
         val genTrustStore = project.tasks.register("akkaSecure${name.capitalize()}${KeytoolImportKeyToTruststoreTask.NAME.capitalize()}", KeytoolImportKeyToTruststoreTask::class.java) {
-            it.keyname = name
-            it.type = AkkaSecured.KEYSTORE_TYPE
-            it.typeExtension = AkkaSecured.KEYSTORE_TYPE_EXTENSION
-            it.truststore = akkaSecured.trustStoreName
-            it.workDir = akkaSecured.confWorkDir()
-            it.keypass = keyPassword
-            it.storepass = akkaSecured.truststorePassword
+            keyname = name
+            type = AkkaSecured.KEYSTORE_TYPE
+            typeExtension = AkkaSecured.KEYSTORE_TYPE_EXTENSION
+            truststore = akkaSecured.trustStoreName
+            workDir = akkaSecured.confWorkDir()
+            keypass = keyPassword
+            storepass = akkaSecured.truststorePassword
         }
         project.tasks.getByName(genTrustStore.name).dependsOn(genCert)
 

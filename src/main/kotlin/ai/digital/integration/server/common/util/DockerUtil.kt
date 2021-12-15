@@ -13,17 +13,28 @@ class DockerUtil {
         fun inspect(project: Project, format: String, instanceId: String): String {
             val stdout = ByteArrayOutputStream()
             project.exec {
-                it.executable = "docker"
-                it.args = listOf(
+                executable = "docker"
+                args = listOf(
                     "inspect",
                     "-f",
                     format,
                     instanceId
                 )
-                it.standardOutput = stdout
+                standardOutput = stdout
             }
 
             return stdout.toString(StandardCharsets.UTF_8).trim()
+        }
+
+        private fun findContainerIdByName(project: Project, containerName: String): String {
+            val args = arrayListOf("ps", "-a", "-f", "name=$containerName", "--format", "{{.ID}}")
+            return execute(project, args, true).trim()
+        }
+
+        fun dockerLogs(project: Project, containerName: String): String {
+            val containerId = findContainerIdByName(project, containerName)
+            val args = arrayListOf("logs", containerId)
+            return execute(project, args, true)
         }
     }
 }

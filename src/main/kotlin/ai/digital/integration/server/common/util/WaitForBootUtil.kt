@@ -16,7 +16,7 @@ class WaitForBootUtil {
             name: String,
             url: String,
             pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME,
-            pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES,
+            pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES
         ) {
             byPort(project, name, url, null, pingRetrySleepTime, pingTotalTries)
         }
@@ -26,7 +26,7 @@ class WaitForBootUtil {
             process: Process?,
             triesLeft: Int,
             success: Boolean,
-            pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME,
+            pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME
         ): Int {
             if (!success) {
                 project.logger.lifecycle("Retrying after $pingRetrySleepTime second(s). ($triesLeft)")
@@ -45,6 +45,7 @@ class WaitForBootUtil {
             project: Project, name: String, url: String, process: Process?,
             pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME,
             pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES,
+            callback: () -> Unit = {}
         ) {
             project.logger.lifecycle("Waiting for $name to start on URL: $url.")
             var triesLeft = pingTotalTries
@@ -55,6 +56,7 @@ class WaitForBootUtil {
                     http.get(mutableMapOf<String, Any>())
                     success = true
                 } catch (ignored: Exception) {
+                    callback()
                 }
                 triesLeft = waitForNext(project, process, triesLeft, success, pingRetrySleepTime)
             }
@@ -70,7 +72,7 @@ class WaitForBootUtil {
             containsLine: String,
             process: Process?,
             pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME,
-            pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES,
+            pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES
         ) {
             project.logger.lifecycle("Waiting for $name to start with log: '$containsLine'.")
             var triesLeft = pingTotalTries

@@ -14,16 +14,16 @@ open class KeytoolGenKeyTask : KeytoolTask() {
     }
 
     @Input
-    private var ip = "127.0.0.1"
+    var ip = "127.0.0.1"
 
     @Input
-    private var dns = getHttpHost()
+    var dns = getHttpHost(project)
 
     @Input
-    private var validity: String = 360.toString()
+    var validity: String = 360.toString()
 
     @Input
-    private var keySize: String = 2048.toString()
+    var keySize: String = 2048.toString()
 
     @OutputFile
     override fun getOutputFile(): File {
@@ -36,7 +36,7 @@ open class KeytoolGenKeyTask : KeytoolTask() {
 
     init {
         this.doFirst {
-            this.params = listOf(
+            params = listOf(
                 "-genkey",
                 "-alias",
                 keyname!!,
