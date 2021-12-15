@@ -22,7 +22,8 @@ open class DeployDockerClusterHelper(val project: Project) {
     companion object {
         private const val clusterMetadataPath = "deploy/cluster/cluster-metadata.properties"
         private const val dockerXldHAPath = "deploy/cluster/docker-compose-xld-ha.yaml"
-        private const val dockerXldHAWithDbLoadbalancerPath = "deploy/cluster/cluster-with-db-loadbalancer/docker-compose-xld-ha-with-db-loadbalancer.yaml"
+        private const val dockerXldHAWithDbLoadbalancerPath =
+            "deploy/cluster/cluster-with-db-loadbalancer/docker-compose-xld-ha-with-db-loadbalancer.yaml"
         private const val dockerXldHAWithWorkersPath = "deploy/cluster/docker-compose-xld-ha-slim-workers.yaml"
         private const val rabbitMqEnabledPluginsPath = "deploy/cluster/rabbitmq/enabled_plugins"
         private const val privateDebugPort = 4005
@@ -46,12 +47,8 @@ open class DeployDockerClusterHelper(val project: Project) {
         return server.version
     }
 
-    fun isClusterEnabled(): Boolean {
-        return getCluster().enable
-    }
-
-    fun isDatabaseLoadBalancerEnabled(): Boolean {
-        return getCluster().enableDatabaseLoadBalancer
+    private fun isDatabaseLoadBalancerEnabled(): Boolean {
+        return DeployServerUtil.getCluster(project).enableDatabaseLoadBalancer
     }
 
     private fun getServers(): List<Server> {
@@ -111,7 +108,7 @@ open class DeployDockerClusterHelper(val project: Project) {
 
     private fun getResolvedXldHaDockerComposeFile(): Path {
         var template = getTemplate(dockerXldHAPath)
-        if (isDatabaseLoadBalancerEnabled()){
+        if (isDatabaseLoadBalancerEnabled()) {
             template = getTemplate(dockerXldHAWithDbLoadbalancerPath)
         }
         val serviceName = "xl-deploy-master"
@@ -287,7 +284,7 @@ open class DeployDockerClusterHelper(val project: Project) {
 
     private fun getMasterIp(order: Int): String {
         var masterContainerName = "cluster-xl-deploy-master-"
-        if (isDatabaseLoadBalancerEnabled()){
+        if (isDatabaseLoadBalancerEnabled()) {
             masterContainerName = "cluster-with-db-loadbalancer_xl-deploy-master_"
         }
         try {
