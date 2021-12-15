@@ -2,7 +2,6 @@ package ai.digital.integration.server.deploy.internals.cluster.operator
 
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AwsEksProvider
-import ai.digital.integration.server.common.util.FileUtil
 
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
@@ -10,7 +9,6 @@ import net.sf.json.JSONObject
 import net.sf.json.util.JSONTokener
 import org.gradle.api.Project
 import java.io.File
-import java.nio.file.Paths
 
 open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
@@ -18,16 +16,16 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         val awsEksProvider: AwsEksProvider = getProvider()
         val skipExisting = awsEksProvider.skipExisting.get()
 
+        configureAws(awsEksProvider)
         createSshKey(skipExisting)
         createCluster(skipExisting)
 
         updateKubeConfig()
-        checkClusterConnectivity()
+
         val kubeContextInfo = getKubectlHelper().getCurrentContextInfo(skip = true)
-        if (getStorageClass() == "aws-efs") createStorageClass(getStorageClass())
         updateInfrastructure(kubeContextInfo)
 
-
+        if (getStorageClass() == "aws-efs") createStorageClass(getStorageClass())
 
         updateControllerManager()
         updateOperatorDeployment()
@@ -45,9 +43,21 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         waitForBoot()
     }
 
+    private fun configureAws(awsEksProvider: AwsEksProvider) {
+        project.logger.lifecycle("Configure AWS access key and secret key")
+        ProcessUtil.executeCommand(project,
+                "aws configure set aws_access_key_id ${awsEksProvider.getAwsAccessKey()} --profile default",
+                logOutput = false,
+                throwErrorOnFailure = false)
+        ProcessUtil.executeCommand(project,
+                "aws configure set aws_secret_access_key ${awsEksProvider.getAwsSecretKey()} --profile default",
+                logOutput = false,
+                throwErrorOnFailure = false)
+    }
+
     private fun createSshKey(skipExisting: Boolean) {
         val shouldSkipExisting = if (skipExisting) {
-            existingKeyPair()
+            existingSshKeyPair()
         } else {
             false
         }
@@ -59,19 +69,27 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                     "aws --region ${getProvider().region.get()} " +
                             "ec2 create-key-pair " +
                             "--key-name ${getProvider().sshKeyName.get()}",
-                    logOutput = true)
+                    logOutput = true,
+                    throwErrorOnFailure = false)
 
         }
     }
 
-    private fun existingKeyPair(): Boolean {
-        val result = ProcessUtil.executeCommand(project, "aws  --region ${getProvider().region.get()} " +
-                "ec2 describe-key-pairs " +
-                "--key-names=${getProvider().sshKeyName.get()} " +
-                "--query 'KeyPairs[0].KeyName' " +
-                "--output text",
-                logOutput = true)
-        return result.contains(getProvider().sshKeyName.get())
+    private fun existingSshKeyPair(): Boolean {
+        val result: String = ProcessUtil.executeCommand(project,
+                "aws  --region ${getProvider().region.get()} " +
+                        "ec2 describe-key-pairs " +
+                        "--key-names=${getProvider().sshKeyName.get()} " +
+                        "--query 'KeyPairs[0].KeyName' " +
+                        "--output text",
+                logOutput = true,
+                throwErrorOnFailure = false)
+        if (result.contains("does not exist")) {
+            return false
+        } else if (result.contains(getProvider().sshKeyName.get())) {
+            return true
+        }
+        return false
     }
 
     private fun createCluster(skipExisting: Boolean) {
@@ -101,16 +119,15 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                             "ParameterKey=FileSystemName,ParameterValue=${awsEksProvider.fileSystemName.get()} " +
                             "ParameterKey=NodeDesiredSize,ParameterValue=${awsEksProvider.clusterNodeCount.get()} " +
                             "ParameterKey=KubernetesVersion,ParameterValue=${awsEksProvider.kubernetesVersion.get()} " +
-                            "ParameterKey=StorageClass,ParameterValue=${getStorageClass()} " +
                             "--on-failure DELETE " +
                             "--output text",
                     logOutput = true)
-            checkClusterStatus(1500000, 300000, stackId, "CREATE_COMPLETE")// delay time 25 mins and sleep time 5 mins
+            verifyClusterStatus(1500000, 300000, stackId, "CREATE_COMPLETE")// delay time 25 mins and sleep time 5 mins
         }
     }
 
     private fun existingStack(): Boolean {
-        val stackCheckStatusCmd = "aws --region ${getProvider().region.get()} " +
+        val stackStatusCmd = "aws --region ${getProvider().region.get()} " +
                 "cloudformation  describe-stacks" +
                 " --stack-name " +
                 "${getProvider().stack.get()} " +
@@ -118,7 +135,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                 "--output text"
 
         val result = ProcessUtil.executeCommand(project,
-                "$stackCheckStatusCmd",
+                "$stackStatusCmd",
                 logOutput = true,
                 throwErrorOnFailure = false)
         if (result == "CREATE_COMPLETE") {
@@ -130,56 +147,23 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
     }
 
 
-    private fun checkClusterStatus(totalTimeInSec: Int, sleepTime: Long, stackId: String, status: String) {
+    private fun verifyClusterStatus(totalTimeInSec: Int, sleepTime: Long, stackId: String, status: String) {
         val awsEksProvider: AwsEksProvider = getProvider()
         stackStatus(awsEksProvider, totalTimeInSec, sleepTime, stackId, status)
     }
 
     private fun stackStatus(awsEksProvider: AwsEksProvider, totalTimeInSec: Int, sleepTime: Long, stackId: String, status: String) {
-        val stackCheckStatusCmd = "aws --region ${awsEksProvider.region.get()} " +
+        val stackStatusCmd = "aws --region ${awsEksProvider.region.get()} " +
                 "cloudformation  list-stacks " +
                 "--query 'StackSummaries[?StackId==`$stackId`].StackStatus' " +
                 "--output text"
         val stackStatus = wait(status,
-                stackCheckStatusCmd,
+                stackStatusCmd,
                 "Stack",
                 totalTimeInSec,
                 sleepTime)
         if (!stackStatus) {
             throw RuntimeException("Resource STACK status is not $status")
-        }
-    }
-
-    private fun clusterStatus(awsEksProvider: AwsEksProvider) {
-        val clusterStatusCommand = "aws --region ${awsEksProvider.region.get()} " +
-                "eks describe-cluster " +
-                "--name ${awsEksProvider.clusterName.get()} " +
-                "--query 'cluster.status' " +
-                "--output text"
-
-        val clusterStatus = wait("ACTIVE",
-                clusterStatusCommand,
-                "Cluster")
-
-        if (!clusterStatus) {
-            throw RuntimeException("Cluster is not ACTIVE")
-        }
-    }
-
-    private fun nodeStatus(awsEksProvider: AwsEksProvider) {
-        val nodeGroupCommand = "aws --region ${awsEksProvider.region.get()} " +
-                "eks describe-nodegroup " +
-                "--cluster-name ${awsEksProvider.clusterName.get()} " +
-                "--nodegroup-name ${awsEksProvider.nodeGroupName.get()} " +
-                "--query 'nodegroup.status' " +
-                "--output text"
-
-        val nodeGroupStatus = wait("ACTIVE",
-                nodeGroupCommand,
-                "Cluster")
-
-        if (!nodeGroupStatus) {
-            throw RuntimeException("Node Group is not ACTIVE")
         }
     }
 
@@ -209,20 +193,32 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
     private fun createStorageClassEFS(storageClassName: String) {
         if (!getKubectlHelper().hasStorageClass(storageClassName)) {
             project.logger.lifecycle("Create storage class: {}", storageClassName)
-            val fileSystemId = ProcessUtil.executeCommand(project,
-                    "aws --region ${getProvider().region.get()} " +
-                            "cloudformation describe-stacks " +
-                            "--stack-name ${getProvider().stack.get()} " +
-                            "--query 'Stacks[0].Outputs[?OutputKey==`Filesystem`].OutputValue' " +
-                            "--output text")
-            ProcessUtil.executeCommand(project, "helm repo add stable https://charts.helm.sh/stable")
-            ProcessUtil.executeCommand(project, "helm install " +
-                    "$storageClassName stable/efs-provisioner " +
-                    "--set efsProvisioner.efsFileSystemId=${fileSystemId} " +
-                    "--set efsProvisioner.awsRegion=${getProvider().region.get()}")
+            val fileSystemId = getFileSystemId()
+            helmInstallAwsEfs(fileSystemId, storageClassName)
         } else {
             project.logger.lifecycle("Skipping creation of the existing storage class: {}", storageClassName)
         }
+    }
+
+    private fun helmInstallAwsEfs(fileSystemId: String, storageClassName: String) {
+        ProcessUtil.executeCommand(project, "helm repo add stable https://charts.helm.sh/stable", logOutput = false, throwErrorOnFailure = false)
+        ProcessUtil.executeCommand(project, "helm install " +
+                "$storageClassName stable/efs-provisioner " +
+                "--set efsProvisioner.efsFileSystemId=${fileSystemId} " +
+                "--set efsProvisioner.awsRegion=${getProvider().region.get()}",
+                logOutput = false,
+                throwErrorOnFailure = false)
+    }
+
+    private fun getFileSystemId(): String {
+        return ProcessUtil.executeCommand(project,
+                "aws --region ${getProvider().region.get()} " +
+                        "cloudformation describe-stacks " +
+                        "--stack-name ${getProvider().stack.get()} " +
+                        "--query 'Stacks[0].Outputs[?OutputKey==`Filesystem`].OutputValue' " +
+                        "--output text",
+                logOutput = false,
+                throwErrorOnFailure = false)
     }
 
     private fun updateKubeConfig() {
@@ -230,7 +226,8 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         ProcessUtil.executeCommand(project,
                 "aws eks --region ${awsEksProvider.region.get()} " +
                         "update-kubeconfig " +
-                        "--name ${awsEksProvider.clusterName.get()}")
+                        "--name ${awsEksProvider.clusterName.get()}",
+                throwErrorOnFailure = false)
     }
 
     private fun updateCrValues() {
@@ -241,32 +238,42 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
-    private fun checkClusterConnectivity() {
-        ProcessUtil.executeCommand(project,
-                "kubectl get node")
-    }
-
     private fun updateRoute53() {
         val templateFile = updateRoute53Json()
         val changeInfo = UpdateRoute53RecordSet(templateFile)
-        checkRoute53Status(changeInfo)
+        verifyRoute53Status(changeInfo)
     }
 
     private fun updateRoute53Json(): File {
         val awsRoute53TemplateFile = getTemplate("operator/aws-eks/aws-route53-record-update.json")
-        val hostname = ProcessUtil.executeCommand(project,
-                "kubectl get service dai-xld-nginx-ingress-controller -o=jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\"")
-        val hostZoneId = ProcessUtil.executeCommand(project,
-                "aws elb describe-load-balancers" +
-                        " --load-balancer-name " +
-                        "${hostname.substring(0, 32)} " +
-                        "--query LoadBalancerDescriptions[*].CanonicalHostedZoneNameID --output text")
+        val hostName = getHostName()
+        val hostZoneId = getHostZoneId(hostName)
 
         val awsRoute53Template = awsRoute53TemplateFile.readText(Charsets.UTF_8)
-                .replace("{{HOSTNAME}}", "dualstack.$hostname")
+                .replace("{{HOSTNAME}}", "dualstack.$hostName")
                 .replace("{{HOSTZONEID}}", hostZoneId)
+
         awsRoute53TemplateFile.writeText(awsRoute53Template)
         return awsRoute53TemplateFile
+    }
+
+    private fun getHostZoneId(hostName: String): String {
+        return ProcessUtil.executeCommand(project,
+                "aws elb describe-load-balancers" +
+                        " --load-balancer-name " +
+                        "${hostName.substring(0, 32)} " +
+                        "--query LoadBalancerDescriptions[*].CanonicalHostedZoneNameID --output text",
+                logOutput = false,
+                throwErrorOnFailure = false)
+    }
+
+    private fun getHostName(): String {
+        return ProcessUtil.executeCommand(project,
+                "kubectl get service" +
+                        " dai-xld-nginx-ingress-controller " +
+                        "-o=jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\"",
+                logOutput = false,
+                throwErrorOnFailure = false)
     }
 
     private fun UpdateRoute53RecordSet(awsRoute53TemplateFile: File): String {
@@ -274,10 +281,12 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                 "aws route53 " +
                         "change-resource-record-sets " +
                         "--hosted-zone-id Z0621108QZWN6SHNIF6I " +
-                        "--change-batch file://${awsRoute53TemplateFile}")
+                        "--change-batch file://${awsRoute53TemplateFile}",
+                logOutput = false,
+                throwErrorOnFailure = false)
     }
 
-    private fun checkRoute53Status(route53Change: String) {
+    private fun verifyRoute53Status(route53Change: String) {
         val route53ChangeId = JSONTokener(route53Change).nextValue() as JSONObject
         val changeInfo = route53ChangeId.get("ChangeInfo") as JSONObject
 
@@ -337,7 +346,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                             " cloudformation delete-stack " +
                             "--stack-name ${awsEksProvider.stack.get()} " +
                             "--output text")
-            checkClusterStatus(1500000, 300000, stackId, "DELETE_COMPLETE")
+            verifyClusterStatus(1500000, 300000, stackId, "DELETE_COMPLETE")
         }
     }
 
@@ -363,8 +372,8 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         val pairs = mutableMapOf<String, Any>(
                 "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,
                 "spec[0].children[0].caCert" to infraInfo.caCert!!,
-                "spec[0].children[0].accessKey" to awsEksProvider.accessKey.get(),
-                "spec[0].children[0].accessSecret" to awsEksProvider.accessSecret.get(),
+                "spec[0].children[0].accessKey" to awsEksProvider.getAwsAccessKey(),
+                "spec[0].children[0].accessSecret" to awsEksProvider.getAwsSecretKey(),
                 "spec[0].children[0].regionName" to awsEksProvider.region.get(),
                 "spec[0].children[0].clusterName" to awsEksProvider.clusterName.get()
         )
