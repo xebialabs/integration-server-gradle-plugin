@@ -1,7 +1,6 @@
 package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.DevOpsAsCode
-import ai.digital.integration.server.common.domain.Provider
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.Test
 import ai.digital.integration.server.deploy.DeployIntegrationServerExtension
@@ -27,16 +26,13 @@ class DeployExtensionUtil {
                 server.devOpsAsCodes = project.container(DevOpsAsCode::class.java)
             }
 
-            project.extensions.create(
-                DEPLOY_IS_EXTENSION_NAME,
+            project.extensions.create(DEPLOY_IS_EXTENSION_NAME,
                 DeployIntegrationServerExtension::class.java,
                 project,
                 project.container(Satellite::class.java),
                 servers,
                 project.container(Test::class.java),
-                project.container(Worker::class.java),
-                project.container(Provider::class.java)
-            )
+                project.container(Worker::class.java))
         }
 
         fun initialize(project: Project) {
@@ -46,21 +42,14 @@ class DeployExtensionUtil {
         }
 
         private fun getXldIsDataVersion(project: Project): String? {
-            return if (project.hasProperty("xldIsDataVersion"))
-                project.property("xldIsDataVersion").toString()
-            else
-                null
+            return if (project.hasProperty("xldIsDataVersion")) project.property("xldIsDataVersion").toString()
+            else null
         }
 
         @Suppress("UNCHECKED_CAST")
         private fun getMqDriverVersions(project: Project): MutableMap<String, String> {
-            return if (project.hasProperty("mqDriverVersions"))
-                project.property("mqDriverVersions") as MutableMap<String, String>
-            else
-                mutableMapOf(
-                    "activemq" to "5.16.2",
-                    "rabbitmq" to "2.2.0"
-                )
+            return if (project.hasProperty("mqDriverVersions")) project.property("mqDriverVersions") as MutableMap<String, String>
+            else mutableMapOf("activemq" to "5.16.2", "rabbitmq" to "2.2.0")
         }
     }
 }

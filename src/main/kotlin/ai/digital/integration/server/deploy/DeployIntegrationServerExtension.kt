@@ -22,8 +22,7 @@ open class DeployIntegrationServerExtension(
     val satellites: NamedDomainObjectContainer<Satellite>,
     val servers: NamedDomainObjectContainer<Server>,
     val tests: NamedDomainObjectContainer<Test>,
-    val workers: NamedDomainObjectContainer<Worker>,
-    val providers: NamedDomainObjectContainer<Provider>
+    val workers: NamedDomainObjectContainer<Worker>
 ) {
 
     var mqDriverVersions: MutableMap<String, String> = mutableMapOf()
@@ -66,10 +65,6 @@ open class DeployIntegrationServerExtension(
             }
 
         })
-
-    fun providers(closure: Closure<NamedDomainObjectContainer<Provider>>) {
-        providers.configure(closure)
-    }
 
     val cli = project.objects.property<Cli>().value(Cli(project.objects))
 
