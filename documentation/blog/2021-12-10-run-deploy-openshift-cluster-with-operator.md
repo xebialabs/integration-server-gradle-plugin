@@ -30,9 +30,10 @@ ocPassword=...
 You can also check this [documentation](https://xebialabs.github.io/xl-deploy-kubernetes-operator/docs/manual/openshift) for 
 more information.
 
-All of this is automated and can be triggered by `./gradlew clean :core:startIntegrationServer -PoperatorOpenshiftItest=true --stacktrace`.
+All of this is automated and can be triggered by `./gradlew clean :core:startIntegrationServer --stacktrace` with the configuration that is similar
+to the following example.
 
-When you would like to stop your cluster you can run `./gradlew  :core:shutdownIntegrationServer -PoperatorOpenshiftItest=true --stacktrace`.
+When you would like to stop your cluster you can run `./gradlew  :core:shutdownIntegrationServer --stacktrace`.
 It will undeploy all CIs, remove all deployed resources on kubernetes and clean all created PVC.
 
 ## Example

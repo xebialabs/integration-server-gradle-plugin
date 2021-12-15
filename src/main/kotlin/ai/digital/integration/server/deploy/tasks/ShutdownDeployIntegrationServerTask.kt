@@ -3,8 +3,10 @@ package ai.digital.integration.server.deploy.tasks
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.common.util.DbUtil
-import ai.digital.integration.server.deploy.internals.*
-import ai.digital.integration.server.deploy.internals.cluster.DeployDockerClusterHelper
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.SatelliteUtil
+import ai.digital.integration.server.deploy.internals.ShutdownUtil
+import ai.digital.integration.server.deploy.internals.WorkerUtil
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.satellite.ShutdownSatelliteTask
 import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
@@ -21,7 +23,7 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
     init {
         this.group = PLUGIN_GROUP
 
-        if (DeployDockerClusterHelper(project).isClusterEnabled()) {
+        if (DeployServerUtil.isClusterEnabled(project)) {
             this.dependsOn(StopDeployClusterTask.NAME)
         } else {
             if (DeployServerUtil.isDockerBased(project)) {

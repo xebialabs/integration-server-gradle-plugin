@@ -9,6 +9,10 @@ import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Files
@@ -34,23 +38,19 @@ const val XL_DIGITAL_AI_PATH = "digital-ai.yaml"
 @Suppress("UnstableApiUsage")
 abstract class OperatorHelper(val project: Project) {
 
+    var loggingJob: Job? = null
+
     companion object {
         private const val operatorMetadataPath = "deploy/operator/operator-metadata.properties"
 
         fun getOperatorHelper(project: Project): OperatorHelper {
             return when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
-                OperatorProviderName.AWS_EKS.providerName ->
-                    AwsEksHelper(project)
-                OperatorProviderName.AWS_OPENSHIFT.providerName ->
-                    AwsOpenshiftHelper(project)
-                OperatorProviderName.AZURE_AKS.providerName ->
-                    AzureAksHelper(project)
-                OperatorProviderName.GCP_GKE.providerName ->
-                    GcpGkeHelper(project)
-                OperatorProviderName.ON_PREMISE.providerName ->
-                    OnPremHelper(project)
-                OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
-                    VmwareOpenshiftHelper(project)
+                OperatorProviderName.AWS_EKS.providerName -> AwsEksHelper(project)
+                OperatorProviderName.AWS_OPENSHIFT.providerName -> AwsOpenshiftHelper(project)
+                OperatorProviderName.AZURE_AKS.providerName -> AzureAksHelper(project)
+                OperatorProviderName.GCP_GKE.providerName -> GcpGkeHelper(project)
+                OperatorProviderName.ON_PREMISE.providerName -> OnPremHelper(project)
+                OperatorProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftHelper(project)
                 else -> {
                     throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
                         OperatorProviderName.values().joinToString()
@@ -63,7 +63,7 @@ abstract class OperatorHelper(val project: Project) {
     fun getOperatorHomeDir(): String =
         project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
-    fun getProviderWorkDir(): String =
+    private fun getProviderWorkDir(): String =
         project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
 
     fun getProfile(): OperatorProfile {
@@ -73,9 +73,7 @@ abstract class OperatorHelper(val project: Project) {
     fun updateControllerManager() {
         project.logger.lifecycle("Updating operator's controller manager")
         val file = File(getProviderHomeDir(), CONTROLLER_MANAGER_REL_PATH)
-        val pairs = mutableMapOf<String, Any>(
-            "spec.template.spec.containers[1].image" to getOperatorImage()
-        )
+        val pairs = mutableMapOf<String, Any>("spec.template.spec.containers[1].image" to getOperatorImage())
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -83,9 +81,7 @@ abstract class OperatorHelper(val project: Project) {
         project.logger.lifecycle("Updating operator's applications")
 
         val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
-        val pairs = mutableMapOf<String, Any>(
-            "spec[0].children[0].name" to getProvider().operatorPackageVersion
-        )
+        val pairs = mutableMapOf<String, Any>("spec[0].children[0].name" to getProvider().operatorPackageVersion)
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -93,9 +89,8 @@ abstract class OperatorHelper(val project: Project) {
         project.logger.lifecycle("Updating operator's deployment")
 
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
-        val pairs = mutableMapOf<String, Any>(
-            "spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion}"
-        )
+        val pairs =
+            mutableMapOf<String, Any>("spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion}")
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -103,18 +98,35 @@ abstract class OperatorHelper(val project: Project) {
         project.logger.lifecycle("Updating operator's deployment CR")
 
         val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
-        val pairs = mutableMapOf<String, Any>(
-            "spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}"
-        )
+        val pairs =
+            mutableMapOf<String, Any>("spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}")
         YamlFileUtil.overlayFile(file, pairs)
     }
 
+    fun turnOnLogging() {
+        loggingJob = GlobalScope.launch {
+            repeat(1000) {
+                getKubectlHelper().savePodLogs(getPostgresPodName(0))
+                getKubectlHelper().savePodLogs(getRabbitMqPodName(0))
+                List(getMasterCount()) { position -> getMasterPodName(position) }.forEach {
+                    getKubectlHelper().savePodLogs(it)
+                }
+                List(getWorkerCount()) { position -> getWorkerPodName(position) }.forEach {
+                    getKubectlHelper().savePodLogs(it)
+                }
+                delay(2000L) // make it configurable
+            }
+        }
+    }
+
+    fun turnOffLogging() {
+        loggingJob?.cancel()
+    }
+
     fun waitForDeployment() {
-        val resources = if (hasIngress()) arrayOf(
-            "deployment.apps/xld-operator-controller-manager",
+        val resources = if (hasIngress()) arrayOf("deployment.apps/xld-operator-controller-manager",
             "deployment.apps/dai-xld-nginx-ingress-controller",
-            "deployment.apps/dai-xld-nginx-ingress-controller-default-backend"
-        ) else arrayOf("deployment.apps/xld-operator-controller-manager")
+            "deployment.apps/dai-xld-nginx-ingress-controller-default-backend") else arrayOf("deployment.apps/xld-operator-controller-manager")
 
         resources.forEach { resource ->
             if (!getKubectlHelper().wait(resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
@@ -183,28 +195,32 @@ abstract class OperatorHelper(val project: Project) {
         project.logger.lifecycle("Updating operator's CR values")
 
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
-        val pairs = mutableMapOf<String, Any>(
-            "spec.ImageRepository" to DeployServerUtil.getServer(project).dockerImage!!,
-            "spec.ImageTag" to DeployServerUtil.getServer(project).version!!,
-            "spec.XldMasterCount" to getMasterCount(),
-            "spec.XldWorkerCount" to getWorkerCount(),
-            "spec.Persistence.XldMasterPvcSize" to "1Gi",
-            "spec.Persistence.XldWorkerPvcSize" to "1Gi",
-            "spec.KeystorePassphrase" to getProvider().keystorePassphrase,
-            "spec.Persistence.StorageClass" to getStorageClass(),
-            "spec.RepositoryKeystore" to getProvider().repositoryKeystore,
-            "spec.postgresql.image.debug" to true,
-            "spec.postgresql.persistence.size" to "5Gi",
-            "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
-            "spec.rabbitmq.persistence.storageClass" to getMqStorageClass(),
-            "spec.rabbitmq.image.debug" to true,
-            "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
-            "spec.rabbitmq.persistence.size" to "1Gi",
-            "spec.rabbitmq.replicaCount" to 1,
-            "spec.rabbitmq.persistence.replicaCount" to 1,
-            "spec.route.hosts" to arrayOf(getHost()),
-            "spec.xldLicense" to getLicense()
-        )
+        val pairs =
+            mutableMapOf<String, Any>("spec.ImageRepository" to DeployServerUtil.getServer(project).dockerImage!!,
+                "spec.ImageTag" to DeployServerUtil.getServer(project).version!!,
+                "spec.XldMasterCount" to getMasterCount(),
+                "spec.XldWorkerCount" to getWorkerCount(),
+                "spec.Persistence.XldMasterPvcSize" to "1Gi",
+                "spec.Persistence.XldWorkerPvcSize" to "1Gi",
+                "spec.KeystorePassphrase" to getProvider().keystorePassphrase,
+                "spec.Persistence.StorageClass" to getStorageClass(),
+                "spec.RepositoryKeystore" to getProvider().repositoryKeystore,
+                "spec.postgresql.image.debug" to true,
+                "spec.postgresql.persistence.size" to "5Gi",
+                "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
+                "spec.rabbitmq.persistence.storageClass" to getStorageClass(),
+                "spec.rabbitmq.image.debug" to true,
+                "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
+                "spec.rabbitmq.persistence.size" to "1Gi",
+                "spec.rabbitmq.replicaCount" to 1,
+                "spec.rabbitmq.extraConfiguration" to
+                        listOf(
+                            "load_definitions = /app/xld-load_definition.json",
+                            "raft.wal_max_size_bytes = 1048576"
+                        ).joinToString(separator = "\n", postfix = "\n"),
+                "spec.rabbitmq.persistence.replicaCount" to 1,
+                "spec.route.hosts" to arrayOf(getHost()),
+                "spec.xldLicense" to getLicense())
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
@@ -270,6 +286,10 @@ abstract class OperatorHelper(val project: Project) {
     open fun getWorkerPodName(position: Int) = "pod/dai-xld-digitalai-deploy-worker-$position"
 
     open fun getMasterPodName(position: Int) = "pod/dai-xld-digitalai-deploy-master-$position"
+
+    open fun getPostgresPodName(position: Int) = "pod/dai-xld-postgresql-$position"
+
+    open fun getRabbitMqPodName(position: Int) = "pod/dai-xld-rabbitmq-$position"
 
     fun getTemplate(relativePath: String): File {
         val file = File(relativePath)

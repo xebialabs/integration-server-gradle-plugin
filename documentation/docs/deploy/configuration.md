@@ -168,17 +168,28 @@ clusterProfiles {
         }
         azureAks {
             clusterNodeCount = 3
-            clusterNodeVmSize = 3
+            clusterNodeVmSize = 'Standard_DS2_v2'
             kubernetesVersion = '1.20'
-            location = '...'
+            location = 'northcentralus'
             name = 'azure-aks-test-cluster'
+            skipExisting = false
+            azUsername = 'azure_username'
+            azPassword = 'secret'
+        }
+        onPremise {
+            name = 'onprem-test-cluster'
+            clusterNodeCpus = 4
+            clusterNodeMemory = 15000
+            kubernetesVersion = '1.20.0'
             skipExisting = false
         }
     }
 }
 ```
 
-### AWS Openshift profile
+### AWS Openshift profile 
+
+`activeProviderName = "aws-openshift"`
 
 |Name|Type|Default Value|Description|
 | :---: | :---: | :---: | :---: |
@@ -192,22 +203,39 @@ clusterProfiles {
 |repositoryKeystore|Optional|Provided|Keystore to encrypt sensitive information in CIs|
 |storageClass|Optional|aws-efs|You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.|
 
-### Azure EKS profile
+### Azure EKS profile 
 
-|Name|Type|Default Value|Description|
-| :---: | :---: | :---: | :---: |
-|clusterNodeCount||||
-|clusterNodeVmSize||||
-|host|Mandatory|-|The public host on which cluster will be available to interact with. Basically it is your OpenShift router URL.|
-|kubernetesVersion||||
-|keystorePassphrase|Optional|test123|Keystore password to encrypt sensitive information in CIs|
-|location||||
-|name|Mandatory|-|The name of your cluster.|
-|operatorImage|Optional|xebialabs/deploy-operator:1.2.0-openshift|The image of operator which is going to be used to install the Deploy cluster|
-|operatorPackageVersion|Optional|1.0.0|We deploy operator with help of Deploy, this is a version which will be used as a application package version.|
-|repositoryKeystore|Optional|Provided|Keystore to encrypt sensitive information in CIs|
-|skipExisting||||
-|storageClass|Optional|aws-efs|You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.|
+`activeProviderName = "azure-aks"`
+
+|          Name          |   Type    |             Default Value             |                                                  Description                                                   |
+|:----------------------:|:---------:|:-------------------------------------:|:--------------------------------------------------------------------------------------------------------------:|
+|       azUsername       | Mandatory |                   -                   |                                  Azure username to be used with az cli tool.                                   |
+|       azPassword       | Mandatory |                   -                   |                                  Azure password to be used with az cli tool.                                   |
+|    clusterNodeCount    | Optional  |                   2                   |                   Number of the nodes that will be created during cluster creation on Azure.                   |
+|   clusterNodeVmSize    | Optional  | Standard_DS2_v2 (Azure default value) |                                          Node VM size named on Azure.                                          |
+|   kubernetesVersion    | Optional  |     Default Azure version is 1.20     |                      The kubernetes version that will be custom string for each provider.                      |
+|        location        | Mandatory |                   -                   |                 The Azure location that represents geo location where cluster will be running.                 |
+|          name          | Mandatory |                   -                   |                                           The name of your cluster.                                            |
+|     operatorImage      | Optional  |    xebialabs/deploy-operator:1.2.0    |                 The image of operator which is going to be used to install the Deploy cluster                  |
+| operatorPackageVersion | Optional  |                 1.2.0                 | We deploy operator with help of Deploy, this is a version which will be used as a application package version. |
+|      skipExisting      | Optional  |                 true                  |         For some cluster resources there are checks if resources exist, if set to true skip creation.          |
+|      storageClass      | Optional  |                   -                   |         Storage class prefix. On Azure with prefix are created new classes for file and disk storage.          |
+
+
+### Onprem Minikube profile 
+
+`activeProviderName = "onprem"`
+
+|          Name          |   Type    |              Default Value               |                                                  Description                                                   |
+|:----------------------:|:---------:|:----------------------------------------:|:--------------------------------------------------------------------------------------------------------------:|
+|    clusterNodeCpus     | Optional  |                    -                     |                                  Number of CPUs that will be used by cluster.                                  |
+|   clusterNodeMemory    | Optional  |                    -                     |                                Memory size in MB that will be used by cluster.                                 |
+|   kubernetesVersion    | Optional  |                  1.20.0                  |                      The kubernetes version that will be custom string for each provider.                      |
+|          name          | Mandatory |                    -                     |                                           The name of your cluster.                                            |
+|     operatorImage      | Optional  |     xebialabs/deploy-operator:1.2.0      |                 The image of operator which is going to be used to install the Deploy cluster                  |
+| operatorPackageVersion | Optional  |                  1.2.0                   | We deploy operator with help of Deploy, this is a version which will be used as a application package version. |
+|      skipExisting      | Optional  |                   true                   |         For some cluster resources there are checks if resources exist, if set to true skip creation.          |
+|      storageClass      | Optional  |                 standard                 |   You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.    |
 
 ## Servers section
 

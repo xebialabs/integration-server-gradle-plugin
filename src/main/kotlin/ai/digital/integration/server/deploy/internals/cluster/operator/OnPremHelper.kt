@@ -56,7 +56,7 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
         project.logger.lifecycle("PVCs are being deleted")
         getKubectlHelper().deleteAllPVCs()
 
-        project.logger.lifecycle("Minikube cluster is being deleted{} ", clusterName)
+        project.logger.lifecycle("Minikube cluster is being deleted {} ", clusterName)
         deleteCluster(name)
 
         project.logger.lifecycle("Current cluster context is being deleted")
@@ -161,13 +161,13 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
         val scriptPath = getTemplate("operator/on-perm/update_etc_hosts.sh")
 
         ProcessUtil.executeCommand(project,
-            "chmod 755 ${infoScriptPath.absolutePath}")
+            "chmod 755 \"${infoScriptPath.absolutePath}\"")
         ProcessUtil.executeCommand(project,
-            "chmod 755 ${scriptPath.absolutePath}")
+            "chmod 755 \"${scriptPath.absolutePath}\"")
         ProcessUtil.executeCommand(project,
-            infoScriptPath.absolutePath, throwErrorOnFailure = false)
+            "\"${infoScriptPath.absolutePath}\"", throwErrorOnFailure = false)
         ProcessUtil.executeCommand(project,
-            "sudo ${scriptPath.absolutePath} ${getMinikubeIp(name)} ${getFqdn()}", throwErrorOnFailure = false)
+            "sudo \"${scriptPath.absolutePath}\" ${getMinikubeIp(name)} \"${getFqdn()}\"", throwErrorOnFailure = false)
     }
 
     private fun getMinikubeIp(name: String): String? {

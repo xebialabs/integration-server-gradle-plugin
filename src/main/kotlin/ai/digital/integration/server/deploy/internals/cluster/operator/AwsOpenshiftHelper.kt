@@ -26,11 +26,13 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         applyYamlFiles()
 
         ocLogin()
+        turnOnLogging()
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()
 
         waitForBoot()
+        turnOffLogging()
     }
 
     private fun exec(command: String): String {
@@ -115,6 +117,10 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     override fun getWorkerPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-worker-$position"
 
     override fun getMasterPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-master-$position"
+
+    override fun getPostgresPodName(position: Int) = "pod/dai-ocp-xld-postgresql-$position"
+
+    override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-xld-rabbitmq-$position"
 
     private fun getApiServerUrl() = getProvider().apiServerURL.get()
 

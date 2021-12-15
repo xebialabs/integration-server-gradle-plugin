@@ -36,10 +36,7 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
     }
 
     private fun start() {
-        project.exec {
-            executable = "docker-compose"
-            args = listOf("-f", DeployServerUtil.getResolvedDockerFile(project).toFile().toString(), "up", "-d")
-        }
+        DeployServerUtil.runDockerBasedInstance(project)
     }
 
     private fun allowToWriteMountedHostFolders() {
