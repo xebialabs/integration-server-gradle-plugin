@@ -1,14 +1,11 @@
 package ai.digital.integration.server.common.util
 
-import ai.digital.integration.server.common.domain.Provider
-import ai.digital.integration.server.common.util.ProviderUtil.Companion.getFirstProvider
-import ai.digital.integration.server.common.util.ProviderUtil.Companion.getProviders
+import ai.digital.integration.server.common.domain.profiles.TerraformProfile
+import ai.digital.integration.server.common.domain.providers.terraform.AwsEksProvider
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
-import java.util.*
-import kotlin.reflect.KProperty1
-import kotlin.reflect.full.memberProperties
 
 open class TerraformHelper(val project: Project) {
 
@@ -19,8 +16,7 @@ open class TerraformHelper(val project: Project) {
 
     private fun getResolvedTerraformPath(project: Project, relativePath: String): Path {
         val terraformStream = {}::class.java.classLoader.getResourceAsStream(relativePath)
-        val resultComposeFilePath =
-            IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, relativePath)
+        val resultComposeFilePath = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, relativePath)
         terraformStream?.let {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
@@ -35,14 +31,14 @@ open class TerraformHelper(val project: Project) {
     private fun resolveTerraformAwsPath() {
         val template = getTemplate(TERRAFORM_AWS_FILE_PATH)
 
-        val configuredTemplate = template.readText(Charsets.UTF_8)
-            .replace("{{EKS_CLUSTER_NAME}}", getValue("eksClusterName"))
-            .replace("{{EKS_VPC_NAME}}", getValue("eksVpcName"))
-            .replace("{{EKS_VPC_SOURCE}}", getValue("eksVpcSource"))
-            .replace("{{EKS_VPC_VERSION}}", getValue("eksVpcVersion"))
-            .replace("{{EKS_SOURCE}}", getValue("eksSource"))
-            .replace("{{EKS_VERSION}}", getValue("eksVersion"))
-            .replace("{{EKS_CLUSTER_VERSION}}", getValue("eksClusterVersion"))
+        val configuredTemplate =
+            template.readText(Charsets.UTF_8).replace("{{EKS_CLUSTER_NAME}}", getAwsEksProvider().clusterName.get())
+                .replace("{{EKS_VPC_NAME}}", getAwsEksProvider().vpcName.get())
+                .replace("{{EKS_VPC_SOURCE}}", getAwsEksProvider().vpcSource.get())
+                .replace("{{EKS_VPC_VERSION}}", getAwsEksProvider().vpcVersion.get())
+                .replace("{{EKS_SOURCE}}", getAwsEksProvider().source.get())
+                .replace("{{EKS_VERSION}}", getAwsEksProvider().version.get())
+                .replace("{{EKS_CLUSTER_VERSION}}", getAwsEksProvider().clusterVersion.get())
 
         template.writeText(configuredTemplate)
     }
@@ -53,49 +49,30 @@ open class TerraformHelper(val project: Project) {
         }.exceptionOrNull()?.let { exception ->
 
         }
-        TerraformUtil.execute(
-            project,
-            listOf("-chdir=${getResolvedTerraformPath(project, TERRAFORM_AWS_DIR_PATH)}", "init")
-        )
+        TerraformUtil.execute(project,
+            listOf("-chdir=${getResolvedTerraformPath(project, TERRAFORM_AWS_DIR_PATH)}", "init"))
     }
 
     private fun applyTerraformModule() {
-        TerraformUtil.execute(
-            project,
-            listOf("-chdir=${getResolvedTerraformPath(project, TERRAFORM_AWS_DIR_PATH)}", "apply")
-        )
+        TerraformUtil.execute(project,
+            listOf("-chdir=${getResolvedTerraformPath(project, TERRAFORM_AWS_DIR_PATH)}", "apply"))
     }
 
-    private fun getValue(providerProperty: String): String {
-        getProviders(project).find { provider -> provider.equals("aws") }
-            ?.let { awsProvider ->
-                return getAwsProperty(project, awsProvider, providerProperty)
-            }
-            ?: throw Exception("${providerProperty} property not found")
+    fun getProfile(): TerraformProfile {
+        return DeployExtensionUtil.getExtension(project).clusterProfiles.terraform()
     }
 
-    private fun getAwsProperty(project: Project, provider: Provider, providerProperty: String): String {
-        return if (project.hasProperty(providerProperty))
-            project.property(providerProperty).toString()
-        else
-            getPropertyValue(provider, providerProperty)
-    }
-
-    private fun getPropertyValue(provider: Provider, providerProperty: String): String {
-        var propertyValue = ""
-
-        provider::class.memberProperties.forEach { member ->
-            if (member.name.equals(providerProperty)) {
-                propertyValue = (member as KProperty1<Any, Any>).get(provider).toString()
-            }
-        }
-
-        return propertyValue
+    fun getAwsEksProvider(): AwsEksProvider {
+        return getProfile().awsEks
     }
 
     fun launchCluster() {
         initTerraformModule()
         applyTerraformModule()
+    }
+
+    fun shutdownCluster() {
+        //TODO: !!
     }
 
 }
