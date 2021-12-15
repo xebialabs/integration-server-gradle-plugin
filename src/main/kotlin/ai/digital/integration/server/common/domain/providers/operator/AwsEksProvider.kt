@@ -22,10 +22,13 @@ open class AwsEksProvider @Inject constructor(project: Project) : Provider(proje
     val nodeGroupName = project.objects.property<String>().value("deploy-operator-cluster-nodegroup")
 
     @Input
-    val clusterNodeCount = project.objects.property<Int>().value(4)
+    val clusterNodeCount = project.objects.property<Int>().value(2)
 
     @Input
     val sshKeyName = project.objects.property<String>().value("deploy-operator-ssh-key")
+
+    @Input
+    val fileSystemName = project.objects.property<String>().value("deploy-operator-efs-test")
 
     @Input
     val kubernetesVersion = project.objects.property<String>().value("1.20")

@@ -17,13 +17,17 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
     fun launchCluster() {
         val awsEksProvider: AwsEksProvider = getProvider()
         val skipExisting = awsEksProvider.skipExisting.get()
+
         createSshKey(skipExisting)
         createCluster(skipExisting)
 
         updateKubeConfig()
         checkClusterConnectivity()
         val kubeContextInfo = getKubectlHelper().getCurrentContextInfo(skip = true)
+        if (getStorageClass() == "aws-efs") createStorageClass(getStorageClass())
         updateInfrastructure(kubeContextInfo)
+
+
 
         updateControllerManager()
         updateOperatorDeployment()
@@ -94,6 +98,10 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                             "ParameterKey=ClusterName,ParameterValue=${awsEksProvider.clusterName.get()} " +
                             "ParameterKey=NodeGroupName,ParameterValue=${awsEksProvider.nodeGroupName.get()} " +
                             "ParameterKey=KeyName,ParameterValue=${awsEksProvider.sshKeyName.get()} " +
+                            "ParameterKey=FileSystemName,ParameterValue=${awsEksProvider.fileSystemName.get()} " +
+                            "ParameterKey=NodeDesiredSize,ParameterValue=${awsEksProvider.clusterNodeCount.get()} " +
+                            "ParameterKey=KubernetesVersion,ParameterValue=${awsEksProvider.kubernetesVersion.get()} " +
+                            "ParameterKey=StorageClass,ParameterValue=${getStorageClass()} " +
                             "--on-failure DELETE " +
                             "--output text",
                     logOutput = true)
@@ -193,6 +201,30 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         return false
     }
 
+    private fun createStorageClass(efsStorageClassName: String) {
+        createStorageClassEFS(efsStorageClassName)
+        getKubectlHelper().setDefaultStorageClass("gp2", efsStorageClassName)
+    }
+
+    private fun createStorageClassEFS(storageClassName: String) {
+        if (!getKubectlHelper().hasStorageClass(storageClassName)) {
+            project.logger.lifecycle("Create storage class: {}", storageClassName)
+            val fileSystemId = ProcessUtil.executeCommand(project,
+                    "aws --region ${getProvider().region.get()} " +
+                            "cloudformation describe-stacks " +
+                            "--stack-name ${getProvider().stack.get()} " +
+                            "--query 'Stacks[0].Outputs[?OutputKey==`Filesystem`].OutputValue' " +
+                            "--output text")
+            ProcessUtil.executeCommand(project, "helm repo add stable https://charts.helm.sh/stable")
+            ProcessUtil.executeCommand(project, "helm install " +
+                    "$storageClassName stable/efs-provisioner " +
+                    "--set efsProvisioner.efsFileSystemId=${fileSystemId} " +
+                    "--set efsProvisioner.awsRegion=${getProvider().region.get()}")
+        } else {
+            project.logger.lifecycle("Skipping creation of the existing storage class: {}", storageClassName)
+        }
+    }
+
     private fun updateKubeConfig() {
         val awsEksProvider: AwsEksProvider = getProvider()
         ProcessUtil.executeCommand(project,
@@ -284,8 +316,8 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
             project.logger.lifecycle("Skipping deletion of the ssh key: {}", awsEksProvider.sshKeyName.get())
         } else {
             ProcessUtil.executeCommand(project,
-                    "aws --region ${awsEksProvider.region.get()}" +
-                            " ec2 delete-key-pair " +
+                    "aws --region ${awsEksProvider.region.get()} " +
+                            "ec2 delete-key-pair " +
                             "--key-name ${awsEksProvider.sshKeyName.get()}")
         }
     }
@@ -318,7 +350,11 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
     }
 
     override fun getStorageClass(): String {
-        return getProvider().storageClass.value("gp2").get()
+        return getProvider().storageClass.getOrElse("aws-efs")
+    }
+
+    override fun getMqStorageClass(): String {
+        return "gp2"
     }
 
     private fun updateInfrastructure(infraInfo: InfrastructureInfo) {

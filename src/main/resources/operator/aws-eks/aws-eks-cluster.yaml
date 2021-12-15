@@ -17,10 +17,13 @@ Parameters:
     Type: String
     Description: "Unique identifier for the Node Group."
     Default: "deploy-operator-cluster-nodegroup"
+  FileSystemName:
+    Type: String
+    Default: "deploy-operator-efs-itest"
   NodeDesiredSize:
     Type: Number
     Description: "Node Count desired size."
-    Default: "4"
+    Default: "2"
   KubernetesVersion:
     Type: Number
     Description: "Kubernetes version."
@@ -42,18 +45,18 @@ Resources:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
-      - Key: Name
-        Value: !Sub "${ProjectName}-eks"
+        - Key: Name
+          Value: !Sub "${ProjectName}-eks"
   VPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
       EnableDnsSupport: 'true'
-      EnableDnsHostnames: 'false'
+      EnableDnsHostnames: 'true'
       InstanceTenancy: default
       Tags:
-      - Key: Name
-        Value: !Sub "${ProjectName}"
+        - Key: Name
+          Value: !Sub "${ProjectName}"
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -69,12 +72,12 @@ Resources:
       CidrBlock: 10.0.0.0/24
       AvailabilityZone:
         Fn::Select:
-        - '0'
-        - Fn::GetAZs:
-            Ref: AWS::Region
+          - '0'
+          - Fn::GetAZs:
+              Ref: AWS::Region
       Tags:
-      - Key: Name
-        Value: !Sub "${ProjectName}-a"
+        - Key: Name
+          Value: !Sub "${ProjectName}-a"
       MapPublicIpOnLaunch: true
   subnetB:
     Type: AWS::EC2::Subnet
@@ -84,19 +87,19 @@ Resources:
       CidrBlock: 10.0.1.0/24
       AvailabilityZone:
         Fn::Select:
-        - '1'
-        - Fn::GetAZs:
-            Ref: AWS::Region
+          - '1'
+          - Fn::GetAZs:
+              Ref: AWS::Region
       Tags:
-      - Key: Name
-        Value: !Sub "${ProjectName}-b"
+        - Key: Name
+          Value: !Sub "${ProjectName}-b"
       MapPublicIpOnLaunch: true
   subnetARouteTable:
-      Type: AWS::EC2::RouteTable
-      Properties:
-        VpcId:
-          Ref: VPC
-        Tags:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
         - Key: Name
           Value: Private subnet A
         - Key: Network
@@ -117,11 +120,11 @@ Resources:
       RouteTableId:
         Ref: subnetARouteTable
   subnetBRouteTable:
-      Type: AWS::EC2::RouteTable
-      Properties:
-        VpcId:
-          Ref: VPC
-        Tags:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
         - Key: Name
           Value: Private subnet B
         - Key: Network
@@ -149,11 +152,11 @@ Resources:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-            Effect: Allow
-            Principal:
-              Service:
-                - eks.amazonaws.com
-            Action: sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+              - eks.amazonaws.com
+          Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
         - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
@@ -164,7 +167,9 @@ Resources:
       GroupDescription: Cluster communication with worker nodes
       VpcId:
         Ref: VPC
-
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          CidrIp: '0.0.0.0/0'
   Cluster:
     Type: "AWS::EKS::Cluster"
     Properties:
@@ -203,7 +208,7 @@ Resources:
     Properties:
       ClusterName: !Sub ${ClusterName}
       NodeRole: !GetAtt NodeInstanceRole.Arn
-      NodegroupName: !Sub ${NodeGroupName}
+      NodegroupName: !Sub "${NodeGroupName}-1"
       RemoteAccess:
         Ec2SshKey: !Sub ${KeyName}
       ScalingConfig:
@@ -218,6 +223,57 @@ Resources:
         - Ref: subnetB
       Version: !Sub ${KubernetesVersion}
 
+  EKSNodegroup1:
+    "DependsOn":
+      - "Cluster"
+    Type: 'AWS::EKS::Nodegroup'
+    Properties:
+      ClusterName: !Sub ${ClusterName}
+      NodeRole: !GetAtt NodeInstanceRole.Arn
+      NodegroupName: !Sub "${NodeGroupName}-2"
+      RemoteAccess:
+        Ec2SshKey: !Sub ${KeyName}
+      ScalingConfig:
+        MinSize: 2
+        DesiredSize: !Sub ${NodeDesiredSize}
+        MaxSize: 8
+      Labels:
+        Key1: Value1
+        Key2: Value2
+      Subnets:
+        - Ref: subnetA
+        - Ref: subnetB
+      Version: !Sub ${KubernetesVersion}
+
+  FileSystem:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      Encrypted: true
+      FileSystemTags:
+        - Key: Name
+          Value:
+            Ref: FileSystemName
+
+  MountTarget:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: FileSystem
+      SubnetId:
+        Ref: subnetA
+      SecurityGroups:
+        - Ref: ClusterControlPlaneSecurityGroup
+
+  MountTarget2:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: FileSystem
+      SubnetId:
+        Ref: subnetB
+      SecurityGroups:
+        - Ref: ClusterControlPlaneSecurityGroup
+
 Outputs:
   VPCID:
     Value:
@@ -226,6 +282,7 @@ Outputs:
     Export:
       Name:
         Fn::Sub: "${AWS::StackName}-VPCID"
+
   subnetAID:
     Description: SubnetA ID
     Value:
@@ -268,3 +325,7 @@ Outputs:
     Export:
       Name:
         Fn::Sub: "${AWS::StackName}-ClusterControlPlaneSecurityGroup"
+
+  Filesystem:
+    Description: A reference to the EFS FileSystem
+    Value: !Ref FileSystem
