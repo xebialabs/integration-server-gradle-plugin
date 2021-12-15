@@ -246,10 +246,6 @@ abstract class OperatorHelper(val project: Project) {
         return getStorageClass()
     }
 
-    open fun getMqStorageClass(): String {
-        return getStorageClass()
-    }
-
     open fun getFqdn(): String {
         return getProvider().host.orElse(getProvider().name).get()
     }

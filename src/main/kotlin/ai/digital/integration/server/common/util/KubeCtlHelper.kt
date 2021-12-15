@@ -12,7 +12,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     fun applyFile(file: File) {
         ProcessUtil.executeCommand(project,
-            "$command apply -f \"${file.absolutePath}\"")
+                "$command apply -f \"${file.absolutePath}\"")
     }
 
     fun deleteFile(file: File) {
@@ -24,8 +24,8 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         val expectedEndTime = System.currentTimeMillis() + timeoutSeconds * 1000
         while (expectedEndTime > System.currentTimeMillis()) {
             val result = ProcessUtil.executeCommand(project,
-                "$command wait --for condition=$condition --timeout=${timeoutSeconds}s $resource",
-                throwErrorOnFailure = false)
+                    "$command wait --for condition=$condition --timeout=${timeoutSeconds}s $resource",
+                    throwErrorOnFailure = false)
             if (result.contains("condition met")) {
                 return true
             }
@@ -38,8 +38,8 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         val name = if (podName.startsWith("pod/")) podName.substring(4) else podName
         try {
             val logContent = ProcessUtil.executeCommand(project,
-                command = "$command logs $name",
-                logOutput = false)
+                    command = "$command logs $name",
+                    logOutput = false)
             val logDir = DeployServerUtil.getLogDir(project)
             File(logDir, "$name.log").writeText(logContent, StandardCharsets.UTF_8)
         } catch (e: Exception) {
@@ -50,7 +50,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
     fun setDefaultStorageClass(oldDefaultStorageClass: String, newDefaultStorageClass: String) {
         fun patch(storageClass: String, isDefault: Boolean) {
             ProcessUtil.executeCommand(project,
-                " $command patch storageclass $storageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"$isDefault\"}}}'")
+                    " $command patch storageclass $storageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"$isDefault\"}}}'")
         }
 
         patch(newDefaultStorageClass, true)
@@ -62,17 +62,17 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         return result.contains(storageClass)
     }
 
-    fun getCurrentContextInfo(skip:Boolean = false): InfrastructureInfo {
+    fun getCurrentContextInfo(skip: Boolean = false): InfrastructureInfo {
         val context = getCurrentContext()
         val cluster = getContextCluster(context)
         val user = getContextUser(context)
         val info = InfrastructureInfo(
-            cluster,
-            user,
-            getClusterServer(cluster),
-            getClusterCertificateAuthorityData(cluster),
-            if(!skip) getUserClientCertificateData(user) else null,
-            if(!skip) getUserClientKeyData(user) else null
+                cluster,
+                user,
+                getClusterServer(cluster),
+                getClusterCertificateAuthorityData(cluster),
+                if (!skip) getUserClientCertificateData(user) else null,
+                if (!skip) getUserClientKeyData(user) else null
         )
         project.logger.lifecycle("kubeContextInfo {}", info)
         return info
@@ -85,9 +85,9 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
             val user = getContextUser(context)
 
             project.logger.info("Current cluster context is being deleted {} with related cluster {} and user {} information",
-                context,
-                cluster,
-                user)
+                    context,
+                    cluster,
+                    user)
 
             fun delete(what: String) {
                 ProcessUtil.executeCommand(project, "$command config $what", throwErrorOnFailure = false)
@@ -103,25 +103,25 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     fun deleteAllPVCs() {
         ProcessUtil.executeCommand(project,
-            "$command delete pvc --all", throwErrorOnFailure = false)
+                "$command delete pvc --all", throwErrorOnFailure = false)
     }
 
     private fun getCurrentContext(): String {
         return ProcessUtil.executeCommand(project,
-            "$command config current-context", logOutput = false)
+                "$command config current-context", logOutput = false)
     }
 
     private fun configView(jsonPath: String) = ProcessUtil.executeCommand(project,
-        "$command config view -o jsonpath='$jsonPath' --raw", logOutput = false)
+            "$command config view -o jsonpath='$jsonPath' --raw", logOutput = false)
 
     private fun getContextCluster(contextName: String) =
-        configView("{.contexts[?(@.name == \"$contextName\")].context.cluster}")
+            configView("{.contexts[?(@.name == \"$contextName\")].context.cluster}")
 
     private fun getContextUser(contextName: String) =
-        configView("{.contexts[?(@.name == \"$contextName\")].context.user}")
+            configView("{.contexts[?(@.name == \"$contextName\")].context.user}")
 
     private fun getClusterServer(clusterName: String) =
-        configView("{.clusters[?(@.name == \"$clusterName\")].cluster.server}")
+            configView("{.clusters[?(@.name == \"$clusterName\")].cluster.server}")
 
     private fun configView(jsonPath: String, fallbackJsonPath: String): String {
         val data = configView(jsonPath)
@@ -134,20 +134,20 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
     }
 
     private fun getClusterCertificateAuthorityData(clusterName: String): String =
-        configView("{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority-data}",
-            "{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority}")
+            configView("{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority-data}",
+                    "{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority}")
 
     private fun getUserClientKeyData(userName: String): String =
-        configView("{.users[?(@.name == \"$userName\")].user.client-key-data}",
-            "{.users[?(@.name == \"$userName\")].user.client-key}")
+            configView("{.users[?(@.name == \"$userName\")].user.client-key-data}",
+                    "{.users[?(@.name == \"$userName\")].user.client-key}")
 
 
     private fun getUserClientCertificateData(userName: String): String =
-        configView("{.users[?(@.name == \"$userName\")].user.client-certificate-data}",
-            "{.users[?(@.name == \"$userName\")].user.client-certificate}")
+            configView("{.users[?(@.name == \"$userName\")].user.client-certificate-data}",
+                    "{.users[?(@.name == \"$userName\")].user.client-certificate}")
 
     private fun getNameAndGrep(params: String, grepFor: String): String {
         return ProcessUtil.executeCommand(project,
-            "$command get $params -o name | grep $grepFor", throwErrorOnFailure = false, logOutput = false)
+                "$command get $params -o name | grep $grepFor", throwErrorOnFailure = false, logOutput = false)
     }
 }

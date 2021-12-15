@@ -362,10 +362,6 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         return getProvider().storageClass.getOrElse("aws-efs")
     }
 
-    override fun getMqStorageClass(): String {
-        return "gp2"
-    }
-
     private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val awsEksProvider: AwsEksProvider = getProvider()

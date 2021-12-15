@@ -42,7 +42,7 @@ open class AwsEksProvider @Inject constructor(val project: Project) : Provider(p
             project.property("accessKey").toString()
         else {
             val accessKey = ProcessUtil.executeCommand(project, "aws configure get aws_access_key_id --profile default", logOutput = false, throwErrorOnFailure = false)
-            if (accessKey.isEmpty() || accessKey.isBlank()) {
+            if (accessKey.isNullOrBlank()) {
                 throw RuntimeException("Access key is required")
             }
             return accessKey
@@ -54,7 +54,7 @@ open class AwsEksProvider @Inject constructor(val project: Project) : Provider(p
             project.property("secretKey").toString()
         else {
             val accessKey = ProcessUtil.executeCommand(project, "aws configure get aws_secret_access_key --profile default", logOutput = false)
-            if (accessKey.isEmpty() || accessKey.isBlank()) {
+            if (accessKey.isNullOrBlank()) {
                 throw RuntimeException("Access Secret key is required")
             }
             return accessKey
