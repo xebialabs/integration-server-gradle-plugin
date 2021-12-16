@@ -95,11 +95,11 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     }
 
     override fun getOperatorImage(): String {
-        return getProvider().operatorImage.value("xebialabs/deploy-operator:1.2.0-openshift").get()
+        return getProvider().operatorImage.getOrElse("xebialabs/deploy-operator:1.2.0-openshift")
     }
 
     override fun getStorageClass(): String {
-        return getProvider().storageClass.value("aws-efs").get()
+        return getProvider().storageClass.getOrElse("aws-efs")
     }
 
     private fun updateInfrastructure(apiServerURL: String, token: String) {

@@ -190,7 +190,7 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     open fun getOperatorImage(): String {
-        return getProvider().operatorImage.value("xebialabs/deploy-operator:1.2.0").get()
+        return getProvider().operatorImage.getOrElse("xebialabs/deploy-operator:1.2.0")
     }
 
     fun updateOperatorCrValues() {
@@ -241,7 +241,7 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     open fun getStorageClass(): String {
-        return getProvider().storageClass.value("standard").get()
+        return getProvider().storageClass.getOrElse("standard")
     }
 
     open fun getDbStorageClass(): String {
@@ -249,7 +249,7 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     open fun getFqdn(): String {
-        return getProvider().host.orElse(getProvider().name).get()
+        return getProvider().host.getOrElse(getProvider().name.get())
     }
 
     open fun getContextRoot(): String {
@@ -257,7 +257,7 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     open fun getHost(): String {
-        return getProvider().host.orElse(getProvider().name).get()
+        return getProvider().host.getOrElse(getProvider().name.get())
     }
 
     open fun getPort(): String {
