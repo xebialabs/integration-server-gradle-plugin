@@ -238,16 +238,16 @@ clusterProfiles {
 
 |          Name          |   Type    |           Default Value           |                                                  Description                                                   |
 |:----------------------:|:---------:|:---------------------------------:|:--------------------------------------------------------------------------------------------------------------:|
-|    accountCredFile     | Optional  |                 -                 |                                                                    |
-|      accountName       | Mandatory |                 -                 |                                                               |
+|    accountCredFile     | Optional  |                 -                 |                             A file path to read the access token credentials file.                             |
+|      accountName       | Mandatory |                 -                 |                            GCP user account that will be used with `gcloud` plugin.                            |
 |    clusterNodeCount    | Optional  |                 3                 |                    Number of the nodes that will be created during cluster creation on GCP.                    |
 |   clusterNodeVmSize    | Optional  | Medium_DS2_v2 (GCP default value) |                                           Node VM size named on GCP.                                           |
 |   kubernetesVersion    | Optional  |         1.20.11-gke.1801          |                      The kubernetes version that will be custom string for each provider.                      |
 |          name          | Mandatory |                 -                 |                                           The name of your cluster.                                            |
 |     operatorImage      | Optional  |  xebialabs/deploy-operator:1.2.0  |                 The image of operator which is going to be used to install the Deploy cluster                  |
 | operatorPackageVersion | Optional  |               1.2.0               | We deploy operator with help of Deploy, this is a version which will be used as a application package version. |
-|      projectName       | Mandatory |                 -                 |                                                                                                                |
-|       regionZone       | Mandatory |                 -                 |                                                                                                                |
+|      projectName       | Mandatory |                 -                 |                             The GCP project in which GKE cluster will be created.                              |
+|       regionZone       | Mandatory |                 -                 |                         The cluster GEO zone where cluster instances will be located.                          |
 |      skipExisting      | Optional  |               true                |         For some cluster resources there are checks if resources exist, if set to true skip creation.          |
 |      storageClass      | Optional  |             standard              |   You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.    |
 
