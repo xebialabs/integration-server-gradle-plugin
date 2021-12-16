@@ -75,10 +75,13 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         ocLogin()
 
         project.logger.lifecycle("Operator is being undeployed")
-        undeployCis()
 
-        project.logger.lifecycle("PVCs are being deleted")
-        getKubectlHelper().deleteAllPVCs()
+        if (undeployCis()) {
+            project.logger.lifecycle("PVCs are being deleted")
+            getKubectlHelper().deleteAllPVCs()
+        } else {
+            project.logger.lifecycle("Skip delete of PVCs")
+        }
 
         ocLogout()
     }

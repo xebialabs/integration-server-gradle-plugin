@@ -56,10 +56,13 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val clusterName = aksClusterName(name)
 
         project.logger.lifecycle("Operator is being undeployed")
-        undeployCis()
 
-        project.logger.lifecycle("PVCs are being deleted")
-        getKubectlHelper().deleteAllPVCs()
+        if (undeployCis()) {
+            project.logger.lifecycle("PVCs are being deleted")
+            getKubectlHelper().deleteAllPVCs()
+        } else {
+            project.logger.lifecycle("Skip delete of PVCs")
+        }
 
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
         deleteResourceGroup(groupName, location)
@@ -100,10 +103,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val azureAksProvider: AzureAksProvider = getProvider()
         val location = azureAksProvider.location.get()
         return "${getHost()}.${location}.cloudapp.azure.com"
-    }
-
-    override fun getContextRoot(): String {
-        return "/xl-deploy/"
     }
 
     private fun validateAzCli() {

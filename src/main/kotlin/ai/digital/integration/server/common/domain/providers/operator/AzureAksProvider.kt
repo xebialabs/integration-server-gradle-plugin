@@ -19,7 +19,7 @@ open class AzureAksProvider @Inject constructor(val project: Project) : Provider
     val kubernetesVersion = project.objects.property<String>()
 
     @Input
-    val location = project.objects.property<String>().value("germanywestcentral")
+    val location = project.objects.property<String>()
 
     @Input
     val skipExisting = project.objects.property<Boolean>().value(true)

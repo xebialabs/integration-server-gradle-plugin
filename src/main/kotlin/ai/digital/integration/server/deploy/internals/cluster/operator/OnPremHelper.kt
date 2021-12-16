@@ -51,10 +51,13 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
         val clusterName = onPremClusterName(name)
 
         project.logger.lifecycle("Operator is being undeployed")
-        undeployCis()
 
-        project.logger.lifecycle("PVCs are being deleted")
-        getKubectlHelper().deleteAllPVCs()
+        if (undeployCis()) {
+            project.logger.lifecycle("PVCs are being deleted")
+            getKubectlHelper().deleteAllPVCs()
+        } else {
+            project.logger.lifecycle("Skip delete of PVCs")
+        }
 
         project.logger.lifecycle("Minikube cluster is being deleted {} ", clusterName)
         deleteCluster(name)
@@ -84,10 +87,6 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
 
     override fun getFqdn(): String {
         return "${getHost()}.digitalai-testing.com"
-    }
-
-    override fun getContextRoot(): String {
-        return "/xl-deploy/"
     }
 
     private fun validateMinikubeCli() {

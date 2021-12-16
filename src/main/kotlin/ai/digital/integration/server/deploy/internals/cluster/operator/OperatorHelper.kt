@@ -171,19 +171,21 @@ abstract class OperatorHelper(val project: Project) {
         WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
 
-    fun undeployCis() {
+    fun undeployCis(): Boolean {
         val fileStream = {}::class.java.classLoader.getResourceAsStream("operator/python/undeploy.py")
         val resultComposeFilePath = Paths.get(getProviderWorkDir(), "undeploy.py")
         fileStream?.let {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
-        try {
+        return try {
             CliUtil.executeScripts(project,
-                listOf(resultComposeFilePath.toFile()),
-                "undeploy.py",
-                auxiliaryServer = true)
+                    listOf(resultComposeFilePath.toFile()),
+                    "undeploy.py",
+                    auxiliaryServer = true)
+            true
         } catch (e: RuntimeException) {
-            project.logger.warn("Undeploy didn't run. Check if operator's deploy server is running on port 4516: ${e.message}")
+            project.logger.error("Undeploy didn't run. Check if operator's deploy server is running on port 4516: ${e.message}")
+            false
         }
     }
 
@@ -251,7 +253,7 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     open fun getContextRoot(): String {
-        return ""
+        return "/xl-deploy/"
     }
 
     open fun getHost(): String {
