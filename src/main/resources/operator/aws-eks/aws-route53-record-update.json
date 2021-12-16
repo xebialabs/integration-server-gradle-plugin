@@ -1,5 +1,5 @@
 {
-  "Comment": "Updating Alias resource record sets in Route 53",
+  "Comment": "Create or update Alias resource record sets in Route 53 for deploy operator endpoint",
   "Changes": [{
     "Action": "UPSERT",
     "ResourceRecordSet": {

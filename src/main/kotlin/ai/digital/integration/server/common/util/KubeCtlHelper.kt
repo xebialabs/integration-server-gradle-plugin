@@ -47,14 +47,23 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         }
     }
 
-    fun setDefaultStorageClass(oldDefaultStorageClass: String, newDefaultStorageClass: String) {
-        fun patch(storageClass: String, isDefault: Boolean) {
-            ProcessUtil.executeCommand(project,
-                    " $command patch storageclass $storageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"$isDefault\"}}}'")
-        }
+    private fun patch(storageClass: String, isDefault: Boolean) {
+        ProcessUtil.executeCommand(project,
+                " $command patch storageclass $storageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"$isDefault\"}}}'")
+    }
 
+    fun setDefaultStorageClass(oldDefaultStorageClass: String, newDefaultStorageClass: String) {
         patch(newDefaultStorageClass, true)
         patch(oldDefaultStorageClass, false)
+    }
+
+    fun setDefaultStorageClass(newDefaultStorageClass: String) {
+        ProcessUtil.executeCommand(project,
+                " $command get sc -o name" +
+                        "|sed -e 's/.*\\///g' " +
+                        "|xargs -I {} " +
+                        "$command patch storageclass {} -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"false\"}}}'")
+        patch(newDefaultStorageClass, true)
     }
 
     fun hasStorageClass(storageClass: String): Boolean {

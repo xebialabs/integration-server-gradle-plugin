@@ -122,7 +122,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                             "--on-failure DELETE " +
                             "--output text",
                     logOutput = true)
-            verifyClusterStatus(1500000, 300000, stackId, "CREATE_COMPLETE")// delay time 25 mins and sleep time 5 mins
+            verifyClusterStatus(awsEksProvider.stackTimeoutSeconds.get(), awsEksProvider.stackSleepTimeBeforeRetrySeconds.get().toLong(), stackId, "CREATE_COMPLETE")
         }
     }
 
@@ -135,7 +135,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                 "--output text"
 
         val result = ProcessUtil.executeCommand(project,
-                "$stackStatusCmd",
+                stackStatusCmd,
                 logOutput = true,
                 throwErrorOnFailure = false)
         if (result == "CREATE_COMPLETE") {
@@ -168,33 +168,32 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
     }
 
     private fun wait(status: String, command: String, resource: String, totalTimeInSec: Int = 3000, sleepTime: Long = 1000): Boolean {
-        val expectedEndTime = System.currentTimeMillis() + totalTimeInSec // 20 mins
+        val expectedEndTime = System.currentTimeMillis() + totalTimeInSec
         while (expectedEndTime > System.currentTimeMillis()) {
             val result = ProcessUtil.executeCommand(project,
-                    "$command",
+                    command,
                     logOutput = true,
                     throwErrorOnFailure = false)
-            if (result.contains("$status")) {
+            if (result.contains(status)) {
                 return true
             } else if (result.contains("does not exist")) {
                 return false
             }
             project.logger.lifecycle("$resource resource  \"$status\" status not met, retry. ")
-            Thread.sleep(sleepTime) //5 mins
+            Thread.sleep(sleepTime)
         }
         return false
     }
 
     private fun createStorageClass(efsStorageClassName: String) {
         createStorageClassEFS(efsStorageClassName)
-        getKubectlHelper().setDefaultStorageClass("gp2", efsStorageClassName)
+        getKubectlHelper().setDefaultStorageClass(efsStorageClassName)
     }
 
     private fun createStorageClassEFS(storageClassName: String) {
         if (!getKubectlHelper().hasStorageClass(storageClassName)) {
             project.logger.lifecycle("Create storage class: {}", storageClassName)
-            val fileSystemId = getFileSystemId()
-            helmInstallAwsEfs(fileSystemId, storageClassName)
+            helmInstallAwsEfs(getFileSystemId(), storageClassName)
         } else {
             project.logger.lifecycle("Skipping creation of the existing storage class: {}", storageClassName)
         }
@@ -240,7 +239,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
     private fun updateRoute53() {
         val templateFile = updateRoute53Json()
-        val changeInfo = UpdateRoute53RecordSet(templateFile)
+        val changeInfo = updateRoute53RecordSet(templateFile)
         verifyRoute53Status(changeInfo)
     }
 
@@ -276,7 +275,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                 throwErrorOnFailure = false)
     }
 
-    private fun UpdateRoute53RecordSet(awsRoute53TemplateFile: File): String {
+    private fun updateRoute53RecordSet(awsRoute53TemplateFile: File): String {
         return ProcessUtil.executeCommand(project,
                 "aws route53 " +
                         "change-resource-record-sets " +
@@ -298,7 +297,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
         val changeStatus = wait("INSYNC",
                 route53GetChange,
-                "Route 53 change record set", 300000, 1000)
+                "Route 53 change record set", getProvider().route53InsycAwaitTimeoutSeconds.get(), 1000)
 
         project.logger.lifecycle("Route 53 Status $changeStatus")
     }
@@ -346,7 +345,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                             " cloudformation delete-stack " +
                             "--stack-name ${awsEksProvider.stack.get()} " +
                             "--output text")
-            verifyClusterStatus(1500000, 300000, stackId, "DELETE_COMPLETE")
+            verifyClusterStatus(awsEksProvider.stackTimeoutSeconds.get(), awsEksProvider.stackSleepTimeBeforeRetrySeconds.get().toLong(), stackId, "DELETE_COMPLETE")
         }
     }
 

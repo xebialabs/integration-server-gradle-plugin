@@ -37,6 +37,15 @@ open class AwsEksProvider @Inject constructor(val project: Project) : Provider(p
     @Input
     val skipExisting = project.objects.property<Boolean>().value(true)
 
+    @Input
+    val stackTimeoutSeconds = project.objects.property<Int>().value(1500000)
+
+    @Input
+    val stackSleepTimeBeforeRetrySeconds = project.objects.property<Int>().value(300000)
+
+    @Input
+    val route53InsycAwaitTimeoutSeconds = project.objects.property<Int>().value(300000)
+
     fun getAwsAccessKey(): String {
         return if (project.hasProperty("accessKey") && project.property("accessKey") != null)
             project.property("accessKey").toString()
