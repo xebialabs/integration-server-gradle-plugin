@@ -176,6 +176,17 @@ clusterProfiles {
             azUsername = 'azure_username'
             azPassword = 'secret'
         }
+        gcpGke {
+            accountCredFile = 'path_to_the_cred_json_file'
+            accountName = 'gcp-gke-usert@apollo-playground.iam.gserviceaccount.com'
+            clusterNodeCount = 3
+            clusterNodeVmSize = 'e2-standard-2'
+            kubernetesVersion = '1.20.11-gke.1801'
+            name = 'gcp-gke-test-cluster'
+            projectName = 'apollo-playground'
+            regionZone = 'us-central1-a'
+            skipExisting = false
+        }        
         onPremise {
             name = 'onprem-test-cluster'
             clusterNodeCpus = 4
@@ -221,6 +232,24 @@ clusterProfiles {
 |      skipExisting      | Optional  |                 true                  |         For some cluster resources there are checks if resources exist, if set to true skip creation.          |
 |      storageClass      | Optional  |                   -                   |         Storage class prefix. On Azure with prefix are created new classes for file and disk storage.          |
 
+### GCP GKE profile
+
+`activeProviderName = "gcp-gke"`
+
+|          Name          |   Type    |           Default Value           |                                                  Description                                                   |
+|:----------------------:|:---------:|:---------------------------------:|:--------------------------------------------------------------------------------------------------------------:|
+|    accountCredFile     | Optional  |                 -                 |                             A file path to read the access token credentials file.                             |
+|      accountName       | Mandatory |                 -                 |                            GCP user account that will be used with `gcloud` plugin.                            |
+|    clusterNodeCount    | Optional  |                 3                 |                    Number of the nodes that will be created during cluster creation on GCP.                    |
+|   clusterNodeVmSize    | Optional  | Medium_DS2_v2 (GCP default value) |                                           Node VM size named on GCP.                                           |
+|   kubernetesVersion    | Optional  |         1.20.11-gke.1801          |                      The kubernetes version that will be custom string for each provider.                      |
+|          name          | Mandatory |                 -                 |                                           The name of your cluster.                                            |
+|     operatorImage      | Optional  |  xebialabs/deploy-operator:1.2.0  |                 The image of operator which is going to be used to install the Deploy cluster                  |
+| operatorPackageVersion | Optional  |               1.2.0               | We deploy operator with help of Deploy, this is a version which will be used as a application package version. |
+|      projectName       | Mandatory |                 -                 |                             The GCP project in which GKE cluster will be created.                              |
+|       regionZone       | Mandatory |                 -                 |                         The cluster GEO zone where cluster instances will be located.                          |
+|      skipExisting      | Optional  |               true                |         For some cluster resources there are checks if resources exist, if set to true skip creation.          |
+|      storageClass      | Optional  |             standard              |   You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.    |
 
 ### Onprem Minikube profile 
 

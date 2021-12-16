@@ -101,12 +101,20 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         }
     }
 
-    fun deleteAllPVCs() {
+    fun deleteAllPVCs(timeout: String) {
         ProcessUtil.executeCommand(project,
-            "$command delete pvc --all", throwErrorOnFailure = false)
+            "$command delete pvc --all --request-timeout=$timeout", throwErrorOnFailure = false)
     }
 
-    private fun getCurrentContext(): String {
+    fun getIngresHost(ingressName: String): String {
+        return getWithPath("ing $ingressName", "{.items[*].spec.rules[*].host}")
+    }
+
+    fun getServiceExternalIp(serviceName: String): String {
+        return getWithPath("get $serviceName", "{.status.loadBalancer.ingress[*].ip}")
+    }
+
+    fun getCurrentContext(): String {
         return ProcessUtil.executeCommand(project,
             "$command config current-context", logOutput = false)
     }
@@ -114,13 +122,13 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
     private fun configView(jsonPath: String) = ProcessUtil.executeCommand(project,
         "$command config view -o jsonpath='$jsonPath' --raw", logOutput = false)
 
-    private fun getContextCluster(contextName: String) =
+    fun getContextCluster(contextName: String) =
         configView("{.contexts[?(@.name == \"$contextName\")].context.cluster}")
 
-    private fun getContextUser(contextName: String) =
+    fun getContextUser(contextName: String) =
         configView("{.contexts[?(@.name == \"$contextName\")].context.user}")
 
-    private fun getClusterServer(clusterName: String) =
+    fun getClusterServer(clusterName: String) =
         configView("{.clusters[?(@.name == \"$clusterName\")].cluster.server}")
 
     private fun configView(jsonPath: String, fallbackJsonPath: String): String {
@@ -133,7 +141,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         }
     }
 
-    private fun getClusterCertificateAuthorityData(clusterName: String): String =
+    fun getClusterCertificateAuthorityData(clusterName: String): String =
         configView("{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority-data}",
             "{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority}")
 
@@ -149,5 +157,10 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
     private fun getNameAndGrep(params: String, grepFor: String): String {
         return ProcessUtil.executeCommand(project,
             "$command get $params -o name | grep $grepFor", throwErrorOnFailure = false, logOutput = false)
+    }
+
+    private fun getWithPath(subCommand: String, jsonpath: String): String {
+        return ProcessUtil.executeCommand(project,
+                "$command $subCommand -o \"jsonpath=$jsonpath\"")
     }
 }
