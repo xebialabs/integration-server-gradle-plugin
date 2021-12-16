@@ -11,15 +11,15 @@ Documentation is applicable for a version **10.4.0-1209.942** or later.
 
 There are a couple of prerequisites which have to be performed in order to run the automation.
 You have to:
-* You should install [gcloud CLI locally](https://cloud.google.com/sdk/docs/install)
+* install [gcloud CLI locally](https://cloud.google.com/sdk/docs/install)
 * add to your `~/.gradle/properties` 2 values:
 ```shell script
 accountCredFile=...
 accountName=... 
 ```
 
-For the `accountName` the best is to use service account. To create service account and get json file that is needed for `accountCredFile` use following link: 
-[Creating a service account](https://cloud.google.com/docs/authentication/production#create_service_account). Assing to service account following roles 
+For the `accountName` the best is to use a service account. To create a service account and get JSON file that is needed for `accountCredFile` use the following link: 
+[Creating a service account](https://cloud.google.com/docs/authentication/production#create_service_account). Assign to a service account following roles 
 on the target project: 
 ![IAM - Permissions for project for the service account](./pics/gcp-gke-project-permissions.png)
 More details about IAM policies for GKE are here: [Create IAM policies](https://cloud.google.com/kubernetes-engine/docs/how-to/iam)
