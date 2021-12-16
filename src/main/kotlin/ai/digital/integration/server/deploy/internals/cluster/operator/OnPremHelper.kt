@@ -48,18 +48,8 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
         val onPremiseProvider: OnPremiseProvider = getProvider()
         val name = onPremiseProvider.name.get()
 
-        val clusterName = onPremClusterName(name)
+        undeployCluster()
 
-        project.logger.lifecycle("Operator is being undeployed")
-
-        if (undeployCis()) {
-            project.logger.lifecycle("PVCs are being deleted")
-            getKubectlHelper().deleteAllPVCs()
-        } else {
-            project.logger.lifecycle("Skip delete of PVCs")
-        }
-
-        project.logger.lifecycle("Minikube cluster is being deleted {} ", clusterName)
         deleteCluster(name)
 
         project.logger.lifecycle("Current cluster context is being deleted")
@@ -151,6 +141,7 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
 
     private fun deleteCluster(name: String) {
         val clusterName = onPremClusterName(name)
+        project.logger.lifecycle("Minikube cluster is being deleted {} ", clusterName)
         ProcessUtil.executeCommand(project,
             "minikube delete -p $clusterName", throwErrorOnFailure = false)
     }

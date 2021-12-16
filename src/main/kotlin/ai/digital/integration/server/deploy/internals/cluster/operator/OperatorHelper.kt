@@ -171,6 +171,19 @@ abstract class OperatorHelper(val project: Project) {
         WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
 
+    fun undeployCluster() {
+
+        project.logger.lifecycle("Operator is being undeployed")
+
+        if (undeployCis()) {
+            val deletePvcRequestTimeout = getProvider().deletePvcRequestTimeout.get()
+            project.logger.lifecycle("PVCs are being deleted")
+            getKubectlHelper().deleteAllPVCs(deletePvcRequestTimeout)
+        } else {
+            project.logger.lifecycle("Skip delete of PVCs")
+        }
+    }
+
     fun undeployCis(): Boolean {
         val fileStream = {}::class.java.classLoader.getResourceAsStream("operator/python/undeploy.py")
         val resultComposeFilePath = Paths.get(getProviderWorkDir(), "undeploy.py")

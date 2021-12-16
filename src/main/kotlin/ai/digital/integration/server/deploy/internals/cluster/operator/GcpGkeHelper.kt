@@ -56,19 +56,11 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         val regionZone = gcpGkeProvider.regionZone.get()
         val accountName = gcpGkeProvider.accountName.get()
 
-        project.logger.lifecycle("Undeploy operator")
-
-        if (undeployCis()) {
-            project.logger.lifecycle("Delete all PVCs")
-            getKubectlHelper().deleteAllPVCs()
-        } else {
-            project.logger.lifecycle("Skip delete of PVCs")
-        }
+        undeployCluster()
 
         deleteCluster(accountName, projectName, name, regionZone)
         deleteDnsOpenApi()
 
-        project.logger.lifecycle("Delete current context")
         getKubectlHelper().deleteCurrentContext()
         logoutGCloudCli(gcpGkeProvider.accountName.get())
     }

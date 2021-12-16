@@ -29,4 +29,6 @@ abstract class Provider @Inject constructor(project: Project) {
     @Input
     val storageClass = project.objects.property<String>()
 
+    @Input
+    val deletePvcRequestTimeout = project.objects.property<String>().value("10m")
 }
