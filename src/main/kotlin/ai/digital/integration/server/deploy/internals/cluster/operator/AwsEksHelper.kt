@@ -55,6 +55,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                 throwErrorOnFailure = false)
     }
 
+
     private fun createSshKey(skipExisting: Boolean) {
         val shouldSkipExisting = if (skipExisting) {
             existingSshKeyPair()
@@ -190,23 +191,68 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         getKubectlHelper().setDefaultStorageClass(efsStorageClassName)
     }
 
+    private fun createIAMOidcProvider() {
+        ProcessUtil.executeCommand(project,
+                "eksctl utils associate-iam-oidc-provider --cluster ${getProvider().clusterName.get()} --approve --region ${getProvider().region.get()}",
+                logOutput = true,
+                throwErrorOnFailure = false)
+    }
+
+    private fun createIAMRoleForCSIDriver() {
+        ProcessUtil.executeCommand(project,
+                "eksctl create iamserviceaccount " +
+                        "--name efs-csi-controller-sa " +
+                        "--namespace kube-system " +
+                        "--cluster ${getProvider().clusterName.get()} " +
+                        "--attach-policy-arn arn:aws:iam::932770550094:policy/AmazonEKS_EFS_CSI_Driver_Policy " +
+                        "--approve " +
+                        "--override-existing-serviceaccounts " +
+                        "--region ${getProvider().region.get()}",
+                logOutput = true,
+                throwErrorOnFailure = false)
+    }
+
+    private fun installEFSDriver() {
+        ProcessUtil.executeCommand(project,
+                "helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/",
+                logOutput = true,
+                throwErrorOnFailure = false)
+        ProcessUtil.executeCommand(project,
+                "helm repo update",
+                logOutput = true,
+                throwErrorOnFailure = false)
+        ProcessUtil.executeCommand(project,
+                "helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver " +
+                        "--namespace kube-system " +
+                        "--set controller.serviceAccount.create=false " +
+                        "--set controller.serviceAccount.name=efs-csi-controller-sa",
+                logOutput = true,
+                throwErrorOnFailure = false)
+    }
+
     private fun createStorageClassEFS(storageClassName: String) {
         if (!getKubectlHelper().hasStorageClass(storageClassName)) {
+            project.logger.lifecycle("Create OIDC PROVIDER")
+            createIAMOidcProvider()
+            project.logger.lifecycle("Create IAM role for 'CSI DRIVER'")
+            createIAMRoleForCSIDriver()
+            project.logger.lifecycle("Install EFS CSI Driver")
+            installEFSDriver()
             project.logger.lifecycle("Create storage class: {}", storageClassName)
-            helmInstallAwsEfs(getFileSystemId(), storageClassName)
+            updateStorageClass(getFileSystemId(), storageClassName)
         } else {
             project.logger.lifecycle("Skipping creation of the existing storage class: {}", storageClassName)
         }
     }
 
-    private fun helmInstallAwsEfs(fileSystemId: String, storageClassName: String) {
-        ProcessUtil.executeCommand(project, "helm repo add stable https://charts.helm.sh/stable", logOutput = false, throwErrorOnFailure = false)
-        ProcessUtil.executeCommand(project, "helm install " +
-                "$storageClassName stable/efs-provisioner " +
-                "--set efsProvisioner.efsFileSystemId=${fileSystemId} " +
-                "--set efsProvisioner.awsRegion=${getProvider().region.get()}",
-                logOutput = false,
-                throwErrorOnFailure = false)
+    private fun updateStorageClass(fileSystemId: String, storageClassName: String) {
+        project.logger.lifecycle("Create storage class: {}", storageClassName)
+        val awsEfsScTemplateFile = getTemplate("operator/aws-eks/aws-efs-storage.yaml")
+        val awsEFSTemplate = awsEfsScTemplateFile.readText(Charsets.UTF_8)
+                .replace("{{NAME}}", storageClassName)
+                .replace("{{FILESYSTEMID}}", fileSystemId)
+        awsEfsScTemplateFile.writeText(awsEFSTemplate)
+        getKubectlHelper().applyFile(awsEfsScTemplateFile)
     }
 
     private fun getFileSystemId(): String {
@@ -232,7 +278,8 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
     private fun updateCrValues() {
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
         val pairs: MutableMap<String, Any> = mutableMapOf(
-                "spec.ingress.hosts" to arrayOf(getFqdn())
+                "spec.ingress.hosts" to arrayOf(getFqdn()),
+                "spec.rabbitmq.persistence.storageClass" to "gp2"
         )
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
@@ -258,7 +305,8 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
     private fun getHostZoneId(hostName: String): String {
         return ProcessUtil.executeCommand(project,
-                "aws elb describe-load-balancers" +
+                "aws --region ${getProvider().region.get()} " +
+                        "elb describe-load-balancers" +
                         " --load-balancer-name " +
                         "${hostName.substring(0, 32)} " +
                         "--query LoadBalancerDescriptions[*].CanonicalHostedZoneNameID --output text",
@@ -381,6 +429,14 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
     override fun getContextRoot(): String {
         return "/xl-deploy/"
+    }
+
+    override fun getDbStorageClass(): String {
+        return ("gp2")
+    }
+
+    override fun getMqStorageClass(): String {
+        return ("gp2")
     }
 
 }

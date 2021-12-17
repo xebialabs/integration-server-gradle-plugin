@@ -273,7 +273,6 @@ Resources:
         Ref: subnetB
       SecurityGroups:
         - Ref: ClusterControlPlaneSecurityGroup
-
 Outputs:
   VPCID:
     Value:

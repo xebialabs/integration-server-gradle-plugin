@@ -208,7 +208,7 @@ abstract class OperatorHelper(val project: Project) {
                 "spec.postgresql.image.debug" to true,
                 "spec.postgresql.persistence.size" to "5Gi",
                 "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
-                "spec.rabbitmq.persistence.storageClass" to getStorageClass(),
+                "spec.rabbitmq.persistence.storageClass" to getMqStorageClass(),
                 "spec.rabbitmq.image.debug" to true,
                 "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
                 "spec.rabbitmq.persistence.size" to "1Gi",
@@ -243,6 +243,10 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     open fun getDbStorageClass(): String {
+        return getStorageClass()
+    }
+
+    open fun getMqStorageClass(): String {
         return getStorageClass()
     }
 
