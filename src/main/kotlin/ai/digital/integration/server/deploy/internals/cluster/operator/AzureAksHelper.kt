@@ -55,16 +55,11 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val location = azureAksProvider.location.get()
         val clusterName = aksClusterName(name)
 
-        project.logger.lifecycle("Operator is being undeployed")
-        undeployCis()
-
-        project.logger.lifecycle("PVCs are being deleted")
-        getKubectlHelper().deleteAllPVCs()
+        undeployCluster()
 
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
         deleteResourceGroup(groupName, location)
 
-        project.logger.lifecycle("Current cluster context is being deleted")
         getKubectlHelper().deleteCurrentContext()
         logoutAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
     }
@@ -100,10 +95,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val azureAksProvider: AzureAksProvider = getProvider()
         val location = azureAksProvider.location.get()
         return "${getHost()}.${location}.cloudapp.azure.com"
-    }
-
-    override fun getContextRoot(): String {
-        return "/xl-deploy/"
     }
 
     private fun validateAzCli() {
@@ -149,7 +140,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val diskStorageClassName = diskStorageClassName(name)
         createStorageClassFromFile(diskStorageClassName, "operator/azure-aks/azure-disk-sc.yaml")
 
-        getKubectlHelper().setDefaultStorageClass("default", fileStorageClassName)
+        getKubectlHelper().setDefaultStorageClass(fileStorageClassName)
     }
 
     private fun existsResourceGroup(groupName: String, location: String): Boolean {

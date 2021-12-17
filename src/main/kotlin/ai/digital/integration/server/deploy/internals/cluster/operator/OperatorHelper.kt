@@ -171,24 +171,39 @@ abstract class OperatorHelper(val project: Project) {
         WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
 
-    fun undeployCis() {
+    fun undeployCluster() {
+
+        project.logger.lifecycle("Operator is being undeployed")
+
+        if (undeployCis()) {
+            val deletePvcRequestTimeout = getProvider().deletePvcRequestTimeout.get()
+            project.logger.lifecycle("PVCs are being deleted")
+            getKubectlHelper().deleteAllPVCs(deletePvcRequestTimeout)
+        } else {
+            project.logger.lifecycle("Skip delete of PVCs")
+        }
+    }
+
+    fun undeployCis(): Boolean {
         val fileStream = {}::class.java.classLoader.getResourceAsStream("operator/python/undeploy.py")
         val resultComposeFilePath = Paths.get(getProviderWorkDir(), "undeploy.py")
         fileStream?.let {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
-        try {
+        return try {
             CliUtil.executeScripts(project,
-                listOf(resultComposeFilePath.toFile()),
-                "undeploy.py",
-                auxiliaryServer = true)
+                    listOf(resultComposeFilePath.toFile()),
+                    "undeploy.py",
+                    auxiliaryServer = true)
+            true
         } catch (e: RuntimeException) {
-            project.logger.warn("Undeploy didn't run. Check if operator's deploy server is running on port 4516: ${e.message}")
+            project.logger.error("Undeploy didn't run. Check if operator's deploy server is running on port 4516: ${e.message}")
+            false
         }
     }
 
     open fun getOperatorImage(): String {
-        return getProvider().operatorImage.value("xebialabs/deploy-operator:1.2.0").get()
+        return getProvider().operatorImage.getOrElse("xebialabs/deploy-operator:1.2.0")
     }
 
     fun updateOperatorCrValues() {
@@ -239,7 +254,7 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     open fun getStorageClass(): String {
-        return getProvider().storageClass.value("standard").get()
+        return getProvider().storageClass.getOrElse("standard")
     }
 
     open fun getDbStorageClass(): String {
@@ -251,15 +266,15 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     open fun getFqdn(): String {
-        return getProvider().host.orElse(getProvider().name).get()
+        return getProvider().host.getOrElse(getProvider().name.get())
     }
 
     open fun getContextRoot(): String {
-        return ""
+        return "/xl-deploy/"
     }
 
     open fun getHost(): String {
-        return getProvider().host.orElse(getProvider().name).get()
+        return getProvider().host.getOrElse(getProvider().name.get())
     }
 
     open fun getPort(): String {
