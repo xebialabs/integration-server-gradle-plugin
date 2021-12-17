@@ -28,8 +28,8 @@ class IntegrationServerPlugin : Plugin<Project> {
         project.plugins.apply("derby-ns")
 
         val derbyExtension = project.extensions.getByName("derby") as DerbyExtension
-        derbyExtension.dataDir = workDir
-        derbyExtension.port = getPort(project)
+        derbyExtension.dataDir.convention(workDir)
+        derbyExtension.port.convention(getPort(project))
 
         val startDerbyTask = project.tasks.getByName("derbyStart")
         val stopDerbyTask = project.tasks.getByName("derbyStop")
