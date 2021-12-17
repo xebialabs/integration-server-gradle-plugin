@@ -174,7 +174,7 @@ Resources:
     Type: "AWS::EKS::Cluster"
     Properties:
       Name: !Sub "${ClusterName}"
-      Version: "1.20"
+      Version: !Sub ${KubernetesVersion}
       RoleArn: !GetAtt ClusterRole.Arn
       ResourcesVpcConfig:
         SecurityGroupIds:

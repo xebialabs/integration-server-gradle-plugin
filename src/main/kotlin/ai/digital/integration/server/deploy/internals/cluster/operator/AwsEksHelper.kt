@@ -356,7 +356,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         undeployCis()
 
         project.logger.lifecycle("PVCs are being deleted")
-        getKubectlHelper().deleteAllPVCs()
+        getKubectlHelper().deleteAllPVCs(getProvider().deletePvcRequestTimeout.get())
 
         project.logger.lifecycle("Delete cluster and ssh key")
         deleteSshKey(awsEksProvider)
@@ -374,7 +374,9 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
             ProcessUtil.executeCommand(project,
                     "aws --region ${awsEksProvider.region.get()} " +
                             "ec2 delete-key-pair " +
-                            "--key-name ${awsEksProvider.sshKeyName.get()}")
+                            "--key-name ${awsEksProvider.sshKeyName.get()}",
+                    logOutput = false,
+                    throwErrorOnFailure = false)
         }
     }
 
@@ -387,13 +389,19 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                             "cloudformation describe-stacks " +
                             "--stack-name ${awsEksProvider.stack.get()} " +
                             "--query='Stacks[0].StackId' " +
-                            "--output text")
-            ProcessUtil.executeCommand(project,
-                    "aws --region ${awsEksProvider.region.get()}" +
-                            " cloudformation delete-stack " +
-                            "--stack-name ${awsEksProvider.stack.get()} " +
-                            "--output text")
-            verifyClusterStatus(awsEksProvider.stackTimeoutSeconds.get(), awsEksProvider.stackSleepTimeBeforeRetrySeconds.get().toLong(), stackId, "DELETE_COMPLETE")
+                            "--output text",
+                    logOutput = false,
+                    throwErrorOnFailure = false)
+            if (!stackId.contains("does not exist")) {
+                ProcessUtil.executeCommand(project,
+                        "aws --region ${awsEksProvider.region.get()}" +
+                                " cloudformation delete-stack " +
+                                "--stack-name ${awsEksProvider.stack.get()} " +
+                                "--output text",
+                        logOutput = false,
+                        throwErrorOnFailure = false)
+                verifyClusterStatus(awsEksProvider.stackTimeoutSeconds.get(), awsEksProvider.stackSleepTimeBeforeRetrySeconds.get().toLong(), stackId, "DELETE_COMPLETE")
+            }
         }
     }
 

@@ -194,6 +194,22 @@ clusterProfiles {
             kubernetesVersion = '1.20.0'
             skipExisting = false
         }
+        awsEks {
+            region = "us-east-1"
+            stack = "deploy-operator-test"
+            clusterName = "deploy-operator-cluster-test"
+            nodeGroupName = "deploy-operator-cluster-nodegroup"
+            clusterNodeCount = 2
+            sshKeyName = "deploy-operator-ssh-key"
+            fileSystemName = "deploy-operator-efs-test"
+            kubernetesVersion = "1.20"
+            skipExisting = true
+            stackTimeoutSeconds = 1500000
+            stackSleepTimeBeforeRetrySeconds = 300000
+            route53InsycAwaitTimeoutSeconds = 300000
+            accessKey = "AWS access key"
+            secretKey = "AWS Secret key"
+        }
     }
 }
 ```
@@ -214,7 +230,7 @@ clusterProfiles {
 |repositoryKeystore|Optional|Provided|Keystore to encrypt sensitive information in CIs|
 |storageClass|Optional|aws-efs|You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.|
 
-### Azure EKS profile 
+### Azure AKS profile 
 
 `activeProviderName = "azure-aks"`
 
@@ -265,6 +281,32 @@ clusterProfiles {
 | operatorPackageVersion | Optional  |                  1.2.0                   | We deploy operator with help of Deploy, this is a version which will be used as a application package version. |
 |      skipExisting      | Optional  |                   true                   |         For some cluster resources there are checks if resources exist, if set to true skip creation.          |
 |      storageClass      | Optional  |                 standard                 |   You can use another storage class, but you have to be sure that it is NFS based, otherwise it won't work.    |
+
+
+### AWS EKS profile 
+
+`activeProviderName = "aws-eks"`
+
+|          Name          |   Type    |             Default Value             |                                                  Description                                                   |
+|:----------------------:|:---------:|:-------------------------------------:|:--------------------------------------------------------------------------------------------------------------:|
+|       accessKey        | Optional |                   -                    |    AWS AccessKey to access aws cli tool.                                                                       |
+|       secretKey        | Optional |                   -                    |    AWS SecretKey to access aws cli tool.                                                                       |
+|       region           | Optional |               'us-east-1'              |    Region where the cluster to be created.                                                                     |
+|       stack            | Optional |          'deploy-operator-test'        |    Name of the AWS stack.                                                                                      | 
+|    clusterName         | Optional |        'deploy-operator-cluster-test'  |    Name of the AWS EKS Cluster.                                                                                |
+|   nodeGroupName        | Optional |   'deploy-operator-cluster-nodegroup'  |    Name of the nodeGroup. At present only two node groups are support.                                         |
+|   clusterNodeCount     | Optional |                   2                    |    Number of the worker nodes to be created within node group, max node count of each group is 8.              |
+|   kubernetesVersion    | Optional |     Default version is 1.20            |    The kubernetes version that will be custom string for each provider.                                        |
+|   sshKeyName           | Optional |   'deploy-operator-ssh-key'            |    ssh key for accessing Amazon EC2 instance.                                                                  |
+|   fileSystemName       | Optional |   'deploy-operator-efs-test'           |    AWS EFS file system name.                                                                                   |
+|     operatorImage      | Optional |    xebialabs/deploy-operator:1.2.0     |                 The image of operator which is going to be used to install the Deploy cluster                  |
+| operatorPackageVersion | Optional |                 1.2.0                  | We deploy operator with help of Deploy, this is a version which will be used as a application package version. |
+|      skipExisting      | Optional |                 true                   |         For some cluster resources there are checks if resources exist, if set to true skip creation.          |
+| stackTimeoutSeconds    | Optional |  1500000                               |  Maximum wait time for 'Stack Creation' or 'Stack Deletion' in seconds.                                        |
+| stackSleepTimeBeforeRetrySeconds| Optional| 300000                         |  Polling period in seconds for 'Stack Creation' or 'Stack Deletion'.                                           |
+| route53InsycAwaitTimeoutSeconds| Optional | 300000                         |  Polling period in seconds for route53 provisioning.                                                           | 
+|      storageClass      | Optional |                "aws-efs && gp2'        |   Use gp2 storageclass for postgres and rabbitmq and  use 'aws-efs' storageclass for xl-deploy pods            |
+                                                                                                                                         
 
 ## Servers section
 

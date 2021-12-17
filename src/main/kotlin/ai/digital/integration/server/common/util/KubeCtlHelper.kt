@@ -47,23 +47,14 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         }
     }
 
-    private fun patch(storageClass: String, isDefault: Boolean) {
-        ProcessUtil.executeCommand(project,
-                " $command patch storageclass $storageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"$isDefault\"}}}'")
-    }
-
-    fun setDefaultStorageClass(oldDefaultStorageClass: String, newDefaultStorageClass: String) {
-        patch(newDefaultStorageClass, true)
-        patch(oldDefaultStorageClass, false)
-    }
-
     fun setDefaultStorageClass(newDefaultStorageClass: String) {
         ProcessUtil.executeCommand(project,
                 " $command get sc -o name" +
                         "|sed -e 's/.*\\///g' " +
                         "|xargs -I {} " +
                         "$command patch storageclass {} -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"false\"}}}'")
-        patch(newDefaultStorageClass, true)
+        ProcessUtil.executeCommand(project,
+                " $command patch storageclass $newDefaultStorageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'")
     }
 
     fun hasStorageClass(storageClass: String): Boolean {
@@ -112,7 +103,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     fun deleteAllPVCs(timeout: String) {
         ProcessUtil.executeCommand(project,
-            "$command delete pvc --all --request-timeout=$timeout", throwErrorOnFailure = false)
+                "$command delete pvc --all --request-timeout=$timeout", throwErrorOnFailure = false)
     }
 
     fun getIngresHost(ingressName: String): String {
@@ -132,13 +123,13 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
             "$command config view -o jsonpath='$jsonPath' --raw", logOutput = false)
 
     fun getContextCluster(contextName: String) =
-        configView("{.contexts[?(@.name == \"$contextName\")].context.cluster}")
+            configView("{.contexts[?(@.name == \"$contextName\")].context.cluster}")
 
     fun getContextUser(contextName: String) =
-        configView("{.contexts[?(@.name == \"$contextName\")].context.user}")
+            configView("{.contexts[?(@.name == \"$contextName\")].context.user}")
 
     fun getClusterServer(clusterName: String) =
-        configView("{.clusters[?(@.name == \"$clusterName\")].cluster.server}")
+            configView("{.clusters[?(@.name == \"$clusterName\")].cluster.server}")
 
     private fun configView(jsonPath: String, fallbackJsonPath: String): String {
         val data = configView(jsonPath)
@@ -151,8 +142,8 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
     }
 
     fun getClusterCertificateAuthorityData(clusterName: String): String =
-        configView("{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority-data}",
-            "{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority}")
+            configView("{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority-data}",
+                    "{.clusters[?(@.name == \"$clusterName\")].cluster.certificate-authority}")
 
 
     private fun getUserClientKeyData(userName: String): String =

@@ -9,13 +9,13 @@ Documentation is applicable for a version **10.4.0-1209.942** or later.
 
 ## Pre-requisites
 
-There are a couple of prerequisites which have to be performed in order to run the automation.
-You have to:
-* You should install [AWS CLI locally](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) and [Configure AWS cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
-* You should install [EKSCTL locally](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html)
-* You should install [HELM locally](https://helm.sh/docs/intro/install/)
+Below are the prerequisites for the automation to run.
+You need to:
+* Install [AWS CLI locally](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) and [Configure AWS cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
+* Install [EKSCTL locally](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html)
+* Install [HELM locally](https://helm.sh/docs/intro/install/)
 * Note:  
-  * AWS access key and secret key should be configured either via aws configure or else we need to pass it as gradle project properties.
+  * AWS access key and secret key should be configured either via aws configure or using gradle project properties.
   '-PaccessKey= -PsecretKey='  
 
 ## How the full flow works
