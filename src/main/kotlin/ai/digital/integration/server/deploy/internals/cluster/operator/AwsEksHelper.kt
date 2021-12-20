@@ -352,11 +352,8 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
     fun shutdownCluster() {
         val awsEksProvider: AwsEksProvider = getProvider()
-        project.logger.lifecycle("Undeploy operator")
-        undeployCis()
 
-        project.logger.lifecycle("PVCs are being deleted")
-        getKubectlHelper().deleteAllPVCs(getProvider().deletePvcRequestTimeout.get())
+        undeployCluster()
 
         project.logger.lifecycle("Delete iamserviceaccount for CSI driver.")
         deleteIAMRoleForCSIDriver(getProvider())
@@ -367,7 +364,6 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
         project.logger.lifecycle("Delete current context")
         getKubectlHelper().deleteCurrentContext()
-
     }
 
     private fun deleteIAMRoleForCSIDriver(awsEksProvider: AwsEksProvider) {

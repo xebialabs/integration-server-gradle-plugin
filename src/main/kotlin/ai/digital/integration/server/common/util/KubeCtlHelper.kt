@@ -103,7 +103,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     fun deleteAllPVCs(timeoutSeconds: Int) {
         ProcessUtil.executeCommand(project,
-                "$command delete pvc --all --request-timeout=${timeoutSeconds}s --grace-period=$timeoutSeconds", throwErrorOnFailure = false)
+                "$command delete pvc --all --wait=false --grace-period=$timeoutSeconds", throwErrorOnFailure = false)
     }
 
     fun getIngresHost(ingressName: String): String {
