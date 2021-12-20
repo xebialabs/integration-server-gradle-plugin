@@ -110,7 +110,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                     "aws --region  ${awsEksProvider.region.get()} " +
                             "cloudformation create-stack " +
                             "--stack-name ${awsEksProvider.stack.get()} " +
-                            "--template-body file://$awsEksClusterTemplateFile " +
+                            "--template-body file://\"$awsEksClusterTemplateFile\" " +
                             "--capabilities CAPABILITY_IAM " +
                             "--parameters " +
                             "ParameterKey=ProjectName,ParameterValue=${awsEksProvider.stack.get()} " +
@@ -328,7 +328,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                 "aws route53 " +
                         "change-resource-record-sets " +
                         "--hosted-zone-id Z0621108QZWN6SHNIF6I " +
-                        "--change-batch file://${awsRoute53TemplateFile}",
+                        "--change-batch file://\"${awsRoute53TemplateFile}\"",
                 logOutput = false,
                 throwErrorOnFailure = false)
     }
