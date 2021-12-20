@@ -81,7 +81,7 @@ abstract class OperatorHelper(val project: Project) {
         project.logger.lifecycle("Updating operator's applications")
 
         val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
-        val pairs = mutableMapOf<String, Any>("spec[0].children[0].name" to getProvider().operatorPackageVersion)
+        val pairs = mutableMapOf<String, Any>("spec[0].children[0].name" to getProvider().operatorPackageVersion.get())
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -90,7 +90,7 @@ abstract class OperatorHelper(val project: Project) {
 
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
         val pairs =
-            mutableMapOf<String, Any>("spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion}")
+            mutableMapOf<String, Any>("spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion.get()}")
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -99,7 +99,7 @@ abstract class OperatorHelper(val project: Project) {
 
         val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
         val pairs =
-            mutableMapOf<String, Any>("spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion}")
+            mutableMapOf<String, Any>("spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion.get()}")
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -217,9 +217,9 @@ abstract class OperatorHelper(val project: Project) {
                 "spec.XldWorkerCount" to getWorkerCount(),
                 "spec.Persistence.XldMasterPvcSize" to "1Gi",
                 "spec.Persistence.XldWorkerPvcSize" to "1Gi",
-                "spec.KeystorePassphrase" to getProvider().keystorePassphrase,
+                "spec.KeystorePassphrase" to getProvider().keystorePassphrase.get(),
                 "spec.Persistence.StorageClass" to getStorageClass(),
-                "spec.RepositoryKeystore" to getProvider().repositoryKeystore,
+                "spec.RepositoryKeystore" to getProvider().repositoryKeystore.get(),
                 "spec.postgresql.image.debug" to true,
                 "spec.postgresql.persistence.size" to "5Gi",
                 "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
