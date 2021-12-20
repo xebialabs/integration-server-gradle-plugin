@@ -176,9 +176,8 @@ abstract class OperatorHelper(val project: Project) {
         project.logger.lifecycle("Operator is being undeployed")
 
         if (undeployCis()) {
-            val deletePvcRequestTimeout = getProvider().deletePvcRequestTimeout.get()
             project.logger.lifecycle("PVCs are being deleted")
-            getKubectlHelper().deleteAllPVCs(deletePvcRequestTimeout)
+            getKubectlHelper().deleteAllPVCs()
         } else {
             project.logger.lifecycle("Skip delete of PVCs")
         }
