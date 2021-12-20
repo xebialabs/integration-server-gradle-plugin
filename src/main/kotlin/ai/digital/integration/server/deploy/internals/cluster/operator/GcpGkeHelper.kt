@@ -21,7 +21,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         val accountName = gcpGkeProvider.accountName.get()
 
         validateGCloudCli()
-        loginGCloudCli(accountName, gcpGkeProvider.accountCredFile)
+        loginGCloudCli(accountName, gcpGkeProvider.getAccountCredFile())
         changeDefaultProject(projectName)
         changeDefaultRegionZone(regionZone)
 
@@ -85,9 +85,12 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         }
     }
 
-    private fun loginGCloudCli(accountName: String, accountCredFile: Property<File>) {
+    private fun loginGCloudCli(accountName: String, accountCredFile: String) {
         project.logger.lifecycle("Login account $accountName")
-        val additions = accountCredFile.map { " --cred-file=\"${it.absolutePath}\"" }.getOrElse("")
+        val additions = if(accountCredFile.isNotBlank())
+            " --cred-file=\"${File(accountCredFile).absolutePath}\""
+        else
+            ""
         ProcessUtil.executeCommand(project,
                 "gcloud auth login $accountName $additions --quiet")
     }
