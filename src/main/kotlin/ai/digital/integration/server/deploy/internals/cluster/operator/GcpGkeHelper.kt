@@ -199,7 +199,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
     private fun useCustomStorageClass(storageClassName: String) {
         if (!getKubectlHelper().hasStorageClass(storageClassName) && "standard" != storageClassName) {
             project.logger.lifecycle("Use storage class: {}", storageClassName)
-            getKubectlHelper().setDefaultStorageClass("standard", storageClassName)
+            getKubectlHelper().setDefaultStorageClass(storageClassName)
         } else {
             project.logger.lifecycle("Skipping using of storage class: {}", storageClassName)
         }

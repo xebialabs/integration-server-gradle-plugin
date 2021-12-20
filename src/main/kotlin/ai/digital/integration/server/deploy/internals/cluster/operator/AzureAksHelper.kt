@@ -140,7 +140,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val diskStorageClassName = diskStorageClassName(name)
         createStorageClassFromFile(diskStorageClassName, "operator/azure-aks/azure-disk-sc.yaml")
 
-        getKubectlHelper().setDefaultStorageClass("default", fileStorageClassName)
+        getKubectlHelper().setDefaultStorageClass(fileStorageClassName)
     }
 
     private fun existsResourceGroup(groupName: String, location: String): Boolean {
