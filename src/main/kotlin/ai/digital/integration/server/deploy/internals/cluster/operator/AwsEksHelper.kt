@@ -358,6 +358,9 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         project.logger.lifecycle("PVCs are being deleted")
         getKubectlHelper().deleteAllPVCs(getProvider().deletePvcRequestTimeout.get())
 
+        project.logger.lifecycle("Delete iamserviceaccount for CSI driver.")
+        deleteIAMRoleForCSIDriver(getProvider())
+
         project.logger.lifecycle("Delete cluster and ssh key")
         deleteSshKey(awsEksProvider)
         deleteCluster(awsEksProvider)
@@ -365,6 +368,21 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
         project.logger.lifecycle("Delete current context")
         getKubectlHelper().deleteCurrentContext()
 
+    }
+
+    private fun deleteIAMRoleForCSIDriver(awsEksProvider: AwsEksProvider) {
+        if (awsEksProvider.skipExisting.get()) {
+            project.logger.lifecycle("Skipping deletion of the storageClass and iamserviceaccount: {}", awsEksProvider.sshKeyName.get())
+        } else {
+            ProcessUtil.executeCommand(project,
+                    "eksctl delete iamserviceaccount " +
+                            "--name efs-csi-controller-sa " +
+                            "--namespace kube-system " +
+                            "--cluster ${getProvider().clusterName.get()} " +
+                            "--region ${getProvider().region.get()}",
+                    logOutput = true,
+                    throwErrorOnFailure = false)
+        }
     }
 
     private fun deleteSshKey(awsEksProvider: AwsEksProvider) {
