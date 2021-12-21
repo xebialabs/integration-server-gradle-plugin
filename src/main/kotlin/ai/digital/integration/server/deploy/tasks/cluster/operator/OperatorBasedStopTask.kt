@@ -1,13 +1,13 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator
 
-import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import org.gradle.api.DefaultTask
 
 abstract class OperatorBasedStopTask : DefaultTask() {
 
     fun dependsOnTasks(): Array<String> {
         return arrayOf(
-            StopDeployServerForOperatorInstanceTask.NAME
+            DownloadAndExtractCliDistTask.NAME
         )
     }
 }

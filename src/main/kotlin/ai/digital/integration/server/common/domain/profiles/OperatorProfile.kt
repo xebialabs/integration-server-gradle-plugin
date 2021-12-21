@@ -17,7 +17,7 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
     val activeProviderName = project.objects.property<String>().value(OperatorProviderName.ON_PREMISE.providerName)
 
     @Input
-    val deploymentTimeoutSeconds = project.objects.property<Int>().value(600)
+    val deploymentTimeoutSeconds = project.objects.property<Int>().value(900)
 
     @Input
     val xlCliVersion = project.objects.property<String>().value("10.2.3")

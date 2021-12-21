@@ -134,10 +134,7 @@ open class StartServerInstanceTask : DefaultTask() {
                 startServer(server)
             }
         } else {
-            project.exec {
-                executable = "docker-compose"
-                args = listOf("-f", DeployServerUtil.getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
-            }
+            DeployServerUtil.runDockerBasedInstance(project, server)
             null
         }
     }

@@ -9,6 +9,7 @@ import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.Oper
 import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -40,6 +41,7 @@ open class OperatorBasedStopDeployClusterTask : DefaultTask() {
                 }")
             }
         })
+        this.finalizedBy(StopDeployServerForOperatorInstanceTask.NAME)
     }
 
     @TaskAction

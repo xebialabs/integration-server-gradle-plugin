@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 open class OperatorBasedAwsOpenShiftDeployClusterStopTask : OperatorBasedStopTask() {
 
     companion object {
-        const val NAME = "operatorBasedAwsOpenShiftStopDeployCluster"
+        const val NAME = "operatorBasedAwsOpenShiftDeployClusterStop"
     }
 
     init {

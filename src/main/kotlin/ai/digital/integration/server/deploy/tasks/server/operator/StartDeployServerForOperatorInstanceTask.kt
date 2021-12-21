@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.util.DbUtil
+import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.tasks.server.*
 import org.gradle.api.DefaultTask
@@ -37,10 +38,7 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
     }
 
     private fun start(server: Server) {
-        project.exec {
-            executable = "docker-compose"
-            args = listOf("-f", DeployServerUtil.getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
-        }
+        DeployServerUtil.runDockerBasedInstance(project, server)
     }
 
     private fun allowToWriteMountedHostFolders() {
@@ -56,6 +54,9 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
                 allowToWriteMountedHostFolders()
                 start(server)
                 DeployServerUtil.waitForBoot(project, null, auxiliaryServer = true)
+
+                val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project, server).toFile()
+                DockerComposeUtil.allowToCleanMountedFiles(project, server, dockerComposeFile)
             }
     }
 }

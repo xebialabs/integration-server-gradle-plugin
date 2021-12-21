@@ -15,8 +15,7 @@ class EntryPointUrlUtil {
             clusterValue: String,
             auxiliaryServer: Boolean
         ): String {
-            val dockerHelper = DeployDockerClusterHelper(project)
-            if (dockerHelper.isClusterEnabled() && !auxiliaryServer) {
+            if (DeployServerUtil.isClusterEnabled(project) && !auxiliaryServer) {
                 return clusterValue
             }
             return DeployServerUtil.readDeployitConfProperty(project, key)

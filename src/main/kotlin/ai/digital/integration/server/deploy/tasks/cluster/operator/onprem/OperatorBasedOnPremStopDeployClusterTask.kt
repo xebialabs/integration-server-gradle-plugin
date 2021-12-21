@@ -3,7 +3,6 @@ package ai.digital.integration.server.deploy.tasks.cluster.operator.onprem
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.cluster.operator.OnPremHelper
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopTask
-import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
 open class OperatorBasedOnPremStopDeployClusterTask : OperatorBasedStopTask() {
@@ -14,7 +13,7 @@ open class OperatorBasedOnPremStopDeployClusterTask : OperatorBasedStopTask() {
 
     init {
         group = PluginConstant.PLUGIN_GROUP
-        this.dependsOn(dependsOnTasks())
+        dependsOn(dependsOnTasks())
     }
 
     @TaskAction

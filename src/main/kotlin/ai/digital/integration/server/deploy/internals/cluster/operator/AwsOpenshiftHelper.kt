@@ -24,16 +24,24 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         updateInfrastructure(getApiServerUrl(), getOcApiServerToken())
 
         applyYamlFiles()
+
+        ocLogin()
+        turnOnLogging()
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()
 
         waitForBoot()
+        turnOffLogging()
     }
 
     private fun exec(command: String): String {
         val workDir = File(getProviderHomeDir())
         return ProcessUtil.executeCommand(command, workDir)
+    }
+
+    private fun ocLogin() {
+        exec("oc login ${getApiServerUrl()} --username ${getOcLogin()} --password \"${getOcPassword()}\"")
     }
 
     private fun ocLogout() {
@@ -64,11 +72,9 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     }
 
     fun shutdownCluster() {
-        project.logger.lifecycle("Undeploy operator")
-        undeployCis()
+        ocLogin()
 
-        project.logger.lifecycle("Delete all PVCs")
-        getKubectlHelper().deleteAllPvcs()
+        undeployCluster()
 
         ocLogout()
     }
@@ -82,11 +88,11 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     }
 
     override fun getOperatorImage(): String {
-        return getProvider().operatorImage.value("xebialabs/deploy-operator:1.2.0-openshift").get()
+        return getProvider().operatorImage.getOrElse("xebialabs/deploy-operator:1.2.0-openshift")
     }
 
     override fun getStorageClass(): String {
-        return getProvider().storageClass.value("aws-efs").get()
+        return getProvider().storageClass.getOrElse("aws-efs")
     }
 
     private fun updateInfrastructure(apiServerURL: String, token: String) {
@@ -108,6 +114,10 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
 
     override fun getMasterPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-master-$position"
 
+    override fun getPostgresPodName(position: Int) = "pod/dai-ocp-xld-postgresql-$position"
+
+    override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-xld-rabbitmq-$position"
+
     private fun getApiServerUrl() = getProvider().apiServerURL.get()
 
     private fun getOcLogin() = project.property("ocLogin")
@@ -117,6 +127,6 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     private fun createOcContext() {
         project.logger.lifecycle("Updating kube config for Open Shift")
         exec("export KUBECONFIG=~/.kube/config")
-        exec("oc login ${getApiServerUrl()} --username ${getOcLogin()} --password \"${getOcPassword()}\"")
+        ocLogin()
     }
 }
