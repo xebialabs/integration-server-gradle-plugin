@@ -53,12 +53,11 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
 
         val groupName = resourceGroupName(name)
         val location = azureAksProvider.location.get()
-        val clusterName = aksClusterName(name)
 
-        undeployCluster()
-
-        project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
-        deleteResourceGroup(groupName, location)
+        if (existsResourceGroup(groupName, location)) {
+            undeployCluster()
+            deleteResourceGroup(name, groupName, location)
+        }
 
         getKubectlHelper().deleteCurrentContext()
         logoutAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
@@ -167,7 +166,9 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         }
     }
 
-    private fun deleteResourceGroup(groupName: String, location: String) {
+    private fun deleteResourceGroup(name: String, groupName: String, location: String) {
+        val clusterName = aksClusterName(name)
+        project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
         if (existsResourceGroup(groupName, location)) {
             project.logger.lifecycle("Delete resource group: {}", groupName)
             ProcessUtil.executeCommand(project,

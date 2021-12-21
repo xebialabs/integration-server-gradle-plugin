@@ -56,9 +56,10 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         val regionZone = gcpGkeProvider.regionZone.get()
         val accountName = gcpGkeProvider.accountName.get()
 
-        undeployCluster()
-
-        deleteCluster(accountName, projectName, name, regionZone)
+        if (existsCluster(accountName, projectName, name, regionZone)) {
+            undeployCluster()
+            deleteCluster(accountName, projectName, name, regionZone)
+        }
         deleteDnsOpenApi()
 
         getKubectlHelper().deleteCurrentContext()
