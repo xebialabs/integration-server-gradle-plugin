@@ -148,7 +148,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         if (existsCluster(accountName, projectName, name, regionZone)) {
             project.logger.lifecycle("Delete cluster (async): {}", name)
             ProcessUtil.executeCommand(project,
-                    "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters delete \"$name\" --zone \"$regionZone\" --quiet")
+                    "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters delete \"$name\" --zone \"$regionZone\" --quiet", throwErrorOnFailure = false)
         } else {
             project.logger.lifecycle("Skipping delete of the cluster: {}", name)
         }
@@ -241,7 +241,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         val accountName = gcpGkeProvider.accountName.get()
         if (existsDnsOpenApi(accountName, projectName)) {
             ProcessUtil.executeCommand(project,
-                    "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${getFqdn()}\" --quiet")
+                    "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${getFqdn()}\" --quiet", throwErrorOnFailure = false)
         }
     }
 }
