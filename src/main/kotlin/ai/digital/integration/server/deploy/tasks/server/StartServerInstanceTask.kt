@@ -155,7 +155,7 @@ open class StartServerInstanceTask : DefaultTask() {
                 project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
                 allowToWriteMountedHostFolders()
                 val process = start(server)
-                DeployServerUtil.waitForBoot(project, process)
+                DeployServerUtil.waitForBoot(project, process, server)
 
                 if(DeployServerUtil.isDockerBased(project) && server.previousInstallation)
                     maybeTearDown()

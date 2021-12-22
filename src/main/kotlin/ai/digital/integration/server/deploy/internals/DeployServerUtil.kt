@@ -163,15 +163,14 @@ class DeployServerUtil {
             }
         }
 
-        fun waitForBoot(project: Project, process: Process?, auxiliaryServer: Boolean = false) {
+        fun waitForBoot(project: Project, process: Process?, server: Server, auxiliaryServer: Boolean = false) {
             fun saveLogs() {
                 if (isDockerBased(project) || isClusterEnabled(project)) {
-                    saveServerLogsToFile(project, "deploy-${getServer(project).version}")
+                    saveServerLogsToFile(project, "deploy-${server.version}")
                 }
             }
 
             val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type", auxiliaryServer)
-            val server = getServer(project)
             WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries) {
                 saveLogs()
             }

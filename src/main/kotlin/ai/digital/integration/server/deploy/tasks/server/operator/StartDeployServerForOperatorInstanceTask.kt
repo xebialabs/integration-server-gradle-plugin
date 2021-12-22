@@ -53,7 +53,7 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
                 project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
                 allowToWriteMountedHostFolders()
                 start(server)
-                DeployServerUtil.waitForBoot(project, null, auxiliaryServer = true)
+                DeployServerUtil.waitForBoot(project, null, server, auxiliaryServer = true)
 
                 val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project, server).toFile()
                 DockerComposeUtil.allowToCleanMountedFiles(project, server, dockerComposeFile)
