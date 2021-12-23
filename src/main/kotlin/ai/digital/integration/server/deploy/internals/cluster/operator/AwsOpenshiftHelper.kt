@@ -20,6 +20,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateOperatorCrValues()
+        updateCrValues()
 
         updateInfrastructure(getApiServerUrl(), getOcApiServerToken())
 
@@ -31,6 +32,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         waitForMasterPods()
         waitForWorkerPods()
 
+        createClusterMetadata()
         waitForBoot()
         turnOffLogging()
     }
@@ -106,6 +108,14 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         YamlFileUtil.overlayFile(file, pairs)
     }
 
+    private fun updateCrValues() {
+        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+        val pairs: MutableMap<String, Any> = mutableMapOf(
+                "spec.postgresql.postgresqlExtendedConf.listenAddresses" to "*"
+        )
+        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+    }
+
     override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, true)
 
     override fun hasIngress(): Boolean = false
@@ -117,6 +127,10 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     override fun getPostgresPodName(position: Int) = "pod/dai-ocp-xld-postgresql-$position"
 
     override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-xld-rabbitmq-$position"
+
+    override fun getContextRoot(): String {
+        return "/"
+    }
 
     private fun getApiServerUrl() = getProvider().apiServerURL.get()
 
