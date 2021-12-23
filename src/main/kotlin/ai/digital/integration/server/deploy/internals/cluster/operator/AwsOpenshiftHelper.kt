@@ -127,6 +127,10 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
 
     override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-xld-rabbitmq-$position"
 
+    override fun getContextRoot(): String {
+        return "/"
+    }
+
     private fun getApiServerUrl() = getProvider().apiServerURL.get()
 
     private fun getOcLogin() = project.property("ocLogin")
