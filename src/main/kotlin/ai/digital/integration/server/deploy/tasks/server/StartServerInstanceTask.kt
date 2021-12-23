@@ -7,6 +7,7 @@ import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.util.DbUtil
+import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.deploy.internals.*
 import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
@@ -17,7 +18,9 @@ import ai.digital.integration.server.deploy.tasks.satellite.StartSatelliteTask
 import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
+import ai.digital.integration.server.release.util.ReleaseServerUtil
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.closureOf
 import java.io.File
@@ -158,7 +161,7 @@ open class StartServerInstanceTask : DefaultTask() {
                 DeployServerUtil.waitForBoot(project, process, server)
 
                 if(DeployServerUtil.isDockerBased(project) && server.previousInstallation)
-                    maybeTearDown()
+                    DockerComposeUtil.stopDockerContainer(project, server)
             }
     }
 }

@@ -38,5 +38,13 @@ class DockerComposeUtil {
                 // ignore, if throws exception, it means that docker container is not running
             }
         }
+
+        fun stopDockerContainer(project: Project, server: Server) {
+            project.logger.lifecycle("Trying to stop ${server.version} container")
+            project.exec {
+                executable = "docker-compose"
+                args = arrayListOf("-f", DeployServerUtil.getResolvedDockerFile(project, server).toFile().path, "stop")
+            }
+        }
     }
 }
