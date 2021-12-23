@@ -32,6 +32,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         waitForMasterPods()
         waitForWorkerPods()
 
+        createClusterMetadata()
         waitForBoot()
         turnOffLogging()
     }
