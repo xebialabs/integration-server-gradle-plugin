@@ -37,6 +37,15 @@ repositories {
     maven {
         url = uri("https://oss.sonatype.org/service/local/repositories/releases/content")
     }
+    if (project.hasProperty("nexusBaseUrl")) {
+        maven {
+            credentials {
+                username = project.property("nexusUserName") as String
+                password =  project.property("nexusPassword") as String
+            }
+            url = uri("${project.property("nexusBaseUrl")}/repositories/releases")
+        }
+    }
 }
 
 idea {
