@@ -1,0 +1,10 @@
+xl.repository:
+  artifacts:
+    root: build/artifacts
+  database:
+    db-driver-classname: "org.h2.Driver"
+    db-url: "jdbc:h2:tcp://localhost/h2-data"
+    db-username: "sa"
+    db-password: ""
+    leak-detection-threshold: 2 minutes
+    max-pool-size: 10

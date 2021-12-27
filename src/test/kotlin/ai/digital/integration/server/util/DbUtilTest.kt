@@ -26,6 +26,7 @@ class DbUtilTest {
         detectDbDependenciesPostgres("postgres-10")
         detectDbDependenciesPostgres("postgres-12")
         detectDbDependenciesDerbyNetwork("default")
+        detectDbDependenciesH2("h2")
     }
 
     private fun detectDbDependenciesDerbyNetwork(dbName: String) {
@@ -78,6 +79,15 @@ class DbUtilTest {
         assertEquals("org.postgresql:postgresql", dbParameters.driverDependency)
         assertEquals("org.postgresql.Driver", dbParameters.driverClass)
         assertEquals("org.dbunit.ext.postgresql.PostgresqlDataTypeFactory", dbParameters.dataFactory)
+        assertEquals(null, dbParameters.metaFactory)
+        assertEquals("\"?\"", dbParameters.escapePattern)
+    }
+
+    private fun detectDbDependenciesH2(dbName: String) {
+        val dbParameters = DbUtil.detectDbDependencies(dbName)
+        assertEquals("com.h2database:h2", dbParameters.driverDependency)
+        assertEquals("org.h2.Driver", dbParameters.driverClass)
+        assertEquals(null, dbParameters.dataFactory)
         assertEquals(null, dbParameters.metaFactory)
         assertEquals("\"?\"", dbParameters.escapePattern)
     }

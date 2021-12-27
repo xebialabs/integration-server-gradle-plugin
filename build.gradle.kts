@@ -54,6 +54,7 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${properties["jacksonVersion"]}")
     implementation("com.typesafe:config:${properties["typesafeConfigVersion"]}")
     implementation("com.xebialabs.gradle.plugins:gradle-xl-derby-plugin:${properties["gradleXlDerbyPluginVersion"]}")
+//    implementation("jamescarr:h2-gradle-plugin:0.8.2")
     implementation("commons-io:commons-io:${properties["commonsIOVersion"]}")
     implementation("com.palantir.gradle.docker:gradle-docker:${properties["dockerPluginVersion"]}")
     implementation("de.vandermeer:asciitable:${properties["asciitableVersion"]}")
@@ -70,6 +71,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${properties["kotlin"]}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${properties["coroutinesVersion"]}")
     implementation("org.postgresql:postgresql:${properties["driverVersions.postgres"]}")
+    implementation("com.h2database:h2:${properties["driverVersions.h2"]}")
 
 
     testImplementation("io.mockk:mockk:1.9.3")

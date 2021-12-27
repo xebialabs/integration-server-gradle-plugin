@@ -2,6 +2,7 @@ package ai.digital.integration.server
 
 import ai.digital.integration.server.common.KubeScannerRegistry
 import ai.digital.integration.server.common.TaskRegistry
+import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.DbUtil.Companion.getPort
 import ai.digital.integration.server.common.util.TaskUtil.Companion.dontFailOnException
 import ai.digital.integration.server.deploy.DeployTaskRegistry
@@ -38,6 +39,11 @@ class IntegrationServerPlugin : Plugin<Project> {
         stopDerbyTask.actions.forEach { action ->
             return startDerbyTask.doFirst(action)
         }
+        return startDerbyTask.mustRunAfter(ApplicationConfigurationOverrideTask.NAME)
+    }
+    private fun applyH2Plugin(project: Project, workDir: String): Task {
+//        project.plugins.apply("h2")
+        val startDerbyTask = project.tasks.getByName("checkUILibVersions")
         return startDerbyTask.mustRunAfter(ApplicationConfigurationOverrideTask.NAME)
     }
 

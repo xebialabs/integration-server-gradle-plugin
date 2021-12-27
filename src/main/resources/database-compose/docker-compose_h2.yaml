@@ -1,0 +1,12 @@
+version: "3.4"
+
+services:
+  h2:
+    image: buildo/h2database
+    ports:
+      - "8082:8082"
+      - "9092:9092"
+
+
+
+

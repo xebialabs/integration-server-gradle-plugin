@@ -23,6 +23,8 @@ class DbUtil {
         const val DERBY = "derby"
         const val DERBY_NETWORK = "derby-network"
         const val DERBY_INMEMORY = "derby-inmemory"
+        const val H2 = "h2"
+        const val H2_INMEMORY = "h2-inmemory"
 
         private val randomDatabasePort: Int = findFreePort()
 
@@ -154,7 +156,13 @@ class DbUtil {
             "\"?\""
         )
 
-
+        private val h2Params: DbParameters = DbParameters(
+            "com.h2database:h2",
+            "org.h2.Driver",
+            null,
+            null,
+            "\"?\""
+        )
         fun detectDbDependencies(db: String): DbParameters {
             return when (db) {
                 DERBY -> derbyNetworkParams
@@ -164,6 +172,8 @@ class DbUtil {
                 MYSQL, MYSQL8 -> mysqlParams
                 ORACLE19 -> oracle19Params
                 POSTGRES, POSTGRES12 -> postgresParams
+                H2 -> h2Params
+                H2_INMEMORY -> h2Params
                 else -> derbyNetworkParams
             }
 
