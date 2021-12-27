@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.server.operator
 
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.util.DbUtil
@@ -36,8 +37,8 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
         })
     }
 
-    private fun start() {
-        DeployServerUtil.runDockerBasedInstance(project)
+    private fun start(server: Server) {
+        DeployServerUtil.runDockerBasedInstance(project, server)
     }
 
     private fun allowToWriteMountedHostFolders() {
@@ -51,11 +52,11 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
             .forEach { server ->
                 project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
                 allowToWriteMountedHostFolders()
-                start()
-                DeployServerUtil.waitForBoot(project, null, auxiliaryServer = true)
+                start(server)
+                DeployServerUtil.waitForBoot(project, null, server, auxiliaryServer = true)
 
-                val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project).toFile()
-                DockerComposeUtil.allowToCleanMountedFiles(project, dockerComposeFile)
+                val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project, server).toFile()
+                DockerComposeUtil.allowToCleanMountedFiles(project, server, dockerComposeFile)
             }
     }
 }

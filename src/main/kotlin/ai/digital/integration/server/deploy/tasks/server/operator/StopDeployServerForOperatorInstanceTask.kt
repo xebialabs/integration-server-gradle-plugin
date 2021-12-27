@@ -17,8 +17,9 @@ open class StopDeployServerForOperatorInstanceTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project).toFile()
-        DockerComposeUtil.allowToCleanMountedFiles(project, dockerComposeFile)
+        val server = DeployServerUtil.getServer(project)
+        val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project, server).toFile()
+        DockerComposeUtil.allowToCleanMountedFiles(project, server, dockerComposeFile)
 
         val args = listOf(
             "-f",

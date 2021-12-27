@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common.util
 
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.Project
 import java.io.File
@@ -21,13 +22,13 @@ class DockerComposeUtil {
             return ProcessUtil.execute(project, "docker-compose", args, logOutput)
         }
 
-        fun allowToCleanMountedFiles(project: Project, dockerComposeFile: File) {
+        fun allowToCleanMountedFiles(project: Project, server: Server, dockerComposeFile: File) {
             try {
                 val args = arrayListOf("-f",
                     dockerComposeFile.path,
                     "exec",
                     "-T",
-                    DeployServerUtil.getDockerServiceName(project),
+                    DeployServerUtil.getDockerServiceName(server),
                     "chmod",
                     "777",
                     "-R",
@@ -35,6 +36,14 @@ class DockerComposeUtil {
                 execute(project, args, true)
             } catch (e: Exception) {
                 // ignore, if throws exception, it means that docker container is not running
+            }
+        }
+
+        fun stopDockerContainer(project: Project, server: Server) {
+            project.logger.lifecycle("Trying to stop ${server.version} container")
+            project.exec {
+                executable = "docker-compose"
+                args = arrayListOf("-f", DeployServerUtil.getResolvedDockerFile(project, server).toFile().path, "stop")
             }
         }
     }

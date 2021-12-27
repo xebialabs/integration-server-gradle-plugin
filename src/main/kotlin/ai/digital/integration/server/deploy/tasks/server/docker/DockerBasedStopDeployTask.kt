@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.server.docker
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.tasks.server.PrepareServerTask
@@ -22,21 +23,22 @@ open class DockerBasedStopDeployTask : DefaultTask() {
     }
 
     @InputFiles
-    fun getDockerComposeFile(): File {
-        return DeployServerUtil.getResolvedDockerFile(project).toFile()
+    fun getDockerComposeFile(server: Server): File {
+        return DeployServerUtil.getResolvedDockerFile(project, server).toFile()
     }
 
     @TaskAction
     fun run() {
-        project.logger.lifecycle("Stopping Deploy Server from a docker image ${
-            DeployServerUtil.getDockerImageVersion(project)
-        }")
-
-        DockerComposeUtil.allowToCleanMountedFiles(project, getDockerComposeFile())
-
-        project.exec {
-            executable = "docker-compose"
-            args = arrayListOf("-f", getDockerComposeFile().path, "down", "-v")
-        }
+        DeployServerUtil.getServers(project)
+            .forEach { server ->
+                project.logger.lifecycle("Stopping Deploy Server from a docker image ${
+                    DeployServerUtil.getDockerImageVersion(server)
+                }")
+                DockerComposeUtil.allowToCleanMountedFiles(project, server, getDockerComposeFile(server))
+                project.exec {
+                    executable = "docker-compose"
+                    args = arrayListOf("-f", getDockerComposeFile(server).path, "down", "-v")
+                }
+            }
     }
 }
