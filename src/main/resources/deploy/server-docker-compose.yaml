@@ -18,9 +18,4 @@ services:
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/conf:/opt/xebialabs/xl-deploy-server/conf
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/hotfix/lib:/opt/xebialabs/xl-deploy-server/hotfix/lib
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/hotfix/plugins:/opt/xebialabs/xl-deploy-server/hotfix/plugins
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/export:/opt/xebialabs/xl-deploy-server/export
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/ext:/opt/xebialabs/xl-deploy-server/ext
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/importablePackages:/opt/xebialabs/xl-deploy-server/importablePackages
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/work:/opt/xebialabs/xl-deploy-server/work
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/repository:/opt/xebialabs/xl-deploy-server/repository
       - ./plugins:/opt/xebialabs/xl-deploy-server/plugins
