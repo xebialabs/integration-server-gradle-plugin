@@ -28,6 +28,8 @@ class DeployServerInitializeUtil {
             file.appendText("http.context.root=${server.contextRoot}\n")
             file.appendText("threads.min=3\n")
             file.appendText("threads.max=24\n")
+            file.appendText("server.hostnmae=127.0.0.1\n")
+            file.appendText("server.port=8180\n")
             file.appendText("xl.spring.cloud.enabled=true\n")
         }
 

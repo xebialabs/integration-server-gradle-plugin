@@ -21,10 +21,10 @@ class YamlFileUtilTest {
             destinationFile.deleteOnExit()
 
             YamlFileUtil.overlayResource(deployServerYaml.toURI().toURL(),
-                mutableMapOf("deploy.server.port" to 15000),
+                mutableMapOf("deploy.server.downloads.export-root" to "exports"),
                 destinationFile)
 
-            assertEquals(15000, YamlFileUtil.readFileKey(destinationFile, "deploy.server.port"))
+            assertEquals("exports", YamlFileUtil.readFileKey(destinationFile, "deploy.server.downloads.export-root"))
         }
 
     }
@@ -33,8 +33,10 @@ class YamlFileUtilTest {
     fun fileOverrideTest() {
         val initialContent = """
             deploy.server:
-                hostname: "127.0.0.1"
-                port: 8080
+                downloads:
+                  export-root: exports
+                ssl:
+                  enabled: false
         """
         val initialFile = File.createTempFile("deploy-server", "initial")
         initialFile.writeText(initialContent)
@@ -44,32 +46,12 @@ class YamlFileUtilTest {
         destinationFile.deleteOnExit()
 
         YamlFileUtil.overlayFile(initialFile,
-            mutableMapOf("deploy.server.hostname" to "localhost"), destinationFile)
+            mutableMapOf("deploy.server.downloads.export-root" to "/tmp"), destinationFile)
 
-        assertEquals("localhost", YamlFileUtil.readFileKey(destinationFile, "deploy.server.hostname"))
-        assertEquals(8080, YamlFileUtil.readFileKey(destinationFile, "deploy.server.port"))
+        assertEquals("/tmp", YamlFileUtil.readFileKey(destinationFile, "deploy.server.downloads.export-root"))
+        assertEquals(false, YamlFileUtil.readFileKey(destinationFile, "deploy.server.ssl.enabled"))
     }
 
-    @Test
-    fun fileOverride2Test() {
-        val initialContent = """
-            deploy.server:
-                hostname: "127.0.0.1"
-                port: 8080
-        """
-        val initialFile = File.createTempFile("deploy-server", "initial")
-        initialFile.writeText(initialContent)
-        initialFile.deleteOnExit()
-
-        val destinationFile = File.createTempFile("deploy-server", "updated")
-        destinationFile.deleteOnExit()
-
-        YamlFileUtil.overlayFile(initialFile,
-            mutableMapOf("deploy.server.hostname" to "localhost"), destinationFile)
-
-        assertEquals("localhost", YamlFileUtil.readFileKey(destinationFile, "deploy.server.hostname"))
-        assertEquals(8080, YamlFileUtil.readFileKey(destinationFile, "deploy.server.port"))
-    }
 
 
     @Test
@@ -80,12 +62,12 @@ class YamlFileUtilTest {
         try {
             YamlFileUtil.overlayFile(destinationFile,
                 mutableMapOf(
-                    "deploy.server.hostname" to "www.digital.ai",
-                    "deploy.server.port" to 9595)
+                    "deploy.server.export-cis.export-dir" to "export",
+                    "deploy.server.export-cis.import-work-dir" to "work")
             )
 
-            assertEquals("www.digital.ai", YamlFileUtil.readFileKey(destinationFile, "deploy.server.hostname"))
-            assertEquals(9595, YamlFileUtil.readFileKey(destinationFile, "deploy.server.port"))
+            assertEquals("export", YamlFileUtil.readFileKey(destinationFile, "deploy.server.export-cis.export-dir"))
+            assertEquals("work", YamlFileUtil.readFileKey(destinationFile, "deploy.server.export-cis.import-work-dir"))
         } finally {
             destinationFile.deleteOnExit()
         }
