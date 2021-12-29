@@ -47,16 +47,16 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        DeployServerUtil.getServers(project)
-            .filter { server -> !server.previousInstallation }
-            .forEach { server ->
-                project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
-                allowToWriteMountedHostFolders()
-                start(server)
-                DeployServerUtil.waitForBoot(project, null, server, auxiliaryServer = true)
+        // we only need one server for deployment on the operators
+        val server = DeployServerUtil.getServer(project)
+        if (!server.previousInstallation) {
+            project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
+            allowToWriteMountedHostFolders()
+            start(server)
+            DeployServerUtil.waitForBoot(project, null, server, auxiliaryServer = true)
 
-                val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project, server).toFile()
-                DockerComposeUtil.allowToCleanMountedFiles(project, server, dockerComposeFile)
-            }
+            val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project, server).toFile()
+            DockerComposeUtil.allowToCleanMountedFiles(project, server, dockerComposeFile)
+        }
     }
 }
