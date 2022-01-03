@@ -28,7 +28,7 @@ open class DeployDockerClusterHelper(val project: Project) {
 
         private val pluginsFolders = listOf("plugins", "plugins/__local__", "plugins/xld-official")
 
-        private val serverMountedVolumes = listOf("centralConfiguration", "conf", *pluginsFolders.toTypedArray())
+        private val serverMountedVolumes = listOf("centralConfiguration", *pluginsFolders.toTypedArray())
         private val workerMountedVolumes = listOf("conf", *pluginsFolders.toTypedArray())
     }
 
