@@ -26,7 +26,6 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
         updateContext(name)
         val kubeContextInfo = getKubectlHelper().getCurrentContextInfo()
 
-        updateControllerManager()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
