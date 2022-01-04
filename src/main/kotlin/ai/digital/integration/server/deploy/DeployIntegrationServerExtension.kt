@@ -11,6 +11,7 @@ import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
+import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.container
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
@@ -40,6 +41,10 @@ open class DeployIntegrationServerExtension(
     fun servers(closure: Closure<NamedDomainObjectContainer<Server>>) {
         servers.configure(closure)
     }
+
+    val operatorServer = project.objects.property<Server>().value(Server("operatorServer"))
+
+    fun operatorServer(action: Action<in Server>) = action.execute(operatorServer.get())
 
     fun tests(closure: Closure<NamedDomainObjectContainer<Test>>) {
         tests.configure(closure)

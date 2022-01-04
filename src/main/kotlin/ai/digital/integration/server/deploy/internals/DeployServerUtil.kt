@@ -8,6 +8,7 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.LocalDateTime
 
 class DeployServerUtil {
     companion object {
@@ -23,6 +24,11 @@ class DeployServerUtil {
         fun getServer(project: Project): Server {
             return enrichServer(project,
                 DeployExtensionUtil.getExtension(project).servers.first { server -> !server.previousInstallation })
+        }
+
+        fun getOperatorServer(project: Project): Server {
+            return enrichServer(project,
+                    DeployExtensionUtil.getExtension(project).operatorServer.get())
         }
 
         fun getServers(project: Project): List<Server> {
@@ -164,23 +170,24 @@ class DeployServerUtil {
         }
 
         fun waitForBoot(project: Project, process: Process?, server: Server, auxiliaryServer: Boolean = false) {
-            fun saveLogs() {
+            fun saveLogs(lastUpdate: LocalDateTime): LocalDateTime {
                 if (isDockerBased(project) || isClusterEnabled(project)) {
-                    saveServerLogsToFile(project, "deploy-${server.version}")
+                    saveServerLogsToFile(project, "deploy-${server.version}", lastUpdate)
                 }
+                return LocalDateTime.now()
             }
 
             val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type", auxiliaryServer)
-            WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries) {
-                saveLogs()
+            val lastLogUpdate = WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries) {
+                saveLogs(it)
             }
-            saveLogs()
+            saveLogs(lastLogUpdate)
         }
 
-        private fun saveServerLogsToFile(project: Project, containerName: String) {
-            val logContent = DockerUtil.dockerLogs(project, containerName)
+        private fun saveServerLogsToFile(project: Project, containerName: String, lastUpdate: LocalDateTime) {
+            val logContent = DockerUtil.dockerLogs(project, containerName, lastUpdate)
             val logDir = getLogDir(project)
-            File(logDir, "$containerName.log").writeText(logContent, StandardCharsets.UTF_8)
+            File(logDir, "$containerName.log").appendText(logContent, StandardCharsets.UTF_8)
         }
 
         fun startServerFromClasspath(project: Project): Process {

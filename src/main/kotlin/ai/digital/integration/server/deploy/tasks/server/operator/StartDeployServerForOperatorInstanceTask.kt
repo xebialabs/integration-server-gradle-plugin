@@ -7,6 +7,7 @@ import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.cluster.operator.OperatorHelper
 import ai.digital.integration.server.deploy.tasks.server.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -48,7 +49,8 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
     @TaskAction
     fun launch() {
         // we only need one server for deployment on the operators
-        val server = DeployServerUtil.getServer(project)
+        val operatorHelper = OperatorHelper.getOperatorHelper(project)
+        val server = operatorHelper.getOperatorServer(project)
         if (!server.previousInstallation) {
             project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
             allowToWriteMountedHostFolders()

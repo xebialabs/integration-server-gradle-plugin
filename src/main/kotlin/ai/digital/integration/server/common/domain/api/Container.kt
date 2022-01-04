@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.domain.api
 
-open class Container(val name: String) {
+open class Container(val name: String): Cloneable {
     var debugPort: Int? = null
     var debugSuspend: Boolean = false
     var jvmArgs: Array<String> = arrayOf("-Xmx1024m", "-Duser.timezone=UTC")
@@ -15,5 +15,9 @@ open class Container(val name: String) {
             return it.split(".").take(2).joinToString(".").toDouble()
         }
         return Double.MAX_VALUE
+    }
+
+    public override fun clone(): Any {
+        return super.clone()
     }
 }

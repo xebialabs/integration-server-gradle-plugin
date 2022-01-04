@@ -6,6 +6,8 @@ import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.HTTPUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.cluster.operator.OperatorHelper
+import ai.digital.integration.server.deploy.tasks.server.CentralConfigurationTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -18,6 +20,7 @@ open class OperatorCentralConfigurationTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP
+        this.mustRunAfter(CentralConfigurationTask.NAME)
     }
 
     private fun overlayRepositoryConfig(serverDir: String) {
@@ -63,11 +66,10 @@ open class OperatorCentralConfigurationTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        DeployServerUtil.getServers(project)
-            .forEach { server ->
-                if (server.numericVersion() >= 10.2) {
-                    createCentralConfigurationFiles(server)
-                }
-            }
+        val operatorHelper = OperatorHelper.getOperatorHelper(project)
+        val server = operatorHelper.getOperatorServer(project)
+        if (server.numericVersion() >= 10.2) {
+            createCentralConfigurationFiles(server)
+        }
     }
 }

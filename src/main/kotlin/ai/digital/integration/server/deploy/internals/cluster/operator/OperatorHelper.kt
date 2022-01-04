@@ -1,6 +1,8 @@
 package ai.digital.integration.server.deploy.internals.cluster.operator
 
 import ai.digital.integration.server.common.constant.OperatorProviderName
+import ai.digital.integration.server.common.domain.InfrastructureInfo
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
 import ai.digital.integration.server.common.util.*
@@ -197,7 +199,7 @@ abstract class OperatorHelper(val project: Project) {
                     auxiliaryServer = true)
             true
         } catch (e: RuntimeException) {
-            project.logger.error("Undeploy didn't run. Check if operator's deploy server is running on port 4516: ${e.message}")
+            project.logger.error("Undeploy didn't run. Check if operator's deploy server is running on port ${getOperatorServer(project).httpPort}: ${e.message}")
             false
         } catch (e: IOException) {
             project.logger.error("Undeploy didn't run. Check if operator's deploy server has all files: ${e.message}")
@@ -230,7 +232,7 @@ abstract class OperatorHelper(val project: Project) {
                 "spec.rabbitmq.image.debug" to true,
                 "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
                 "spec.rabbitmq.persistence.size" to "1Gi",
-                "spec.rabbitmq.replicaCount" to 1,
+                "spec.rabbitmq.replicaCount" to getProvider().rabbitmqReplicaCount.get(),
                 "spec.rabbitmq.extraConfiguration" to
                         listOf(
                             "load_definitions = /app/xld-load_definition.json",
@@ -276,6 +278,10 @@ abstract class OperatorHelper(val project: Project) {
         return "/xl-deploy/"
     }
 
+    open fun getCurrentContextInfo(): InfrastructureInfo {
+        return InfrastructureInfo(null, null, null, null, null, null)
+    }
+
     open fun getHost(): String {
         return getProvider().host.getOrElse(getProvider().name.get())
     }
@@ -289,8 +295,7 @@ abstract class OperatorHelper(val project: Project) {
 
         val xlDigitalAiPath = File(getProviderHomeDir(), XL_DIGITAL_AI_PATH)
         project.logger.lifecycle("Applying Digital AI Deploy platform on cluster ($xlDigitalAiPath)")
-        XlCliUtil.download(getProfile().xlCliVersion.get(), File(getProviderHomeDir()))
-        XlCliUtil.xlApply(project, xlDigitalAiPath, File(getProviderHomeDir()))
+        XlCliUtil.xlApply(project, xlDigitalAiPath, getProfile().xlCliVersion.get(), File(getProviderHomeDir()), getOperatorServer(project).httpPort)
     }
 
     abstract fun getProviderHomeDir(): String
@@ -317,5 +322,9 @@ abstract class OperatorHelper(val project: Project) {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
         return resultComposeFilePath.toFile()
+    }
+
+    fun getOperatorServer(project: Project): Server {
+        return DeployServerUtil.getOperatorServer(project).clone() as Server
     }
 }

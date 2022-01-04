@@ -25,6 +25,10 @@ class EntryPointUrlUtil {
             if (DeployClusterUtil.isOperatorProvider(project) && !auxiliaryServer) {
                 val operatorHelper = OperatorHelper.getOperatorHelper(project)
                 return operatorHelper.getPort()
+            } else if (auxiliaryServer) {
+                val operatorHelper = OperatorHelper.getOperatorHelper(project)
+                val server = operatorHelper.getOperatorServer(project)
+                return server.httpPort.toString()
             }
 
             val dockerHelper = DeployDockerClusterHelper(project)

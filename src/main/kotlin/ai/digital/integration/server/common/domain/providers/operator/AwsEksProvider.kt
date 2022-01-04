@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 
 @Suppress("UnstableApiUsage")
-open class AwsEksProvider @Inject constructor(val project: Project) : Provider(project) {
+open class AwsEksProvider @Inject constructor(project: Project) : Provider(project) {
 
     @Input
     val region = project.objects.property<String>().value("us-east-1")

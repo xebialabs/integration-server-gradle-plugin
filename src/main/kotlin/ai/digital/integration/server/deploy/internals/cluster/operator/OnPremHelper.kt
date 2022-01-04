@@ -24,7 +24,7 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
             kubernetesVersion,
             skipExisting)
         updateContext(name)
-        val kubeContextInfo = getKubectlHelper().getCurrentContextInfo()
+        val kubeContextInfo = getCurrentContextInfo()
 
         updateControllerManager()
         updateOperatorDeployment()
@@ -45,15 +45,8 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
     }
 
     fun shutdownCluster() {
-        val onPremiseProvider: OnPremiseProvider = getProvider()
-        val name = onPremiseProvider.name.get()
-
         undeployCluster()
-
-        deleteCluster(name)
-
-        project.logger.lifecycle("Current cluster context is being deleted")
-        getKubectlHelper().deleteCurrentContext()
+        destroyCluster()
     }
 
     override fun getProviderHomeDir(): String {
@@ -139,7 +132,17 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
             "minikube update-context -p $clusterName", throwErrorOnFailure = false)
     }
 
-    private fun deleteCluster(name: String) {
+    private fun destroyCluster() {
+        if (getProvider().destroyClusterOnShutdown.get()) {
+            deleteCluster()
+            project.logger.lifecycle("Current cluster context is being deleted")
+            getKubectlHelper().deleteCurrentContext()
+        }
+    }
+
+    private fun deleteCluster() {
+        val onPremiseProvider = getProvider()
+        val name = onPremiseProvider.name.get()
         val clusterName = onPremClusterName(name)
         project.logger.lifecycle("Minikube cluster is being deleted {} ", clusterName)
         ProcessUtil.executeCommand(project,
@@ -185,4 +188,6 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
         )
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
+
+    override fun getCurrentContextInfo() = getKubectlHelper().getCurrentContextInfo()
 }
