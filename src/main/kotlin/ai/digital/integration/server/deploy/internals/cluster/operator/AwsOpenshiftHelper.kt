@@ -15,7 +15,6 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     fun launchCluster() {
         createOcContext()
 
-        updateControllerManager()
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
@@ -128,9 +127,6 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
 
     override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-xld-rabbitmq-$position"
 
-    override fun getContextRoot(): String {
-        return "/"
-    }
 
     private fun getApiServerUrl() = getProvider().apiServerURL.get()
 

@@ -29,7 +29,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val kubeContextInfo = getKubectlHelper().getCurrentContextInfo()
         createStorageClass(azureAksProvider.storageClass.getOrElse(name))
 
-        updateControllerManager()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)

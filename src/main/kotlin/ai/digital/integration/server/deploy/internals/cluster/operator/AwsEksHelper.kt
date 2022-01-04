@@ -27,7 +27,6 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
         if (getStorageClass() == "aws-efs") createStorageClass(getStorageClass())
 
-        updateControllerManager()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateOperatorCrValues()
@@ -447,10 +446,6 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
     override fun getFqdn(): String {
         return "deploy.digitalai-testing.com"
-    }
-
-    override fun getContextRoot(): String {
-        return "/xl-deploy/"
     }
 
     override fun getDbStorageClass(): String {
