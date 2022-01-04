@@ -25,11 +25,13 @@ import org.gradle.kotlin.dsl.closureOf
 class IntegrationServerPlugin : Plugin<Project> {
 
     private fun applyDerbyPlugin(project: Project, workDir: String): Task {
+
         project.plugins.apply("derby-ns")
 
         val derbyExtension = project.extensions.getByName("derby") as DerbyExtension
-        derbyExtension.dataDir = workDir
-        derbyExtension.port = getPort(project)
+        derbyExtension.dataDir.convention(workDir)
+        derbyExtension.port.convention(getPort(project))
+        derbyExtension.externalProcess.convention(true)
 
         val startDerbyTask = project.tasks.getByName("derbyStart")
         val stopDerbyTask = project.tasks.getByName("derbyStop")
@@ -60,14 +62,14 @@ class IntegrationServerPlugin : Plugin<Project> {
         project.afterEvaluate {
             if (isDeployServerDefined(project)) {
                 initialize(project)
-                DeployTaskRegistry.register(project, serverConfig)
                 applyPlugins(project, DeployServerUtil.getServerWorkingDir(project))
+                DeployTaskRegistry.register(project, serverConfig)
             }
 
             if (isReleaseServerDefined(project)) {
                 initialize(project)
-                ReleaseTaskRegistry.register(project)
                 applyPlugins(project, ReleaseServerUtil.getServerWorkingDir(project))
+                ReleaseTaskRegistry.register(project)
             }
 
             TaskRegistry.register(project)

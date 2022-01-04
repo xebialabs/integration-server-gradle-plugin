@@ -23,22 +23,25 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
     init {
         this.group = PLUGIN_GROUP
 
-        if (DeployServerUtil.isClusterEnabled(project)) {
-            this.dependsOn(StopDeployClusterTask.NAME)
-        } else {
-            if (DeployServerUtil.isDockerBased(project)) {
-                this.dependsOn(DockerBasedStopDeployTask.NAME)
-            }
-            if (WorkerUtil.hasWorkers(project)) {
-                this.dependsOn(ShutdownWorkersTask.NAME)
-            }
-            if (SatelliteUtil.hasSatellites(project)) {
-                this.dependsOn(ShutdownSatelliteTask.NAME)
-            }
-            if (DbUtil.isDerby(project)) {
-                this.finalizedBy("derbyStop")
+        val that = this
+        project.afterEvaluate {
+            if (DeployServerUtil.isClusterEnabled(project)) {
+                that.dependsOn(StopDeployClusterTask.NAME)
             } else {
-                this.finalizedBy(DatabaseStopTask.NAME)
+                if (DeployServerUtil.isDockerBased(project)) {
+                    that.dependsOn(DockerBasedStopDeployTask.NAME)
+                }
+                if (WorkerUtil.hasWorkers(project)) {
+                    that.dependsOn(ShutdownWorkersTask.NAME)
+                }
+                if (SatelliteUtil.hasSatellites(project)) {
+                    that.dependsOn(ShutdownSatelliteTask.NAME)
+                }
+                if (DbUtil.isDerby(project)) {
+                    that.finalizedBy("derbyStop")
+                } else {
+                    that.finalizedBy(DatabaseStopTask.NAME)
+                }
             }
         }
     }

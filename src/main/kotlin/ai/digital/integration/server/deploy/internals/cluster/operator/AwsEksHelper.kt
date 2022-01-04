@@ -110,7 +110,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                     "aws --region  ${awsEksProvider.region.get()} " +
                             "cloudformation create-stack " +
                             "--stack-name ${awsEksProvider.stack.get()} " +
-                            "--template-body file://$awsEksClusterTemplateFile " +
+                            "--template-body file://\"$awsEksClusterTemplateFile\" " +
                             "--capabilities CAPABILITY_IAM " +
                             "--parameters " +
                             "ParameterKey=ProjectName,ParameterValue=${awsEksProvider.stack.get()} " +
@@ -328,7 +328,7 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
                 "aws route53 " +
                         "change-resource-record-sets " +
                         "--hosted-zone-id Z0621108QZWN6SHNIF6I " +
-                        "--change-batch file://${awsRoute53TemplateFile}",
+                        "--change-batch file://\"${awsRoute53TemplateFile}\"",
                 logOutput = false,
                 throwErrorOnFailure = false)
     }
@@ -352,11 +352,8 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
     fun shutdownCluster() {
         val awsEksProvider: AwsEksProvider = getProvider()
-        project.logger.lifecycle("Undeploy operator")
-        undeployCis()
 
-        project.logger.lifecycle("PVCs are being deleted")
-        getKubectlHelper().deleteAllPVCs(getProvider().deletePvcRequestTimeout.get())
+        undeployCluster()
 
         project.logger.lifecycle("Delete iamserviceaccount for CSI driver.")
         deleteIAMRoleForCSIDriver(getProvider())
@@ -367,7 +364,6 @@ open class AwsEksHelper(project: Project) : OperatorHelper(project) {
 
         project.logger.lifecycle("Delete current context")
         getKubectlHelper().deleteCurrentContext()
-
     }
 
     private fun deleteIAMRoleForCSIDriver(awsEksProvider: AwsEksProvider) {

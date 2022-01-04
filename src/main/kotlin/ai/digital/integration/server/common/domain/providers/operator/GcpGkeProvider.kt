@@ -3,18 +3,16 @@ package ai.digital.integration.server.common.domain.providers.operator
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.kotlin.dsl.property
-import java.io.File
 import javax.inject.Inject
 
 
 @Suppress("UnstableApiUsage")
-open class GcpGkeProvider @Inject constructor(project: Project) : Provider(project) {
+open class GcpGkeProvider @Inject constructor(val project: Project) : Provider(project) {
 
     @Input
     val accountName = project.objects.property<String>()
 
-    @Input
-    val accountCredFile = project.objects.property<File>()
+    fun getAccountCredFile(): String = project.property("accountCredFile").toString()
 
     @Input
     val projectName = project.objects.property<String>()

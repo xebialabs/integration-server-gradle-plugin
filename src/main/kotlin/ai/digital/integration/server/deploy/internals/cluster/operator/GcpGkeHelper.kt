@@ -21,7 +21,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         val accountName = gcpGkeProvider.accountName.get()
 
         validateGCloudCli()
-        loginGCloudCli(accountName, gcpGkeProvider.accountCredFile)
+        loginGCloudCli(accountName, gcpGkeProvider.getAccountCredFile())
         changeDefaultProject(projectName)
         changeDefaultRegionZone(regionZone)
 
@@ -56,9 +56,10 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         val regionZone = gcpGkeProvider.regionZone.get()
         val accountName = gcpGkeProvider.accountName.get()
 
-        undeployCluster()
-
-        deleteCluster(accountName, projectName, name, regionZone)
+        if (existsCluster(accountName, projectName, name, regionZone)) {
+            undeployCluster()
+            deleteCluster(accountName, projectName, name, regionZone)
+        }
         deleteDnsOpenApi()
 
         getKubectlHelper().deleteCurrentContext()
@@ -85,9 +86,12 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         }
     }
 
-    private fun loginGCloudCli(accountName: String, accountCredFile: Property<File>) {
+    private fun loginGCloudCli(accountName: String, accountCredFile: String) {
         project.logger.lifecycle("Login account $accountName")
-        val additions = accountCredFile.map { " --cred-file=\"${it.absolutePath}\"" }.getOrElse("")
+        val additions = if(accountCredFile.isNotBlank())
+            " --cred-file=\"${File(accountCredFile).absolutePath}\""
+        else
+            ""
         ProcessUtil.executeCommand(project,
                 "gcloud auth login $accountName $additions --quiet")
     }
@@ -144,7 +148,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         if (existsCluster(accountName, projectName, name, regionZone)) {
             project.logger.lifecycle("Delete cluster (async): {}", name)
             ProcessUtil.executeCommand(project,
-                    "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters delete \"$name\" --zone \"$regionZone\" --quiet")
+                    "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters delete \"$name\" --zone \"$regionZone\" --quiet", throwErrorOnFailure = false)
         } else {
             project.logger.lifecycle("Skipping delete of the cluster: {}", name)
         }
@@ -237,7 +241,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         val accountName = gcpGkeProvider.accountName.get()
         if (existsDnsOpenApi(accountName, projectName)) {
             ProcessUtil.executeCommand(project,
-                    "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${getFqdn()}\" --quiet")
+                    "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${getFqdn()}\" --quiet", throwErrorOnFailure = false)
         }
     }
 }

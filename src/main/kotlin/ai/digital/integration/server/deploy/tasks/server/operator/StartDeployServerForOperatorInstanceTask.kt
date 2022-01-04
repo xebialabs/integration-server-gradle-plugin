@@ -1,9 +1,11 @@
 package ai.digital.integration.server.deploy.tasks.server.operator
 
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.util.DbUtil
+import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.tasks.server.*
 import org.gradle.api.DefaultTask
@@ -35,8 +37,8 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
         })
     }
 
-    private fun start() {
-        DeployServerUtil.runDockerBasedInstance(project)
+    private fun start(server: Server) {
+        DeployServerUtil.runDockerBasedInstance(project, server)
     }
 
     private fun allowToWriteMountedHostFolders() {
@@ -45,13 +47,16 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        DeployServerUtil.getServers(project)
-            .filter { server -> !server.previousInstallation }
-            .forEach { server ->
-                project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
-                allowToWriteMountedHostFolders()
-                start()
-                DeployServerUtil.waitForBoot(project, null, auxiliaryServer = true)
-            }
+        // we only need one server for deployment on the operators
+        val server = DeployServerUtil.getServer(project)
+        if (!server.previousInstallation) {
+            project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
+            allowToWriteMountedHostFolders()
+            start(server)
+            DeployServerUtil.waitForBoot(project, null, server, auxiliaryServer = true)
+
+            val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project, server).toFile()
+            DockerComposeUtil.allowToCleanMountedFiles(project, server, dockerComposeFile)
+        }
     }
 }

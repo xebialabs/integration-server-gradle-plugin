@@ -15,6 +15,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.gradle.api.Project
 import java.io.File
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
@@ -176,9 +177,8 @@ abstract class OperatorHelper(val project: Project) {
         project.logger.lifecycle("Operator is being undeployed")
 
         if (undeployCis()) {
-            val deletePvcRequestTimeout = getProvider().deletePvcRequestTimeout.get()
             project.logger.lifecycle("PVCs are being deleted")
-            getKubectlHelper().deleteAllPVCs(deletePvcRequestTimeout)
+            getKubectlHelper().deleteAllPVCs()
         } else {
             project.logger.lifecycle("Skip delete of PVCs")
         }
@@ -198,6 +198,9 @@ abstract class OperatorHelper(val project: Project) {
             true
         } catch (e: RuntimeException) {
             project.logger.error("Undeploy didn't run. Check if operator's deploy server is running on port 4516: ${e.message}")
+            false
+        } catch (e: IOException) {
+            project.logger.error("Undeploy didn't run. Check if operator's deploy server has all files: ${e.message}")
             false
         }
     }
