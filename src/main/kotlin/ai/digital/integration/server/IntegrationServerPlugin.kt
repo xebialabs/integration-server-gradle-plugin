@@ -2,7 +2,7 @@ package ai.digital.integration.server
 
 import ai.digital.integration.server.common.KubeScannerRegistry
 import ai.digital.integration.server.common.TaskRegistry
-import ai.digital.integration.server.common.util.DbUtil
+import ai.digital.integration.server.common.domain.ext.DerbyExtension
 import ai.digital.integration.server.common.util.DbUtil.Companion.getPort
 import ai.digital.integration.server.common.util.TaskUtil.Companion.dontFailOnException
 import ai.digital.integration.server.deploy.DeployTaskRegistry
@@ -17,7 +17,6 @@ import ai.digital.integration.server.release.ReleaseTaskRegistry
 import ai.digital.integration.server.release.util.ReleaseExtensionUtil.Companion.createReleaseExtension
 import ai.digital.integration.server.release.util.ReleaseServerUtil
 import ai.digital.integration.server.release.util.ReleaseServerUtil.Companion.isReleaseServerDefined
-import com.xebialabs.gradle.plugins.derby.DerbyExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
