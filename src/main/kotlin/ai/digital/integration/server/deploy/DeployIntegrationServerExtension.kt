@@ -58,6 +58,8 @@ open class DeployIntegrationServerExtension(
                     project.objects.newInstance(OperatorProfile::class, name, project)
                 ClusterProfileName.TERRAFORM.profileName ->
                     project.objects.newInstance(TerraformProfile::class, name, project)
+                ClusterProfileName.XL_BLUEPRINT.profileName ->
+                    project.objects.newInstance(XlBlueprintProfile::class, project)
                 else ->
                     throw IllegalArgumentException("Profile name `$name` is not supported. Choose one of ${
                         ClusterProfileName.values().joinToString { profileEnum -> profileEnum.profileName }
@@ -87,4 +89,6 @@ open class DeployIntegrationServerExtension(
     val kubeScanner = project.objects.property<KubeScanner>().value(KubeScanner(project.objects))
 
     fun kubeScanner(action: Action<in KubeScanner>) = action.execute(kubeScanner.get())
+
+
 }

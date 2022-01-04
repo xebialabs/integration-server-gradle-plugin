@@ -7,6 +7,7 @@ import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.xlblueprint.XlBlueprintBasedStopDeployClusterTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -23,6 +24,8 @@ open class StopDeployClusterTask : DefaultTask() {
             when (val profileName = DeployClusterUtil.getProfile(project)) {
                 ClusterProfileName.DOCKER_COMPOSE.profileName ->
                     DockerComposeBasedStopDeployClusterTask.NAME
+                ClusterProfileName.XL_BLUEPRINT.profileName ->
+                    XlBlueprintBasedStopDeployClusterTask.NAME
                 ClusterProfileName.OPERATOR.profileName ->
                     OperatorBasedStopDeployClusterTask.NAME
                 ClusterProfileName.TERRAFORM.profileName -> {

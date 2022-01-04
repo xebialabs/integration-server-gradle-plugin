@@ -34,6 +34,8 @@ import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshi
 import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.xlblueprint.XlBlueprintBasedStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.xlblueprint.XlBlueprintBasedStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
@@ -101,6 +103,10 @@ open class DeployTaskRegistry {
             // Cluster Docker Compose
             project.tasks.create(DockerComposeBasedStartDeployClusterTask.NAME, DockerComposeBasedStartDeployClusterTask::class.java)
             project.tasks.create(DockerComposeBasedStopDeployClusterTask.NAME, DockerComposeBasedStopDeployClusterTask::class.java)
+
+            // Cluster Xl Blueprint
+            project.tasks.create(XlBlueprintBasedStartDeployClusterTask.NAME, XlBlueprintBasedStartDeployClusterTask::class.java)
+            project.tasks.create(XlBlueprintBasedStopDeployClusterTask.NAME, XlBlueprintBasedStopDeployClusterTask::class.java)
 
             //Database
             project.tasks.create(DatabaseStartTask.NAME, DatabaseStartTask::class.java)
