@@ -31,7 +31,6 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
 
         useCustomStorageClass(getStorageClass())
 
-        updateControllerManager()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
