@@ -71,13 +71,6 @@ abstract class OperatorHelper(val project: Project) {
         return DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
     }
 
-    fun updateControllerManager() {
-        project.logger.lifecycle("Updating operator's controller manager")
-        val file = File(getProviderHomeDir(), CONTROLLER_MANAGER_REL_PATH)
-        val pairs = mutableMapOf<String, Any>("spec.template.spec.containers[1].image" to getOperatorImage())
-        YamlFileUtil.overlayFile(file, pairs)
-    }
-
     fun updateOperatorApplications() {
         project.logger.lifecycle("Updating operator's applications")
 
@@ -167,7 +160,7 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     fun waitForBoot() {
-        val url = "http://${getFqdn()}/xl-deploy/deployit/metadata/type"
+        val url = "http://${getFqdn()}/deployit/metadata/type"
         val server = DeployServerUtil.getServer(project)
         WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
@@ -226,6 +219,10 @@ abstract class OperatorHelper(val project: Project) {
                 "spec.postgresql.image.debug" to true,
                 "spec.postgresql.persistence.size" to "5Gi",
                 "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
+                "spec.postgresql.postgresqlMaxConnections" to "500",
+                "spec.keycloak.postgresql.postgresqlMaxConnections" to "500",
+                "spec.keycloak.install" to false,
+                "spec.oidc.enabled" to false,
                 "spec.rabbitmq.persistence.storageClass" to getMqStorageClass(),
                 "spec.rabbitmq.image.debug" to true,
                 "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
@@ -273,7 +270,7 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     open fun getContextRoot(): String {
-        return "/xl-deploy/"
+        return "/"
     }
 
     open fun getHost(): String {
