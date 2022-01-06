@@ -125,14 +125,14 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
             project.logger.lifecycle("Create cluster: {}", name)
 
             val additions = clusterNodeVmSize.map { " --machine-type \"$it\"" }.getOrElse("") +
-                    kubernetesVersion.map { " --cluster-version \"$it\"" }.getOrElse(" --cluster-version \"1.20.11-gke.1801\"")
+                    kubernetesVersion.map { " --cluster-version \"$it\"" }.getOrElse(" --cluster-version \"1.21.5-gke.1802\"")
 
             ProcessUtil.executeCommand(project,
                     "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters create \"$name\" --zone  \"$regionZone\" " +
                             "--release-channel \"regular\" " +
                             "--num-nodes \"${clusterNodeCount.getOrElse(3)}\" --image-type \"COS_CONTAINERD\" --metadata disable-legacy-endpoints=true " +
                             "--logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --no-enable-master-authorized-networks " +
-                            "--addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver --enable-autoupgrade --enable-autorepair " +
+                            "--addons HorizontalPodAutoscaling,HttpLoadBalancing,GcpFilestoreCsiDriver --enable-autoupgrade --enable-autorepair " +
                             "--enable-shielded-nodes $additions")
         }
     }
