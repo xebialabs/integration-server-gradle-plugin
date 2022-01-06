@@ -24,7 +24,7 @@ open class XlBlueprintBasedStopDeployClusterTask: DefaultTask() {
 
     @TaskAction
     fun launch() {
-        val fileStream = {}::class.java.classLoader.getResourceAsStream("operator/python/undeploy.py")
+        val fileStream = {}::class.java.classLoader.getResourceAsStream("xl-blueprint/python/undeploy.py")
 
         val resultComposeFilePath = Paths.get(project.buildDir.toPath().resolve("xlBlueprint-work").toAbsolutePath().toString(), "undeploy.py")
         fileStream?.let {
