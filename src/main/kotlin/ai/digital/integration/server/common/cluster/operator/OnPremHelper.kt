@@ -1,5 +1,6 @@
-package ai.digital.integration.server.deploy.internals.cluster.operator
+package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.OnPremiseProvider
 import ai.digital.integration.server.common.util.ProcessUtil
@@ -8,7 +9,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class OnPremHelper(project: Project) : OperatorHelper(project) {
+open class OnPremHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun launchCluster() {
         val onPremiseProvider: OnPremiseProvider = getProvider()

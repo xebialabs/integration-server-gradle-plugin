@@ -1,5 +1,6 @@
-package ai.digital.integration.server.deploy.internals.cluster.operator
+package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.operator.AwsOpenshiftProvider
 import ai.digital.integration.server.common.util.HtmlUtil
 import ai.digital.integration.server.common.util.KubeCtlHelper
@@ -10,7 +11,7 @@ import java.io.File
 import java.util.*
 
 @Suppress("UnstableApiUsage")
-open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
+open class AwsOpenshiftHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun launchCluster() {
         createOcContext()
@@ -100,18 +101,15 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         project.logger.lifecycle("Updating operator's infrastructure")
 
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
-        val pairs = mutableMapOf<String, Any>(
-            "spec[0].children[0].serverUrl" to apiServerURL,
-            "spec[0].children[0].openshiftToken" to token
-        )
+        val pairs = mutableMapOf<String, Any>("spec[0].children[0].serverUrl" to apiServerURL,
+            "spec[0].children[0].openshiftToken" to token)
         YamlFileUtil.overlayFile(file, pairs)
     }
 
     private fun updateCrValues() {
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
-        val pairs: MutableMap<String, Any> = mutableMapOf(
-                "spec.postgresql.postgresqlExtendedConf.listenAddresses" to "*"
-        )
+        val pairs: MutableMap<String, Any> =
+            mutableMapOf("spec.postgresql.postgresqlExtendedConf.listenAddresses" to "*")
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 

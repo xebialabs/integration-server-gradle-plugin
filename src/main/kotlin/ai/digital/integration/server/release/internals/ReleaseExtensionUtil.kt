@@ -1,4 +1,4 @@
-package ai.digital.integration.server.release.util
+package ai.digital.integration.server.release.internals
 
 import ai.digital.integration.server.common.domain.DevOpsAsCode
 import ai.digital.integration.server.common.domain.Server

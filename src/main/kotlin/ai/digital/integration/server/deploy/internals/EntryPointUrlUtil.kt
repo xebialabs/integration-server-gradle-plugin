@@ -2,7 +2,7 @@ package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployDockerClusterHelper
-import ai.digital.integration.server.deploy.internals.cluster.operator.OperatorHelper
+import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import org.gradle.api.Project
 
 class EntryPointUrlUtil {

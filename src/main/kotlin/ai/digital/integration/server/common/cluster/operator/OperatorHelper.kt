@@ -1,6 +1,7 @@
-package ai.digital.integration.server.deploy.internals.cluster.operator
+package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.constant.OperatorProviderName
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
 import ai.digital.integration.server.common.util.*
@@ -22,8 +23,6 @@ import java.util.*
 
 const val OPERATOR_FOLDER_NAME: String = "xl-deploy-kubernetes-operator"
 
-const val CONTROLLER_MANAGER_REL_PATH = "digitalai-deploy/kubernetes/template/deployment.yaml"
-
 const val OPERATOR_APPS_REL_PATH = "digitalai-deploy/applications.yaml"
 
 const val OPERATOR_INFRASTRUCTURE_PATH = "digitalai-deploy/infrastructure.yaml"
@@ -37,21 +36,21 @@ const val OPERATOR_PACKAGE_REL_PATH = "digitalai-deploy/deployment.yaml"
 const val XL_DIGITAL_AI_PATH = "digital-ai.yaml"
 
 @Suppress("UnstableApiUsage")
-abstract class OperatorHelper(val project: Project) {
+abstract class OperatorHelper(val project: Project, productName: ProductName) {
 
     var loggingJob: Job? = null
 
     companion object {
         private const val operatorMetadataPath = "deploy/operator/operator-metadata.properties"
 
-        fun getOperatorHelper(project: Project): OperatorHelper {
+        fun getOperatorHelper(project: Project, productName: ProductName): OperatorHelper {
             return when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
-                OperatorProviderName.AWS_EKS.providerName -> AwsEksHelper(project)
-                OperatorProviderName.AWS_OPENSHIFT.providerName -> AwsOpenshiftHelper(project)
-                OperatorProviderName.AZURE_AKS.providerName -> AzureAksHelper(project)
-                OperatorProviderName.GCP_GKE.providerName -> GcpGkeHelper(project)
-                OperatorProviderName.ON_PREMISE.providerName -> OnPremHelper(project)
-                OperatorProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftHelper(project)
+                OperatorProviderName.AWS_EKS.providerName -> AwsEksHelper(project, productName)
+                OperatorProviderName.AWS_OPENSHIFT.providerName -> AwsOpenshiftHelper(project, productName)
+                OperatorProviderName.AZURE_AKS.providerName -> AzureAksHelper(project, productName)
+                OperatorProviderName.GCP_GKE.providerName -> GcpGkeHelper(project, productName)
+                OperatorProviderName.ON_PREMISE.providerName -> OnPremHelper(project, productName)
+                OperatorProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftHelper(project, productName)
                 else -> {
                     throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
                         OperatorProviderName.values().joinToString()
@@ -185,9 +184,9 @@ abstract class OperatorHelper(val project: Project) {
         }
         return try {
             CliUtil.executeScripts(project,
-                    listOf(resultComposeFilePath.toFile()),
-                    "undeploy.py",
-                    auxiliaryServer = true)
+                listOf(resultComposeFilePath.toFile()),
+                "undeploy.py",
+                auxiliaryServer = true)
             true
         } catch (e: RuntimeException) {
             project.logger.error("Undeploy didn't run. Check if operator's deploy server is running on port 4516: ${e.message}")
