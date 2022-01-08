@@ -178,7 +178,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
             ProductName.RELEASE -> "http://${getFqdn()}/api/extension/metadata"
         }
         val server = DeployServerUtil.getServer(project)
-        WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
+        WaitForBootUtil.byPort(project, getName(), url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
 
     fun undeployCluster() {
@@ -226,10 +226,6 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
             mutableMapOf<String, Any>(
                 "spec.ImageRepository" to getImageRepository(),
                 "spec.ImageTag" to getServerVersion(),
-                "spec.XldMasterCount" to getMasterCount(), // todo
-                "spec.XldWorkerCount" to getWorkerCount(), // todo
-                "spec.Persistence.XldMasterPvcSize" to "1Gi", // todo
-                "spec.Persistence.XldWorkerPvcSize" to "1Gi", // todo
                 "spec.KeystorePassphrase" to getProvider().keystorePassphrase.get(),
                 "spec.Persistence.StorageClass" to getStorageClass(),
                 "spec.RepositoryKeystore" to getProvider().repositoryKeystore.get(),
@@ -251,9 +247,27 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                             "raft.wal_max_size_bytes = 1048576"
                         ).joinToString(separator = "\n", postfix = "\n"),
                 "spec.rabbitmq.persistence.replicaCount" to 1,
-                "spec.route.hosts" to arrayOf(getHost()),
-                "spec.xldLicense" to getLicense() // TODO
+                "spec.route.hosts" to arrayOf(getHost())
             )
+
+        when (productName) {
+            ProductName.DEPLOY -> {
+                pairs.putAll(mutableMapOf<String, Any>(
+                    "spec.XldMasterCount" to getMasterCount(),
+                    "spec.XldWorkerCount" to getWorkerCount(),
+                    "spec.Persistence.XldMasterPvcSize" to "1Gi",
+                    "spec.Persistence.XldWorkerPvcSize" to "1Gi",
+                    "spec.xldLicense" to getLicense()
+                ))
+            }
+            ProductName.RELEASE -> {
+                pairs.putAll(mutableMapOf<String, Any>(
+                    "spec.Persistence.Size" to "1Gi",
+                    "spec.xlrLicense" to getLicense()
+                ))
+            }
+        }
+
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
@@ -340,7 +354,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
 
     private fun getPrefixName(): String {
-        return when(productName) {
+        return when (productName) {
             ProductName.DEPLOY -> "xld"
             ProductName.RELEASE -> "xlr"
         }
