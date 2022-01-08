@@ -62,7 +62,9 @@ class ReleaseServerUtil {
 
         fun getServer(project: Project): Server {
             val ext = project.extensions.getByType(ReleaseIntegrationServerExtension::class.java)
-            val server = ext.servers.first()
+            val server = ext.servers.first { server ->
+                !server.previousInstallation && isNonXlDeploy(server)
+            }
             server.debugPort = getDebugPort(project, server)
             server.httpPort = getHttpPort(project, server)
             server.version = getServerVersion(project, server)
@@ -76,6 +78,10 @@ class ReleaseServerUtil {
             }
 
             return server
+        }
+
+        private fun isNonXlDeploy(server: Server): Boolean {
+            return server.dockerImage == null || server.dockerImage?.endsWith("xl-deploy") == false
         }
 
         fun getServerWorkingDir(project: Project): String {

@@ -23,7 +23,9 @@ class DeployServerUtil {
 
         fun getServer(project: Project): Server {
             return enrichServer(project,
-                DeployExtensionUtil.getExtension(project).servers.first { server -> !server.previousInstallation })
+                DeployExtensionUtil.getExtension(project).servers.first { server ->
+                    !server.previousInstallation && server.dockerImage!!.endsWith("xl-deploy")
+                })
         }
 
         fun getServers(project: Project): List<Server> {

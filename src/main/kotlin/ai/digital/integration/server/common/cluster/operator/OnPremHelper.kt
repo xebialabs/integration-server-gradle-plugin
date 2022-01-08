@@ -64,7 +64,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
         return getProfile().onPremise
     }
 
-    fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+    private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,

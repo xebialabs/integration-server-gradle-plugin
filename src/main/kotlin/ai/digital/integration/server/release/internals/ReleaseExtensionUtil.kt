@@ -26,6 +26,7 @@ class ReleaseExtensionUtil {
             project.extensions.create(
                 RELEASE_IS_EXTENSION_NAME,
                 ReleaseIntegrationServerExtension::class.java,
+                project,
                 servers
             )
         }

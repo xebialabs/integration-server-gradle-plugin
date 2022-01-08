@@ -1,6 +1,9 @@
 package ai.digital.integration.server.release
 
+import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
+import ai.digital.integration.server.deploy.tasks.StopDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.server.operator.OperatorCentralConfigurationTask
+import ai.digital.integration.server.deploy.tasks.server.operator.PrepareOperatorServerTask
 import ai.digital.integration.server.release.tasks.cluster.StartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.StopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.CheckingOutReleaseKubernetesOperatorTask
@@ -18,8 +21,6 @@ import ai.digital.integration.server.release.tasks.cluster.operator.onprem.Opera
 import ai.digital.integration.server.release.tasks.cluster.operator.onprem.OperatorBasedOnPremStopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStopReleaseClusterTask
-import ai.digital.integration.server.release.tasks.server.operator.StartReleaseServerForOperatorInstanceTask
-import ai.digital.integration.server.release.tasks.server.operator.StopReleaseServerForOperatorInstanceTask
 import org.gradle.api.Project
 
 open class ReleaseTaskRegistry {
@@ -31,7 +32,8 @@ open class ReleaseTaskRegistry {
             project.tasks.create(StartReleaseClusterTask.NAME, StartReleaseClusterTask::class.java)
             project.tasks.create(StopReleaseClusterTask.NAME, StopReleaseClusterTask::class.java)
 
-            project.tasks.create(StartReleaseIntegrationServerTask.NAME, StartReleaseIntegrationServerTask::class.java)
+            project.tasks.create(StartDeployIntegrationServerTask.NAME, StartDeployIntegrationServerTask::class.java)
+            project.tasks.create(StopDeployIntegrationServerTask.NAME, StopDeployIntegrationServerTask::class.java)
 
             // Cluster Operator
             project.tasks.create(OperatorBasedAwsEksReleaseClusterStartTask.NAME,
@@ -72,10 +74,7 @@ open class ReleaseTaskRegistry {
             project.tasks.create(CheckingOutReleaseKubernetesOperatorTask.NAME,
                 CheckingOutReleaseKubernetesOperatorTask::class.java)
             project.tasks.create(OperatorCentralConfigurationTask.NAME, OperatorCentralConfigurationTask::class.java)
-            project.tasks.create(StartReleaseServerForOperatorInstanceTask.NAME,
-                StartReleaseServerForOperatorInstanceTask::class.java)
-            project.tasks.create(StopReleaseServerForOperatorInstanceTask.NAME,
-                StopReleaseServerForOperatorInstanceTask::class.java)
+            project.tasks.create(PrepareOperatorServerTask.NAME, PrepareOperatorServerTask::class.java)
         }
     }
 }
