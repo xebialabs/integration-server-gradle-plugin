@@ -75,7 +75,7 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-azure-aks"
+        return "${getOperatorHomeDir()}/${getName()}-operator-azure-aks"
     }
 
     override fun getProvider(): AzureAksProvider {

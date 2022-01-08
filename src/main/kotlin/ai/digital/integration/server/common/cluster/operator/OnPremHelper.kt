@@ -57,7 +57,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-onprem"
+        return "${getOperatorHomeDir()}/${getName()}-operator-onprem"
     }
 
     override fun getProvider(): OnPremiseProvider {

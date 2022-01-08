@@ -42,7 +42,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()
-        val ip = getKubectlHelper().getServiceExternalIp("service/dai-xld-nginx-ingress-controller")
+        val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
         applyDnsOpenApi(ip)
 
         createClusterMetadata()
@@ -67,7 +67,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-gcp-gke"
+        return "${getOperatorHomeDir()}/${getName()}-operator-gcp-gke"
     }
 
     override fun getProvider(): GcpGkeProvider {

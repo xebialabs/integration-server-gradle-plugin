@@ -333,7 +333,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     private fun getHostName(): String {
         return ProcessUtil.executeCommand(project,
             "kubectl get service" +
-                    " dai-xld-nginx-ingress-controller " +
+                    " dai-${getPrefixName()}-nginx-ingress-controller " +
                     "-o=jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\"",
             logOutput = false,
             throwErrorOnFailure = false)

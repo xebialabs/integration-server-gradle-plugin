@@ -52,7 +52,6 @@ class ReleaseServerUtil {
         }
 
         fun getConfDir(project: Project): File {
-            val server = getServer(project)
             return Paths.get(getServerWorkingDir(project), "conf").toFile()
         }
 
@@ -143,6 +142,13 @@ class ReleaseServerUtil {
         fun getDockerServiceName(project: Project): String {
             val server = getServer(project)
             return "release-${server.version}"
+        }
+
+        fun runDockerBasedInstance(project: Project) {
+            project.exec {
+                executable = "docker-compose"
+                args = listOf("-f", getResolvedDockerFile(project).toFile().toString(), "up", "-d")
+            }
         }
 
         fun getResolvedDockerFile(project: Project): Path {

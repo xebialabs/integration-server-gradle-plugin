@@ -16,7 +16,7 @@ open class VmwareOpenshiftHelper(project: Project, productName: ProductName) : O
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-vmware-openshift"
+        return "${getOperatorHomeDir()}/${getName()}-operator-vmware-openshift"
     }
 
     override fun getProvider(): Provider {

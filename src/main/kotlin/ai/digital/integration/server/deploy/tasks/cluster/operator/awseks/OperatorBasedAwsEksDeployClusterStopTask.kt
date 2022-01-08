@@ -3,10 +3,10 @@ package ai.digital.integration.server.deploy.tasks.cluster.operator.awseks
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.cluster.operator.AwsEksHelper
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStopTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedAwsEksDeployClusterStopTask : OperatorBasedStopTask() {
+open class OperatorBasedAwsEksDeployClusterStopTask : DeployOperatorBasedStopTask() {
 
     companion object {
         const val NAME = "operatorBasedAwsEksStopDeployCluster"

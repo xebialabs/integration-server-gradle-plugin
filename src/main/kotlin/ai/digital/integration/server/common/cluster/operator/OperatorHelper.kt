@@ -44,7 +44,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     private val OPERATOR_PACKAGE_REL_PATH = "digitalai-${getName()}/deployment.yaml"
 
-    private val XL_DIGITAL_AI_PATH = "digital-ai.yaml"
+    private val DIGITAL_AI_PATH = "digital-ai.yaml"
 
     companion object {
         fun getOperatorHelper(project: Project, productName: ProductName): OperatorHelper {
@@ -247,7 +247,8 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                             "raft.wal_max_size_bytes = 1048576"
                         ).joinToString(separator = "\n", postfix = "\n"),
                 "spec.rabbitmq.persistence.replicaCount" to 1,
-                "spec.route.hosts" to arrayOf(getHost())
+                "spec.route.hosts" to arrayOf(getHost()),
+                "spec.${getPrefixName()}License" to getLicense()
             )
 
         when (productName) {
@@ -256,14 +257,12 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                     "spec.XldMasterCount" to getMasterCount(),
                     "spec.XldWorkerCount" to getWorkerCount(),
                     "spec.Persistence.XldMasterPvcSize" to "1Gi",
-                    "spec.Persistence.XldWorkerPvcSize" to "1Gi",
-                    "spec.xldLicense" to getLicense()
+                    "spec.Persistence.XldWorkerPvcSize" to "1Gi"
                 ))
             }
             ProductName.RELEASE -> {
                 pairs.putAll(mutableMapOf<String, Any>(
-                    "spec.Persistence.Size" to "1Gi",
-                    "spec.xlrLicense" to getLicense()
+                    "spec.Persistence.Size" to "1Gi"
                 ))
             }
         }
@@ -331,10 +330,10 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     open fun applyYamlFiles() {
         project.logger.lifecycle("Applying prepared Yaml files")
 
-        val xlDigitalAiPath = File(getProviderHomeDir(), XL_DIGITAL_AI_PATH)
-        project.logger.lifecycle("Applying Digital AI ${productName} platform on cluster ($xlDigitalAiPath)")
+        val digitalAiPath = File(getProviderHomeDir(), DIGITAL_AI_PATH)
+        project.logger.lifecycle("Applying Digital AI $productName platform on cluster ($digitalAiPath)")
         XlCliUtil.download(getProfile().xlCliVersion.get(), File(getProviderHomeDir()))
-        XlCliUtil.xlApply(project, xlDigitalAiPath, File(getProviderHomeDir()))
+        XlCliUtil.xlApply(project, digitalAiPath, File(getProviderHomeDir()))
     }
 
     abstract fun getProviderHomeDir(): String
@@ -353,7 +352,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
 
-    private fun getPrefixName(): String {
+    fun getPrefixName(): String {
         return when (productName) {
             ProductName.DEPLOY -> "xld"
             ProductName.RELEASE -> "xlr"

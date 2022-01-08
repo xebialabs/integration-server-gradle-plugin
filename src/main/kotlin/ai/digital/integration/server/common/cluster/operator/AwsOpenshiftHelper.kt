@@ -82,7 +82,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-openshift"
+        return "${getOperatorHomeDir()}/${getName()}-operator-openshift"
     }
 
     override fun getProvider(): AwsOpenshiftProvider {
@@ -90,7 +90,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
     }
 
     override fun getOperatorImage(): String {
-        return getProvider().operatorImage.getOrElse("xebialabs/deploy-operator:1.2.0-openshift")
+        return getProvider().operatorImage.getOrElse("xebialabs/${getName()}-operator:1.2.0-openshift")
     }
 
     override fun getStorageClass(): String {
@@ -117,14 +117,13 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
     override fun hasIngress(): Boolean = false
 
-    override fun getWorkerPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-worker-$position"
+    override fun getWorkerPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-worker-$position"
 
-    override fun getMasterPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-master-$position"
+    override fun getMasterPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-master-$position"
 
-    override fun getPostgresPodName(position: Int) = "pod/dai-ocp-xld-postgresql-$position"
+    override fun getPostgresPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-postgresql-$position"
 
-    override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-xld-rabbitmq-$position"
-
+    override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-rabbitmq-$position"
 
     private fun getApiServerUrl() = getProvider().apiServerURL.get()
 

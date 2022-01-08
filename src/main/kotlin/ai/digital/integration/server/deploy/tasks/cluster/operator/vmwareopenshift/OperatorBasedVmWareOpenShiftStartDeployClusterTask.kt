@@ -3,10 +3,10 @@ package ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopensh
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.cluster.operator.VmwareOpenshiftHelper
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStartTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedVmWareOpenShiftStartDeployClusterTask : OperatorBasedStartTask() {
+open class OperatorBasedVmWareOpenShiftStartDeployClusterTask : DeployOperatorBasedStartTask() {
 
     companion object {
         const val NAME = "operatorBasedVmWareOpenShiftStartDeployCluster"

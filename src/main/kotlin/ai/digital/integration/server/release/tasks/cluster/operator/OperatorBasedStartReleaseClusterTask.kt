@@ -2,13 +2,13 @@ package ai.digital.integration.server.release.tasks.cluster.operator
 
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStartTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftDeployClusterStartTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStartDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStartDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartDeployClusterTask
+import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
+import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksReleaseClusterStartTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftReleaseClusterStartTask
+import ai.digital.integration.server.release.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.onprem.OperatorBasedOnPremStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartReleaseClusterTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -21,19 +21,19 @@ open class OperatorBasedStartReleaseClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        this.dependsOn(when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
+        this.dependsOn(when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
             OperatorProviderName.AWS_EKS.providerName ->
-                OperatorBasedAwsEksDeployClusterStartTask.NAME
+                OperatorBasedAwsEksReleaseClusterStartTask.NAME
             OperatorProviderName.AWS_OPENSHIFT.providerName ->
-                OperatorBasedAwsOpenShiftDeployClusterStartTask.NAME
+                OperatorBasedAwsOpenShiftReleaseClusterStartTask.NAME
             OperatorProviderName.AZURE_AKS.providerName ->
-                OperatorBasedAzureAksStartDeployClusterTask.NAME
+                OperatorBasedAzureAksStartReleaseClusterTask.NAME
             OperatorProviderName.GCP_GKE.providerName ->
-                OperatorBasedGcpGkeStartDeployClusterTask.NAME
+                OperatorBasedGcpGkeStartReleaseClusterTask.NAME
             OperatorProviderName.ON_PREMISE.providerName ->
-                OperatorBasedOnPremStartDeployClusterTask.NAME
+                OperatorBasedOnPremStartReleaseClusterTask.NAME
             OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
-                OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME
+                OperatorBasedVmWareOpenShiftStartReleaseClusterTask.NAME
             else -> {
                 throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
                     OperatorProviderName.values().joinToString()
@@ -44,7 +44,7 @@ open class OperatorBasedStartReleaseClusterTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        val providerName = DeployClusterUtil.getOperatorProvider(project)
-        project.logger.lifecycle("Operator based Deploy Cluster with provider $providerName has started.")
+        val providerName = ReleaseClusterUtil.getOperatorProvider(project)
+        project.logger.lifecycle("Operator based Release Cluster with provider $providerName has started.")
     }
 }
