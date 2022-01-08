@@ -440,7 +440,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-aws-eks"
+        return "${getOperatorHomeDir()}/${getName()}-operator-aws-eks"
     }
 
     override fun getProvider(): AwsEksProvider {
@@ -466,7 +466,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return "deploy.digitalai-testing.com"
+        return "${getName()}.digitalai-testing.com"
     }
 
     override fun getDbStorageClass(): String {
@@ -476,5 +476,4 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     override fun getMqStorageClass(): String {
         return ("gp2")
     }
-
 }

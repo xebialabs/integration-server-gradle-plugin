@@ -1,7 +1,9 @@
 package ai.digital.integration.server.release.util
 
+import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.release.ReleaseIntegrationServerExtension
 import org.gradle.api.Project
 import java.io.File
@@ -37,9 +39,26 @@ class ReleaseServerUtil {
             return "$url$separator$path"
         }
 
-
         fun isTls(project: Project): Boolean {
             return getServer(project).tls
+        }
+
+        fun getCluster(project: Project): Cluster {
+            return DeployExtensionUtil.getExtension(project).cluster.get()
+        }
+
+        fun isClusterEnabled(project: Project): Boolean {
+            return getCluster(project).enable
+        }
+
+        fun getConfDir(project: Project): File {
+            val server = getServer(project)
+            return Paths.get(getServerWorkingDir(project), "conf").toFile()
+        }
+
+        fun readReleaseServerConfProperty(project: Project, key: String): String {
+            val deployitConf = Paths.get("${getServerWorkingDir(project)}/conf/xl-release-server.conf").toFile()
+            return PropertiesUtil.readProperty(deployitConf, key)
         }
 
         fun getServer(project: Project): Server {
