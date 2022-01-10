@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.worker
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.mq.ShutdownMqTask
 import ai.digital.integration.server.common.util.HTTPUtil
 import ai.digital.integration.server.deploy.internals.EntryPointUrlUtil
@@ -28,11 +29,11 @@ open class ShutdownWorkersTask : DefaultTask() {
     private fun shutdownWorkers() {
         try {
             project.logger.lifecycle("About to shutdown all workers")
-
             val client = HttpClient.newHttpClient()
-            val request = HTTPUtil.doRequest(EntryPointUrlUtil.composeUrl(project, "/deployit/workers"))
-                .DELETE()
-                .build()
+            val request =
+                HTTPUtil.doRequest(EntryPointUrlUtil(project, ProductName.DEPLOY).composeUrl("/deployit/workers"))
+                    .DELETE()
+                    .build()
 
             client.send(request, HttpResponse.BodyHandlers.ofString())
             project.logger.lifecycle("Workers shutdown successfully")

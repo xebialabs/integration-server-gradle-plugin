@@ -13,7 +13,7 @@ import ai.digital.integration.server.deploy.internals.DeployExtensionUtil.Compan
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil.Companion.isDeployServerDefined
 import ai.digital.integration.server.release.ReleaseTaskRegistry
-import ai.digital.integration.server.release.util.ReleaseExtensionUtil.Companion.createReleaseExtension
+import ai.digital.integration.server.release.internals.ReleaseExtensionUtil.Companion.createReleaseExtension
 import ai.digital.integration.server.release.util.ReleaseServerUtil
 import ai.digital.integration.server.release.util.ReleaseServerUtil.Companion.isReleaseServerDefined
 import com.xebialabs.gradle.plugins.derby.DerbyExtension

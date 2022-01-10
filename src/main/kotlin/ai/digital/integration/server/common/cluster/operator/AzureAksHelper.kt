@@ -1,5 +1,6 @@
-package ai.digital.integration.server.deploy.internals.cluster.operator
+package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AzureAksProvider
 import ai.digital.integration.server.common.util.ProcessUtil
@@ -8,7 +9,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class AzureAksHelper(project: Project) : OperatorHelper(project) {
+open class AzureAksHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun launchCluster() {
         val azureAksProvider: AzureAksProvider = getProvider()
@@ -29,7 +30,6 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
         val kubeContextInfo = getCurrentContextInfo()
         createStorageClass(azureAksProvider.storageClass.getOrElse(name))
 
-        updateControllerManager()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
@@ -81,7 +81,7 @@ open class AzureAksHelper(project: Project) : OperatorHelper(project) {
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-azure-aks"
+        return "${getOperatorHomeDir()}/${getName()}-operator-azure-aks"
     }
 
     override fun getProvider(): AzureAksProvider {

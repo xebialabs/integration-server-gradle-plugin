@@ -28,7 +28,7 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
             ServerCopyOverlaysTask.NAME, if (DbUtil.isDerby(project)) "derbyStart" else DatabaseStartTask.NAME,
             OperatorCentralConfigurationTask.NAME,
             PrepareDatabaseTask.NAME,
-            PrepareServerTask.NAME,
+            PrepareOperatorServerTask.NAME,
             SetServerLogbackLevelsTask.NAME,
             ServerYamlPatchTask.NAME
         )

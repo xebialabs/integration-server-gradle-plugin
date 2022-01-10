@@ -1,5 +1,6 @@
-package ai.digital.integration.server.deploy.internals.cluster.operator
+package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.GcpGkeProvider
 import ai.digital.integration.server.common.util.ProcessUtil
@@ -10,7 +11,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
+open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun launchCluster() {
         val gcpGkeProvider: GcpGkeProvider = getProvider()
@@ -31,7 +32,6 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
 
         useCustomStorageClass(getStorageClass())
 
-        updateControllerManager()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
@@ -42,7 +42,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()
-        val ip = getKubectlHelper().getServiceExternalIp("service/dai-xld-nginx-ingress-controller")
+        val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
         applyDnsOpenApi(ip)
 
         createClusterMetadata()
@@ -72,7 +72,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-gcp-gke"
+        return "${getOperatorHomeDir()}/${getName()}-operator-gcp-gke"
     }
 
     override fun getProvider(): GcpGkeProvider {
@@ -131,14 +131,14 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
             project.logger.lifecycle("Create cluster: {}", name)
 
             val additions = clusterNodeVmSize.map { " --machine-type \"$it\"" }.getOrElse("") +
-                    kubernetesVersion.map { " --cluster-version \"$it\"" }.getOrElse(" --cluster-version \"1.20.11-gke.1801\"")
+                    kubernetesVersion.map { " --cluster-version \"$it\"" }.getOrElse(" --cluster-version \"1.21.5-gke.1802\"")
 
             ProcessUtil.executeCommand(project,
                     "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters create \"$name\" --zone  \"$regionZone\" " +
                             "--release-channel \"regular\" " +
                             "--num-nodes \"${clusterNodeCount.getOrElse(3)}\" --image-type \"COS_CONTAINERD\" --metadata disable-legacy-endpoints=true " +
                             "--logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --no-enable-master-authorized-networks " +
-                            "--addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver --enable-autoupgrade --enable-autorepair " +
+                            "--addons HorizontalPodAutoscaling,HttpLoadBalancing,GcpFilestoreCsiDriver --enable-autoupgrade --enable-autorepair " +
                             "--enable-shielded-nodes $additions")
         }
     }
