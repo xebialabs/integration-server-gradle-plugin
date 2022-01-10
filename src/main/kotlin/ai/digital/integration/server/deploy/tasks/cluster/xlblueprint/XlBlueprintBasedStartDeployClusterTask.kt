@@ -16,6 +16,7 @@ open class XlBlueprintBasedStartDeployClusterTask : DefaultTask() {
         group = PluginConstant.PLUGIN_GROUP
         this.dependsOn(StartDeployServerForOperatorInstanceTask.NAME)
     }
+
     @TaskAction
     fun launch() {
         project.logger.lifecycle("Xl Blueprint based Deploy Cluster has started.")

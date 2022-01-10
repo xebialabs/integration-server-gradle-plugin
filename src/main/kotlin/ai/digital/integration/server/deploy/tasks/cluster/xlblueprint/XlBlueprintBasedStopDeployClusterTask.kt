@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction
 import java.io.IOException
 import java.nio.file.Paths
 
-open class XlBlueprintBasedStopDeployClusterTask: DefaultTask() {
+open class XlBlueprintBasedStopDeployClusterTask : DefaultTask() {
 
     companion object {
         const val NAME = "xlBlueprintBasedStopDeployCluster"
