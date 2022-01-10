@@ -14,10 +14,10 @@ import ai.digital.integration.server.deploy.tasks.worker.ShutdownWorkersTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-open class ShutdownDeployIntegrationServerTask : DefaultTask() {
+open class StopDeployIntegrationServerTask : DefaultTask() {
 
     companion object {
-        const val NAME = "shutdownDeployIntegrationServer"
+        const val NAME = "stopDeployIntegrationServer"
     }
 
     init {

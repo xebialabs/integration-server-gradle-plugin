@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.internals
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.AkkaSecured
 import ai.digital.integration.server.common.util.IntegrationServerUtil
 import ai.digital.integration.server.common.util.PropertyUtil
@@ -76,7 +77,7 @@ class WorkerUtil {
                 "-master",
                 "127.0.0.1:$port",
                 "-api",
-                EntryPointUrlUtil.getUrl(project),
+                EntryPointUrlUtil(project, ProductName.DEPLOY).getUrl(),
                 "-hostname",
                 hostName,
                 "-name",

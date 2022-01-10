@@ -1,13 +1,14 @@
 package ai.digital.integration.server.deploy.tasks.provision
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.HTTPUtil
-import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
-import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.EntryPointUrlUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
+import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
+import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
@@ -39,7 +40,8 @@ open class RunDatasetGenerationTask : DefaultTask() {
     private fun generateDatasets(project: Project, server: Server) {
         server.generateDatasets.forEach { dataset ->
             val client = HttpClient.newHttpClient()
-            val request = HTTPUtil.doRequest(EntryPointUrlUtil.composeUrl(project, "/deployit/generate/$dataset"))
+            val request = HTTPUtil
+                .doRequest(EntryPointUrlUtil(project, ProductName.DEPLOY).composeUrl("/deployit/generate/$dataset"))
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build()
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())

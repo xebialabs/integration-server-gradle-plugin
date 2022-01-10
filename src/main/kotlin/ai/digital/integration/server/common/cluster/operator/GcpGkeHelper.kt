@@ -1,5 +1,6 @@
-package ai.digital.integration.server.deploy.internals.cluster.operator
+package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.GcpGkeProvider
 import ai.digital.integration.server.common.util.ProcessUtil
@@ -10,7 +11,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
+open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun launchCluster() {
         val gcpGkeProvider: GcpGkeProvider = getProvider()
@@ -41,7 +42,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()
-        val ip = getKubectlHelper().getServiceExternalIp("service/dai-xld-nginx-ingress-controller")
+        val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
         applyDnsOpenApi(ip)
 
         createClusterMetadata()
@@ -66,7 +67,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-gcp-gke"
+        return "${getOperatorHomeDir()}/${getName()}-operator-gcp-gke"
     }
 
     override fun getProvider(): GcpGkeProvider {

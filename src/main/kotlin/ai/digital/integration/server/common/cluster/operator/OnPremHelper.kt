@@ -1,5 +1,6 @@
-package ai.digital.integration.server.deploy.internals.cluster.operator
+package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.OnPremiseProvider
 import ai.digital.integration.server.common.util.ProcessUtil
@@ -8,7 +9,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class OnPremHelper(project: Project) : OperatorHelper(project) {
+open class OnPremHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun launchCluster() {
         val onPremiseProvider: OnPremiseProvider = getProvider()
@@ -56,14 +57,14 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-onprem"
+        return "${getOperatorHomeDir()}/${getName()}-operator-onprem"
     }
 
     override fun getProvider(): OnPremiseProvider {
         return getProfile().onPremise
     }
 
-    fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+    private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,

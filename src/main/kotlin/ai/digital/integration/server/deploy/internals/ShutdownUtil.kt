@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.internals
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.util.HTTPUtil
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -18,7 +19,9 @@ class ShutdownUtil {
             while (triesLeft > 0 && !success) {
                 try {
                     val client = HttpClient.newHttpClient()
-                    val request = HTTPUtil.doRequest(EntryPointUrlUtil.composeUrl(project, server.contextRoot))
+                    val request = HTTPUtil
+                        .doRequest(EntryPointUrlUtil(project, ProductName.DEPLOY)
+                            .composeUrl(server.contextRoot))
                         .POST(HttpRequest.BodyPublishers.noBody())
                         .build()
                     val response = client.send(request, HttpResponse.BodyHandlers.ofString())
@@ -49,7 +52,8 @@ class ShutdownUtil {
                 project.logger.lifecycle("Trying to shutdown integration server on port $port")
 
                 val client = HttpClient.newHttpClient()
-                val request = HTTPUtil.doRequest(EntryPointUrlUtil.composeUrl(project, "/deployit/server/shutdown"))
+                val request = HTTPUtil.doRequest(EntryPointUrlUtil(project,
+                    ProductName.DEPLOY).composeUrl("/deployit/server/shutdown"))
                     .POST(HttpRequest.BodyPublishers.noBody())
                     .build()
                 client.send(request, HttpResponse.BodyHandlers.ofString())
