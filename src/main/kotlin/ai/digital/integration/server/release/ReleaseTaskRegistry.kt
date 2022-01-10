@@ -1,9 +1,9 @@
 package ai.digital.integration.server.release
 
-import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
-import ai.digital.integration.server.deploy.tasks.StopDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.server.operator.OperatorCentralConfigurationTask
 import ai.digital.integration.server.deploy.tasks.server.operator.PrepareOperatorServerTask
+import ai.digital.integration.server.release.tasks.DockerBasedStopReleaseTask
+import ai.digital.integration.server.release.tasks.StopReleaseIntegrationServerTask
 import ai.digital.integration.server.release.tasks.cluster.StartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.StopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.CheckingOutReleaseKubernetesOperatorTask
@@ -32,8 +32,10 @@ open class ReleaseTaskRegistry {
             project.tasks.create(StartReleaseClusterTask.NAME, StartReleaseClusterTask::class.java)
             project.tasks.create(StopReleaseClusterTask.NAME, StopReleaseClusterTask::class.java)
 
-            project.tasks.create(StartDeployIntegrationServerTask.NAME, StartDeployIntegrationServerTask::class.java)
-            project.tasks.create(StopDeployIntegrationServerTask.NAME, StopDeployIntegrationServerTask::class.java)
+            project.tasks.create(StartReleaseIntegrationServerTask.NAME, StartReleaseIntegrationServerTask::class.java)
+            project.tasks.create(StopReleaseIntegrationServerTask.NAME, StopReleaseIntegrationServerTask::class.java)
+
+            project.tasks.create(DockerBasedStopReleaseTask.NAME, DockerBasedStopReleaseTask::class.java)
 
             // Cluster Operator
             project.tasks.create(OperatorBasedAwsEksReleaseClusterStartTask.NAME,

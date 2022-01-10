@@ -3,10 +3,10 @@ package ai.digital.integration.server.release.tasks.cluster.operator.vmwareopens
 import ai.digital.integration.server.common.cluster.operator.VmwareOpenshiftHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.release.tasks.cluster.operator.ReleaseOperatorBasedStopTask
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedVmWareOpenShiftStopReleaseClusterTask : ReleaseOperatorBasedStopTask() {
+open class OperatorBasedVmWareOpenShiftStopReleaseClusterTask : DefaultTask() {
 
     companion object {
         const val NAME = "operatorBasedVmWareOpenShiftStopReleaseCluster"
@@ -14,7 +14,6 @@ open class OperatorBasedVmWareOpenShiftStopReleaseClusterTask : ReleaseOperatorB
 
     init {
         group = PluginConstant.PLUGIN_GROUP
-        this.dependsOn(dependsOnTasks())
     }
 
     @TaskAction

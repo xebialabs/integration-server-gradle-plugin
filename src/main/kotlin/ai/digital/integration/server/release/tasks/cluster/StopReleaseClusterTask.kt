@@ -17,7 +17,7 @@ open class StopReleaseClusterTask : DefaultTask() {
         group = PluginConstant.PLUGIN_GROUP
 
         this.dependsOn(
-            when (val profileName = DeployClusterUtil.getProfile(project)) {
+            when (val profileName = ReleaseClusterUtil.getProfile(project)) {
                 ClusterProfileName.DOCKER_COMPOSE.profileName ->
                     throw IllegalArgumentException("Docker compose based cluster setup is not supported yet in Release.")
                 ClusterProfileName.OPERATOR.profileName ->

@@ -3,10 +3,10 @@ package ai.digital.integration.server.release.tasks.cluster.operator.gcpgke
 import ai.digital.integration.server.common.cluster.operator.GcpGkeHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.release.tasks.cluster.operator.ReleaseOperatorBasedStopTask
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedGcpGkeStopReleaseClusterTask : ReleaseOperatorBasedStopTask() {
+open class OperatorBasedGcpGkeStopReleaseClusterTask : DefaultTask() {
 
     companion object {
         const val NAME = "operatorBasedGcpGkeStopReleaseCluster"
@@ -14,7 +14,6 @@ open class OperatorBasedGcpGkeStopReleaseClusterTask : ReleaseOperatorBasedStopT
 
     init {
         group = PluginConstant.PLUGIN_GROUP
-        this.dependsOn(dependsOnTasks())
     }
 
     @TaskAction
