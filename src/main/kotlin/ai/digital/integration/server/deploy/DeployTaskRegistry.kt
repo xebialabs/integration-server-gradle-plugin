@@ -20,6 +20,7 @@ import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerCo
 import ai.digital.integration.server.deploy.tasks.cluster.operator.CheckingOutDeployKubernetesOperatorTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedUpgradeDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStartTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStopTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftDeployClusterStartTask
@@ -113,6 +114,7 @@ open class DeployTaskRegistry {
                 StopDeployServerForOperatorInstanceTask::class.java)
             project.tasks.create(PrepareOperatorServerTask.NAME,
                 PrepareOperatorServerTask::class.java)
+            project.tasks.create(OperatorBasedUpgradeDeployClusterTask.NAME, OperatorBasedUpgradeDeployClusterTask::class.java)
 
             // Cluster Terraform
             project.tasks.create(TerraformBasedAwsEksStartDeployClusterTask.NAME,

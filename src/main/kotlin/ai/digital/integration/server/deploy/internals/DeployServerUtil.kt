@@ -9,6 +9,7 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.LocalDateTime
 
 class DeployServerUtil {
     companion object {
@@ -28,10 +29,22 @@ class DeployServerUtil {
                 })
         }
 
+        fun getOperatorDeployServer(project: Project): Server {
+            val operatorServer = DeployExtensionUtil.getExtension(project).operatorServer.get()
+            val server = getServer(project)
+            val operatorDeployServer = Server("operatorServer")
+            operatorDeployServer.httpPort = operatorServer.httpPort
+            operatorDeployServer.dockerImage = operatorServer.dockerImage ?: server.dockerImage
+            operatorDeployServer.version = operatorServer.version ?: server.dockerImage
+            operatorDeployServer.pingRetrySleepTime = operatorServer.pingRetrySleepTime
+            operatorDeployServer.pingTotalTries = operatorServer.pingTotalTries
+            operatorDeployServer.runtimeDirectory = null
+            return operatorDeployServer
+        }
+
         fun getServers(project: Project): List<Server> {
             return DeployExtensionUtil.getExtension(project).servers.map { server: Server ->
-                enrichServer(project,
-                    server)
+                enrichServer(project, server)
             }
         }
 
@@ -168,24 +181,30 @@ class DeployServerUtil {
         }
 
         fun waitForBoot(project: Project, process: Process?, server: Server, auxiliaryServer: Boolean = false) {
-            fun saveLogs() {
+            fun saveLogs(lastUpdate: LocalDateTime): LocalDateTime {
                 if (isDockerBased(project) || isClusterEnabled(project)) {
-                    saveServerLogsToFile(project, "deploy-${server.version}")
+                    saveServerLogsToFile(project, "deploy-${server.version}", lastUpdate)
                 }
+                return LocalDateTime.now()
             }
 
             val url =
                 EntryPointUrlUtil(project, ProductName.DEPLOY).composeUrl("/deployit/metadata/type", auxiliaryServer)
-            WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries) {
-                saveLogs()
+            val lastLogUpdate = WaitForBootUtil.byPort(project,
+                "Deploy",
+                url,
+                process,
+                server.pingRetrySleepTime,
+                server.pingTotalTries) {
+                saveLogs(it)
             }
-            saveLogs()
+            saveLogs(lastLogUpdate)
         }
 
-        private fun saveServerLogsToFile(project: Project, containerName: String) {
-            val logContent = DockerUtil.dockerLogs(project, containerName)
+        private fun saveServerLogsToFile(project: Project, containerName: String, lastUpdate: LocalDateTime) {
+            val logContent = DockerUtil.dockerLogs(project, containerName, lastUpdate)
             val logDir = getLogDir(project)
-            File(logDir, "$containerName.log").writeText(logContent, StandardCharsets.UTF_8)
+            File(logDir, "$containerName.log").appendText(logContent, StandardCharsets.UTF_8)
         }
 
         fun startServerFromClasspath(project: Project): Process {

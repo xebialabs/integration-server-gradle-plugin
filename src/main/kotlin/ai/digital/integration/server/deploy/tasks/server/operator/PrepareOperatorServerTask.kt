@@ -1,6 +1,8 @@
 package ai.digital.integration.server.deploy.tasks.server.operator
 
+import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.internals.DeployServerInitializeUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.tasks.maintenance.CleanupBeforeStartupTask
@@ -17,7 +19,9 @@ open class PrepareOperatorServerTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        val server = DeployServerUtil.getServer(project)
+        val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.DEPLOY)
+        val server = operatorHelper.getOperatorDeployServer(project)
+        server.httpPort = 4516 // we need default port in the image
         DeployServerInitializeUtil.prepare(project, server)
     }
 
