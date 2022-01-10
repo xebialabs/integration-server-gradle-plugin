@@ -10,7 +10,7 @@ import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
-import ai.digital.integration.server.deploy.tasks.StopDeployIntegrationServerTask
+import ai.digital.integration.server.deploy.tasks.ShutdownDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.anonymizer.ExportDatabaseTask
 import ai.digital.integration.server.deploy.tasks.cli.*
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
@@ -162,8 +162,8 @@ open class DeployTaskRegistry {
             project.tasks.create(GitlabStopTask.NAME, GitlabStopTask::class.java)
 
             //Integration Server
-            project.tasks.create(StopDeployIntegrationServerTask.NAME,
-                StopDeployIntegrationServerTask::class.java)
+            project.tasks.create(ShutdownDeployIntegrationServerTask.NAME,
+                ShutdownDeployIntegrationServerTask::class.java)
             project.tasks.create(StartDeployIntegrationServerTask.NAME, StartDeployIntegrationServerTask::class.java)
                 .dependsOn(itcfg)
 
