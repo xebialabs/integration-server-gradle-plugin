@@ -67,7 +67,7 @@ class DeployServerUtil {
 
         fun getServerWorkingDir(project: Project, server: Server): String {
             return when {
-                !isDockerBased(server) -> {
+                isDockerBased(server) -> {
                     val workDir = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project,
                         "deploy-${server.version}")
                     workDir.toAbsolutePath().toString()
@@ -146,14 +146,14 @@ class DeployServerUtil {
         }
 
         fun getLogDir(project: Project, server: Server): File {
-            return Paths.get(getServerWorkingDir(project, server), "log").toFile()
+            val logDir =  Paths.get(getServerWorkingDir(project, server), "log").toFile()
+            logDir.mkdirs()
+            return logDir
         }
 
         fun getLogDir(project: Project): File {
             val server = getServer(project)
-            val logDir = Paths.get(getServerWorkingDir(project, server), "log").toFile()
-            logDir.mkdirs()
-            return logDir
+            return getLogDir(project, server)
         }
 
         fun getConfDir(project: Project): File {
@@ -175,7 +175,7 @@ class DeployServerUtil {
             val clusterEnabled = isClusterEnabled(project)
             fun saveLogs() {
                 if (isDockerBased(server) || clusterEnabled) {
-                    saveServerLogsToFile(project, "deploy-${server.version}")
+                    saveServerLogsToFile(project, server, "deploy-${server.version}")
                 }
             }
 
@@ -187,9 +187,9 @@ class DeployServerUtil {
             saveLogs()
         }
 
-        fun saveServerLogsToFile(project: Project, containerName: String) {
+        fun saveServerLogsToFile(project: Project, server: Server, containerName: String) {
             val logContent = DockerUtil.dockerLogs(project, containerName)
-            val logDir = getLogDir(project)
+            val logDir = getLogDir(project, server)
             File(logDir, "$containerName.log").writeText(logContent, StandardCharsets.UTF_8)
         }
 

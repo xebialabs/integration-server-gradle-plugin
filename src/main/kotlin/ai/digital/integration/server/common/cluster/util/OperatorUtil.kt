@@ -59,7 +59,7 @@ class OperatorUtil(
     fun waitForBoot(server: Server) {
         fun saveLogs() {
             val name = ProductName.DEPLOY.toString().toLowerCase()
-            DeployServerUtil.saveServerLogsToFile(project, "${name}-${server.version}")
+            DeployServerUtil.saveServerLogsToFile(project, server, "${name}-${server.version}")
         }
 
         val url = EntryPointUrlUtil(project, ProductName.DEPLOY, true)
