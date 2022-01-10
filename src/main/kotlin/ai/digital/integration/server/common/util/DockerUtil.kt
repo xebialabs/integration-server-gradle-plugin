@@ -34,7 +34,7 @@ class DockerUtil {
         fun dockerLogs(project: Project, containerName: String): String {
             val containerId = findContainerIdByName(project, containerName)
             val args = arrayListOf("logs", containerId)
-            return execute(project, args, true)
+            return execute(project, args, false)
         }
     }
 }

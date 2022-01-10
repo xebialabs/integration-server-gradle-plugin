@@ -164,13 +164,13 @@ class ReleaseServerUtil {
             val serverTemplate = resultComposeFilePath.toFile()
 
             val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-                .replace("RELEASE_SERVER_HTTP_PORT", server.httpPort.toString())
-                .replace("RELEASE_IMAGE_VERSION", getDockerImageVersion(project))
+                .replace("{{RELEASE_SERVER_HTTP_PORT}}", server.httpPort.toString())
+                .replace("{{RELEASE_IMAGE_VERSION}}", getDockerImageVersion(project))
                 .replace(
-                    "RELEASE_PLUGINS_TO_EXCLUDE",
+                    "{{RELEASE_PLUGINS_TO_EXCLUDE}}",
                     server.defaultOfficialPluginsToExclude.joinToString(separator = ",")
                 )
-                .replace("RELEASE_VERSION", server.version.toString())
+                .replace("{{RELEASE_VERSION}}", server.version.toString())
             serverTemplate.writeText(configuredTemplate)
 
             return resultComposeFilePath

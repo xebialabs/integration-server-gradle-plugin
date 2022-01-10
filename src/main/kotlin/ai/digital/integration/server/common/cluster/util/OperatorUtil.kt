@@ -29,6 +29,13 @@ class OperatorUtil(
         }
     }
 
+    fun getServers(): NamedDomainObjectContainer<Server> {
+        return when (productName) {
+            ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).servers
+            ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).servers
+        }
+    }
+
     fun getOperatorServer(): Server {
         val servers = when (productName) {
             ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).servers

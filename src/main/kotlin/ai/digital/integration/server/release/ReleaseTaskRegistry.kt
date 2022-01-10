@@ -2,10 +2,7 @@ package ai.digital.integration.server.release
 
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.deploy.tasks.maintenance.CleanupBeforeStartupTask
-import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
-import ai.digital.integration.server.deploy.tasks.server.ServerCopyOverlaysTask
-import ai.digital.integration.server.deploy.tasks.server.ServerYamlPatchTask
-import ai.digital.integration.server.deploy.tasks.server.SetServerLogbackLevelsTask
+import ai.digital.integration.server.deploy.tasks.server.*
 import ai.digital.integration.server.deploy.tasks.server.operator.OperatorCentralConfigurationTask
 import ai.digital.integration.server.deploy.tasks.server.operator.PrepareOperatorServerTask
 import ai.digital.integration.server.deploy.tasks.server.operator.StartDeployServerForOperatorInstanceTask

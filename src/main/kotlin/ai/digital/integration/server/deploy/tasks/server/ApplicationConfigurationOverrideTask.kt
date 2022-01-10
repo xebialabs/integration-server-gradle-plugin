@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.PropertiesUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.tasks.server.operator.OperatorCentralConfigurationTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -13,7 +14,9 @@ open class ApplicationConfigurationOverrideTask : DefaultTask() {
         this.group = PLUGIN_GROUP
         this.mustRunAfter(ServerCopyOverlaysTask.NAME)
 
-        if (!OperatorUtil(project).isClusterEnabled()) {
+        if (OperatorUtil(project).isClusterEnabled()) {
+            this.mustRunAfter(OperatorCentralConfigurationTask.NAME)
+        } else {
             this.mustRunAfter(CentralConfigurationTask.NAME)
         }
     }
