@@ -60,4 +60,6 @@ open class DeployIntegrationServerExtension(
     val kubeScanner = project.objects.property<KubeScanner>().value(KubeScanner(project.objects))
 
     fun kubeScanner(action: Action<in KubeScanner>) = action.execute(kubeScanner.get())
+
+
 }

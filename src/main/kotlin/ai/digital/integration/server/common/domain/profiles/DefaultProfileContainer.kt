@@ -51,6 +51,18 @@ internal class DefaultProfileContainer(delegate: NamedDomainObjectContainer<Prof
             }) as TerraformProfile
     }
 
+    override fun xlBlueprint(): XlBlueprintProfile = xlBlueprint {}
+
+    override fun xlBlueprint(closure: Closure<*>): XlBlueprintProfile {
+        return xlBlueprint(ConfigureUtil.configureUsing(closure))
+    }
+    override fun xlBlueprint(action: Action<in Profile>): XlBlueprintProfile {
+        return (findByName("xlBlueprint")
+                ?: create("xlBlueprint") {
+                    action.execute(this)
+                }) as XlBlueprintProfile
+    }
+
     override fun configure(configureClosure: Closure<*>): NamedDomainObjectContainer<Profile> =
         ConfigureUtil.configureSelf(configureClosure,
             this,

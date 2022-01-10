@@ -8,6 +8,7 @@ import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.xlblueprint.XlBlueprintBasedStartDeployClusterTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -24,6 +25,8 @@ open class StartDeployClusterTask : DefaultTask() {
             when (val profileName = DeployClusterUtil.getProfile(project)) {
                 ClusterProfileName.DOCKER_COMPOSE.profileName ->
                     DockerComposeBasedStartDeployClusterTask.NAME
+                ClusterProfileName.XL_BLUEPRINT.profileName ->
+                    XlBlueprintBasedStartDeployClusterTask.NAME
                 ClusterProfileName.OPERATOR.profileName ->
                     OperatorBasedStartDeployClusterTask.NAME
                 ClusterProfileName.TERRAFORM.profileName -> {

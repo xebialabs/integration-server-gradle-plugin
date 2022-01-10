@@ -16,5 +16,9 @@ interface ProfileContainer : NamedDomainObjectContainer<Profile> {
     fun terraform(): TerraformProfile
     fun terraform(closure: Closure<*>): TerraformProfile
     fun terraform(action: Action<in Profile>): TerraformProfile
+
+    fun xlBlueprint(): XlBlueprintProfile
+    fun xlBlueprint(closure: Closure<*>): XlBlueprintProfile
+    fun xlBlueprint(action: Action<in Profile>): XlBlueprintProfile
 }
 
