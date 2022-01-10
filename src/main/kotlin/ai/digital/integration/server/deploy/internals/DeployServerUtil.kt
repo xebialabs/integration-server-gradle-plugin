@@ -31,10 +31,11 @@ class DeployServerUtil {
 
         fun getOperatorDeployServer(project: Project): Server {
             val operatorServer = DeployExtensionUtil.getExtension(project).operatorServer.get()
+            val server = getServer(project)
             val operatorDeployServer = Server("operatorServer")
             operatorDeployServer.httpPort = operatorServer.httpPort
-            operatorDeployServer.dockerImage = operatorServer.dockerImage
-            operatorDeployServer.version = operatorServer.version
+            operatorDeployServer.dockerImage = operatorServer.dockerImage ?: server.dockerImage
+            operatorDeployServer.version = operatorServer.version ?: server.dockerImage
             operatorDeployServer.pingRetrySleepTime = operatorServer.pingRetrySleepTime
             operatorDeployServer.pingTotalTries = operatorServer.pingTotalTries
             operatorDeployServer.runtimeDirectory = null
@@ -43,8 +44,7 @@ class DeployServerUtil {
 
         fun getServers(project: Project): List<Server> {
             return DeployExtensionUtil.getExtension(project).servers.map { server: Server ->
-                enrichServer(project,
-                    server)
+                enrichServer(project, server)
             }
         }
 
@@ -190,7 +190,12 @@ class DeployServerUtil {
 
             val url =
                 EntryPointUrlUtil(project, ProductName.DEPLOY).composeUrl("/deployit/metadata/type", auxiliaryServer)
-            val lastLogUpdate = WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries) {
+            val lastLogUpdate = WaitForBootUtil.byPort(project,
+                "Deploy",
+                url,
+                process,
+                server.pingRetrySleepTime,
+                server.pingTotalTries) {
                 saveLogs(it)
             }
             saveLogs(lastLogUpdate)
