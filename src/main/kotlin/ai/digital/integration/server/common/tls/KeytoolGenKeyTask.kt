@@ -1,6 +1,7 @@
 package ai.digital.integration.server.common.tls
 
-import ai.digital.integration.server.deploy.internals.EntryPointUrlUtil.Companion.getHttpHost
+import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.deploy.internals.EntryPointUrlUtil
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
@@ -17,7 +18,7 @@ open class KeytoolGenKeyTask : KeytoolTask() {
     var ip = "127.0.0.1"
 
     @Input
-    var dns = getHttpHost(project)
+    var dns = EntryPointUrlUtil(project, ProductName.DEPLOY).getHttpHost()
 
     @Input
     var validity: String = 360.toString()

@@ -1,4 +1,4 @@
-package ai.digital.integration.server.release.util
+package ai.digital.integration.server.release.internals
 
 import ai.digital.integration.server.common.domain.DevOpsAsCode
 import ai.digital.integration.server.common.domain.Server
@@ -26,6 +26,7 @@ class ReleaseExtensionUtil {
             project.extensions.create(
                 RELEASE_IS_EXTENSION_NAME,
                 ReleaseIntegrationServerExtension::class.java,
+                project,
                 servers
             )
         }

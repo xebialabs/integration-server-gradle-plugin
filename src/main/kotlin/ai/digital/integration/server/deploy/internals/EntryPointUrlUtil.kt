@@ -1,79 +1,104 @@
 package ai.digital.integration.server.deploy.internals
 
+import ai.digital.integration.server.common.cluster.DockerClusterHelperCreator
+import ai.digital.integration.server.common.cluster.operator.OperatorHelper
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
-import ai.digital.integration.server.deploy.internals.cluster.DeployDockerClusterHelper
-import ai.digital.integration.server.deploy.internals.cluster.operator.OperatorHelper
+import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
+import ai.digital.integration.server.release.util.ReleaseServerUtil
 import org.gradle.api.Project
 
-class EntryPointUrlUtil {
+class EntryPointUrlUtil(
+    val project: Project,
+    val productName: ProductName
+) {
 
-    companion object {
+    private fun getPropertyValue(
+        key: String,
+        clusterValue: String,
+        auxiliaryServer: Boolean
+    ): String {
+        if (isClusterEnabled() && !auxiliaryServer) {
+            return clusterValue
+        }
+        return when (productName) {
+            ProductName.DEPLOY -> DeployServerUtil.readDeployitConfProperty(project, key)
+            ProductName.RELEASE -> ReleaseServerUtil.readReleaseServerConfProperty(project, key)
+        }
+    }
 
-        private fun getPropertyValue(
-            project: Project,
-            key: String,
-            clusterValue: String,
-            auxiliaryServer: Boolean
-        ): String {
-            if (DeployServerUtil.isClusterEnabled(project) && !auxiliaryServer) {
-                return clusterValue
-            }
-            return DeployServerUtil.readDeployitConfProperty(project, key)
+    fun getHttpPort(auxiliaryServer: Boolean = false): String {
+        if (isOperatorProvider() && !auxiliaryServer) {
+            val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
+            return operatorHelper.getPort()
         }
 
-        fun getHttpPort(project: Project, auxiliaryServer: Boolean = false): String {
-            if (DeployClusterUtil.isOperatorProvider(project) && !auxiliaryServer) {
-                val operatorHelper = OperatorHelper.getOperatorHelper(project)
-                return operatorHelper.getPort()
-            }
+        val dockerHelper = DockerClusterHelperCreator.create(project, productName)
+        return getPropertyValue("http.port", dockerHelper.getClusterPublicPort(), auxiliaryServer)
+    }
 
-            val dockerHelper = DeployDockerClusterHelper(project)
-            return getPropertyValue(project, "http.port", dockerHelper.getClusterPublicPort(), auxiliaryServer)
+    fun getContextRoot(auxiliaryServer: Boolean = false): String {
+        if (isOperatorProvider() && !auxiliaryServer) {
+            val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
+            return operatorHelper.getContextRoot()
         }
 
-        fun getContextRoot(project: Project, auxiliaryServer: Boolean = false): String {
-            if (DeployClusterUtil.isOperatorProvider(project) && !auxiliaryServer) {
-                val operatorHelper = OperatorHelper.getOperatorHelper(project)
-                return operatorHelper.getContextRoot()
-            }
+        return getPropertyValue("http.context.root", "", auxiliaryServer)
+    }
 
-            return getPropertyValue(project, "http.context.root", "", auxiliaryServer)
+    fun getHttpHost(auxiliaryServer: Boolean = false): String {
+        if (isOperatorProvider() && !auxiliaryServer) {
+            val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
+            return operatorHelper.getFqdn()
         }
 
-        fun getHttpHost(project: Project, auxiliaryServer: Boolean = false): String {
-            if (DeployClusterUtil.isOperatorProvider(project) && !auxiliaryServer) {
-                val operatorHelper = OperatorHelper.getOperatorHelper(project)
-                return operatorHelper.getFqdn()
-            }
+        return "localhost"
+    }
 
-            return "localhost"
+    fun getUrl(auxiliaryServer: Boolean = false): String {
+        val protocol = if (isTls()) "https" else "http"
+
+        if (isOperatorProvider() && !auxiliaryServer) {
+            val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
+            return "$protocol://${operatorHelper.getFqdn()}"
         }
 
-        fun getUrl(project: Project, auxiliaryServer: Boolean = false): String {
-            val protocol = if (DeployServerUtil.isTls(project)) "https" else "http"
+        val contextRoot = getContextRoot(auxiliaryServer)
+        val host = getHttpHost(auxiliaryServer)
+        val port = getHttpPort(auxiliaryServer)
 
-            if (DeployClusterUtil.isOperatorProvider(project) && !auxiliaryServer) {
-                val operatorHelper = OperatorHelper.getOperatorHelper(project)
-                return "$protocol://${operatorHelper.getFqdn()}"
-            }
+        return "$protocol://$host:$port$contextRoot"
+    }
 
-            val contextRoot = getContextRoot(project, auxiliaryServer)
-            val host = getHttpHost(project, auxiliaryServer)
-            val port = getHttpPort(project, auxiliaryServer)
+    fun composeUrl(path: String, auxiliaryServer: Boolean = false): String {
+        var url = getUrl(auxiliaryServer)
+        var separator = "/"
+        if (path.startsWith("/") || url.endsWith("/")) {
+            separator = ""
+            if (path.startsWith("/") && url.endsWith("/")) url = url.removeSuffix("/")
 
-            return "$protocol://$host:$port$contextRoot"
         }
+        return "$url$separator$path"
+    }
 
-        fun composeUrl(project: Project, path: String, auxiliaryServer: Boolean = false): String {
-            var url = getUrl(project, auxiliaryServer)
-            var separator = "/"
-            if (path.startsWith("/") || url.endsWith("/")) {
-                separator = ""
-                if (path.startsWith("/") && url.endsWith("/"))
-                    url = url.removeSuffix("/")
+    private fun isClusterEnabled(): Boolean {
+        return when (productName) {
+            ProductName.DEPLOY -> DeployServerUtil.isClusterEnabled(project)
+            ProductName.RELEASE -> ReleaseServerUtil.isClusterEnabled(project)
+        }
+    }
 
-            }
-            return "$url$separator$path"
+    private fun isOperatorProvider(): Boolean {
+        return when (productName) {
+            ProductName.DEPLOY -> DeployClusterUtil.isOperatorProvider(project)
+            ProductName.RELEASE -> ReleaseClusterUtil.isOperatorProvider(project)
+        }
+    }
+
+    private fun isTls(): Boolean {
+        return when (productName) {
+            ProductName.DEPLOY -> DeployServerUtil.isTls(project)
+            ProductName.RELEASE -> false
         }
     }
 }

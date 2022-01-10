@@ -1,5 +1,7 @@
 package ai.digital.integration.server.deploy.internals.cluster
 
+import ai.digital.integration.server.common.cluster.DockerClusterHelper
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.DockerComposeProfile
 import ai.digital.integration.server.common.util.*
@@ -17,7 +19,7 @@ import java.nio.file.Path
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-open class DeployDockerClusterHelper(val project: Project) {
+open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper {
 
     companion object {
         private const val clusterMetadataPath = "deploy/cluster/cluster-metadata.properties"
@@ -81,7 +83,7 @@ open class DeployDockerClusterHelper(val project: Project) {
         }
     }
 
-    fun getClusterPublicPort(): String {
+    override fun getClusterPublicPort(): String {
         return DeployServerUtil.getCluster(project).publicPort.toString()
     }
 
@@ -289,7 +291,7 @@ open class DeployDockerClusterHelper(val project: Project) {
     }
 
     private fun waitForBoot() {
-        val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type")
+        val url = EntryPointUrlUtil(project, ProductName.DEPLOY).composeUrl("/deployit/metadata/type")
         val server = DeployServerUtil.getServer(project)
         WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
