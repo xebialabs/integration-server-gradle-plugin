@@ -67,7 +67,7 @@ class DeployServerUtil {
 
         fun getServerWorkingDir(project: Project, server: Server): String {
             return when {
-                isDockerBased(project) -> {
+                !isDockerBased(server) -> {
                     val workDir = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project,
                         "deploy-${server.version}")
                     workDir.toAbsolutePath().toString()
@@ -88,7 +88,11 @@ class DeployServerUtil {
         }
 
         fun isDockerBased(project: Project): Boolean {
-            return !getServer(project).dockerImage.isNullOrBlank()
+            return !isDockerBased(getServer(project))
+        }
+
+        fun isDockerBased(server: Server): Boolean {
+            return !server.dockerImage.isNullOrBlank()
         }
 
         fun getCluster(project: Project): Cluster {
@@ -168,21 +172,22 @@ class DeployServerUtil {
         }
 
         fun waitForBoot(project: Project, process: Process?, server: Server, auxiliaryServer: Boolean = false) {
+            val clusterEnabled = isClusterEnabled(project)
             fun saveLogs() {
-                if (isDockerBased(project) || isClusterEnabled(project)) {
+                if (isDockerBased(server) || clusterEnabled) {
                     saveServerLogsToFile(project, "deploy-${server.version}")
                 }
             }
 
             val url =
-                EntryPointUrlUtil(project, ProductName.DEPLOY).composeUrl("/deployit/metadata/type", auxiliaryServer)
+                EntryPointUrlUtil(project, ProductName.DEPLOY, clusterEnabled).composeUrl("/deployit/metadata/type", auxiliaryServer)
             WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries) {
                 saveLogs()
             }
             saveLogs()
         }
 
-        private fun saveServerLogsToFile(project: Project, containerName: String) {
+        fun saveServerLogsToFile(project: Project, containerName: String) {
             val logContent = DockerUtil.dockerLogs(project, containerName)
             val logDir = getLogDir(project)
             File(logDir, "$containerName.log").writeText(logContent, StandardCharsets.UTF_8)

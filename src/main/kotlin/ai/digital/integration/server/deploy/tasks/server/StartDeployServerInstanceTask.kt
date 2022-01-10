@@ -18,17 +18,15 @@ import ai.digital.integration.server.deploy.tasks.satellite.StartSatelliteTask
 import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
-import ai.digital.integration.server.release.util.ReleaseServerUtil
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.closureOf
 import java.io.File
 import java.nio.file.Paths
 
-open class StartServerInstanceTask : DefaultTask() {
+open class StartDeployServerInstanceTask : DefaultTask() {
     companion object {
-        const val NAME = "startServerInstance"
+        const val NAME = "startDeployServerInstance"
     }
 
     init {
@@ -50,7 +48,7 @@ open class StartServerInstanceTask : DefaultTask() {
             ServerYamlPatchTask.NAME
         )
 
-        this.configure(closureOf<StartServerInstanceTask> {
+        this.configure(closureOf<StartDeployServerInstanceTask> {
 
             if (DeployServerUtil.isTls(project)) {
                 dependencies.add(TlsApplicationConfigurationOverrideTask.NAME)

@@ -8,7 +8,7 @@ import ai.digital.integration.server.common.util.HTTPUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.EntryPointUrlUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
-import ai.digital.integration.server.deploy.tasks.server.StartServerInstanceTask
+import ai.digital.integration.server.deploy.tasks.server.StartDeployServerInstanceTask
 import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -25,7 +25,7 @@ open class RunDevOpsAsCodeTask : DefaultTask() {
 
     init {
         this.group = PluginConstant.PLUGIN_GROUP
-        this.dependsOn(StartServerInstanceTask.NAME)
+        this.dependsOn(StartDeployServerInstanceTask.NAME)
 
         if (WorkerUtil.hasWorkers(project)) {
             this.dependsOn(StartWorkersTask.NAME)
