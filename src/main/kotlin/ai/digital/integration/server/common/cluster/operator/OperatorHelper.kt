@@ -1,6 +1,9 @@
 package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.constant.OperatorProviderName
+import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.InfrastructureInfo
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
 import ai.digital.integration.server.common.util.*
@@ -130,8 +133,10 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     fun waitForDeployment() {
         val resources = if (hasIngress()) arrayOf("deployment.apps/${getPrefixName()}-operator-controller-manager",
-            "deployment.apps/${getPrefixName()}-nginx-ingress-controller",
-            "deployment.apps/${getPrefixName()}-nginx-ingress-controller-default-backend") else arrayOf("deployment.apps/${getPrefixName()}-operator-controller-manager")
+            "deployment.apps/dai-${getPrefixName()}-nginx-ingress-controller",
+            "deployment.apps/dai-${getPrefixName()}-nginx-ingress-controller-default-backend")
+        else
+            arrayOf("deployment.apps/${getPrefixName()}-operator-controller-manager")
 
         resources.forEach { resource ->
             if (!getKubectlHelper().wait(resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
@@ -204,7 +209,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 auxiliaryServer = true)
             true
         } catch (e: RuntimeException) {
-            project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server is running on port ${getOperatorServer(project).httpPort}: ${e.message}")
+            project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server is running on port ${getOperatorDeployServer(project).httpPort}: ${e.message}")
             false
         } catch (e: IOException) {
             project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server has all files: ${e.message}")
@@ -334,8 +339,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
         val digitalAiPath = File(getProviderHomeDir(), DIGITAL_AI_PATH)
         project.logger.lifecycle("Applying Digital AI $productName platform on cluster ($digitalAiPath)")
-        XlCliUtil.download(getProfile().xlCliVersion.get(), File(getProviderHomeDir()))
-        XlCliUtil.xlApply(project, xlDigitalAiPath, getProfile().xlCliVersion.get(), File(getProviderHomeDir()), getOperatorServer(project).httpPort)
+        XlCliUtil.xlApply(project, digitalAiPath, getProfile().xlCliVersion.get(), File(getProviderHomeDir()), getOperatorDeployServer(project).httpPort)
     }
 
     abstract fun getProviderHomeDir(): String
@@ -389,7 +393,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return productName.toString().toLowerCase()
     }
 
-    fun getOperatorServer(project: Project): Server {
-        return DeployServerUtil.getOperatorServer(project).clone() as Server
+    fun getOperatorDeployServer(project: Project): Server {
+        return DeployServerUtil.getOperatorDeployServer(project)
     }
 }

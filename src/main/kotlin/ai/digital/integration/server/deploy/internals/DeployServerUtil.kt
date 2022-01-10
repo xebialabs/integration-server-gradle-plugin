@@ -29,9 +29,16 @@ class DeployServerUtil {
                 })
         }
 
-        fun getOperatorServer(project: Project): Server {
-            return enrichServer(project,
-                    DeployExtensionUtil.getExtension(project).operatorServer.get())
+        fun getOperatorDeployServer(project: Project): Server {
+            val operatorServer = DeployExtensionUtil.getExtension(project).operatorServer.get()
+            val operatorDeployServer = Server("operatorServer")
+            operatorDeployServer.httpPort = operatorServer.httpPort
+            operatorDeployServer.dockerImage = operatorServer.dockerImage
+            operatorDeployServer.version = operatorServer.version
+            operatorDeployServer.pingRetrySleepTime = operatorServer.pingRetrySleepTime
+            operatorDeployServer.pingTotalTries = operatorServer.pingTotalTries
+            operatorDeployServer.runtimeDirectory = null
+            return operatorDeployServer
         }
 
         fun getServers(project: Project): List<Server> {

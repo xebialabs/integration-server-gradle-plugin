@@ -1,9 +1,10 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator
 
+import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.util.XlCliUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
-import ai.digital.integration.server.deploy.internals.cluster.operator.OperatorHelper
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -28,7 +29,7 @@ open class OperatorBasedUpgradeDeployClusterTask  : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        val operatorHelper = OperatorHelper.getOperatorHelper(project)
+        val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.DEPLOY)
 
         val answersFile = prepareAnswersFile(operatorHelper)
         opUsingAnswersFile(operatorHelper, answersFile)

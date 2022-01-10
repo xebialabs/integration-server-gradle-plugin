@@ -1,12 +1,13 @@
 package ai.digital.integration.server.deploy.tasks.server.operator
 
+import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.HTTPUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
-import ai.digital.integration.server.deploy.internals.cluster.operator.OperatorHelper
 import ai.digital.integration.server.deploy.tasks.server.CentralConfigurationTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -66,8 +67,8 @@ open class OperatorCentralConfigurationTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        val operatorHelper = OperatorHelper.getOperatorHelper(project)
-        val server = operatorHelper.getOperatorServer(project)
+        val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.DEPLOY)
+        val server = operatorHelper.getOperatorDeployServer(project)
         if (server.numericVersion() >= 10.2) {
             createCentralConfigurationFiles(server)
         }
