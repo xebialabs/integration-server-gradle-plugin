@@ -12,7 +12,7 @@ services:
       - FORCE_UPGRADE={{DEPLOY_FORCE_UPGRADE}}
       - PLUGIN_SOURCE=filesystem
     ports:
-      - 4516:{{DEPLOY_SERVER_HTTP_PORT}}
+      - {{DEPLOY_SERVER_HTTP_PORT}}:{{DEPLOY_SERVER_HTTP_PORT}}
     volumes:
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/conf:/opt/xebialabs/xl-deploy-server/conf

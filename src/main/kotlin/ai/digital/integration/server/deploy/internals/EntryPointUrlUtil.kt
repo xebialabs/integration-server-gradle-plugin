@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.cluster.DockerClusterHelperCreator
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
+import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
@@ -22,10 +23,8 @@ class EntryPointUrlUtil(
         if (clusterEnabled) {
             if (!auxiliaryServer) {
                 return clusterValue
-            }
-            return when (productName) {
-                ProductName.DEPLOY -> "4516"
-                ProductName.RELEASE -> "5516"
+            } else {
+                return OperatorUtil(project).readConfProperty(key)
             }
         }
         return when (productName) {
