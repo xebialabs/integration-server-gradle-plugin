@@ -10,7 +10,7 @@ import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
-import ai.digital.integration.server.deploy.tasks.StopDeployIntegrationServerTask
+import ai.digital.integration.server.deploy.tasks.ShutdownDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.anonymizer.ExportDatabaseTask
 import ai.digital.integration.server.deploy.tasks.cli.*
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
@@ -20,6 +20,7 @@ import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerCo
 import ai.digital.integration.server.deploy.tasks.cluster.operator.CheckingOutDeployKubernetesOperatorTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedUpgradeDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStartTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStopTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftDeployClusterStartTask
@@ -110,6 +111,7 @@ open class DeployTaskRegistry {
                 StopDeployServerForOperatorInstanceTask::class.java)
             project.tasks.create(PrepareOperatorServerTask.NAME,
                 PrepareOperatorServerTask::class.java)
+            project.tasks.create(OperatorBasedUpgradeDeployClusterTask.NAME, OperatorBasedUpgradeDeployClusterTask::class.java)
 
             // Cluster Terraform
             project.tasks.create(TerraformBasedAwsEksStartDeployClusterTask.NAME,
@@ -157,8 +159,8 @@ open class DeployTaskRegistry {
             project.tasks.create(GitlabStopTask.NAME, GitlabStopTask::class.java)
 
             //Integration Server
-            project.tasks.create(StopDeployIntegrationServerTask.NAME,
-                StopDeployIntegrationServerTask::class.java)
+            project.tasks.create(ShutdownDeployIntegrationServerTask.NAME,
+                ShutdownDeployIntegrationServerTask::class.java)
             project.tasks.create(StartDeployIntegrationServerTask.NAME, StartDeployIntegrationServerTask::class.java)
                 .dependsOn(itcfg)
 

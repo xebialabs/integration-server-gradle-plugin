@@ -2,6 +2,7 @@ package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
@@ -132,8 +133,10 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     fun waitForDeployment() {
         val resources = if (hasIngress()) arrayOf("deployment.apps/${getPrefixName()}-operator-controller-manager",
-            "deployment.apps/${getPrefixName()}-nginx-ingress-controller",
-            "deployment.apps/${getPrefixName()}-nginx-ingress-controller-default-backend") else arrayOf("deployment.apps/${getPrefixName()}-operator-controller-manager")
+            "deployment.apps/dai-${getPrefixName()}-nginx-ingress-controller",
+            "deployment.apps/dai-${getPrefixName()}-nginx-ingress-controller-default-backend")
+        else
+            arrayOf("deployment.apps/${getPrefixName()}-operator-controller-manager")
 
         resources.forEach { resource ->
             if (!getKubectlHelper().wait(resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
@@ -206,7 +209,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 auxiliaryServer = true)
             true
         } catch (e: RuntimeException) {
-            project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server is running on port 4516: ${e.message}")
+            project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server is running on port ${getOperatorDeployServer(project).httpPort}: ${e.message}")
             false
         } catch (e: IOException) {
             project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server has all files: ${e.message}")
@@ -240,7 +243,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 "spec.rabbitmq.image.debug" to true,
                 "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
                 "spec.rabbitmq.persistence.size" to "1Gi",
-                "spec.rabbitmq.replicaCount" to 1,
+                "spec.rabbitmq.replicaCount" to getProvider().rabbitmqReplicaCount.get(),
                 "spec.rabbitmq.extraConfiguration" to
                         listOf(
                             "load_definitions = /app/${getPrefixName()}-load_definition.json",
@@ -319,6 +322,10 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return "/"
     }
 
+    open fun getCurrentContextInfo(): InfrastructureInfo {
+        return InfrastructureInfo(null, null, null, null, null, null)
+    }
+
     open fun getHost(): String {
         return getProvider().host.getOrElse(getProvider().name.get())
     }
@@ -332,8 +339,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
         val digitalAiPath = File(getProviderHomeDir(), DIGITAL_AI_PATH)
         project.logger.lifecycle("Applying Digital AI $productName platform on cluster ($digitalAiPath)")
-        XlCliUtil.download(getProfile().xlCliVersion.get(), File(getProviderHomeDir()))
-        XlCliUtil.xlApply(project, digitalAiPath, File(getProviderHomeDir()))
+        XlCliUtil.xlApply(project, digitalAiPath, getProfile().xlCliVersion.get(), File(getProviderHomeDir()), getOperatorDeployServer(project).httpPort)
     }
 
     abstract fun getProviderHomeDir(): String
@@ -385,5 +391,9 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     fun getName(): String {
         return productName.toString().toLowerCase()
+    }
+
+    fun getOperatorDeployServer(project: Project): Server {
+        return DeployServerUtil.getOperatorDeployServer(project)
     }
 }

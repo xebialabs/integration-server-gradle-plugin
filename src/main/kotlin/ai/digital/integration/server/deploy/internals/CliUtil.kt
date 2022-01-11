@@ -163,7 +163,9 @@ class CliUtil {
 
             project.logger.lifecycle("Running this command now: $commandLine, logs can be found in $scriptLogFile")
 
-            val environment = extraEnvironments + EnvironmentUtil.getCliEnv(project, cli, extraParams, extraClassPath)
+            val environment = cli.environments +
+                    extraEnvironments +
+                    EnvironmentUtil.getCliEnv(project, cli, extraParams, extraClassPath)
             project.logger.info("Starting worker with environment: $environment")
             ProcessUtil.execAndCheck(
                 mutableMapOf(

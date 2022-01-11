@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.tasks.server.operator
 
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.Server
 
 import ai.digital.integration.server.common.util.DockerComposeUtil

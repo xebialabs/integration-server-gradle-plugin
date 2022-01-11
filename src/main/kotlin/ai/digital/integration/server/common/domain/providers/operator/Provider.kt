@@ -6,7 +6,7 @@ import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
-abstract class Provider @Inject constructor(project: Project) {
+abstract class Provider @Inject constructor(val project: Project) {
 
     @Input
     val host = project.objects.property<String>()
@@ -21,6 +21,9 @@ abstract class Provider @Inject constructor(project: Project) {
     val operatorImage = project.objects.property<String>()
 
     @Input
+    val operatorBranch = project.objects.property<String>()
+
+    @Input
     val operatorPackageVersion = project.objects.property<String>().value("1.0.0")
 
     @Input
@@ -28,4 +31,11 @@ abstract class Provider @Inject constructor(project: Project) {
 
     @Input
     val storageClass = project.objects.property<String>()
+
+    @Input
+    val rabbitmqReplicaCount = project.objects.property<Int>().value(1)
+
+    @Input
+    val destroyClusterOnShutdown = project.objects.property<Boolean>().value(true)
+
 }
