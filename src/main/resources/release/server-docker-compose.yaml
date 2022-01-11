@@ -1,18 +1,17 @@
 version: "3.4"
 
 services:
-  release-RELEASE_VERSION:
-    image: RELEASE_IMAGE_VERSION
-    container_name: release-RELEASE_VERSION
+  release-{{RELEASE_VERSION}}:
+    image: {{RELEASE_IMAGE_VERSION}}
+    container_name: release-{{RELEASE_VERSION}}
     environment:
       ADMIN_PASSWORD: admin
       ACCEPT_EULA: 'Y'
       GENERATE_XL_CONFIG: "false"
-      PLUGINS_TO_EXCLUDE: RELEASE_PLUGINS_TO_EXCLUDE
+      PLUGINS_TO_EXCLUDE: {{RELEASE_PLUGINS_TO_EXCLUDE}}
     ports:
-      - RELEASE_SERVER_HTTP_PORT:5516
+      - {{RELEASE_SERVER_HTTP_PORT}}:5516
     volumes:
-      - ./centralConfiguration:/opt/xebialabs/xl-release-server/centralConfiguration
       - ./conf:/opt/xebialabs/xl-release-server/conf
       - ./hotfix/lib:/opt/xebialabs/xl-release-server/hotfix/lib
       - ./hotfix/plugins:/opt/xebialabs/xl-release-server/hotfix/plugins

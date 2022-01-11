@@ -3,8 +3,8 @@ package ai.digital.integration.server.release.util
 import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
-import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.release.ReleaseIntegrationServerExtension
+import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
@@ -44,7 +44,7 @@ class ReleaseServerUtil {
         }
 
         fun getCluster(project: Project): Cluster {
-            return DeployExtensionUtil.getExtension(project).cluster.get()
+            return ReleaseExtensionUtil.getExtension(project).cluster.get()
         }
 
         fun isClusterEnabled(project: Project): Boolean {
@@ -56,8 +56,8 @@ class ReleaseServerUtil {
         }
 
         fun readReleaseServerConfProperty(project: Project, key: String): String {
-            val deployitConf = Paths.get("${getServerWorkingDir(project)}/conf/xl-release-server.conf").toFile()
-            return PropertiesUtil.readProperty(deployitConf, key)
+            val serverConf = Paths.get("${getServerWorkingDir(project)}/conf/xl-release-server.conf").toFile()
+            return PropertiesUtil.readProperty(serverConf, key)
         }
 
         fun getServer(project: Project): Server {
@@ -164,13 +164,13 @@ class ReleaseServerUtil {
             val serverTemplate = resultComposeFilePath.toFile()
 
             val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-                .replace("RELEASE_SERVER_HTTP_PORT", server.httpPort.toString())
-                .replace("RELEASE_IMAGE_VERSION", getDockerImageVersion(project))
+                .replace("{{RELEASE_SERVER_HTTP_PORT}}", server.httpPort.toString())
+                .replace("{{RELEASE_IMAGE_VERSION}}", getDockerImageVersion(project))
                 .replace(
-                    "RELEASE_PLUGINS_TO_EXCLUDE",
+                    "{{RELEASE_PLUGINS_TO_EXCLUDE}}",
                     server.defaultOfficialPluginsToExclude.joinToString(separator = ",")
                 )
-                .replace("RELEASE_VERSION", server.version.toString())
+                .replace("{{RELEASE_VERSION}}", server.version.toString())
             serverTemplate.writeText(configuredTemplate)
 
             return resultComposeFilePath

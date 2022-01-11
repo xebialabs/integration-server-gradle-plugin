@@ -29,19 +29,6 @@ class DeployServerUtil {
                 })
         }
 
-        fun getOperatorDeployServer(project: Project): Server {
-            val operatorServer = DeployExtensionUtil.getExtension(project).operatorServer.get()
-            val server = getServer(project)
-            val operatorDeployServer = Server("operatorServer")
-            operatorDeployServer.httpPort = operatorServer.httpPort
-            operatorDeployServer.dockerImage = operatorServer.dockerImage ?: server.dockerImage
-            operatorDeployServer.version = operatorServer.version ?: server.dockerImage
-            operatorDeployServer.pingRetrySleepTime = operatorServer.pingRetrySleepTime
-            operatorDeployServer.pingTotalTries = operatorServer.pingTotalTries
-            operatorDeployServer.runtimeDirectory = null
-            return operatorDeployServer
-        }
-
         fun getServers(project: Project): List<Server> {
             return DeployExtensionUtil.getExtension(project).servers.map { server: Server ->
                 enrichServer(project, server)
@@ -80,7 +67,7 @@ class DeployServerUtil {
 
         fun getServerWorkingDir(project: Project, server: Server): String {
             return when {
-                isDockerBased(project) -> {
+                isDockerBased(server) -> {
                     val workDir = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project,
                         "deploy-${server.version}")
                     workDir.toAbsolutePath().toString()
@@ -101,7 +88,11 @@ class DeployServerUtil {
         }
 
         fun isDockerBased(project: Project): Boolean {
-            return !getServer(project).dockerImage.isNullOrBlank()
+            return !isDockerBased(getServer(project))
+        }
+
+        fun isDockerBased(server: Server): Boolean {
+            return !server.dockerImage.isNullOrBlank()
         }
 
         fun getCluster(project: Project): Cluster {
@@ -155,14 +146,14 @@ class DeployServerUtil {
         }
 
         fun getLogDir(project: Project, server: Server): File {
-            return Paths.get(getServerWorkingDir(project, server), "log").toFile()
+            val logDir = Paths.get(getServerWorkingDir(project, server), "log").toFile()
+            logDir.mkdirs()
+            return logDir
         }
 
         fun getLogDir(project: Project): File {
             val server = getServer(project)
-            val logDir = Paths.get(getServerWorkingDir(project, server), "log").toFile()
-            logDir.mkdirs()
-            return logDir
+            return getLogDir(project, server)
         }
 
         fun getConfDir(project: Project): File {
@@ -181,9 +172,10 @@ class DeployServerUtil {
         }
 
         fun waitForBoot(project: Project, process: Process?, server: Server, auxiliaryServer: Boolean = false) {
+            val clusterEnabled = isClusterEnabled(project)
             fun saveLogs(lastUpdate: LocalDateTime): LocalDateTime {
-                if (isDockerBased(project) || isClusterEnabled(project)) {
-                    saveServerLogsToFile(project, "deploy-${server.version}", lastUpdate)
+                if (isDockerBased(server) || clusterEnabled) {
+                    saveServerLogsToFile(project, server, "deploy-${server.version}", lastUpdate)
                 }
                 return LocalDateTime.now()
             }
@@ -201,10 +193,10 @@ class DeployServerUtil {
             saveLogs(lastLogUpdate)
         }
 
-        private fun saveServerLogsToFile(project: Project, containerName: String, lastUpdate: LocalDateTime) {
+        fun saveServerLogsToFile(project: Project, server: Server, containerName: String, lastUpdate: LocalDateTime) {
             val logContent = DockerUtil.dockerLogs(project, containerName, lastUpdate)
-            val logDir = getLogDir(project)
-            File(logDir, "$containerName.log").appendText(logContent, StandardCharsets.UTF_8)
+            val logDir = getLogDir(project, server)
+            File(logDir, "$containerName.log").writeText(logContent, StandardCharsets.UTF_8)
         }
 
         fun startServerFromClasspath(project: Project): Process {

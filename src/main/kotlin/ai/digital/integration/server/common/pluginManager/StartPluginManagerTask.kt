@@ -3,7 +3,7 @@ package ai.digital.integration.server.common.pluginManager
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.ProcessUtil
-import ai.digital.integration.server.deploy.tasks.server.StartServerInstanceTask
+import ai.digital.integration.server.deploy.tasks.server.StartDeployServerInstanceTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.EnvironmentUtil
@@ -15,7 +15,7 @@ import java.nio.file.Paths
 open class StartPluginManagerTask : DefaultTask() {
 
     init {
-        val dependencies = mutableListOf(StartServerInstanceTask.NAME)
+        val dependencies = mutableListOf(StartDeployServerInstanceTask.NAME)
 
         if (DeployServerUtil.isTls(project)) {
             dependencies.add(TlsApplicationConfigurationOverrideTask.NAME)
