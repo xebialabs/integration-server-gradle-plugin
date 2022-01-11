@@ -394,6 +394,13 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
     fun getOperatorDeployServer(project: Project): Server {
-        return DeployServerUtil.getOperatorDeployServer(project)
+        val server = DeployServerUtil.getOperatorDeployServer(project)
+        if (DeployServerUtil.getResolvedDockerFile(project, server).toFile().isFile) {
+            val httpPort = DeployServerUtil.getDockerContainerPort(project, server, 4516)
+            httpPort?.let {
+                server.httpPort = httpPort
+            }
+        }
+        return server
     }
 }
