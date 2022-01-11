@@ -38,8 +38,7 @@ class EntryPointUrlUtil(
             val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
             return operatorHelper.getPort()
         } else if (auxiliaryServer) {
-            val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.DEPLOY)
-            val server = operatorHelper.getOperatorDeployServer(project)
+            val server = OperatorUtil(project).getOperatorServer()
             return server.httpPort.toString()
         }
 

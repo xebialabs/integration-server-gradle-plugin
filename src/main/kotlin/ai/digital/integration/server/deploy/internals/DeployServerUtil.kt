@@ -29,19 +29,6 @@ class DeployServerUtil {
                 })
         }
 
-        fun getOperatorDeployServer(project: Project): Server {
-            val operatorServer = DeployExtensionUtil.getExtension(project).operatorServer.get()
-            val server = getServer(project)
-            val operatorDeployServer = Server("operatorServer")
-            operatorDeployServer.httpPort = operatorServer.httpPort
-            operatorDeployServer.dockerImage = operatorServer.dockerImage ?: server.dockerImage
-            operatorDeployServer.version = operatorServer.version ?: server.dockerImage
-            operatorDeployServer.pingRetrySleepTime = operatorServer.pingRetrySleepTime
-            operatorDeployServer.pingTotalTries = operatorServer.pingTotalTries
-            operatorDeployServer.runtimeDirectory = null
-            return operatorDeployServer
-        }
-
         fun getServers(project: Project): List<Server> {
             return DeployExtensionUtil.getExtension(project).servers.map { server: Server ->
                 enrichServer(project, server)
@@ -159,7 +146,7 @@ class DeployServerUtil {
         }
 
         fun getLogDir(project: Project, server: Server): File {
-            val logDir =  Paths.get(getServerWorkingDir(project, server), "log").toFile()
+            val logDir = Paths.get(getServerWorkingDir(project, server), "log").toFile()
             logDir.mkdirs()
             return logDir
         }
@@ -206,7 +193,7 @@ class DeployServerUtil {
             saveLogs(lastLogUpdate)
         }
 
-        private fun saveServerLogsToFile(project: Project, server: Server, containerName: String, lastUpdate: LocalDateTime) {
+        fun saveServerLogsToFile(project: Project, server: Server, containerName: String, lastUpdate: LocalDateTime) {
             val logContent = DockerUtil.dockerLogs(project, containerName, lastUpdate)
             val logDir = getLogDir(project, server)
             File(logDir, "$containerName.log").writeText(logContent, StandardCharsets.UTF_8)

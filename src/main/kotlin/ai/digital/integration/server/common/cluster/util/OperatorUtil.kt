@@ -15,6 +15,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Paths
+import java.time.LocalDateTime
 
 class OperatorUtil(
     val project: Project
@@ -42,13 +43,27 @@ class OperatorUtil(
             ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).servers
         }
 
+        val opServerConfig = when (productName) {
+            ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).operatorServer
+            ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).operatorServer
+        }.get()
+
         fun findServer(servers: NamedDomainObjectContainer<Server>): Server {
             return servers.first { server ->
-                !server.previousInstallation && server.dockerImage!!.endsWith("xl-deploy")
+                !server.previousInstallation
             }
         }
 
-        return findServer(servers)
+        val server = findServer(servers)
+
+        val operatorServer = Server("operatorServer")
+        operatorServer.httpPort = opServerConfig.httpPort
+        operatorServer.dockerImage = opServerConfig.dockerImage ?: server.dockerImage
+        operatorServer.version = opServerConfig.version ?: server.version
+        operatorServer.pingRetrySleepTime = opServerConfig.pingRetrySleepTime
+        operatorServer.pingTotalTries = opServerConfig.pingTotalTries
+        operatorServer.runtimeDirectory = null
+        return operatorServer
     }
 
     fun grantPermissionsToIntegrationServerFolder() {
@@ -64,17 +79,20 @@ class OperatorUtil(
     }
 
     fun waitForBoot(server: Server) {
-        fun saveLogs() {
+        fun saveLogs(lastUpdate: LocalDateTime): LocalDateTime {
             val name = ProductName.DEPLOY.toString().toLowerCase()
-            DeployServerUtil.saveServerLogsToFile(project, server, "${name}-${server.version}")
+            DeployServerUtil.saveServerLogsToFile(project, server, "${name}-${server.version}", lastUpdate)
+            return LocalDateTime.now()
         }
 
         val url = EntryPointUrlUtil(project, ProductName.DEPLOY, true)
             .composeUrl("/deployit/metadata/type", true)
-        WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries) {
-            saveLogs()
-        }
-        saveLogs()
+
+        val lastLogUpdate =
+            WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries) {
+                saveLogs(it)
+            }
+        saveLogs(lastLogUpdate)
     }
 
     fun readConfProperty(key: String): String {
