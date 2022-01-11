@@ -471,10 +471,6 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         return "${getName()}.digitalai-testing.com"
     }
 
-    override fun getContextRoot(): String {
-        return "/xl-deploy/"
-    }
-
     override fun getDbStorageClass(): String {
         return ("gp2")
     }
