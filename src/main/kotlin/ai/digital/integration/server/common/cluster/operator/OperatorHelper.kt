@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
@@ -209,7 +210,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 auxiliaryServer = true)
             true
         } catch (e: RuntimeException) {
-            project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server is running on port ${getOperatorDeployServer(project).httpPort}: ${e.message}")
+            project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server is running on port ${OperatorUtil(project).getOperatorServer().httpPort}: ${e.message}")
             false
         } catch (e: IOException) {
             project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server has all files: ${e.message}")
@@ -339,7 +340,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
         val digitalAiPath = File(getProviderHomeDir(), DIGITAL_AI_PATH)
         project.logger.lifecycle("Applying Digital AI $productName platform on cluster ($digitalAiPath)")
-        XlCliUtil.xlApply(project, digitalAiPath, getProfile().xlCliVersion.get(), File(getProviderHomeDir()), getOperatorDeployServer(project).httpPort)
+        XlCliUtil.xlApply(project, digitalAiPath, getProfile().xlCliVersion.get(), File(getProviderHomeDir()), OperatorUtil(project).getOperatorServer().httpPort)
     }
 
     abstract fun getProviderHomeDir(): String
@@ -393,14 +394,4 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return productName.toString().toLowerCase()
     }
 
-    fun getOperatorDeployServer(project: Project): Server {
-        val server = DeployServerUtil.getOperatorDeployServer(project)
-        if (DeployServerUtil.getResolvedDockerFile(project, server).toFile().isFile) {
-            val httpPort = DeployServerUtil.getDockerContainerPort(project, server, 4516)
-            httpPort?.let {
-                server.httpPort = httpPort
-            }
-        }
-        return server
-    }
 }

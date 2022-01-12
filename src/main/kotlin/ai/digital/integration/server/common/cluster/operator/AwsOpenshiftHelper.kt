@@ -39,6 +39,9 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
     private fun exec(command: String): String {
         val workDir = File(getProviderHomeDir())
+        if (!workDir.exists()) {
+            workDir.mkdirs()
+        }
         return ProcessUtil.executeCommand(command, workDir)
     }
 
@@ -117,9 +120,11 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
     override fun hasIngress(): Boolean = false
 
-    override fun getWorkerPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-worker-$position"
+    override fun getWorkerPodName(position: Int) =
+        "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-worker-$position"
 
-    override fun getMasterPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-master-$position"
+    override fun getMasterPodName(position: Int) =
+        "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-master-$position"
 
     override fun getPostgresPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-postgresql-$position"
 

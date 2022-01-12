@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.tasks.server
 
+import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.domain.AkkaSecured
 import ai.digital.integration.server.common.domain.Server
@@ -19,8 +20,11 @@ open class CentralConfigurationTask : DefaultTask() {
     }
 
     init {
-        this.dependsOn(DownloadAndExtractServerDistTask.NAME)
         this.group = PLUGIN_GROUP
+
+        if (!OperatorUtil(project).isClusterEnabled()) {
+            this.dependsOn(DownloadAndExtractServerDistTask.NAME)
+        }
     }
 
     private fun overlayRepositoryConfig(serverDir: String) {
