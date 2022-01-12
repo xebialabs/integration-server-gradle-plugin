@@ -2,6 +2,7 @@ package ai.digital.integration.server.common.extension
 
 import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.domain.Cluster
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.*
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -33,4 +34,8 @@ abstract class CommonIntegrationServerExtension(val project: Project) {
     val cluster = project.objects.property<Cluster>().value(Cluster(project.objects))
 
     fun cluster(action: Action<in Cluster>) = action.execute(cluster.get())
+
+    val operatorServer = project.objects.property<Server>().value(Server("operatorServer"))
+
+    fun operatorServer(action: Action<in Server>) = action.execute(operatorServer.get())
 }

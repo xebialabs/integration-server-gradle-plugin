@@ -23,8 +23,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
 
         updateKubeConfig()
 
-        val kubeContextInfo = getKubectlHelper().getCurrentContextInfo(skip = true)
-        updateInfrastructure(kubeContextInfo)
+        updateInfrastructure()
 
         if (getStorageClass() == "aws-efs") createStorageClass(getStorageClass())
 
@@ -371,15 +370,17 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
 
         undeployCluster()
 
-        project.logger.lifecycle("Delete iamserviceaccount for CSI driver.")
-        deleteIAMRoleForCSIDriver(getProvider())
+        if (awsEksProvider.destroyClusterOnShutdown.get()) {
+            project.logger.lifecycle("Delete iamserviceaccount for CSI driver.")
+            deleteIAMRoleForCSIDriver(getProvider())
 
-        project.logger.lifecycle("Delete cluster and ssh key")
-        deleteSshKey(awsEksProvider)
-        deleteCluster(awsEksProvider)
+            project.logger.lifecycle("Delete cluster and ssh key")
+            deleteSshKey(awsEksProvider)
+            deleteCluster(awsEksProvider)
 
-        project.logger.lifecycle("Delete current context")
-        getKubectlHelper().deleteCurrentContext()
+            project.logger.lifecycle("Delete current context")
+            getKubectlHelper().deleteCurrentContext()
+        }
     }
 
     private fun deleteIAMRoleForCSIDriver(awsEksProvider: AwsEksProvider) {
@@ -451,7 +452,8 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         return getProvider().storageClass.getOrElse("aws-efs")
     }
 
-    private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+    private fun updateInfrastructure() {
+        val infraInfo = getCurrentContextInfo()
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val awsEksProvider: AwsEksProvider = getProvider()
         val pairs = mutableMapOf<String, Any>(
@@ -476,4 +478,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     override fun getMqStorageClass(): String {
         return ("gp2")
     }
+
+    override fun getCurrentContextInfo() = getKubectlHelper().getCurrentContextInfo(skip = true)
+
 }

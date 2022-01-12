@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.cluster.DockerClusterHelperCreator
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
+import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
@@ -10,7 +11,8 @@ import org.gradle.api.Project
 
 class EntryPointUrlUtil(
     val project: Project,
-    val productName: ProductName
+    val productName: ProductName,
+    val clusterEnabled: Boolean = false
 ) {
 
     private fun getPropertyValue(
@@ -18,8 +20,12 @@ class EntryPointUrlUtil(
         clusterValue: String,
         auxiliaryServer: Boolean
     ): String {
-        if (isClusterEnabled() && !auxiliaryServer) {
-            return clusterValue
+        if (clusterEnabled) {
+            if (!auxiliaryServer) {
+                return clusterValue
+            } else {
+                return OperatorUtil(project).readConfProperty(key)
+            }
         }
         return when (productName) {
             ProductName.DEPLOY -> DeployServerUtil.readDeployitConfProperty(project, key)
@@ -31,6 +37,9 @@ class EntryPointUrlUtil(
         if (isOperatorProvider() && !auxiliaryServer) {
             val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
             return operatorHelper.getPort()
+        } else if (auxiliaryServer) {
+            val server = OperatorUtil(project).getOperatorServer()
+            return server.httpPort.toString()
         }
 
         val dockerHelper = DockerClusterHelperCreator.create(project, productName)
@@ -56,7 +65,7 @@ class EntryPointUrlUtil(
     }
 
     fun getUrl(auxiliaryServer: Boolean = false): String {
-        val protocol = if (isTls()) "https" else "http"
+        val protocol = if (clusterEnabled) "http" else if (isTls()) "https" else "http"
 
         if (isOperatorProvider() && !auxiliaryServer) {
             val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
@@ -79,13 +88,6 @@ class EntryPointUrlUtil(
 
         }
         return "$url$separator$path"
-    }
-
-    private fun isClusterEnabled(): Boolean {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.isClusterEnabled(project)
-            ProductName.RELEASE -> ReleaseServerUtil.isClusterEnabled(project)
-        }
     }
 
     private fun isOperatorProvider(): Boolean {

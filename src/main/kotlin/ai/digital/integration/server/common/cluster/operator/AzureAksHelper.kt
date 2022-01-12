@@ -27,7 +27,7 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
             azureAksProvider.kubernetesVersion,
             skipExisting)
         connectToCluster(name)
-        val kubeContextInfo = getKubectlHelper().getCurrentContextInfo()
+        val kubeContextInfo = getCurrentContextInfo()
         createStorageClass(azureAksProvider.storageClass.getOrElse(name))
 
         updateOperatorDeployment()
@@ -54,13 +54,19 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         val groupName = resourceGroupName(name)
         val location = azureAksProvider.location.get()
 
-        if (existsResourceGroup(groupName, location)) {
+        val existsResourceGroup = existsResourceGroup(groupName, location)
+        if (existsResourceGroup) {
             undeployCluster()
-            deleteResourceGroup(name, groupName, location)
         }
 
-        getKubectlHelper().deleteCurrentContext()
-        logoutAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
+        if (azureAksProvider.destroyClusterOnShutdown.get()) {
+            if (existsResourceGroup) {
+                deleteResourceGroup(name, groupName, location)
+            }
+
+            getKubectlHelper().deleteCurrentContext()
+            logoutAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
+        }
     }
 
     private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
@@ -237,4 +243,6 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
     private fun fileStorageClassName(name: String): String {
         return "${name}-file-storage-class"
     }
+
+    override fun getCurrentContextInfo() = getKubectlHelper().getCurrentContextInfo()
 }

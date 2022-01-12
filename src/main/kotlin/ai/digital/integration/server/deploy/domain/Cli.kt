@@ -17,4 +17,6 @@ class Cli(objects: ObjectFactory) {
         objects.mapProperty(String::class.java, List::class.java).value(mutableMapOf()).get()
     var socketTimeout: Int = objects.property<Int>().value(60000).get()
     var version: String? = objects.property<String?>().orNull
+    var environments: Map<String, String> =
+            objects.mapProperty(String::class.java, String::class.java).value(mutableMapOf()).get()
 }

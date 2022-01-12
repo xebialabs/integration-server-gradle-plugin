@@ -35,8 +35,6 @@ open class StartReleaseClusterTask : DefaultTask() {
         )
 
         this.dependsOn(dependencies)
-
-        this.finalizedBy(RunCliTask.NAME)
     }
 
     @TaskAction

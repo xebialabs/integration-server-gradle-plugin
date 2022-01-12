@@ -56,14 +56,19 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         val regionZone = gcpGkeProvider.regionZone.get()
         val accountName = gcpGkeProvider.accountName.get()
 
-        if (existsCluster(accountName, projectName, name, regionZone)) {
+        val existsCluster = existsCluster(accountName, projectName, name, regionZone)
+        if (existsCluster) {
             undeployCluster()
-            deleteCluster(accountName, projectName, name, regionZone)
         }
-        deleteDnsOpenApi()
 
-        getKubectlHelper().deleteCurrentContext()
-        logoutGCloudCli(gcpGkeProvider.accountName.get())
+        if (gcpGkeProvider.destroyClusterOnShutdown.get()) {
+            if (existsCluster) {
+                deleteCluster(accountName, projectName, name, regionZone)
+            }
+            deleteDnsOpenApi()
+            getKubectlHelper().deleteCurrentContext()
+            logoutGCloudCli(gcpGkeProvider.accountName.get())
+        }
     }
 
     override fun getProviderHomeDir(): String {
@@ -243,5 +248,11 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
             ProcessUtil.executeCommand(project,
                     "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${getFqdn()}\" --quiet", throwErrorOnFailure = false)
         }
+    }
+
+    override fun getCurrentContextInfo(): InfrastructureInfo {
+        val projectName = getProvider().projectName.get()
+        val accountName = getProvider().accountName.get()
+        return getCurrentContextInfo(accountName, projectName).first
     }
 }
