@@ -43,10 +43,7 @@ import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
 import ai.digital.integration.server.deploy.tasks.server.*
 import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
-import ai.digital.integration.server.deploy.tasks.server.operator.OperatorCentralConfigurationTask
-import ai.digital.integration.server.deploy.tasks.server.operator.PrepareOperatorServerTask
-import ai.digital.integration.server.deploy.tasks.server.operator.StartDeployServerForOperatorInstanceTask
-import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
+import ai.digital.integration.server.deploy.tasks.server.operator.*
 import ai.digital.integration.server.deploy.tasks.tests.IntegrationTestsTask
 import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
@@ -155,7 +152,7 @@ open class DeployTaskRegistry {
             project.tasks.create(RunDevOpsAsCodeTask.NAME, RunDevOpsAsCodeTask::class.java)
             project.tasks.create(SetServerLogbackLevelsTask.NAME, SetServerLogbackLevelsTask::class.java)
             project.tasks.create(ServerYamlPatchTask.NAME, ServerYamlPatchTask::class.java)
-            project.tasks.create(StartServerInstanceTask.NAME, StartServerInstanceTask::class.java)
+            project.tasks.create(StartDeployServerInstanceTask.NAME, StartDeployServerInstanceTask::class.java)
             project.tasks.create(TlsApplicationConfigurationOverrideTask.NAME,
                 TlsApplicationConfigurationOverrideTask::class.java)
 

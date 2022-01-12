@@ -40,10 +40,6 @@ open class DeployIntegrationServerExtension(
         servers.configure(closure)
     }
 
-    val operatorServer = project.objects.property<Server>().value(Server("operatorServer"))
-
-    fun operatorServer(action: Action<in Server>) = action.execute(operatorServer.get())
-
     fun tests(closure: Closure<NamedDomainObjectContainer<Test>>) {
         tests.configure(closure)
     }
