@@ -26,9 +26,9 @@ import org.gradle.kotlin.dsl.closureOf
 import java.io.File
 import java.nio.file.Paths
 
-open class StartServerInstanceTask : DefaultTask() {
+open class StartDeployServerInstanceTask : DefaultTask() {
     companion object {
-        const val NAME = "startServerInstance"
+        const val NAME = "startDeployServerInstance"
     }
 
     init {
@@ -50,7 +50,7 @@ open class StartServerInstanceTask : DefaultTask() {
             ServerYamlPatchTask.NAME
         )
 
-        this.configure(closureOf<StartServerInstanceTask> {
+        this.configure(closureOf<StartDeployServerInstanceTask> {
 
             if (DeployServerUtil.isTls(project)) {
                 dependencies.add(TlsApplicationConfigurationOverrideTask.NAME)
