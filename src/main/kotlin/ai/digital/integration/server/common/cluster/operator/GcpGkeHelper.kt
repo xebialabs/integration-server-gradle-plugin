@@ -178,13 +178,16 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
                 tlsCert = null,
                 tlsPrivateKey = null
         )
-        val gcloudConfig = ProcessUtil.executeCommand(project,
-                "gcloud config --account \"$accountName\" --project \"$projectName\" config-helper --format=yaml")
-
-        val gcloudConfigMap = ObjectMapper(YAMLFactory.builder().build()).readValue(gcloudConfig, MutableMap::class.java)
-        val accessToken = (gcloudConfigMap["credential"] as Map<*, *>)["access_token"] as String
+        val accessToken = getAccessToken(accountName, projectName)
 
         return Pair(info, accessToken)
+    }
+
+    private fun getAccessToken(accountName: String, projectName: String): String {
+        val gcloudConfig = ProcessUtil.executeCommand(project,
+                "gcloud config --account \"$accountName\" --project \"$projectName\" config-helper --format=yaml")
+        val gcloudConfigMap = ObjectMapper(YAMLFactory.builder().build()).readValue(gcloudConfig, MutableMap::class.java)
+        return (gcloudConfigMap["credential"] as Map<*, *>)["access_token"] as String
     }
 
     private fun updateInfrastructure(kubeContextInfo: Pair<InfrastructureInfo, String>) {
@@ -200,7 +203,17 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
     private fun updateCrValues() {
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
         val pairs: MutableMap<String, Any> = mutableMapOf(
-                "spec.ingress.hosts" to listOf(getFqdn())
+                "spec.ingress.hosts" to listOf(getFqdn()),
+                "spec.nginx-ingress-controller.defaultBackend.podSecurityContext" to mapOf("fsGroup" to 1001),
+                "spec.nginx-ingress-controller.podSecurityContext" to mapOf("fsGroup" to 1001),
+                "spec.rabbitmq.podSecurityContext" to mapOf("fsGroup" to 1001, "runAsUser" to 1001),
+                "spec.nginx-ingress-controller.defaultBackend.serverBlockConfig" to
+                        "        location /healthz {\n" +
+                        "          return 200;\n" +
+                        "        }\n" +
+                        "        location / {\n" +
+                        "          return 200;\n" +
+                        "        }"
         )
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
@@ -254,5 +267,11 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         val projectName = getProvider().projectName.get()
         val accountName = getProvider().accountName.get()
         return getCurrentContextInfo(accountName, projectName).first
+    }
+
+    fun getAccessToken(): String {
+        val projectName = getProvider().projectName.get()
+        val accountName = getProvider().accountName.get()
+        return getAccessToken(accountName, projectName)
     }
 }

@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator
 
+import ai.digital.integration.server.common.cluster.operator.GcpGkeHelper
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
@@ -41,26 +42,39 @@ open class OperatorBasedUpgradeDeployClusterTask  : DefaultTask() {
     }
 
     private fun prepareAnswersFile(operatorHelper: OperatorHelper): File {
-        val answersFile = operatorHelper.getTemplate("operator/xl-upgrade/answers.yaml")
-        project.logger.lifecycle("Preparing answers file ${answersFile.absolutePath}")
 
         val operatorImage = operatorHelper.getOperatorImage()
         val crdName = operatorHelper.getKubectlHelper().getCrd()
         val crName = operatorHelper.getKubectlHelper().getCr(crdName)
-        val k8sSetup = XlCliUtil.XL_OP_MAPPING[DeployClusterUtil.getOperatorProviderName(project)]
+        val k8sSetup = XlCliUtil.XL_OP_MAPPING[DeployClusterUtil.getOperatorProviderName(project)]!!
+
+        val answersFile = if (k8sSetup == "GoogleGKE") {
+            operatorHelper.getTemplate("operator/xl-upgrade/answers_gke.yaml", "answers.yaml")
+        } else {
+            operatorHelper.getTemplate("operator/xl-upgrade/answers.yaml")
+        }
+        project.logger.lifecycle("Preparing answers file ${answersFile.absolutePath}")
 
         val kubeContextInfo = operatorHelper.getCurrentContextInfo()
 
-        val answersFileTemplate = answersFile.readText(Charsets.UTF_8)
+        val answersFileTemplateTmp = answersFile.readText(Charsets.UTF_8)
                 .replace("{{CRD_NAME}}", crdName)
                 .replace("{{CR_NAME}}", crName)
                 .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
-                .replace("{{K8S_CLIENT_CERT}}", kubeContextInfo.caCert!!)
-                .replace("{{K8S_CLIENT_KEY}}", kubeContextInfo.tlsPrivateKey!!)
-                .replace("{{K8S_SETUP}}", k8sSetup!!)
+                .replace("{{K8S_SETUP}}", k8sSetup)
                 .replace("{{OPERATOR_IMAGE}}", operatorImage)
                 .replace("{{REPOSITORY_NAME}}", repositoryName.get())
                 .replace("{{IMAGE_TAG}}", targetVersion.get())
+
+        val answersFileTemplate = if (k8sSetup == "GoogleGKE") {
+            answersFileTemplateTmp
+                    .replace("{{K8S_TOKEN}}", (operatorHelper as GcpGkeHelper).getAccessToken())
+        } else {
+            answersFileTemplateTmp
+                    .replace("{{K8S_CLIENT_CERT}}", kubeContextInfo.caCert!!)
+                    .replace("{{K8S_CLIENT_KEY}}", kubeContextInfo.tlsPrivateKey!!)
+        }
+
         answersFile.writeText(answersFileTemplate)
         return answersFile
     }

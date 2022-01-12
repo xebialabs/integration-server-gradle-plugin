@@ -365,10 +365,10 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         }
     }
 
-    fun getTemplate(relativePath: String): File {
+    fun getTemplate(relativePath: String, targetFilename: String? = null): File {
         val file = File(relativePath)
         val fileStream = {}::class.java.classLoader.getResourceAsStream(relativePath)
-        val resultComposeFilePath = Paths.get(getProviderWorkDir(), file.name)
+        val resultComposeFilePath = Paths.get(getProviderWorkDir(), targetFilename ?: file.name)
         fileStream?.let {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
