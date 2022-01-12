@@ -25,7 +25,7 @@ abstract class InfrastructureStopTask : DefaultTask() {
 
     @TaskAction
     fun run() {
-        project.logger.lifecycle("Starting infrastructures.")
+        project.logger.lifecycle("Stopping infrastructures.")
 
         InfrastructureUtil.getInfrastructures(project)
                 .forEach { infrastructure ->
