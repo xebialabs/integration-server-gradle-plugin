@@ -9,5 +9,9 @@ class InfrastructureUtil {
         fun getInfrastructures(project: Project): List<Infrastructure> {
             return DeployExtensionUtil.getExtension(project).infrastructures.toList()
         }
+
+        fun hasInfrastructures(project: Project): Boolean {
+            return getInfrastructures(project).isNotEmpty()
+        }
     }
 }
