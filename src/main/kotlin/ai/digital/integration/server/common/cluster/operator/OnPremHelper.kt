@@ -1,5 +1,6 @@
-package ai.digital.integration.server.deploy.internals.cluster.operator
+package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.OnPremiseProvider
 import ai.digital.integration.server.common.util.ProcessUtil
@@ -8,7 +9,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class OnPremHelper(project: Project) : OperatorHelper(project) {
+open class OnPremHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun launchCluster() {
         val onPremiseProvider: OnPremiseProvider = getProvider()
@@ -24,9 +25,8 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
             kubernetesVersion,
             skipExisting)
         updateContext(name)
-        val kubeContextInfo = getKubectlHelper().getCurrentContextInfo()
+        val kubeContextInfo = getCurrentContextInfo()
 
-        updateControllerManager()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
@@ -45,26 +45,19 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
     }
 
     fun shutdownCluster() {
-        val onPremiseProvider: OnPremiseProvider = getProvider()
-        val name = onPremiseProvider.name.get()
-
         undeployCluster()
-
-        deleteCluster(name)
-
-        project.logger.lifecycle("Current cluster context is being deleted")
-        getKubectlHelper().deleteCurrentContext()
+        destroyCluster()
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-onprem"
+        return "${getOperatorHomeDir()}/${getName()}-operator-onprem"
     }
 
     override fun getProvider(): OnPremiseProvider {
         return getProfile().onPremise
     }
 
-    fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+    private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,
@@ -139,7 +132,17 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
             "minikube update-context -p $clusterName", throwErrorOnFailure = false)
     }
 
-    private fun deleteCluster(name: String) {
+    private fun destroyCluster() {
+        if (getProvider().destroyClusterOnShutdown.get()) {
+            deleteCluster()
+            project.logger.lifecycle("Current cluster context is being deleted")
+            getKubectlHelper().deleteCurrentContext()
+        }
+    }
+
+    private fun deleteCluster() {
+        val onPremiseProvider = getProvider()
+        val name = onPremiseProvider.name.get()
         val clusterName = onPremClusterName(name)
         project.logger.lifecycle("Minikube cluster is being deleted {} ", clusterName)
         ProcessUtil.executeCommand(project,
@@ -185,4 +188,6 @@ open class OnPremHelper(project: Project) : OperatorHelper(project) {
         )
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
+
+    override fun getCurrentContextInfo() = getKubectlHelper().getCurrentContextInfo()
 }

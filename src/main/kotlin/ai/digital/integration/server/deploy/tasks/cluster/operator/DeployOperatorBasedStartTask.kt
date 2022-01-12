@@ -4,7 +4,7 @@ import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistT
 import ai.digital.integration.server.deploy.tasks.server.operator.StartDeployServerForOperatorInstanceTask
 import org.gradle.api.DefaultTask
 
-abstract class OperatorBasedStartTask : DefaultTask() {
+abstract class DeployOperatorBasedStartTask : DefaultTask() {
 
     fun dependsOnTasks(): Array<String> {
         return arrayOf(

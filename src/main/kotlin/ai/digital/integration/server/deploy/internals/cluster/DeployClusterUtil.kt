@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.internals.cluster
 
 import ai.digital.integration.server.common.constant.ClusterProfileName
+import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import org.gradle.api.Project
 
@@ -17,6 +18,10 @@ class DeployClusterUtil {
 
         fun getOperatorProvider(project: Project): String {
             return DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.get()
+        }
+
+        fun getOperatorProviderName(project: Project): OperatorProviderName {
+            return OperatorProviderName.valueOfProviderName(getOperatorProvider(project))
         }
 
         fun isOperatorProvider(project: Project): Boolean {

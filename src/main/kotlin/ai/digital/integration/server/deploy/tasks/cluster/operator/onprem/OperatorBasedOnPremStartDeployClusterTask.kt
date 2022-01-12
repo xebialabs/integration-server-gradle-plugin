@@ -1,11 +1,12 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator.onprem
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.deploy.internals.cluster.operator.OnPremHelper
-import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartTask
+import ai.digital.integration.server.common.cluster.operator.OnPremHelper
+import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStartTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedOnPremStartDeployClusterTask : OperatorBasedStartTask() {
+open class OperatorBasedOnPremStartDeployClusterTask : DeployOperatorBasedStartTask() {
 
     companion object {
         const val NAME = "operatorBasedOnPremStartDeployCluster"
@@ -18,6 +19,6 @@ open class OperatorBasedOnPremStartDeployClusterTask : OperatorBasedStartTask() 
 
     @TaskAction
     fun launch() {
-        OnPremHelper(project).launchCluster()
+        OnPremHelper(project, ProductName.DEPLOY).launchCluster()
     }
 }

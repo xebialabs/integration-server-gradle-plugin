@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.internals
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
@@ -8,6 +9,7 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.LocalDateTime
 
 class DeployServerUtil {
     companion object {
@@ -22,13 +24,27 @@ class DeployServerUtil {
 
         fun getServer(project: Project): Server {
             return enrichServer(project,
-                DeployExtensionUtil.getExtension(project).servers.first { server -> !server.previousInstallation })
+                DeployExtensionUtil.getExtension(project).servers.first { server ->
+                    !server.previousInstallation
+                })
+        }
+
+        fun getOperatorDeployServer(project: Project): Server {
+            val operatorServer = DeployExtensionUtil.getExtension(project).operatorServer.get()
+            val server = getServer(project)
+            val operatorDeployServer = Server("operatorServer")
+            operatorDeployServer.httpPort = operatorServer.httpPort
+            operatorDeployServer.dockerImage = operatorServer.dockerImage ?: server.dockerImage
+            operatorDeployServer.version = operatorServer.version ?: server.dockerImage
+            operatorDeployServer.pingRetrySleepTime = operatorServer.pingRetrySleepTime
+            operatorDeployServer.pingTotalTries = operatorServer.pingTotalTries
+            operatorDeployServer.runtimeDirectory = null
+            return operatorDeployServer
         }
 
         fun getServers(project: Project): List<Server> {
             return DeployExtensionUtil.getExtension(project).servers.map { server: Server ->
-                enrichServer(project,
-                    server)
+                enrichServer(project, server)
             }
         }
 
@@ -65,7 +81,8 @@ class DeployServerUtil {
         fun getServerWorkingDir(project: Project, server: Server): String {
             return when {
                 isDockerBased(project) -> {
-                    val workDir = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, "deploy-${server.version}")
+                    val workDir = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project,
+                        "deploy-${server.version}")
                     workDir.toAbsolutePath().toString()
                 }
                 server.runtimeDirectory == null -> {
@@ -164,23 +181,30 @@ class DeployServerUtil {
         }
 
         fun waitForBoot(project: Project, process: Process?, server: Server, auxiliaryServer: Boolean = false) {
-            fun saveLogs() {
+            fun saveLogs(lastUpdate: LocalDateTime): LocalDateTime {
                 if (isDockerBased(project) || isClusterEnabled(project)) {
-                    saveServerLogsToFile(project, "deploy-${server.version}")
+                    saveServerLogsToFile(project, "deploy-${server.version}", lastUpdate)
                 }
+                return LocalDateTime.now()
             }
 
-            val url = EntryPointUrlUtil.composeUrl(project, "/deployit/metadata/type", auxiliaryServer)
-            WaitForBootUtil.byPort(project, "Deploy", url, process, server.pingRetrySleepTime, server.pingTotalTries) {
-                saveLogs()
+            val url =
+                EntryPointUrlUtil(project, ProductName.DEPLOY).composeUrl("/deployit/metadata/type", auxiliaryServer)
+            val lastLogUpdate = WaitForBootUtil.byPort(project,
+                "Deploy",
+                url,
+                process,
+                server.pingRetrySleepTime,
+                server.pingTotalTries) {
+                saveLogs(it)
             }
-            saveLogs()
+            saveLogs(lastLogUpdate)
         }
 
-        private fun saveServerLogsToFile(project: Project, containerName: String) {
-            val logContent = DockerUtil.dockerLogs(project, containerName)
+        private fun saveServerLogsToFile(project: Project, containerName: String, lastUpdate: LocalDateTime) {
+            val logContent = DockerUtil.dockerLogs(project, containerName, lastUpdate)
             val logDir = getLogDir(project)
-            File(logDir, "$containerName.log").writeText(logContent, StandardCharsets.UTF_8)
+            File(logDir, "$containerName.log").appendText(logContent, StandardCharsets.UTF_8)
         }
 
         fun startServerFromClasspath(project: Project): Process {
@@ -235,10 +259,11 @@ class DeployServerUtil {
         }
 
         private fun getOldDockerServerPath(project: Project): String {
-            if(isPreviousInstallationServerDefined(project)) {
+            if (isPreviousInstallationServerDefined(project)) {
                 val rootPath = IntegrationServerUtil.getDist(project)
-                val oldDockerServer = DeployExtensionUtil.getExtension(project).servers.first { oldServer -> oldServer.previousInstallation }
-                return rootPath+"/deploy-${oldDockerServer.version}"
+                val oldDockerServer =
+                    DeployExtensionUtil.getExtension(project).servers.first { oldServer -> oldServer.previousInstallation }
+                return rootPath + "/deploy-${oldDockerServer.version}"
             }
             return "."
         }
@@ -273,7 +298,7 @@ class DeployServerUtil {
         }
 
         private fun dockerServerRelativePath(): String {
-            return   "deploy/server-docker-compose.yaml"
+            return "deploy/server-docker-compose.yaml"
         }
 
         fun runDockerBasedInstance(project: Project, server: Server) {

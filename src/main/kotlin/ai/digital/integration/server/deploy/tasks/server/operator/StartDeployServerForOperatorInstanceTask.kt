@@ -1,6 +1,8 @@
 package ai.digital.integration.server.deploy.tasks.server.operator
 
+import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
@@ -27,7 +29,7 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
             ServerCopyOverlaysTask.NAME, if (DbUtil.isDerby(project)) "derbyStart" else DatabaseStartTask.NAME,
             OperatorCentralConfigurationTask.NAME,
             PrepareDatabaseTask.NAME,
-            PrepareServerTask.NAME,
+            PrepareOperatorServerTask.NAME,
             SetServerLogbackLevelsTask.NAME,
             ServerYamlPatchTask.NAME
         )
@@ -47,16 +49,17 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        DeployServerUtil.getServers(project)
-            .filter { server -> !server.previousInstallation }
-            .forEach { server ->
-                project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
-                allowToWriteMountedHostFolders()
-                start(server)
-                DeployServerUtil.waitForBoot(project, null, server, auxiliaryServer = true)
+        // we only need one server for deployment on the operators
+        val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.DEPLOY)
+        val server = operatorHelper.getOperatorDeployServer(project)
+        if (!server.previousInstallation) {
+            project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
+            allowToWriteMountedHostFolders()
+            start(server)
+            DeployServerUtil.waitForBoot(project, null, server, auxiliaryServer = true)
 
-                val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project, server).toFile()
-                DockerComposeUtil.allowToCleanMountedFiles(project, server, dockerComposeFile)
-            }
+            val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project, server).toFile()
+            DockerComposeUtil.allowToCleanMountedFiles(project, server, dockerComposeFile)
+        }
     }
 }
