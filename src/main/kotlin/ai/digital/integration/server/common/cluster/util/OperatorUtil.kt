@@ -64,7 +64,7 @@ class OperatorUtil(
                 server.httpPort = httpPort
             }
         }
-        operatorServer.dockerImage = opServerConfig.domckerImage ?: server.dockerImage
+        operatorServer.dockerImage = opServerConfig.dockerImage ?: server.dockerImage
         operatorServer.version = opServerConfig.version ?: server.version
         operatorServer.pingRetrySleepTime = opServerConfig.pingRetrySleepTime
         operatorServer.pingTotalTries = opServerConfig.pingTotalTries
