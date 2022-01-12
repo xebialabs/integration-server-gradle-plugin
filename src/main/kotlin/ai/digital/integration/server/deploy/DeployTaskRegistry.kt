@@ -9,6 +9,8 @@ import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
+import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStartTask
+import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStopTask
 import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.ShutdownDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.anonymizer.ExportDatabaseTask
@@ -160,6 +162,8 @@ open class DeployTaskRegistry {
             //Infrastructure
             project.tasks.create(GitlabStartTask.NAME, GitlabStartTask::class.java)
             project.tasks.create(GitlabStopTask.NAME, GitlabStopTask::class.java)
+            project.tasks.create(InfrastructureStopTask.NAME, InfrastructureStopTask::class.java)
+            project.tasks.create(InfrastructureStartTask.NAME, InfrastructureStartTask::class.java)
 
             //Integration Server
             project.tasks.create(ShutdownDeployIntegrationServerTask.NAME,
