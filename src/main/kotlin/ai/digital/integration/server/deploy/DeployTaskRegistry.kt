@@ -12,6 +12,10 @@ import ai.digital.integration.server.common.gitlab.GitlabStopTask
 import ai.digital.integration.server.common.mq.ShutdownMqTask
 import ai.digital.integration.server.common.mq.StartMqTask
 import ai.digital.integration.server.common.pluginManager.StartPluginManagerTask
+import ai.digital.integration.server.deploy.tasks.centralConfigServer.CentralConfigOverlaysTask
+import ai.digital.integration.server.deploy.tasks.centralConfigServer.DownloadAndExtractCCDistTask
+import ai.digital.integration.server.deploy.tasks.centralConfigServer.PrepareCCTask
+import ai.digital.integration.server.deploy.tasks.centralConfigServer.StartCCServerTask
 import ai.digital.integration.server.deploy.tasks.maintenance.CleanupBeforeStartupTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
@@ -170,6 +174,13 @@ open class DeployTaskRegistry {
 
             //Tests
             project.tasks.create(IntegrationTestsTask.NAME, IntegrationTestsTask::class.java)
+
+            //Central configuration standalone service
+            project.tasks.create(DownloadAndExtractCCDistTask.NAME, DownloadAndExtractCCDistTask::class.java)
+            project.tasks.create(PrepareCCTask.NAME, PrepareCCTask::class.java)
+            project.tasks.create(StartCCServerTask.NAME, StartCCServerTask::class.java)
+            project.tasks.create(CentralConfigOverlaysTask.NAME, CentralConfigOverlaysTask::class.java)
+
         }
     }
 }

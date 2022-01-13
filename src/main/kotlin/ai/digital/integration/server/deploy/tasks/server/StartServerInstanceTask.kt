@@ -10,6 +10,8 @@ import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.deploy.internals.*
+import ai.digital.integration.server.deploy.tasks.centralConfigServer.PrepareCCTask
+import ai.digital.integration.server.deploy.tasks.centralConfigServer.StartCCServerTask
 import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
 import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
@@ -45,6 +47,7 @@ open class StartServerInstanceTask : DefaultTask() {
             DownloadAndExtractServerDistTask.NAME,
             PrepareDatabaseTask.NAME,
             PrepareServerTask.NAME,
+            PrepareCCTask.NAME,
             SetServerLogbackLevelsTask.NAME,
             StartMqTask.NAME,
             ServerYamlPatchTask.NAME
@@ -60,6 +63,9 @@ open class StartServerInstanceTask : DefaultTask() {
             }
             if (DeployServerUtil.isAkkaSecured(project)) {
                 dependencies.add(GenerateSecureAkkaKeysTask.NAME)
+            }
+            if(CentralConfigServerUtil.hasCentralConfigServer(project)) {
+                dependencies.add(StartCCServerTask.NAME)
             }
 
             dependsOn(dependencies)

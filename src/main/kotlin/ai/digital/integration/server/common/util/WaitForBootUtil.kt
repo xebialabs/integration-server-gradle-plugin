@@ -79,7 +79,11 @@ class WaitForBootUtil {
             var success = false
             while (triesLeft > 0 && !success) {
                 try {
+                    println("********************************")
+                    println(logFile)
+                    println(logFile.exists())
                     logFile.forEachLine { line ->
+                        println(line)
                         if (line.contains(containsLine)) {
                             project.logger.lifecycle("$name successfully started.")
                             success = true

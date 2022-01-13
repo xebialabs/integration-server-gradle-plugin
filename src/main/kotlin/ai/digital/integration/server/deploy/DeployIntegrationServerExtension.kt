@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.domain.*
 import ai.digital.integration.server.common.domain.profiles.*
 import ai.digital.integration.server.common.domain.profiles.DefaultProfileContainer
+import ai.digital.integration.server.deploy.domain.CentralConfigServer
 import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.deploy.domain.Satellite
 import ai.digital.integration.server.deploy.domain.Worker
@@ -87,4 +88,8 @@ open class DeployIntegrationServerExtension(
     val kubeScanner = project.objects.property<KubeScanner>().value(KubeScanner(project.objects))
 
     fun kubeScanner(action: Action<in KubeScanner>) = action.execute(kubeScanner.get())
+
+    val centralConfigServer = project.objects.property<CentralConfigServer>().value(CentralConfigServer(project.objects))
+
+    fun centralConfigServer(action: Action<in CentralConfigServer>) = action.execute(centralConfigServer.get())
 }
