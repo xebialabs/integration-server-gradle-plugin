@@ -1,8 +1,10 @@
 package ai.digital.integration.server.release.util
 
+import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.release.ReleaseIntegrationServerExtension
+import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
@@ -37,14 +39,32 @@ class ReleaseServerUtil {
             return "$url$separator$path"
         }
 
-
         fun isTls(project: Project): Boolean {
             return getServer(project).tls
         }
 
+        fun getCluster(project: Project): Cluster {
+            return ReleaseExtensionUtil.getExtension(project).cluster.get()
+        }
+
+        fun isClusterEnabled(project: Project): Boolean {
+            return getCluster(project).enable
+        }
+
+        fun getConfDir(project: Project): File {
+            return Paths.get(getServerWorkingDir(project), "conf").toFile()
+        }
+
+        fun readReleaseServerConfProperty(project: Project, key: String): String {
+            val serverConf = Paths.get("${getServerWorkingDir(project)}/conf/xl-release-server.conf").toFile()
+            return PropertiesUtil.readProperty(serverConf, key)
+        }
+
         fun getServer(project: Project): Server {
             val ext = project.extensions.getByType(ReleaseIntegrationServerExtension::class.java)
-            val server = ext.servers.first()
+            val server = ext.servers.first { server ->
+                !server.previousInstallation && isNonXlDeploy(server)
+            }
             server.debugPort = getDebugPort(project, server)
             server.httpPort = getHttpPort(project, server)
             server.version = getServerVersion(project, server)
@@ -58,6 +78,10 @@ class ReleaseServerUtil {
             }
 
             return server
+        }
+
+        private fun isNonXlDeploy(server: Server): Boolean {
+            return server.dockerImage == null || server.dockerImage?.endsWith("xl-deploy") == false
         }
 
         fun getServerWorkingDir(project: Project): String {
@@ -126,6 +150,13 @@ class ReleaseServerUtil {
             return "release-${server.version}"
         }
 
+        fun runDockerBasedInstance(project: Project) {
+            project.exec {
+                executable = "docker-compose"
+                args = listOf("-f", getResolvedDockerFile(project).toFile().toString(), "up", "-d")
+            }
+        }
+
         fun getResolvedDockerFile(project: Project): Path {
             val server = getServer(project)
             val resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, dockerServerRelativePath())
@@ -133,13 +164,13 @@ class ReleaseServerUtil {
             val serverTemplate = resultComposeFilePath.toFile()
 
             val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
-                .replace("RELEASE_SERVER_HTTP_PORT", server.httpPort.toString())
-                .replace("RELEASE_IMAGE_VERSION", getDockerImageVersion(project))
+                .replace("{{RELEASE_SERVER_HTTP_PORT}}", server.httpPort.toString())
+                .replace("{{RELEASE_IMAGE_VERSION}}", getDockerImageVersion(project))
                 .replace(
-                    "RELEASE_PLUGINS_TO_EXCLUDE",
+                    "{{RELEASE_PLUGINS_TO_EXCLUDE}}",
                     server.defaultOfficialPluginsToExclude.joinToString(separator = ",")
                 )
-                .replace("RELEASE_VERSION", server.version.toString())
+                .replace("{{RELEASE_VERSION}}", server.version.toString())
             serverTemplate.writeText(configuredTemplate)
 
             return resultComposeFilePath

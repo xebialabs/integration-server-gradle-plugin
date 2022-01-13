@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 
 @Suppress("UnstableApiUsage")
-open class AzureAksProvider @Inject constructor(val project: Project) : Provider(project) {
+open class AzureAksProvider @Inject constructor(project: Project) : Provider(project) {
 
     @Input
     val clusterNodeCount = project.objects.property<Int>().value(2)

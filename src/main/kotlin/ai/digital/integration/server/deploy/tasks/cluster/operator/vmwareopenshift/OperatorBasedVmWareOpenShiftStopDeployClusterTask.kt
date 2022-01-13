@@ -1,11 +1,12 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift
 
+import ai.digital.integration.server.common.cluster.operator.VmwareOpenshiftHelper
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.deploy.internals.cluster.operator.VmwareOpenshiftHelper
-import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopTask
+import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStopTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedVmWareOpenShiftStopDeployClusterTask : OperatorBasedStopTask() {
+open class OperatorBasedVmWareOpenShiftStopDeployClusterTask : DeployOperatorBasedStopTask() {
 
     companion object {
         const val NAME = "operatorBasedVmWareOpenShiftStopDeployCluster"
@@ -18,6 +19,6 @@ open class OperatorBasedVmWareOpenShiftStopDeployClusterTask : OperatorBasedStop
 
     @TaskAction
     fun launch() {
-        VmwareOpenshiftHelper(project).shutdownCluster()
+        VmwareOpenshiftHelper(project, ProductName.DEPLOY).shutdownCluster()
     }
 }

@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.tasks.server.operator
 
+import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.DbUtil
@@ -63,11 +64,9 @@ open class OperatorCentralConfigurationTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        DeployServerUtil.getServers(project)
-            .forEach { server ->
-                if (server.numericVersion() >= 10.2) {
-                    createCentralConfigurationFiles(server)
-                }
-            }
+        val server = OperatorUtil(project).getOperatorServer()
+        if (server.numericVersion() >= 10.2) {
+            createCentralConfigurationFiles(server)
+        }
     }
 }

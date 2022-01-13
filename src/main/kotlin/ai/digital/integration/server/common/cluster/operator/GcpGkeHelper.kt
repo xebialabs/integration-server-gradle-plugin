@@ -1,5 +1,6 @@
-package ai.digital.integration.server.deploy.internals.cluster.operator
+package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.GcpGkeProvider
 import ai.digital.integration.server.common.util.ProcessUtil
@@ -10,7 +11,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
+open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun launchCluster() {
         val gcpGkeProvider: GcpGkeProvider = getProvider()
@@ -41,7 +42,7 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()
-        val ip = getKubectlHelper().getServiceExternalIp("service/dai-xld-nginx-ingress-controller")
+        val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
         applyDnsOpenApi(ip)
 
         createClusterMetadata()
@@ -55,18 +56,23 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
         val regionZone = gcpGkeProvider.regionZone.get()
         val accountName = gcpGkeProvider.accountName.get()
 
-        if (existsCluster(accountName, projectName, name, regionZone)) {
+        val existsCluster = existsCluster(accountName, projectName, name, regionZone)
+        if (existsCluster) {
             undeployCluster()
-            deleteCluster(accountName, projectName, name, regionZone)
         }
-        deleteDnsOpenApi()
 
-        getKubectlHelper().deleteCurrentContext()
-        logoutGCloudCli(gcpGkeProvider.accountName.get())
+        if (gcpGkeProvider.destroyClusterOnShutdown.get()) {
+            if (existsCluster) {
+                deleteCluster(accountName, projectName, name, regionZone)
+            }
+            deleteDnsOpenApi()
+            getKubectlHelper().deleteCurrentContext()
+            logoutGCloudCli(gcpGkeProvider.accountName.get())
+        }
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-gcp-gke"
+        return "${getOperatorHomeDir()}/${getName()}-operator-gcp-gke"
     }
 
     override fun getProvider(): GcpGkeProvider {
@@ -242,5 +248,11 @@ open class GcpGkeHelper(project: Project) : OperatorHelper(project) {
             ProcessUtil.executeCommand(project,
                     "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${getFqdn()}\" --quiet", throwErrorOnFailure = false)
         }
+    }
+
+    override fun getCurrentContextInfo(): InfrastructureInfo {
+        val projectName = getProvider().projectName.get()
+        val accountName = getProvider().accountName.get()
+        return getCurrentContextInfo(accountName, projectName).first
     }
 }

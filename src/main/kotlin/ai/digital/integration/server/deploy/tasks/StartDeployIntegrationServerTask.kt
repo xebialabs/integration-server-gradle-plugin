@@ -3,7 +3,7 @@ package ai.digital.integration.server.deploy.tasks
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.server.StartServerInstanceTask
+import ai.digital.integration.server.deploy.tasks.server.StartDeployServerInstanceTask
 import org.gradle.api.DefaultTask
 
 open class StartDeployIntegrationServerTask : DefaultTask() {
@@ -17,7 +17,7 @@ open class StartDeployIntegrationServerTask : DefaultTask() {
         if (DeployServerUtil.isClusterEnabled(project)) {
             this.dependsOn(StartDeployClusterTask.NAME)
         } else {
-            this.dependsOn(StartServerInstanceTask.NAME)
+            this.dependsOn(StartDeployServerInstanceTask.NAME)
         }
     }
 }

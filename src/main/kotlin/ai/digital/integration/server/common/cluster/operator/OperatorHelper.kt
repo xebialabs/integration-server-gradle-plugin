@@ -1,6 +1,10 @@
-package ai.digital.integration.server.deploy.internals.cluster.operator
+package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.OperatorProviderName
+import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.InfrastructureInfo
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
 import ai.digital.integration.server.common.util.*
@@ -9,6 +13,9 @@ import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
+import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
+import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
+import ai.digital.integration.server.release.util.ReleaseServerUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -20,43 +27,48 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 
-const val OPERATOR_FOLDER_NAME: String = "xl-deploy-kubernetes-operator"
-
-const val CONTROLLER_MANAGER_REL_PATH = "digitalai-deploy/kubernetes/template/deployment.yaml"
-
-const val OPERATOR_APPS_REL_PATH = "digitalai-deploy/applications.yaml"
-
-const val OPERATOR_INFRASTRUCTURE_PATH = "digitalai-deploy/infrastructure.yaml"
-
-const val OPERATOR_CR_PACKAGE_REL_PATH = "digitalai-deploy/deployment-cr.yaml"
-
-const val OPERATOR_CR_VALUES_REL_PATH = "digitalai-deploy/kubernetes/daideploy_cr.yaml"
-
-const val OPERATOR_PACKAGE_REL_PATH = "digitalai-deploy/deployment.yaml"
-
-const val XL_DIGITAL_AI_PATH = "digital-ai.yaml"
-
 @Suppress("UnstableApiUsage")
-abstract class OperatorHelper(val project: Project) {
+abstract class OperatorHelper(val project: Project, val productName: ProductName) {
 
     var loggingJob: Job? = null
 
-    companion object {
-        private const val operatorMetadataPath = "deploy/operator/operator-metadata.properties"
+    val OPERATOR_INFRASTRUCTURE_PATH = "digitalai-${getName()}/infrastructure.yaml"
 
-        fun getOperatorHelper(project: Project): OperatorHelper {
-            return when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
-                OperatorProviderName.AWS_EKS.providerName -> AwsEksHelper(project)
-                OperatorProviderName.AWS_OPENSHIFT.providerName -> AwsOpenshiftHelper(project)
-                OperatorProviderName.AZURE_AKS.providerName -> AzureAksHelper(project)
-                OperatorProviderName.GCP_GKE.providerName -> GcpGkeHelper(project)
-                OperatorProviderName.ON_PREMISE.providerName -> OnPremHelper(project)
-                OperatorProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftHelper(project)
+    val OPERATOR_CR_VALUES_REL_PATH = "digitalai-${getName()}/kubernetes/dai${getName()}_cr.yaml"
+
+    private val operatorMetadataPath = "${getName()}/operator/operator-metadata.properties"
+
+    private val OPERATOR_FOLDER_NAME: String = "xl-${getName()}-kubernetes-operator"
+
+    private val OPERATOR_APPS_REL_PATH = "digitalai-${getName()}/applications.yaml"
+
+    private val OPERATOR_CR_PACKAGE_REL_PATH = "digitalai-${getName()}/deployment-cr.yaml"
+
+    private val OPERATOR_PACKAGE_REL_PATH = "digitalai-${getName()}/deployment.yaml"
+
+    private val DIGITAL_AI_PATH = "digital-ai.yaml"
+
+    companion object {
+        fun getOperatorHelper(project: Project, productName: ProductName): OperatorHelper {
+            return when (val providerName = getOperatorProvider(project, productName)) {
+                OperatorProviderName.AWS_EKS.providerName -> AwsEksHelper(project, productName)
+                OperatorProviderName.AWS_OPENSHIFT.providerName -> AwsOpenshiftHelper(project, productName)
+                OperatorProviderName.AZURE_AKS.providerName -> AzureAksHelper(project, productName)
+                OperatorProviderName.GCP_GKE.providerName -> GcpGkeHelper(project, productName)
+                OperatorProviderName.ON_PREMISE.providerName -> OnPremHelper(project, productName)
+                OperatorProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftHelper(project, productName)
                 else -> {
                     throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
                         OperatorProviderName.values().joinToString()
                     }")
                 }
+            }
+        }
+
+        private fun getOperatorProvider(project: Project, productName: ProductName): String {
+            return when (productName) {
+                ProductName.DEPLOY -> DeployClusterUtil.getOperatorProvider(project)
+                ProductName.RELEASE -> ReleaseClusterUtil.getOperatorProvider(project)
             }
         }
     }
@@ -68,7 +80,10 @@ abstract class OperatorHelper(val project: Project) {
         project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
 
     fun getProfile(): OperatorProfile {
-        return DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
+        return when (productName) {
+            ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
+            ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator()
+        }
     }
 
     fun updateOperatorApplications() {
@@ -84,7 +99,7 @@ abstract class OperatorHelper(val project: Project) {
 
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
         val pairs =
-            mutableMapOf<String, Any>("spec.package" to "Applications/xld-operator-app/${getProvider().operatorPackageVersion.get()}")
+            mutableMapOf<String, Any>("spec.package" to "Applications/${getPrefixName()}-operator-app/${getProvider().operatorPackageVersion.get()}")
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -93,7 +108,7 @@ abstract class OperatorHelper(val project: Project) {
 
         val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
         val pairs =
-            mutableMapOf<String, Any>("spec.package" to "Applications/xld-cr/${getProvider().operatorPackageVersion.get()}")
+            mutableMapOf<String, Any>("spec.package" to "Applications/${getPrefixName()}-cr/${getProvider().operatorPackageVersion.get()}")
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -118,9 +133,11 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     fun waitForDeployment() {
-        val resources = if (hasIngress()) arrayOf("deployment.apps/xld-operator-controller-manager",
-            "deployment.apps/dai-xld-nginx-ingress-controller",
-            "deployment.apps/dai-xld-nginx-ingress-controller-default-backend") else arrayOf("deployment.apps/xld-operator-controller-manager")
+        val resources = if (hasIngress()) arrayOf("deployment.apps/${getPrefixName()}-operator-controller-manager",
+            "deployment.apps/dai-${getPrefixName()}-nginx-ingress-controller",
+            "deployment.apps/dai-${getPrefixName()}-nginx-ingress-controller-default-backend")
+        else
+            arrayOf("deployment.apps/${getPrefixName()}-operator-controller-manager")
 
         resources.forEach { resource ->
             if (!getKubectlHelper().wait(resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
@@ -160,9 +177,12 @@ abstract class OperatorHelper(val project: Project) {
     }
 
     fun waitForBoot() {
-        val url = "http://${getFqdn()}/deployit/metadata/type"
+        val url = when (productName) {
+            ProductName.DEPLOY -> "http://${getFqdn()}/deployit/metadata/type"
+            ProductName.RELEASE -> "http://${getFqdn()}/api/extension/metadata"
+        }
         val server = DeployServerUtil.getServer(project)
-        WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
+        WaitForBootUtil.byPort(project, getName(), url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
 
     fun undeployCluster() {
@@ -185,21 +205,21 @@ abstract class OperatorHelper(val project: Project) {
         }
         return try {
             CliUtil.executeScripts(project,
-                    listOf(resultComposeFilePath.toFile()),
-                    "undeploy.py",
-                    auxiliaryServer = true)
+                listOf(resultComposeFilePath.toFile()),
+                "undeploy.py",
+                auxiliaryServer = true)
             true
         } catch (e: RuntimeException) {
-            project.logger.error("Undeploy didn't run. Check if operator's deploy server is running on port 4516: ${e.message}")
+            project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server is running on port ${OperatorUtil(project).getOperatorServer().httpPort}: ${e.message}")
             false
         } catch (e: IOException) {
-            project.logger.error("Undeploy didn't run. Check if operator's deploy server has all files: ${e.message}")
+            project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server has all files: ${e.message}")
             false
         }
     }
 
     open fun getOperatorImage(): String {
-        return getProvider().operatorImage.getOrElse("xebialabs/deploy-operator:1.2.0")
+        return getProvider().operatorImage.getOrElse("xebialabs/${getName()}-operator:1.2.0")
     }
 
     fun updateOperatorCrValues() {
@@ -207,12 +227,9 @@ abstract class OperatorHelper(val project: Project) {
 
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
         val pairs =
-            mutableMapOf<String, Any>("spec.ImageRepository" to DeployServerUtil.getServer(project).dockerImage!!,
-                "spec.ImageTag" to DeployServerUtil.getServer(project).version!!,
-                "spec.XldMasterCount" to getMasterCount(),
-                "spec.XldWorkerCount" to getWorkerCount(),
-                "spec.Persistence.XldMasterPvcSize" to "1Gi",
-                "spec.Persistence.XldWorkerPvcSize" to "1Gi",
+            mutableMapOf<String, Any>(
+                "spec.ImageRepository" to getImageRepository(),
+                "spec.ImageTag" to getServerVersion(),
                 "spec.KeystorePassphrase" to getProvider().keystorePassphrase.get(),
                 "spec.Persistence.StorageClass" to getStorageClass(),
                 "spec.RepositoryKeystore" to getProvider().repositoryKeystore.get(),
@@ -227,26 +244,59 @@ abstract class OperatorHelper(val project: Project) {
                 "spec.rabbitmq.image.debug" to true,
                 "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
                 "spec.rabbitmq.persistence.size" to "1Gi",
-                "spec.rabbitmq.replicaCount" to 1,
+                "spec.rabbitmq.replicaCount" to getProvider().rabbitmqReplicaCount.get(),
                 "spec.rabbitmq.extraConfiguration" to
                         listOf(
-                            "load_definitions = /app/xld-load_definition.json",
+                            "load_definitions = /app/${getPrefixName()}-load_definition.json",
                             "raft.wal_max_size_bytes = 1048576"
                         ).joinToString(separator = "\n", postfix = "\n"),
                 "spec.rabbitmq.persistence.replicaCount" to 1,
                 "spec.route.hosts" to arrayOf(getHost()),
-                "spec.xldLicense" to getLicense())
+                "spec.${getPrefixName()}License" to getLicense()
+            )
+
+        when (productName) {
+            ProductName.DEPLOY -> {
+                pairs.putAll(mutableMapOf<String, Any>(
+                    "spec.XldMasterCount" to getMasterCount(),
+                    "spec.XldWorkerCount" to getWorkerCount(),
+                    "spec.Persistence.XldMasterPvcSize" to "1Gi",
+                    "spec.Persistence.XldWorkerPvcSize" to "1Gi"
+                ))
+            }
+            ProductName.RELEASE -> {
+                pairs.putAll(mutableMapOf<String, Any>(
+                    "spec.Persistence.Size" to "1Gi"
+                ))
+            }
+        }
+
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
-    private fun getLicense(): String {
-        val deployitLicenseFile = File(DeployServerUtil.getConfDir(project), "deployit-license.lic")
-        val content = Files.readString(deployitLicenseFile.toPath())
-        return Base64.getEncoder().encodeToString(content.toByteArray())
+    private fun getImageRepository(): String {
+        return getServer().dockerImage!!
     }
 
-    open fun getMasterCount(): Int {
-        return DeployServerUtil.getServers(project).size
+    private fun getServerVersion(): String {
+        return getServer().version!!
+    }
+
+    private fun getServer(): Server {
+        return when (productName) {
+            ProductName.DEPLOY -> DeployServerUtil.getServer(project)
+            ProductName.RELEASE -> ReleaseServerUtil.getServer(project)
+        }
+    }
+
+    private fun getLicense(): String {
+        val licenseFileName = when (productName) {
+            ProductName.DEPLOY -> "deployit-license.lic"
+            ProductName.RELEASE -> "xl-release-license.lic"
+        }
+        val licenseFile = File(getConfigDir(), licenseFileName)
+        val content = Files.readString(licenseFile.toPath())
+        return Base64.getEncoder().encodeToString(content.toByteArray())
     }
 
     open fun getWorkerCount(): Int {
@@ -273,6 +323,10 @@ abstract class OperatorHelper(val project: Project) {
         return "/"
     }
 
+    open fun getCurrentContextInfo(): InfrastructureInfo {
+        return InfrastructureInfo(null, null, null, null, null, null)
+    }
+
     open fun getHost(): String {
         return getProvider().host.getOrElse(getProvider().name.get())
     }
@@ -284,10 +338,9 @@ abstract class OperatorHelper(val project: Project) {
     open fun applyYamlFiles() {
         project.logger.lifecycle("Applying prepared Yaml files")
 
-        val xlDigitalAiPath = File(getProviderHomeDir(), XL_DIGITAL_AI_PATH)
-        project.logger.lifecycle("Applying Digital AI Deploy platform on cluster ($xlDigitalAiPath)")
-        XlCliUtil.download(getProfile().xlCliVersion.get(), File(getProviderHomeDir()))
-        XlCliUtil.xlApply(project, xlDigitalAiPath, File(getProviderHomeDir()))
+        val digitalAiPath = File(getProviderHomeDir(), DIGITAL_AI_PATH)
+        project.logger.lifecycle("Applying Digital AI $productName platform on cluster ($digitalAiPath)")
+        XlCliUtil.xlApply(project, digitalAiPath, getProfile().xlCliVersion.get(), File(getProviderHomeDir()), OperatorUtil(project).getOperatorServer().httpPort)
     }
 
     abstract fun getProviderHomeDir(): String
@@ -298,13 +351,20 @@ abstract class OperatorHelper(val project: Project) {
 
     open fun hasIngress(): Boolean = true
 
-    open fun getWorkerPodName(position: Int) = "pod/dai-xld-digitalai-deploy-worker-$position"
+    open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
 
-    open fun getMasterPodName(position: Int) = "pod/dai-xld-digitalai-deploy-master-$position"
+    open fun getMasterPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-master-$position"
 
-    open fun getPostgresPodName(position: Int) = "pod/dai-xld-postgresql-$position"
+    open fun getPostgresPodName(position: Int) = "pod/dai-${getPrefixName()}-postgresql-$position"
 
-    open fun getRabbitMqPodName(position: Int) = "pod/dai-xld-rabbitmq-$position"
+    open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
+
+    fun getPrefixName(): String {
+        return when (productName) {
+            ProductName.DEPLOY -> "xld"
+            ProductName.RELEASE -> "xlr"
+        }
+    }
 
     fun getTemplate(relativePath: String): File {
         val file = File(relativePath)
@@ -314,5 +374,23 @@ abstract class OperatorHelper(val project: Project) {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
         return resultComposeFilePath.toFile()
+    }
+
+    open fun getMasterCount(): Int {
+        return when (productName) {
+            ProductName.DEPLOY -> DeployServerUtil.getServers(project).size
+            ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).servers.size
+        }
+    }
+
+    private fun getConfigDir(): File {
+        return when (productName) {
+            ProductName.DEPLOY -> DeployServerUtil.getConfDir(project)
+            ProductName.RELEASE -> ReleaseServerUtil.getConfDir(project)
+        }
+    }
+
+    fun getName(): String {
+        return productName.toString().toLowerCase()
     }
 }

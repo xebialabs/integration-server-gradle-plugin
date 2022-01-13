@@ -1,5 +1,6 @@
-package ai.digital.integration.server.deploy.internals.cluster.operator
+package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.operator.AwsOpenshiftProvider
 import ai.digital.integration.server.common.util.HtmlUtil
 import ai.digital.integration.server.common.util.KubeCtlHelper
@@ -10,7 +11,7 @@ import java.io.File
 import java.util.*
 
 @Suppress("UnstableApiUsage")
-open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
+open class AwsOpenshiftHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun launchCluster() {
         createOcContext()
@@ -38,6 +39,9 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
 
     private fun exec(command: String): String {
         val workDir = File(getProviderHomeDir())
+        if (!workDir.exists()) {
+            workDir.mkdirs()
+        }
         return ProcessUtil.executeCommand(command, workDir)
     }
 
@@ -81,7 +85,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     }
 
     override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/deploy-operator-openshift"
+        return "${getOperatorHomeDir()}/${getName()}-operator-openshift"
     }
 
     override fun getProvider(): AwsOpenshiftProvider {
@@ -89,7 +93,7 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
     }
 
     override fun getOperatorImage(): String {
-        return getProvider().operatorImage.getOrElse("xebialabs/deploy-operator:1.2.0-openshift")
+        return getProvider().operatorImage.getOrElse("xebialabs/${getName()}-operator:1.2.0-openshift")
     }
 
     override fun getStorageClass(): String {
@@ -100,18 +104,15 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
         project.logger.lifecycle("Updating operator's infrastructure")
 
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
-        val pairs = mutableMapOf<String, Any>(
-            "spec[0].children[0].serverUrl" to apiServerURL,
-            "spec[0].children[0].openshiftToken" to token
-        )
+        val pairs = mutableMapOf<String, Any>("spec[0].children[0].serverUrl" to apiServerURL,
+            "spec[0].children[0].openshiftToken" to token)
         YamlFileUtil.overlayFile(file, pairs)
     }
 
     private fun updateCrValues() {
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
-        val pairs: MutableMap<String, Any> = mutableMapOf(
-                "spec.postgresql.postgresqlExtendedConf.listenAddresses" to "*"
-        )
+        val pairs: MutableMap<String, Any> =
+            mutableMapOf("spec.postgresql.postgresqlExtendedConf.listenAddresses" to "*")
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
@@ -119,14 +120,15 @@ open class AwsOpenshiftHelper(project: Project) : OperatorHelper(project) {
 
     override fun hasIngress(): Boolean = false
 
-    override fun getWorkerPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-worker-$position"
+    override fun getWorkerPodName(position: Int) =
+        "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-worker-$position"
 
-    override fun getMasterPodName(position: Int) = "pod/dai-ocp-xld-digitalai-deploy-ocp-master-$position"
+    override fun getMasterPodName(position: Int) =
+        "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-master-$position"
 
-    override fun getPostgresPodName(position: Int) = "pod/dai-ocp-xld-postgresql-$position"
+    override fun getPostgresPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-postgresql-$position"
 
-    override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-xld-rabbitmq-$position"
-
+    override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-rabbitmq-$position"
 
     private fun getApiServerUrl() = getProvider().apiServerURL.get()
 

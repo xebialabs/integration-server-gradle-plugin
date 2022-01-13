@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.util.HTTPUtil.Companion.buildRequest
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.io.File
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
 class WaitForBootUtil {
@@ -45,24 +46,26 @@ class WaitForBootUtil {
             project: Project, name: String, url: String, process: Process?,
             pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME,
             pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES,
-            callback: () -> Unit = {}
-        ) {
+            callback: (LocalDateTime) -> LocalDateTime = {LocalDateTime.now().minusDays(1)}
+        ): LocalDateTime {
             project.logger.lifecycle("Waiting for $name to start on URL: $url.")
             var triesLeft = pingTotalTries
             var success = false
+            var lastTry = LocalDateTime.now().minusDays(1)
             while (triesLeft > 0 && !success) {
                 try {
                     val http = buildRequest(url)
                     http.get(mutableMapOf<String, Any>())
                     success = true
                 } catch (ignored: Exception) {
-                    callback()
+                    lastTry = callback(lastTry)
                 }
                 triesLeft = waitForNext(project, process, triesLeft, success, pingRetrySleepTime)
             }
             if (!success) {
                 throw GradleException("$name failed to start.")
             }
+            return lastTry
         }
 
         fun byLog(
@@ -79,11 +82,7 @@ class WaitForBootUtil {
             var success = false
             while (triesLeft > 0 && !success) {
                 try {
-                    println("********************************")
-                    println(logFile)
-                    println(logFile.exists())
                     logFile.forEachLine { line ->
-                        println(line)
                         if (line.contains(containsLine)) {
                             project.logger.lifecycle("$name successfully started.")
                             success = true

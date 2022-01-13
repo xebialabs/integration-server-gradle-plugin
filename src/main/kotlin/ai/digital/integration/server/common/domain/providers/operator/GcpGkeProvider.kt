@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 
 @Suppress("UnstableApiUsage")
-open class GcpGkeProvider @Inject constructor(val project: Project) : Provider(project) {
+open class GcpGkeProvider @Inject constructor(project: Project) : Provider(project) {
 
     @Input
     val accountName = project.objects.property<String>()

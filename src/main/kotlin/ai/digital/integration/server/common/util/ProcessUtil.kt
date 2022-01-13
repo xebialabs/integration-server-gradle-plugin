@@ -31,17 +31,23 @@ class ProcessUtil {
 
         fun execute(project: Project, exec: String, arguments: List<String>, logOutput: Boolean = true): String {
             project.logger.lifecycle("About to execute `$exec ${arguments.joinToString(" ")}`")
-            val stdout = ByteArrayOutputStream()
-            project.exec {
-                args = arguments
-                executable = exec
-                standardOutput = stdout
-            }
-            val output = stdout.toString(StandardCharsets.UTF_8)
             if (logOutput) {
+                val stdout = ByteArrayOutputStream()
+                project.exec {
+                    args = arguments
+                    executable = exec
+                    standardOutput = stdout
+                }
+                val output = stdout.toString(StandardCharsets.UTF_8)
                 project.logger.lifecycle(output)
+                return output
+            } else {
+                project.exec {
+                    args = arguments
+                    executable = exec
+                }
             }
-            return output
+            return ""
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -134,7 +140,11 @@ class ProcessUtil {
             val stdInput = BufferedReader(InputStreamReader(process.inputStream))
             val stdError = BufferedReader(InputStreamReader(process.errorStream))
 
-            print("About to execute `$command`")
+            if (workDir == null) {
+                print("About to execute `$command`")
+            } else {
+                print("About to execute `$command` in work dir `${workDir.absolutePath}`")
+            }
 
             val input = readLines(stdInput) { line -> print(line) }
             val error = readLines(stdError) { line -> print(line, true) }

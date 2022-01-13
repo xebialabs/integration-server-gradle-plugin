@@ -2,6 +2,7 @@ package ai.digital.integration.server.common.util
 
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import org.apache.commons.codec.binary.Base64
 import org.gradle.api.Project
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -135,7 +136,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         val data = configView(jsonPath)
         return if (data == "") {
             val path = configView(fallbackJsonPath)
-            File(path).readText()
+            Base64.encodeBase64String(File(path).readText().toByteArray())
         } else {
             data
         }
@@ -162,6 +163,14 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     private fun getWithPath(subCommand: String, jsonpath: String): String {
         return ProcessUtil.executeCommand(project,
-                "$command $subCommand -o \"jsonpath=$jsonpath\"")
+                "$command $subCommand -o 'jsonpath=$jsonpath'")
+    }
+
+    fun getCrd(): String {
+        return getWithPath("get crd", "{.items[?(@..spec.group == \"xld.digital.ai\")].metadata.name}")
+    }
+
+    fun getCr(crdName: String): String {
+        return getWithPath("get $crdName", "{.items[0].metadata.name}")
     }
 }
