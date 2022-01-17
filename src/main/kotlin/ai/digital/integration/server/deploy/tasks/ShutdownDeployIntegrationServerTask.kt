@@ -5,7 +5,7 @@ import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.SatelliteUtil
-import ai.digital.integration.server.deploy.internals.ShutdownUtil
+import ai.digital.integration.server.deploy.internals.DeployShutdownUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.satellite.ShutdownSatelliteTask
@@ -51,7 +51,7 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
         project.logger.lifecycle("About to shutting down Deploy Server.")
 
         if (!DeployServerUtil.isDockerBased(project)) {
-            ShutdownUtil.shutdownServer(project)
+            DeployShutdownUtil.shutdownServer(project)
         }
     }
 }

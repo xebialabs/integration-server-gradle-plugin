@@ -5,10 +5,11 @@ services:
     image: {{RELEASE_IMAGE_VERSION}}
     container_name: release-{{RELEASE_VERSION}}
     environment:
-      ADMIN_PASSWORD: admin
-      ACCEPT_EULA: 'Y'
-      GENERATE_XL_CONFIG: "false"
-      PLUGINS_TO_EXCLUDE: {{RELEASE_PLUGINS_TO_EXCLUDE}}
+      - ACCEPT_EULA=Y
+      - ADMIN_PASSWORD=admin
+      - GENERATE_XL_CONFIG=false
+      - PLUGINS_TO_EXCLUDE={{RELEASE_PLUGINS_TO_EXCLUDE}}
+      - PLUGIN_SOURCE=filesystem
     ports:
       - {{RELEASE_SERVER_HTTP_PORT}}:5516
     volumes:

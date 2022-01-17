@@ -18,8 +18,7 @@ open class PrepareOperatorServerTask : DefaultTask() {
     @TaskAction
     fun launch() {
         val server = OperatorUtil(project).getOperatorServer()
-        server.httpPort = 4516
-        DeployServerInitializeUtil.prepare(project, server)
+        DeployServerInitializeUtil.prepare(project, server, true)
     }
 
     companion object {

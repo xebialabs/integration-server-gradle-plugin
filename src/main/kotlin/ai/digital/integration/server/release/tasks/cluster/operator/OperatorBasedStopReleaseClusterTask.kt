@@ -47,6 +47,6 @@ open class OperatorBasedStopReleaseClusterTask : DefaultTask() {
     @TaskAction
     fun launch() {
         val providerName = ReleaseClusterUtil.getOperatorProvider(project)
-        project.logger.lifecycle("Operator based Deploy Cluster with provider $providerName  is about to stop.")
+        project.logger.lifecycle("Operator based Release Cluster with provider $providerName  is about to stop.")
     }
 }

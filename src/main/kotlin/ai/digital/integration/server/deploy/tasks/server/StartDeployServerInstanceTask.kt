@@ -141,7 +141,7 @@ open class StartDeployServerInstanceTask : DefaultTask() {
     }
 
     private fun maybeTearDown() {
-        ShutdownUtil.shutdownServer(project)
+        DeployShutdownUtil.shutdownServer(project)
     }
 
     private fun allowToWriteMountedHostFolders() {

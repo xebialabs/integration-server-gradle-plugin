@@ -17,24 +17,34 @@ class DeployServerInitializeUtil {
             }
         }
 
-        private fun createConfFile(project: Project, server: Server) {
+        private fun createConfFile(project: Project, server: Server, auxiliaryServer: Boolean = false) {
             project.logger.lifecycle("Creating deployit.conf file for ${server.name}")
 
             val file = project.file("${DeployServerUtil.getServerWorkingDir(project, server)}/conf/deployit.conf")
+            if (!file.parentFile.exists()) {
+                file.parentFile.mkdirs()
+            }
             file.createNewFile()
 
-            file.writeText("http.port=${server.httpPort}\n")
+            if (!auxiliaryServer) {
+                file.writeText("http.port=${server.httpPort}\n")
+                file.appendText("http.context.root=${server.contextRoot}\n")
+            } else {
+                file.writeText("http.port=4516\n")
+                file.appendText("http.context.root=/\n")
+            }
+
             file.appendText("http.bind.address=0.0.0.0\n")
-            file.appendText("http.context.root=${server.contextRoot}\n")
+            file.appendText("server.hostname=127.0.0.1\n")
             file.appendText("threads.min=3\n")
             file.appendText("threads.max=24\n")
             file.appendText("xl.spring.cloud.enabled=true\n")
         }
 
-        fun prepare(project: Project, server: Server) {
+        fun prepare(project: Project, server: Server, auxiliaryServer: Boolean = false) {
             project.logger.lifecycle("Preparing server ${server.name} before launching it.")
             createFolders(project, server)
-            createConfFile(project, server)
+            createConfFile(project, server, auxiliaryServer)
         }
     }
 }

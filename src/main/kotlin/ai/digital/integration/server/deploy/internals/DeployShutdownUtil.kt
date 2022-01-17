@@ -9,7 +9,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.concurrent.TimeUnit
 
-class ShutdownUtil {
+class DeployShutdownUtil {
     companion object {
         private fun waitForShutdown(project: Project) {
             val server = DeployServerUtil.getServer(project)

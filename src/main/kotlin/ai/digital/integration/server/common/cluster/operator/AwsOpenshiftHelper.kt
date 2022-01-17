@@ -78,9 +78,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
     fun shutdownCluster() {
         ocLogin()
-
         undeployCluster()
-
         ocLogout()
     }
 
