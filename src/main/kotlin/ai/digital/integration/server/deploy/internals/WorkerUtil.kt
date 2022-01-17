@@ -65,6 +65,14 @@ class WorkerUtil {
             return getRuntimeDirectory(project, worker) == null
         }
 
+        private fun getApiUrl(project: Project): String {
+            return if (CentralConfigurationStandaloneUtil.hasCC(project)) {
+                EntryPointUrlUtil(project, ProductName.DEPLOY).getCCUrl()
+            } else {
+                EntryPointUrlUtil(project, ProductName.DEPLOY).getUrl()
+            }
+        }
+
         fun composeProgramParams(
             project: Project,
             worker: Worker,
@@ -77,7 +85,7 @@ class WorkerUtil {
                 "-master",
                 "127.0.0.1:$port",
                 "-api",
-                EntryPointUrlUtil(project, ProductName.DEPLOY).getUrl(),
+                getApiUrl(project),
                 "-hostname",
                 hostName,
                 "-name",

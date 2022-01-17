@@ -30,8 +30,8 @@ class DeployServerInitializeUtil {
             file.appendText("threads.max=24\n")
             file.appendText("xl.spring.cloud.enabled=true\n")
 
-            if(CentralConfigServerUtil.hasCentralConfigServer(project)) {
-                val cc = CentralConfigServerUtil.getCC(project)
+            if(CentralConfigurationStandaloneUtil.hasCC(project)) {
+                val cc = CentralConfigurationStandaloneUtil.getCC(project)
                 file.appendText("xl.spring.cloud.uri=http://localhost:${cc.httpPort}/centralConfiguration/\n")
                 file.appendText("xl.spring.cloud.encrypt.key=MQle?8_pwB^>f<&\n")
                 file.appendText("xl.spring.cloud.external-config=true\n")

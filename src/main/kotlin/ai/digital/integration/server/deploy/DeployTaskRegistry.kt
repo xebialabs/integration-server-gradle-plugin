@@ -5,10 +5,10 @@ import ai.digital.integration.server.common.gitlab.GitlabStopTask
 import ai.digital.integration.server.common.mq.ShutdownMqTask
 import ai.digital.integration.server.common.mq.StartMqTask
 import ai.digital.integration.server.common.pluginManager.StartPluginManagerTask
-import ai.digital.integration.server.deploy.tasks.centralConfigServer.CentralConfigOverlaysTask
-import ai.digital.integration.server.deploy.tasks.centralConfigServer.DownloadAndExtractCCDistTask
-import ai.digital.integration.server.deploy.tasks.centralConfigServer.PrepareCCTask
-import ai.digital.integration.server.deploy.tasks.centralConfigServer.StartCCServerTask
+import ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone.CentralConfigOverlaysTask
+import ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone.DownloadAndExtractCCDistTask
+import ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone.PrepareCCTask
+import ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone.StartCCServerTask
 import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask

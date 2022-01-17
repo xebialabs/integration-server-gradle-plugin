@@ -5,10 +5,11 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.property
 
 @Suppress("UnstableApiUsage")
-open class CentralConfigServer(objects: ObjectFactory) {
+open class CentralConfigurationStandalone(objects: ObjectFactory) {
     var httpPort: Int? = HTTPUtil.findFreePort()
     var debugPort: Int? = objects.property<Int?>().orNull
     var debugSuspend: Boolean = objects.property<Boolean>().value(false).get()
     var enable: Boolean = objects.property<Boolean>().value(false).get()
     var version: String? = null
+    var stdoutFileName: String? = null
 }

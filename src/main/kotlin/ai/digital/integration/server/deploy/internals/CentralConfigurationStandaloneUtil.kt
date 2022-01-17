@@ -1,30 +1,29 @@
 package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.Server
+import ai.digital.integration.server.common.util.PropertiesUtil
 import ai.digital.integration.server.common.util.PropertyUtil
-import ai.digital.integration.server.common.util.WaitForBootUtil
-import ai.digital.integration.server.deploy.domain.CentralConfigServer
+import ai.digital.integration.server.deploy.domain.CentralConfigurationStandalone
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.system.exitProcess
 
-class CentralConfigServerUtil {
+class CentralConfigurationStandaloneUtil {
     companion object {
-        fun hasCentralConfigServer(project: Project): Boolean {
-            return DeployExtensionUtil.getExtension(project).centralConfigServer.get().enable
+        fun hasCC(project: Project): Boolean {
+            return DeployExtensionUtil.getExtension(project).CentralConfigurationStandalone.get().enable
         }
-        fun getCC(project: Project): CentralConfigServer {
-            val cc = DeployExtensionUtil.getExtension(project).centralConfigServer.get()
+        fun getCC(project: Project): CentralConfigurationStandalone {
+            val cc = DeployExtensionUtil.getExtension(project).CentralConfigurationStandalone.get()
             cc.version = getCCVersion(project, cc)
             cc.debugPort = getDebugPort(project, cc)
             return cc
         }
 
-        private fun getDebugPort(project: Project, cc: CentralConfigServer): Int? {
+        private fun getDebugPort(project: Project, cc: CentralConfigurationStandalone): Int? {
             return if (PropertyUtil.resolveBooleanValue(project, "debug", true)) {
                 PropertyUtil.resolveIntValue(project, "ccDebugPort", cc.debugPort)
             } else {
@@ -32,7 +31,7 @@ class CentralConfigServerUtil {
             }
         }
 
-        private fun getCCVersion(project: Project, cc: CentralConfigServer): String? {
+        private fun getCCVersion(project: Project, cc: CentralConfigurationStandalone): String? {
             return if (project.hasProperty("centralConfigurationVersion")) {
                     project.property("centralConfigurationVersion").toString()
                 } else if (!cc.version.isNullOrEmpty()) {
@@ -45,21 +44,17 @@ class CentralConfigServerUtil {
                 }
         }
 
-        private fun getCCServerPath(project: Project, cc: CentralConfigServer): Path {
+        fun getCCServerPath(project: Project, cc: CentralConfigurationStandalone): Path {
             val targetDir = DeployServerUtil.getServerDistFolderPath(project).toString()
             return Paths.get(targetDir, "central-configuration-${cc.version}-server").toAbsolutePath()
         }
 
-        fun getBinDir(project: Project, cc: CentralConfigServer): File {
+        fun getBinDir(project: Project, cc: CentralConfigurationStandalone): File {
             return Paths.get(getCCServerPath(project, cc).toString(), "bin").toFile()
         }
 
-        fun getCCLog(project: Project, cc: CentralConfigServer): File {
-            return Paths.get(getCCServerPath(project, cc).toString(), "log", logFileName()).toFile()
-        }
-
-        fun logFileName(): String {
-            return "central-config"
+        fun getLogDir(project: Project, cc: CentralConfigurationStandalone): File {
+            return Paths.get(getCCServerPath(project, cc).toString(), "log").toFile()
         }
 
         fun prepare(project: Project) {
@@ -70,14 +65,14 @@ class CentralConfigServerUtil {
             copyCentralConfigDir(project, server, cc)
         }
 
-        private fun copyCentralConfigDir(project: Project, server: Server, cc: CentralConfigServer) {
+        private fun copyCentralConfigDir(project: Project, server: Server, cc: CentralConfigurationStandalone) {
             project.logger.lifecycle("Copying CC directory from ${server.name} to CC standalone")
             val sourceDir = Paths.get(DeployServerUtil.getServerWorkingDir(project), "centralConfiguration").toFile()
             val destinationDir = Paths.get(getCCServerPath(project, cc).toString(), "centralConfiguration").toFile()
             FileUtils.copyDirectory(sourceDir, destinationDir)
         }
 
-        private fun copyConfFromServer(project: Project, server: Server, cc: CentralConfigServer) {
+        private fun copyConfFromServer(project: Project, server: Server, cc: CentralConfigurationStandalone) {
             project.logger.lifecycle("Copying deployit.conf from ${server.name} to CC standalone")
 
             val sourceDir = Paths.get(DeployServerUtil.getServerWorkingDir(project), "conf/deployit.conf").toFile()
@@ -88,6 +83,12 @@ class CentralConfigServerUtil {
             val replaceContent = deployConf.readText(Charsets.UTF_8)
                     .replace("http.port=${server.httpPort}", "http.port=${cc.httpPort.toString()}")
             deployConf.writeText(replaceContent)
+        }
+
+        fun readServerKey(project: Project, key: String): String {
+            val cc = getCC(project)
+            val deployitConf = Paths.get("${getCCServerPath(project, cc)}/conf/deployit.conf").toFile()
+            return PropertiesUtil.readProperty(deployitConf, key)
         }
     }
 }

@@ -1,4 +1,4 @@
-package ai.digital.integration.server.deploy.tasks.centralConfigServer
+package ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import org.gradle.api.DefaultTask
