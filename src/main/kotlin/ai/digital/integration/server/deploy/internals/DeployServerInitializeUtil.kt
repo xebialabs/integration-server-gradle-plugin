@@ -9,7 +9,7 @@ class DeployServerInitializeUtil {
         private fun createFolders(project: Project, server: Server) {
             project.logger.lifecycle("Preparing server destination folders.")
 
-            arrayOf("centralConfiguration", "conf", "hotfix/plugins", "hotfix/lib", "plugins").forEach { folderName ->
+            arrayOf("centralConfiguration", "hotfix/plugins", "hotfix/lib", "plugins").forEach { folderName ->
                 val folderPath = "${DeployServerUtil.getServerWorkingDir(project, server)}/${folderName}"
                 val folder = File(folderPath)
                 folder.mkdirs()
@@ -28,6 +28,8 @@ class DeployServerInitializeUtil {
             file.appendText("http.context.root=${server.contextRoot}\n")
             file.appendText("threads.min=3\n")
             file.appendText("threads.max=24\n")
+            file.appendText("server.hostname=127.0.0.1\n")
+            file.appendText("server.port=8180\n")
             file.appendText("xl.spring.cloud.enabled=true\n")
         }
 

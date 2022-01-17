@@ -42,10 +42,11 @@ services:
       - XLD_TASK_QUEUE_USERNAME=rabbitmq
       - XLD_TASK_QUEUE_URL=amqp://rabbitmq:5672
       - USE_IP_AS_HOSTNAME=true
+      - REPOSITORY_KEYSTORE_PASSPHRASE=deployit
+      - CENTRAL_CONFIG_ENCRYPT_KEY=changeme
+      - REPOSITORY_KEYSTORE=zs7OzgAAAAIAAAABAAAAAwAWZGVwbG95aXQtcGFzc3N3b3JkLWtleQAAAX0FGMZRrO0ABXNyADNjb20uc3VuLmNyeXB0by5wcm92aWRlci5TZWFsZWRPYmplY3RGb3JLZXlQcm90ZWN0b3LNV8pZ5zC7UwIAAHhyABlqYXZheC5jcnlwdG8uU2VhbGVkT2JqZWN0PjY9psO3VHACAARbAA1lbmNvZGVkUGFyYW1zdAACW0JbABBlbmNyeXB0ZWRDb250ZW50cQB+AAJMAAlwYXJhbXNBbGd0ABJMamF2YS9sYW5nL1N0cmluZztMAAdzZWFsQWxncQB+AAN4cHVyAAJbQqzzF/gGCFTgAgAAeHAAAAARMA8ECHAyz3pefALRAgMDDUB1cQB+AAUAAACQb6Y2JUQqkd5PtdwIAKEWNiVMcTnIS85U7FsvOb+b+xfOCV8+disezZCQ2f4F6YVGRO++u+NXd0YNDn/eXwge4w7i4ewNBydpMSTpVJieJA3nhh7mvUktatsAV+H7EcGYeMPx/cAlkqyFUHuiGz9p1ft3pxmxey2Uyt/FiBgAiV2hZAj14vGdSoRsMH8qN5ECdAAWUEJFV2l0aE1ENUFuZFRyaXBsZURFU3QAFlBCRVdpdGhNRDVBbmRUcmlwbGVERVO9rqwVmysM6czWLFdUj1+Xh1hxHQ==
     volumes:
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration:z
-      - /dev/null:/opt/xebialabs/xl-deploy-server/centralConfiguration/deploy-server.yaml
-      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/conf:/opt/xebialabs/xl-deploy-server/conf:z
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/plugins:/opt/xebialabs/xl-deploy-server/plugins:z
 
   rabbitmq:
