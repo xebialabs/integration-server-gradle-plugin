@@ -120,8 +120,11 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 List(getMasterCount()) { position -> getMasterPodName(position) }.forEach {
                     getKubectlHelper().savePodLogs(it)
                 }
-                List(getWorkerCount()) { position -> getWorkerPodName(position) }.forEach {
-                    getKubectlHelper().savePodLogs(it)
+
+                if (productName == ProductName.DEPLOY) {
+                    List(getWorkerCount()) { position -> getWorkerPodName(position) }.forEach {
+                        getKubectlHelper().savePodLogs(it)
+                    }
                 }
                 delay(2000L) // make it configurable
             }
@@ -181,7 +184,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
             ProductName.DEPLOY -> "http://${getFqdn()}/deployit/metadata/type"
             ProductName.RELEASE -> "http://${getFqdn()}/api/extension/metadata"
         }
-        val server = DeployServerUtil.getServer(project)
+        val server = ServerUtil(project, productName).getServer()
         WaitForBootUtil.byPort(project, getName(), url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
 
@@ -210,7 +213,9 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 auxiliaryServer = true)
             true
         } catch (e: RuntimeException) {
-            project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server is running on port ${OperatorUtil(project).getOperatorServer().httpPort}: ${e.message}")
+            project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server is running on port ${
+                OperatorUtil(project).getOperatorServer().httpPort
+            }: ${e.message}")
             false
         } catch (e: IOException) {
             project.logger.error("Undeploy didn't run. Check if operator's ${getName()} server has all files: ${e.message}")
@@ -340,7 +345,11 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
         val digitalAiPath = File(getProviderHomeDir(), DIGITAL_AI_PATH)
         project.logger.lifecycle("Applying Digital AI $productName platform on cluster ($digitalAiPath)")
-        XlCliUtil.xlApply(project, digitalAiPath, getProfile().xlCliVersion.get(), File(getProviderHomeDir()), OperatorUtil(project).getOperatorServer().httpPort)
+        XlCliUtil.xlApply(project,
+            digitalAiPath,
+            getProfile().xlCliVersion.get(),
+            File(getProviderHomeDir()),
+            OperatorUtil(project).getOperatorServer().httpPort)
     }
 
     abstract fun getProviderHomeDir(): String
@@ -353,7 +362,15 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
 
-    open fun getMasterPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-master-$position"
+    open fun getMasterPodName(position: Int) =
+        "pod/dai-${getPrefixName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
+
+    open fun getMasterPodNameSuffix(position: Int): String {
+        return when (productName) {
+            ProductName.DEPLOY -> "master-$position"
+            ProductName.RELEASE -> "$position"
+        }
+    }
 
     open fun getPostgresPodName(position: Int) = "pod/dai-${getPrefixName()}-postgresql-$position"
 
