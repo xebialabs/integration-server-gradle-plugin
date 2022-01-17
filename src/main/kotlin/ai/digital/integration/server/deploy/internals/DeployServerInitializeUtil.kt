@@ -9,7 +9,7 @@ class DeployServerInitializeUtil {
         private fun createFolders(project: Project, server: Server) {
             project.logger.lifecycle("Preparing server destination folders.")
 
-            arrayOf("centralConfiguration", "conf", "hotfix/plugins", "hotfix/lib", "plugins").forEach { folderName ->
+            arrayOf("centralConfiguration", "hotfix/plugins", "hotfix/lib", "plugins").forEach { folderName ->
                 val folderPath = "${DeployServerUtil.getServerWorkingDir(project, server)}/${folderName}"
                 val folder = File(folderPath)
                 folder.mkdirs()

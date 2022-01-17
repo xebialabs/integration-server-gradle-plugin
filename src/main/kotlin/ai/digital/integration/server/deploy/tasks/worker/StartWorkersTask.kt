@@ -54,8 +54,8 @@ open class StartWorkersTask : DefaultTask() {
     private fun startWorker(worker: Worker): Process {
         project.logger.lifecycle("Launching worker $worker.name")
 
-        val hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
-        val port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
+        val hostName = DeployServerUtil.readDeployitConfProperty(project,"server.hostname")
+        val port = DeployServerUtil.readDeployitConfProperty(project,"server.port")
         val params = WorkerUtil.composeProgramParams(project, worker, hostName, port, true)
 
         val environment = EnvironmentUtil.getEnv(
@@ -84,8 +84,8 @@ open class StartWorkersTask : DefaultTask() {
 
         logger.debug("XL Deploy Worker classpath: \n${classpath}")
 
-        val hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
-        val port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
+        val hostName = DeployServerUtil.readDeployitConfProperty(project,"server.hostname")
+        val port = DeployServerUtil.readDeployitConfProperty(project,"server.port")
         val programArgs = WorkerUtil.composeProgramParams(project, worker, hostName, port, false)
 
         val jvmArgs = worker.jvmArgs.toList().toMutableList()
