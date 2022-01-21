@@ -124,12 +124,10 @@ class ReleaseServerUtil {
         }
 
         fun grantPermissionsToIntegrationServerFolder(project: Project) {
-            if (isDockerBased(project)) {
-                val workDir = IntegrationServerUtil.getDist(project)
+            val workDir = IntegrationServerUtil.getDist(project)
 
-                File(workDir).walk().forEach {
-                    FileUtil.grantRWPermissions(it)
-                }
+            File(workDir).walk().forEach {
+                FileUtil.grantRWPermissions(it)
             }
         }
 
