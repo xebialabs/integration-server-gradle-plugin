@@ -6,7 +6,7 @@ K8sToken: {{K8S_TOKEN}}
 K8sSetup: {{K8S_SETUP}}
 Namespace: default
 OperatorImage: {{OPERATOR_IMAGE}}
-OperatorImageDeployGeneric: {{OPERATOR_IMAGE}}
+OperatorImageDeployOpenshift: {{OPERATOR_IMAGE}}
 RepositoryName: {{REPOSITORY_NAME}}
 ImageNameDeploy: xl-deploy
 ImageTag: {{IMAGE_TAG}}
@@ -16,7 +16,6 @@ UpgradeType: operatorToOperator
 UseCustomNamespace: true
 UseKubeconfig: true
 InstallXLD: false
-IsGKE: true
 UseOperatorZipDeploy: true
 OperatorZipDeploy: {{OPERATOR_ZIP_DEPLOY}}
 PreserveCrValuesDeploy: |-
@@ -41,3 +40,4 @@ PreserveCrValuesDeploy: |-
   .spec.rabbitmq.persistence.replicaCount
   .spec.route.hosts
   .spec.xldLicense
+

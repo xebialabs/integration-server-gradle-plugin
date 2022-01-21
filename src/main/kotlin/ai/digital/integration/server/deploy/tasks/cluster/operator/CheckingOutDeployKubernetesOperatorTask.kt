@@ -23,7 +23,8 @@ open class CheckingOutDeployKubernetesOperatorTask : DefaultTask() {
         val dest = "$buildDirPath/xl-deploy-kubernetes-operator"
 
         val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.DEPLOY)
-        val branchClone = operatorHelper.getProvider().operatorBranch
+        // it needs to be aligned with operatorImage default value
+        val branchClone = operatorHelper.getProvider().operatorBranch.orElse("10.2.0")
                 .map {
                     "-b $it"
                 }.getOrElse("")

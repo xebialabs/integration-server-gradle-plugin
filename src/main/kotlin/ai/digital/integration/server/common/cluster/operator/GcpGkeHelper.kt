@@ -206,14 +206,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
                 "spec.ingress.hosts" to listOf(getFqdn()),
                 "spec.nginx-ingress-controller.defaultBackend.podSecurityContext" to mapOf("fsGroup" to 1001),
                 "spec.nginx-ingress-controller.podSecurityContext" to mapOf("fsGroup" to 1001),
-                "spec.rabbitmq.podSecurityContext" to mapOf("fsGroup" to 1001, "runAsUser" to 1001),
-                "spec.nginx-ingress-controller.defaultBackend.serverBlockConfig" to
-                        "        location /healthz {\n" +
-                        "          return 200;\n" +
-                        "        }\n" +
-                        "        location / {\n" +
-                        "          return 200;\n" +
-                        "        }"
+                "spec.rabbitmq.podSecurityContext" to mapOf("fsGroup" to 1001, "runAsUser" to 1001)
         )
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }

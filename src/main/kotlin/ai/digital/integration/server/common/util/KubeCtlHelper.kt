@@ -67,7 +67,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         val context = getCurrentContext()
         val cluster = getContextCluster(context)
         val user = getContextUser(context)
-        val info = InfrastructureInfo(
+        return InfrastructureInfo(
                 cluster,
                 user,
                 getClusterServer(cluster),
@@ -75,8 +75,6 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
                 if (!skip) getUserClientCertificateData(user) else null,
                 if (!skip) getUserClientKeyData(user) else null
         )
-        project.logger.lifecycle("kubeContextInfo {}", info)
-        return info
     }
 
     fun deleteCurrentContext() {

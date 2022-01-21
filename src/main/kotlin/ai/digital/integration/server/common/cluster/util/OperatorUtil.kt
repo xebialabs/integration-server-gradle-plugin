@@ -61,7 +61,7 @@ class OperatorUtil(
         if (DeployServerUtil.getResolvedDockerFile(project, server).toFile().isFile) {
             val httpPort = DeployServerUtil.getDockerContainerPort(project, server, 4516)
             httpPort?.let {
-                server.httpPort = httpPort
+                operatorServer.httpPort = httpPort
             }
         }
         operatorServer.dockerImage = opServerConfig.dockerImage ?: server.dockerImage

@@ -1,8 +1,10 @@
 CrName: {{CR_NAME}}
 CrdName: {{CRD_NAME}}
 K8sApiServerURL: {{K8S_API_SERVER_URL}}
-K8sAuthentication: Token
-K8sToken: {{K8S_TOKEN}}
+K8sClientCert: {{K8S_CLIENT_CERT}}
+EksClusterName: {{CLUSTER_NAME}}
+AWSAccessKey: {{AWS_ACCESS_KEY}}
+AWSAccessSecret: {{AWS_ACCESS_SECRET}}
 K8sSetup: {{K8S_SETUP}}
 Namespace: default
 OperatorImage: {{OPERATOR_IMAGE}}
@@ -16,7 +18,8 @@ UpgradeType: operatorToOperator
 UseCustomNamespace: true
 UseKubeconfig: true
 InstallXLD: false
-IsGKE: true
+IsEKS: true
+UseAWSconfig: true
 UseOperatorZipDeploy: true
 OperatorZipDeploy: {{OPERATOR_ZIP_DEPLOY}}
 PreserveCrValuesDeploy: |-

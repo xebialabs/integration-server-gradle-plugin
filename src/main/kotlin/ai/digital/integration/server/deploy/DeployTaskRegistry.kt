@@ -109,6 +109,8 @@ open class DeployTaskRegistry {
                 StartDeployServerForOperatorInstanceTask::class.java)
             project.tasks.create(StopDeployServerForOperatorInstanceTask.NAME,
                 StopDeployServerForOperatorInstanceTask::class.java)
+            project.tasks.create(StopDeployServerForOperatorUpgradeTask.NAME,
+                    StopDeployServerForOperatorUpgradeTask::class.java)
             project.tasks.create(PrepareOperatorServerTask.NAME,
                 PrepareOperatorServerTask::class.java)
             project.tasks.create(OperatorBasedUpgradeDeployClusterTask.NAME, OperatorBasedUpgradeDeployClusterTask::class.java)

@@ -57,7 +57,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         }
     }
 
-    private fun getOcApiServerToken(): String {
+    fun getOcApiServerToken(): String {
         val basicAuthToken = Base64.getEncoder().encodeToString("${getOcLogin()}:${getOcPassword()}".toByteArray())
         val oauthHostName = getProvider().oauthHostName.get()
 
@@ -93,6 +93,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
     }
 
     override fun getOperatorImage(): String {
+        // it needs to be aligned with operatorBranch default value
         return getProvider().operatorImage.getOrElse("xebialabs/${getName()}-operator:1.2.0-openshift")
     }
 

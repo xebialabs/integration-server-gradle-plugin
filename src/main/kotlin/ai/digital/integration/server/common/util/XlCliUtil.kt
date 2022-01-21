@@ -44,13 +44,23 @@ class XlCliUtil {
             ProcessUtil.executeCommand(project, "./xl apply --verbose -f \"${file.name}\" --xl-deploy-url http://localhost:${deployServerForOperatorPort}/ --xl-deploy-username admin --xl-deploy-password admin", workDir)
         }
 
-        fun xlOp(project: Project, answersFile: File, version: String, workDir: File) {
+        fun xlOp(project: Project, answersFile: File, version: String, workDir: File, blueprintPath: File?) {
             checkAndDownload(version, workDir)
             // hard coded container name "dai-deploy" is reserved for "xl op"
             DockerUtil.execute(project, arrayListOf("stop", "dai-deploy"), logOutput = false, throwErrorOnFailure = false)
             DockerUtil.execute(project, arrayListOf("rm", "dai-deploy"), logOutput = false, throwErrorOnFailure = false)
+
+            project.logger.lifecycle("path {}", blueprintPath)
+
+            val blueprintPathOption = if (blueprintPath != null) {
+                "--local-repo \"${blueprintPath.absolutePath}\" "
+            } else {
+                ""
+            }
             // dai-deploy is running on 4516, it is no possible to change that (for now)
-            ProcessUtil.executeCommand(project, "./xl op --verbose --skip-prompts --answers \"${answersFile.absolutePath}\" --xl-deploy-url http://localhost:4516/ --xl-deploy-username admin --xl-deploy-password admin --upgrade --advanced-setup",
+            ProcessUtil.executeCommand(project, "./xl op --verbose --skip-prompts --no-cleanup --upgrade --advanced-setup " +
+                    "--answers \"${answersFile.absolutePath}\" " +
+                    "--xl-deploy-url http://localhost:4516/ --xl-deploy-username admin --xl-deploy-password admin $blueprintPathOption",
                     workDir = workDir)
         }
     }

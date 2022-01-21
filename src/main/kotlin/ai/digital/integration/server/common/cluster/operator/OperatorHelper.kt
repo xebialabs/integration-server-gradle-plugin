@@ -219,6 +219,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
     open fun getOperatorImage(): String {
+        // it needs to be aligned with operatorBranch default value
         return getProvider().operatorImage.getOrElse("xebialabs/${getName()}-operator:1.2.0")
     }
 
