@@ -9,6 +9,7 @@ import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.common.util.PropertiesUtil
 import ai.digital.integration.server.deploy.internals.*
 import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
 import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
@@ -141,7 +142,7 @@ open class StartDeployServerInstanceTask : DefaultTask() {
     }
 
     private fun maybeTearDown() {
-        ShutdownUtil.shutdownServer(project)
+        DeployShutdownUtil.shutdownServer(project)
     }
 
     private fun allowToWriteMountedHostFolders() {

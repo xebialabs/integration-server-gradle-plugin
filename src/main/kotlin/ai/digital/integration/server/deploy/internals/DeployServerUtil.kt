@@ -89,7 +89,7 @@ class DeployServerUtil {
         }
 
         fun isDockerBased(project: Project): Boolean {
-            return !isDockerBased(getServer(project))
+            return isDockerBased(getServer(project))
         }
 
         fun isDockerBased(server: Server): Boolean {

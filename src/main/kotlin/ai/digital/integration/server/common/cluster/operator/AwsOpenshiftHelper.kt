@@ -78,9 +78,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
     fun shutdownCluster() {
         ocLogin()
-
         undeployCluster()
-
         ocLogout()
     }
 
@@ -125,7 +123,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-worker-$position"
 
     override fun getMasterPodName(position: Int) =
-        "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-master-$position"
+        "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-${getMasterPodNameSuffix(position)}"
 
     override fun getPostgresPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-postgresql-$position"
 

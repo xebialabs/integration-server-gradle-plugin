@@ -2,10 +2,12 @@ package ai.digital.integration.server.release
 
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.deploy.tasks.maintenance.CleanupBeforeStartupTask
-import ai.digital.integration.server.deploy.tasks.server.*
+import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
+import ai.digital.integration.server.deploy.tasks.server.ServerCopyOverlaysTask
 import ai.digital.integration.server.deploy.tasks.server.operator.OperatorCentralConfigurationTask
 import ai.digital.integration.server.deploy.tasks.server.operator.PrepareOperatorServerTask
 import ai.digital.integration.server.deploy.tasks.server.operator.StartDeployServerForOperatorInstanceTask
+import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
 import ai.digital.integration.server.release.tasks.DockerBasedStopReleaseTask
 import ai.digital.integration.server.release.tasks.StopReleaseIntegrationServerTask
 import ai.digital.integration.server.release.tasks.cluster.StartReleaseClusterTask
@@ -26,6 +28,7 @@ import ai.digital.integration.server.release.tasks.cluster.operator.onprem.Opera
 import ai.digital.integration.server.release.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.server.StartReleaseServerInstanceTask
+import ai.digital.integration.server.release.tasks.server.operator.StartReleaseToGetLicenceTask
 import org.gradle.api.Project
 
 open class ReleaseTaskRegistry {
@@ -82,10 +85,14 @@ open class ReleaseTaskRegistry {
             project.tasks.create(CheckingOutReleaseKubernetesOperatorTask.NAME,
                 CheckingOutReleaseKubernetesOperatorTask::class.java)
 
+            project.tasks.create(StartReleaseToGetLicenceTask.NAME, StartReleaseToGetLicenceTask::class.java)
+
             // Operator Deploy Server Tasks
 
             project.tasks.create(StartDeployServerForOperatorInstanceTask.NAME,
                 StartDeployServerForOperatorInstanceTask::class.java)
+            project.tasks.create(StopDeployServerForOperatorInstanceTask.NAME,
+                StopDeployServerForOperatorInstanceTask::class.java)
 
             project.tasks.create(ApplicationConfigurationOverrideTask.NAME,
                 ApplicationConfigurationOverrideTask::class.java)
