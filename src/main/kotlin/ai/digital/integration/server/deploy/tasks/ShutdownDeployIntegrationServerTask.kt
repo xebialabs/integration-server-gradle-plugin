@@ -2,7 +2,9 @@ package ai.digital.integration.server.deploy.tasks
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
+import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStopTask
 import ai.digital.integration.server.common.util.DbUtil
+import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.SatelliteUtil
 import ai.digital.integration.server.deploy.internals.DeployShutdownUtil
@@ -42,6 +44,9 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
                     that.finalizedBy("derbyStop")
                 } else {
                     that.finalizedBy(DatabaseStopTask.NAME)
+                }
+                if (InfrastructureUtil.hasInfrastructures(project)){
+                    that.finalizedBy(InfrastructureStopTask.NAME)
                 }
             }
         }
