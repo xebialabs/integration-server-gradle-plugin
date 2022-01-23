@@ -10,6 +10,7 @@ sidebar_position: 1
 releaseIntegrationServer {
     cluster {}
     clusterProfiles {}
+    operatorServer {}
     servers {}
 }
 ```
