@@ -244,10 +244,6 @@ class DeployServerUtil {
             return "${server.dockerImage}:${server.version}"
         }
 
-        fun getDockerServiceName(server: Server): String {
-            return "deploy-${server.version}"
-        }
-
         private fun getOldDockerServerPath(project: Project): String {
             if (isPreviousInstallationServerDefined(project)) {
                 val rootPath = IntegrationServerUtil.getDist(project)
