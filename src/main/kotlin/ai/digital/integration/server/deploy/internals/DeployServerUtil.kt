@@ -162,12 +162,10 @@ class DeployServerUtil {
         }
 
         fun grantPermissionsToIntegrationServerFolder(project: Project) {
-            if (isDockerBased(project)) {
-                val workDir = IntegrationServerUtil.getDist(project)
+            val workDir = IntegrationServerUtil.getDist(project)
 
-                File(workDir).walk().forEach {
-                    FileUtil.grantRWPermissions(it)
-                }
+            File(workDir).walk().forEach {
+                FileUtil.grantRWPermissions(it)
             }
         }
 
@@ -297,6 +295,14 @@ class DeployServerUtil {
             project.exec {
                 executable = "docker-compose"
                 args = listOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
+            }
+        }
+
+        fun stopDockerContainer(project: Project, server: Server) {
+            project.logger.lifecycle("Trying to stop ${server.version} container")
+            project.exec {
+                executable = "docker-compose"
+                args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().path, "stop")
             }
         }
     }
