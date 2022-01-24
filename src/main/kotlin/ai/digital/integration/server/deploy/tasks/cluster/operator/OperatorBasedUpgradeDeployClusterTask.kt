@@ -33,6 +33,9 @@ open class OperatorBasedUpgradeDeployClusterTask  : DefaultTask() {
     @Input
     val operatorBranch = project.objects.property<String>()
 
+    @Input
+    val opBlueprintBranch = project.objects.property<String>()
+
     init {
         group = PluginConstant.PLUGIN_GROUP
     }
@@ -105,13 +108,18 @@ open class OperatorBasedUpgradeDeployClusterTask  : DefaultTask() {
     }
 
     private fun opUsingAnswersFile(operatorHelper: OperatorHelper, answersFile: File) {
+        val opBlueprintPath = opBlueprintBranch.map { branch ->
+            project.logger.lifecycle("Using xl-op-blueprints from branch $branch")
+            GitUtil.checkout("xl-op-blueprints", Paths.get(operatorHelper.getProviderHomeDir()), branch).toFile()
+        }
+
         project.logger.lifecycle("Applying prepared answers file ${answersFile.absolutePath}")
-        XlCliUtil.xlOp(project, answersFile, operatorHelper.getProfile().xlCliVersion.get(), File(operatorHelper.getProviderHomeDir()),
-                operatorHelper.getProvider().blueprintPath.orNull)
+        XlCliUtil.xlOp(project, answersFile, operatorHelper.getProfile().xlCliVersion.get(), File(operatorHelper.getProviderHomeDir()), opBlueprintPath.orNull)
     }
 
     private fun operatorBranchToOperatorZip(operatorHelper: OperatorHelper): Path? {
         operatorBranch.orNull.let { branch ->
+            project.logger.lifecycle("Using xl-deploy-kubernetes-operator from branch $branch")
             val operatorPath = GitUtil.checkout("xl-deploy-kubernetes-operator", Paths.get(operatorHelper.getProviderHomeDir()), branch)
             val src = Paths.get(operatorPath.toAbsolutePath().toString(), operatorHelper.getProviderHomePath())
             val dest = Paths.get(operatorHelper.getProviderHomeDir(), "operator-upgrade.zip")

@@ -2,9 +2,7 @@ package ai.digital.integration.server.common.domain.providers.operator
 
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
 import org.gradle.kotlin.dsl.property
-import java.io.File
 import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
@@ -24,9 +22,6 @@ abstract class Provider @Inject constructor(val project: Project) {
 
     @Input
     val operatorBranch = project.objects.property<String>()
-
-    @InputDirectory
-    val blueprintPath = project.objects.property<File>()
 
     @Input
     val operatorPackageVersion = project.objects.property<String>().value("1.0.0")
