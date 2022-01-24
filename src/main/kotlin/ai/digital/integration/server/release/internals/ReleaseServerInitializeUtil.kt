@@ -7,7 +7,7 @@ import java.io.File
 
 class ReleaseServerInitializeUtil {
     companion object {
-        private fun createFolders(project: Project, server: Server) {
+        private fun createFolders(project: Project) {
             project.logger.lifecycle("Preparing server destination folders.")
 
             arrayOf("centralConfiguration", "hotfix/plugins", "hotfix/lib", "plugins", "conf").forEach { folderName ->
@@ -20,7 +20,7 @@ class ReleaseServerInitializeUtil {
 
         fun prepare(project: Project, server: Server) {
             project.logger.lifecycle("Preparing Release server ${server.name} before launching it.")
-            createFolders(project, server)
+            createFolders(project)
         }
     }
 }

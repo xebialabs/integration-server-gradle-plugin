@@ -1,7 +1,7 @@
 package ai.digital.integration.server.common.util
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.Server
-import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path
