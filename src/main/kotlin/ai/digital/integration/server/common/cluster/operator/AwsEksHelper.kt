@@ -312,6 +312,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         val hostZoneId = getHostZoneId(hostName)
 
         val awsRoute53Template = awsRoute53TemplateFile.readText(Charsets.UTF_8)
+            .replace("{{FQDN}}", getFqdn())
             .replace("{{HOSTNAME}}", "dualstack.$hostName")
             .replace("{{HOSTZONEID}}", hostZoneId)
 
@@ -469,7 +470,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return "${getName()}.digitalai-testing.com"
+        return "${getProvider().stack.get()}-${getName()}.digitalai-testing.com"
     }
 
     override fun getDbStorageClass(): String {
