@@ -50,8 +50,6 @@ class XlCliUtil {
             DockerUtil.execute(project, arrayListOf("stop", "dai-deploy"), logOutput = false, throwErrorOnFailure = false)
             DockerUtil.execute(project, arrayListOf("rm", "dai-deploy"), logOutput = false, throwErrorOnFailure = false)
 
-            project.logger.lifecycle("path {}", blueprintPath)
-
             val blueprintPathOption = if (blueprintPath != null) {
                 "--local-repo \"${blueprintPath.absolutePath}\" "
             } else {
