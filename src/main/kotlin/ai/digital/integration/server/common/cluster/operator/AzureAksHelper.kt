@@ -97,6 +97,10 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         return diskStorageClassName(getProvider().storageClass.getOrElse(getProvider().name.get()))
     }
 
+    override fun getContextRoot(): String {
+        return "/xl-deploy"
+    }
+
     override fun getFqdn(): String {
         val azureAksProvider: AzureAksProvider = getProvider()
         val location = azureAksProvider.location.get()

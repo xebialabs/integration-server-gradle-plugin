@@ -14,14 +14,14 @@ open class CheckingOutReleaseKubernetesOperatorTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        project.logger.lifecycle("Checking out xl-release-kubernetes-operator")
-        cloneRepository()
+        val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.RELEASE)
+        // it needs to be aligned with operatorImage default value
+        val branch = operatorHelper.getProvider().operatorBranch.getOrElse("master")
+        project.logger.lifecycle("Checking out xl-release-kubernetes-operator branch $branch")
+        cloneRepository(branch)
     }
 
-    private fun cloneRepository() {
-        val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.RELEASE)
-        GitUtil.checkout("xl-release-kubernetes-operator", project.buildDir.toPath(),
-                // it needs to be aligned with operatorImage default value
-                operatorHelper.getProvider().operatorBranch.orElse("10.2.0").orNull)
+    private fun cloneRepository(branch: String) {
+        GitUtil.checkout("xl-release-kubernetes-operator", project.buildDir.toPath(), branch)
     }
 }

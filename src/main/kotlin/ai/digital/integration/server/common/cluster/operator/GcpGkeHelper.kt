@@ -204,10 +204,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
     private fun updateCrValues() {
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
         val pairs: MutableMap<String, Any> = mutableMapOf(
-                "spec.ingress.hosts" to listOf(getFqdn()),
-                "spec.nginx-ingress-controller.defaultBackend.podSecurityContext" to mapOf("fsGroup" to 1001),
-                "spec.nginx-ingress-controller.podSecurityContext" to mapOf("fsGroup" to 1001),
-                "spec.rabbitmq.podSecurityContext" to mapOf("fsGroup" to 1001, "runAsUser" to 1001)
+                "spec.ingress.hosts" to listOf(getFqdn())
         )
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }

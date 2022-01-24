@@ -93,7 +93,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
     override fun getOperatorImage(): String {
         // it needs to be aligned with operatorBranch default value
-        return getProvider().operatorImage.getOrElse("xebialabs/${getName()}-operator:1.2.0-openshift")
+        return getProvider().operatorImage.getOrElse("xldevdocker/${getName()}-operator:1.3.0-openshift")
     }
 
     override fun getStorageClass(): String {

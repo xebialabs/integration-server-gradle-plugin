@@ -183,9 +183,14 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
     fun waitForBoot() {
+        val contextRoot = if (getContextRoot() == "/") {
+            ""
+        } else {
+            getContextRoot()
+        }
         val url = when (productName) {
-            ProductName.DEPLOY -> "http://${getFqdn()}/deployit/metadata/type"
-            ProductName.RELEASE -> "http://${getFqdn()}/api/extension/metadata"
+            ProductName.DEPLOY -> "http://${getFqdn()}${contextRoot}/deployit/metadata/type"
+            ProductName.RELEASE -> "http://${getFqdn()}${contextRoot}/api/extension/metadata"
         }
         val server = ServerUtil(project, productName).getServer()
         WaitForBootUtil.byPort(project, getName(), url, null, server.pingRetrySleepTime, server.pingTotalTries)
@@ -228,7 +233,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     open fun getOperatorImage(): String {
         // it needs to be aligned with operatorBranch default value
-        return getProvider().operatorImage.getOrElse("xebialabs/${getName()}-operator:1.2.0")
+        return getProvider().operatorImage.getOrElse("xldevdocker/${getName()}-operator:1.3.0")
     }
 
     fun updateDeploymentValues() {
