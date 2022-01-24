@@ -19,6 +19,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateDeploymentValues()
         updateOperatorCrValues()
         updateCrValues()
 
@@ -82,8 +83,8 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         ocLogout()
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-openshift"
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-openshift"
     }
 
     override fun getProvider(): AwsOpenshiftProvider {

@@ -35,6 +35,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
+        updateDeploymentValues()
         updateOperatorCrValues()
         updateCrValues()
 
@@ -71,8 +72,8 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         }
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-gcp-gke"
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-gcp-gke"
     }
 
     override fun getProvider(): GcpGkeProvider {

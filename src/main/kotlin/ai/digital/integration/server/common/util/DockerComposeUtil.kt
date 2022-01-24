@@ -33,7 +33,7 @@ class DockerComposeUtil {
                     "777",
                     "-R",
                     "/opt/xebialabs/xl-deploy-server")
-                execute(project, args, true)
+                execute(project, args, false)
             } catch (e: Exception) {
                 // ignore, if throws exception, it means that docker container is not running
             }

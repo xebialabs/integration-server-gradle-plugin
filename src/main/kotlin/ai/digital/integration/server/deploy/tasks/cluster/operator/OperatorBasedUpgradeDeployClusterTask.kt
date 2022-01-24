@@ -6,13 +6,17 @@ import ai.digital.integration.server.common.cluster.operator.GcpGkeHelper
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.util.GitUtil
 import ai.digital.integration.server.common.util.XlCliUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
+import org.gradle.kotlin.dsl.withGroovyBuilder
 import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
 
 open class OperatorBasedUpgradeDeployClusterTask  : DefaultTask() {
 
@@ -26,6 +30,9 @@ open class OperatorBasedUpgradeDeployClusterTask  : DefaultTask() {
     @Input
     val imageTargetVersion = project.objects.property<String>()
 
+    @Input
+    val operatorBranch = project.objects.property<String>()
+
     init {
         group = PluginConstant.PLUGIN_GROUP
     }
@@ -34,7 +41,8 @@ open class OperatorBasedUpgradeDeployClusterTask  : DefaultTask() {
     fun launch() {
         val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.DEPLOY)
 
-        val answersFile = prepareAnswersFile(operatorHelper)
+        val operatorZip = operatorBranchToOperatorZip(operatorHelper)
+        val answersFile = prepareAnswersFile(operatorHelper, operatorZip)
         opUsingAnswersFile(operatorHelper, answersFile)
 
         operatorHelper.waitForDeployment()
@@ -43,7 +51,7 @@ open class OperatorBasedUpgradeDeployClusterTask  : DefaultTask() {
         operatorHelper.waitForBoot()
     }
 
-    private fun prepareAnswersFile(operatorHelper: OperatorHelper): File {
+    private fun prepareAnswersFile(operatorHelper: OperatorHelper, operatorZip: Path?): File {
 
         val operatorImage = operatorHelper.getOperatorImage()
         val crdName = operatorHelper.getKubectlHelper().getCrd()
@@ -71,7 +79,7 @@ open class OperatorBasedUpgradeDeployClusterTask  : DefaultTask() {
                 .replace("{{OPERATOR_IMAGE}}", operatorImage)
                 .replace("{{REPOSITORY_NAME}}", imageRepositoryName.get())
                 .replace("{{IMAGE_TAG}}", imageTargetVersion.get())
-                .replace("{{OperatorZipDeploy}}", "TODO")
+                .replace("{{OPERATOR_ZIP_DEPLOY}}", operatorZip?.toAbsolutePath().toString())
 
         val answersFileTemplate = if (k8sSetup == "GoogleGKE") {
             answersFileTemplateTmp
@@ -100,5 +108,15 @@ open class OperatorBasedUpgradeDeployClusterTask  : DefaultTask() {
         project.logger.lifecycle("Applying prepared answers file ${answersFile.absolutePath}")
         XlCliUtil.xlOp(project, answersFile, operatorHelper.getProfile().xlCliVersion.get(), File(operatorHelper.getProviderHomeDir()),
                 operatorHelper.getProvider().blueprintPath.orNull)
+    }
+
+    private fun operatorBranchToOperatorZip(operatorHelper: OperatorHelper): Path? {
+        operatorBranch.orNull.let { branch ->
+            val operatorPath = GitUtil.checkout("xl-deploy-kubernetes-operator", Paths.get(operatorHelper.getProviderHomeDir()), branch)
+            val src = Paths.get(operatorPath.toAbsolutePath().toString(), operatorHelper.getProviderHomePath())
+            val dest = Paths.get(operatorHelper.getProviderHomeDir(), "operator-upgrade.zip")
+            ant.withGroovyBuilder { "zip"("basedir" to src.toAbsolutePath().toString(), "destfile" to dest.toAbsolutePath().toString()) }
+            return dest
+        }
     }
 }

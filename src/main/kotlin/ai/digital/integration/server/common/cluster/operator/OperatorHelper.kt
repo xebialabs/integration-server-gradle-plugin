@@ -46,6 +46,8 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     private val OPERATOR_PACKAGE_REL_PATH = "digitalai-${getName()}/deployment.yaml"
 
+    private val OPERATOR_DEPLOYMENT_PATH = "digitalai-${getName()}/kubernetes/template/deployment.yaml"
+
     private val DIGITAL_AI_PATH = "digital-ai.yaml"
 
     companion object {
@@ -76,7 +78,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     fun getOperatorHomeDir(): String =
         project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
-    private fun getProviderWorkDir(): String =
+    fun getProviderWorkDir(): String =
         project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
 
     fun getProfile(): OperatorProfile {
@@ -99,7 +101,8 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
         val pairs =
-            mutableMapOf<String, Any>("spec.package" to "Applications/${getPrefixName()}-operator-app/${getProvider().operatorPackageVersion.get()}")
+            mutableMapOf<String, Any>(
+                    "spec.package" to "Applications/${getPrefixName()}-operator-app/${getProvider().operatorPackageVersion.get()}")
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -228,6 +231,19 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return getProvider().operatorImage.getOrElse("xebialabs/${getName()}-operator:1.2.0")
     }
 
+    fun updateDeploymentValues() {
+        project.logger.lifecycle("Updating operator's deployment values")
+
+        val file = File(getProviderHomeDir(), OPERATOR_DEPLOYMENT_PATH)
+
+        val pairs =
+                mutableMapOf<String, Any>(
+                        "spec.template.spec.containers[1].image" to getOperatorImage()
+                )
+
+        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+    }
+
     fun updateOperatorCrValues() {
         project.logger.lifecycle("Updating operator's CR values")
 
@@ -353,7 +369,9 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
             OperatorUtil(project).getOperatorServer().httpPort)
     }
 
-    abstract fun getProviderHomeDir(): String
+    fun getProviderHomeDir(): String = "${getOperatorHomeDir()}/${getProviderHomePath()}"
+
+    abstract fun getProviderHomePath(): String
 
     abstract fun getProvider(): Provider
 

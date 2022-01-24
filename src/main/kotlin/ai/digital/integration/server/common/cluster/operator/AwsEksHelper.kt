@@ -29,6 +29,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
 
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateDeploymentValues()
         updateOperatorCrValues()
         updateCrValues()
 
@@ -440,8 +441,8 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         }
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-aws-eks"
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-aws-eks"
     }
 
     override fun getProvider(): AwsEksProvider {

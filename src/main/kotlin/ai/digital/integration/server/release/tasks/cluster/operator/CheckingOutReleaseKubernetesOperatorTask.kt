@@ -1,6 +1,8 @@
 package ai.digital.integration.server.release.tasks.cluster.operator
 
-import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.common.cluster.operator.OperatorHelper
+import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.util.GitUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -17,9 +19,9 @@ open class CheckingOutReleaseKubernetesOperatorTask : DefaultTask() {
     }
 
     private fun cloneRepository() {
-        val buildDirPath = project.buildDir.toPath().toAbsolutePath().toString()
-        val dest = "$buildDirPath/xl-release-kubernetes-operator"
-        ProcessUtil.executeCommand(
-            "git clone git@github.com:xebialabs/xl-release-kubernetes-operator.git \"$dest\"")
+        val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.RELEASE)
+        GitUtil.checkout("xl-release-kubernetes-operator", project.buildDir.toPath(),
+                // it needs to be aligned with operatorImage default value
+                operatorHelper.getProvider().operatorBranch.orElse("10.2.0").orNull)
     }
 }
