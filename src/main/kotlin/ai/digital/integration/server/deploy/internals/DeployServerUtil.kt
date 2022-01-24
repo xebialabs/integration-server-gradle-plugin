@@ -301,6 +301,14 @@ class DeployServerUtil {
             }
         }
 
+        fun stopDockerContainer(project: Project, server: Server) {
+            project.logger.lifecycle("Trying to stop ${server.version} container")
+            project.exec {
+                executable = "docker-compose"
+                args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().path, "stop")
+            }
+        }
+
         fun getDockerContainerPort(project: Project, server: Server, privatePort: Int): Int? {
             return ByteArrayOutputStream().use {
                 project.exec {

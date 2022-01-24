@@ -44,7 +44,7 @@ class DeployServerInitializeUtil {
         }
 
         fun prepare(project: Project, server: Server, auxiliaryServer: Boolean = false) {
-            project.logger.lifecycle("Preparing server ${server.name} before launching it.")
+            project.logger.lifecycle("Preparing Deploy server ${server.name} before launching it.")
             createFolders(project, server)
             createConfFile(project, server, auxiliaryServer)
         }

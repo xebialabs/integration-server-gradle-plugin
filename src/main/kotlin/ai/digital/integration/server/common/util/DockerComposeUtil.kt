@@ -22,28 +22,26 @@ class DockerComposeUtil {
             return ProcessUtil.execute(project, "docker-compose", args, logOutput)
         }
 
-        fun allowToCleanMountedFiles(project: Project, server: Server, dockerComposeFile: File) {
+        fun allowToCleanMountedFiles(
+                project: Project,
+                productName: ProductName,
+                server: Server,
+                dockerComposeFile: File
+        ) {
+            val name = productName.toString().toLowerCase()
             try {
                 val args = arrayListOf("-f",
-                    dockerComposeFile.path,
-                    "exec",
-                    "-T",
-                    DeployServerUtil.getDockerServiceName(server),
-                    "chmod",
-                    "777",
-                    "-R",
-                    "/opt/xebialabs/xl-deploy-server")
+                        dockerComposeFile.path,
+                        "exec",
+                        "-T",
+                        "${name}-${server.version}",
+                        "chmod",
+                        "777",
+                        "-R",
+                        "/opt/xebialabs/xl-${name}-server")
                 execute(project, args, false)
             } catch (e: Exception) {
                 // ignore, if throws exception, it means that docker container is not running
-            }
-        }
-
-        fun stopDockerContainer(project: Project, server: Server) {
-            project.logger.lifecycle("Trying to stop ${server.version} container")
-            project.exec {
-                executable = "docker-compose"
-                args = arrayListOf("-f", DeployServerUtil.getResolvedDockerFile(project, server).toFile().path, "stop")
             }
         }
     }

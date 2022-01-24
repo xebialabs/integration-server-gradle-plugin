@@ -8,10 +8,8 @@ import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStartTask
 import ai.digital.integration.server.common.util.DbUtil
-import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.common.util.ProcessUtil
-import ai.digital.integration.server.common.util.PropertiesUtil
 import ai.digital.integration.server.deploy.internals.*
 import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
 import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
@@ -62,7 +60,7 @@ open class StartDeployServerInstanceTask : DefaultTask() {
             if (DeployServerUtil.isAkkaSecured(project)) {
                 dependencies.add(GenerateSecureAkkaKeysTask.NAME)
             }
-            if (InfrastructureUtil.hasInfrastructures(project)){
+            if (InfrastructureUtil.hasInfrastructures(project)) {
                 dependencies.add(InfrastructureStartTask.NAME)
             }
 
@@ -164,8 +162,8 @@ open class StartDeployServerInstanceTask : DefaultTask() {
                 val process = start(server)
                 DeployServerUtil.waitForBoot(project, process, server)
 
-                if(DeployServerUtil.isDockerBased(project) && server.previousInstallation)
-                    DockerComposeUtil.stopDockerContainer(project, server)
+                if (DeployServerUtil.isDockerBased(project) && server.previousInstallation)
+                    DeployServerUtil.stopDockerContainer(project, server)
             }
     }
 }
