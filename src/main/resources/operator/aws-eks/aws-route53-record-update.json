@@ -3,7 +3,7 @@
   "Changes": [{
     "Action": "UPSERT",
     "ResourceRecordSet": {
-      "Name": "deploy.digitalai-testing.com",
+      "Name": "{{FQDN}}",
       "Type": "A",
       "AliasTarget":{
         "HostedZoneId": "{{HOSTZONEID}}",
