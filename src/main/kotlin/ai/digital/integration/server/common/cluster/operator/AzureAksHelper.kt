@@ -33,6 +33,7 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
+        updateDeploymentValues()
         updateOperatorCrValues()
         updateCrValues()
 
@@ -80,8 +81,8 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         YamlFileUtil.overlayFile(file, pairs)
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-azure-aks"
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-azure-aks"
     }
 
     override fun getProvider(): AzureAksProvider {
@@ -94,6 +95,10 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
 
     override fun getDbStorageClass(): String {
         return diskStorageClassName(getProvider().storageClass.getOrElse(getProvider().name.get()))
+    }
+
+    override fun getContextRoot(): String {
+        return "/xl-deploy"
     }
 
     override fun getFqdn(): String {

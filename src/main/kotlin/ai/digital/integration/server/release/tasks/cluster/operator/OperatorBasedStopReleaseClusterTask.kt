@@ -3,6 +3,7 @@ package ai.digital.integration.server.release.tasks.cluster.operator
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
+import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorUpgradeTask
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksReleaseClusterStopTask
 import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftReleaseClusterStopTask
@@ -41,7 +42,10 @@ open class OperatorBasedStopReleaseClusterTask : DefaultTask() {
                 }")
             }
         })
-        this.finalizedBy(StopDeployServerForOperatorInstanceTask.NAME)
+        this.finalizedBy(
+                StopDeployServerForOperatorInstanceTask.NAME,
+                StopDeployServerForOperatorUpgradeTask.NAME
+        )
     }
 
     @TaskAction

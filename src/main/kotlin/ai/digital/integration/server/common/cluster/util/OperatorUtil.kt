@@ -58,6 +58,12 @@ class OperatorUtil(
 
         val operatorServer = Server("operatorServer")
         operatorServer.httpPort = opServerConfig.httpPort
+        if (DeployServerUtil.getResolvedDockerFile(project, server).toFile().isFile) {
+            val httpPort = DeployServerUtil.getDockerContainerPort(project, server, 4516)
+            httpPort?.let {
+                operatorServer.httpPort = httpPort
+            }
+        }
         operatorServer.dockerImage = opServerConfig.dockerImage ?: server.dockerImage
         operatorServer.version = opServerConfig.version ?: server.version
         operatorServer.pingRetrySleepTime = opServerConfig.pingRetrySleepTime

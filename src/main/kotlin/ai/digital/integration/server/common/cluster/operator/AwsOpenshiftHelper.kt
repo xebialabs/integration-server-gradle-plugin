@@ -19,6 +19,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateDeploymentValues()
         updateOperatorCrValues()
         updateCrValues()
 
@@ -57,7 +58,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         }
     }
 
-    private fun getOcApiServerToken(): String {
+    fun getOcApiServerToken(): String {
         val basicAuthToken = Base64.getEncoder().encodeToString("${getOcLogin()}:${getOcPassword()}".toByteArray())
         val oauthHostName = getProvider().oauthHostName.get()
 
@@ -82,8 +83,8 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         ocLogout()
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-openshift"
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-openshift"
     }
 
     override fun getProvider(): AwsOpenshiftProvider {
@@ -91,7 +92,8 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
     }
 
     override fun getOperatorImage(): String {
-        return getProvider().operatorImage.getOrElse("xebialabs/${getName()}-operator:1.2.0-openshift")
+        // it needs to be aligned with operatorBranch default value
+        return getProvider().operatorImage.getOrElse("xldevdocker/${getName()}-operator:1.3.0-openshift")
     }
 
     override fun getStorageClass(): String {

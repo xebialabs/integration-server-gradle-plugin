@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import org.gradle.api.Project
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
@@ -162,10 +163,12 @@ class DeployServerUtil {
         }
 
         fun grantPermissionsToIntegrationServerFolder(project: Project) {
-            val workDir = IntegrationServerUtil.getDist(project)
+            if (isDockerBased(project)) {
+                val workDir = IntegrationServerUtil.getDist(project)
 
-            File(workDir).walk().forEach {
-                FileUtil.grantRWPermissions(it)
+                File(workDir).walk().forEach {
+                    FileUtil.grantRWPermissions(it)
+                }
             }
         }
 
@@ -244,6 +247,10 @@ class DeployServerUtil {
             return "${server.dockerImage}:${server.version}"
         }
 
+        fun getDockerServiceName(server: Server): String {
+            return "deploy-${server.version}"
+        }
+
         private fun getOldDockerServerPath(project: Project): String {
             if (isPreviousInstallationServerDefined(project)) {
                 val rootPath = IntegrationServerUtil.getDist(project)
@@ -299,6 +306,24 @@ class DeployServerUtil {
             project.exec {
                 executable = "docker-compose"
                 args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().path, "stop")
+            }
+        }
+
+        fun getDockerContainerPort(project: Project, server: Server, privatePort: Int): Int? {
+            return ByteArrayOutputStream().use {
+                project.exec {
+                    executable = "docker-compose"
+                    args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "port", "deploy-${server.version}", privatePort.toString())
+                    standardOutput = it
+                    errorOutput = it
+                    isIgnoreExitValue = true
+                }
+                val hostAndPort = it.toString(Charsets.UTF_8)
+                if (hostAndPort.toLowerCase().contains("no container found")) {
+                    null
+                } else {
+                    hostAndPort.split(':')[1].trim().toInt()
+                }
             }
         }
     }

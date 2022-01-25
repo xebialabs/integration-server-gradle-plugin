@@ -46,6 +46,8 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     private val OPERATOR_PACKAGE_REL_PATH = "digitalai-${getName()}/deployment.yaml"
 
+    private val OPERATOR_DEPLOYMENT_PATH = "digitalai-${getName()}/kubernetes/template/deployment.yaml"
+
     private val DIGITAL_AI_PATH = "digital-ai.yaml"
 
     companion object {
@@ -76,7 +78,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     fun getOperatorHomeDir(): String =
         project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
-    private fun getProviderWorkDir(): String =
+    fun getProviderWorkDir(): String =
         project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
 
     fun getProfile(): OperatorProfile {
@@ -99,7 +101,8 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
         val pairs =
-            mutableMapOf<String, Any>("spec.package" to "Applications/${getPrefixName()}-operator-app/${getProvider().operatorPackageVersion.get()}")
+            mutableMapOf<String, Any>(
+                "spec.package" to "Applications/${getPrefixName()}-operator-app/${getProvider().operatorPackageVersion.get()}")
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -180,18 +183,21 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
     fun waitForBoot() {
+        val contextRoot = when (getContextRoot() == "/") {
+            true -> ""
+            false -> getContextRoot()
+        }
+
         val url = when (productName) {
-            ProductName.DEPLOY -> "http://${getFqdn()}/deployit/metadata/type"
-            ProductName.RELEASE -> "http://${getFqdn()}/api/extension/metadata"
+            ProductName.DEPLOY -> "http://${getFqdn()}${contextRoot}/deployit/metadata/type"
+            ProductName.RELEASE -> "http://${getFqdn()}${contextRoot}/api/extension/metadata"
         }
         val server = ServerUtil(project, productName).getServer()
         WaitForBootUtil.byPort(project, getName(), url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
 
     fun undeployCluster() {
-
         project.logger.lifecycle("Operator is being undeployed")
-
         if (undeployCis()) {
             project.logger.lifecycle("PVCs are being deleted")
             getKubectlHelper().deleteAllPVCs()
@@ -224,7 +230,18 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
     open fun getOperatorImage(): String {
-        return getProvider().operatorImage.getOrElse("xebialabs/${getName()}-operator:1.2.0")
+        // it needs to be aligned with operatorBranch default value
+        return getProvider().operatorImage.getOrElse("xldevdocker/${getName()}-operator:1.3.0")
+    }
+
+    fun updateDeploymentValues() {
+        project.logger.lifecycle("Updating operator's deployment values")
+        val file = File(getProviderHomeDir(), OPERATOR_DEPLOYMENT_PATH)
+        val pairs =
+            mutableMapOf<String, Any>(
+                "spec.template.spec.containers[1].image" to getOperatorImage()
+            )
+        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
     fun updateOperatorCrValues() {
@@ -352,7 +369,9 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
             OperatorUtil(project).getOperatorServer().httpPort)
     }
 
-    abstract fun getProviderHomeDir(): String
+    fun getProviderHomeDir(): String = "${getOperatorHomeDir()}/${getProviderHomePath()}"
+
+    abstract fun getProviderHomePath(): String
 
     abstract fun getProvider(): Provider
 
@@ -383,10 +402,10 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         }
     }
 
-    fun getTemplate(relativePath: String): File {
+    fun getTemplate(relativePath: String, targetFilename: String? = null): File {
         val file = File(relativePath)
         val fileStream = {}::class.java.classLoader.getResourceAsStream(relativePath)
-        val resultComposeFilePath = Paths.get(getProviderWorkDir(), file.name)
+        val resultComposeFilePath = Paths.get(getProviderWorkDir(), targetFilename ?: file.name)
         fileStream?.let {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
@@ -410,4 +429,5 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     fun getName(): String {
         return productName.toString().toLowerCase()
     }
+
 }

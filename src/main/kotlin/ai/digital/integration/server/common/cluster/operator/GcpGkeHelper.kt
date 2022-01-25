@@ -35,6 +35,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
+        updateDeploymentValues()
         updateOperatorCrValues()
         updateCrValues()
 
@@ -71,8 +72,8 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         }
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-gcp-gke"
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-gcp-gke"
     }
 
     override fun getProvider(): GcpGkeProvider {
@@ -178,13 +179,16 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
                 tlsCert = null,
                 tlsPrivateKey = null
         )
-        val gcloudConfig = ProcessUtil.executeCommand(project,
-                "gcloud config --account \"$accountName\" --project \"$projectName\" config-helper --format=yaml")
-
-        val gcloudConfigMap = ObjectMapper(YAMLFactory.builder().build()).readValue(gcloudConfig, MutableMap::class.java)
-        val accessToken = (gcloudConfigMap["credential"] as Map<*, *>)["access_token"] as String
+        val accessToken = getAccessToken(accountName, projectName)
 
         return Pair(info, accessToken)
+    }
+
+    private fun getAccessToken(accountName: String, projectName: String): String {
+        val gcloudConfig = ProcessUtil.executeCommand(project,
+                "gcloud config --account \"$accountName\" --project \"$projectName\" config-helper --format=yaml")
+        val gcloudConfigMap = ObjectMapper(YAMLFactory.builder().build()).readValue(gcloudConfig, MutableMap::class.java)
+        return (gcloudConfigMap["credential"] as Map<*, *>)["access_token"] as String
     }
 
     private fun updateInfrastructure(kubeContextInfo: Pair<InfrastructureInfo, String>) {
@@ -254,5 +258,11 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         val projectName = getProvider().projectName.get()
         val accountName = getProvider().accountName.get()
         return getCurrentContextInfo(accountName, projectName).first
+    }
+
+    fun getAccessToken(): String {
+        val projectName = getProvider().projectName.get()
+        val accountName = getProvider().accountName.get()
+        return getAccessToken(accountName, projectName)
     }
 }

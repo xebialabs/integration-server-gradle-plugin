@@ -23,23 +23,23 @@ class DockerComposeUtil {
         }
 
         fun allowToCleanMountedFiles(
-            project: Project,
-            productName: ProductName,
-            server: Server,
-            dockerComposeFile: File
+                project: Project,
+                productName: ProductName,
+                server: Server,
+                dockerComposeFile: File
         ) {
             val name = productName.toString().toLowerCase()
             try {
                 val args = arrayListOf("-f",
-                    dockerComposeFile.path,
-                    "exec",
-                    "-T",
-                    "${name}-${server.version}",
-                    "chmod",
-                    "777",
-                    "-R",
-                    "/opt/xebialabs/xl-${name}-server")
-                execute(project, args, true)
+                        dockerComposeFile.path,
+                        "exec",
+                        "-T",
+                        "${name}-${server.version}",
+                        "chmod",
+                        "777",
+                        "-R",
+                        "/opt/xebialabs/xl-${name}-server")
+                execute(project, args, false)
             } catch (e: Exception) {
                 // ignore, if throws exception, it means that docker container is not running
             }

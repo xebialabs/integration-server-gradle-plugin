@@ -2,7 +2,9 @@ CrName: {{CR_NAME}}
 CrdName: {{CRD_NAME}}
 K8sApiServerURL: {{K8S_API_SERVER_URL}}
 K8sClientCert: {{K8S_CLIENT_CERT}}
-K8sClientKey: {{K8S_CLIENT_KEY}}
+EksClusterName: {{CLUSTER_NAME}}
+AWSAccessKey: {{AWS_ACCESS_KEY}}
+AWSAccessSecret: {{AWS_ACCESS_SECRET}}
 K8sSetup: {{K8S_SETUP}}
 Namespace: default
 OperatorImage: {{OPERATOR_IMAGE}}
@@ -16,6 +18,8 @@ UpgradeType: operatorToOperator
 UseCustomNamespace: true
 UseKubeconfig: true
 InstallXLD: false
+IsEKS: true
+UseAWSconfig: true
 UseOperatorZipDeploy: true
 OperatorZipDeploy: {{OPERATOR_ZIP_DEPLOY}}
 PreserveCrValuesDeploy: |-
@@ -33,9 +37,9 @@ PreserveCrValuesDeploy: |-
   .spec.keycloak.postgresql.postgresqlMaxConnections
   .spec.keycloak.install
   .spec.oidc.enabled
-  .spec.rabbitmq.persistence.storageClass
-  .spec.rabbitmq.persistence.size
-  .spec.rabbitmq.replicaCount
   .spec.rabbitmq.persistence.replicaCount
+  .spec.rabbitmq.persistence.size
+  .spec.rabbitmq.persistence.storageClass
+  .spec.rabbitmq.replicaCount
   .spec.route.hosts
   .spec.xldLicense
