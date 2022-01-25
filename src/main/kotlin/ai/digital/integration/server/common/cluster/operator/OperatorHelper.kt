@@ -102,7 +102,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
         val pairs =
             mutableMapOf<String, Any>(
-                    "spec.package" to "Applications/${getPrefixName()}-operator-app/${getProvider().operatorPackageVersion.get()}")
+                "spec.package" to "Applications/${getPrefixName()}-operator-app/${getProvider().operatorPackageVersion.get()}")
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -183,11 +183,11 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
     fun waitForBoot() {
-        val contextRoot = if (getContextRoot() == "/") {
-            ""
-        } else {
-            getContextRoot()
+        val contextRoot = when (getContextRoot() == "/") {
+            true -> ""
+            false -> getContextRoot()
         }
+
         val url = when (productName) {
             ProductName.DEPLOY -> "http://${getFqdn()}${contextRoot}/deployit/metadata/type"
             ProductName.RELEASE -> "http://${getFqdn()}${contextRoot}/api/extension/metadata"
@@ -197,9 +197,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
     fun undeployCluster() {
-
         project.logger.lifecycle("Operator is being undeployed")
-
         if (undeployCis()) {
             project.logger.lifecycle("PVCs are being deleted")
             getKubectlHelper().deleteAllPVCs()
@@ -238,14 +236,11 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     fun updateDeploymentValues() {
         project.logger.lifecycle("Updating operator's deployment values")
-
         val file = File(getProviderHomeDir(), OPERATOR_DEPLOYMENT_PATH)
-
         val pairs =
-                mutableMapOf<String, Any>(
-                        "spec.template.spec.containers[1].image" to getOperatorImage()
-                )
-
+            mutableMapOf<String, Any>(
+                "spec.template.spec.containers[1].image" to getOperatorImage()
+            )
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
