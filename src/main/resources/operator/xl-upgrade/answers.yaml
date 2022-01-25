@@ -34,7 +34,6 @@ PreserveCrValuesDeploy: |-
   .spec.keycloak.install
   .spec.oidc.enabled
   .spec.rabbitmq.persistence.storageClass
-  .spec.oidc.enabled
   .spec.rabbitmq.persistence.size
   .spec.rabbitmq.replicaCount
   .spec.rabbitmq.persistence.replicaCount

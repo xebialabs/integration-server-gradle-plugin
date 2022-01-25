@@ -33,11 +33,10 @@ PreserveCrValuesDeploy: |-
   .spec.keycloak.postgresql.postgresqlMaxConnections
   .spec.keycloak.install
   .spec.oidc.enabled
-  .spec.rabbitmq.persistence.storageClass
-  .spec.oidc.enabled
-  .spec.rabbitmq.persistence.size
-  .spec.rabbitmq.replicaCount
   .spec.rabbitmq.persistence.replicaCount
+  .spec.rabbitmq.persistence.size
+  .spec.rabbitmq.persistence.storageClass
+  .spec.rabbitmq.replicaCount
   .spec.route.hosts
   .spec.xldLicense
 
