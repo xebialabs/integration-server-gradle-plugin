@@ -49,10 +49,7 @@ class CentralConfigurationTask extends DefaultTask {
         project.logger.lifecycle("Creating custom deploy-server.yaml")
         YamlFileUtil.overlayFile(
                 new File("${serverDir}/centralConfiguration/deploy-server.yaml"),
-                [
-                        "deploy.server.port"    : HTTPUtil.findFreePort(),
-                        "deploy.server.hostname": "127.0.0.1"
-                ]
+                []
         )
 
         project.logger.lifecycle("Creating custom deploy-task.yaml")

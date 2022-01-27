@@ -60,7 +60,7 @@ class StartWorkersTask extends DefaultTask {
 
         def params = [
                 "-master",
-                "127.0.0.1:${CentralConfigurationUtil.readServerKey(project, "deploy.server.port")}".toString(),
+                "127.0.0.1:${DeployServerUtil.readDeployitConfProperty(project,"server.port")}".toString(),
                 "-api",
                 "http://localhost:${server.httpPort}".toString(),
                 "-name",
@@ -112,8 +112,8 @@ class StartWorkersTask extends DefaultTask {
             project.logger.lifecycle("Using JVM from location: ${jvmPath}")
         }
 
-        def port = CentralConfigurationUtil.readServerKey(project, "deploy.server.port")
-        def hostName = CentralConfigurationUtil.readServerKey(project, "deploy.server.hostname")
+        val hostName = DeployServerUtil.readDeployitConfProperty(project,"server.hostname")
+        val port = DeployServerUtil.readDeployitConfProperty(project,"server.port")
 
         def logDir = "${getLogDir(worker)}/${worker.stdoutFileName}"
 
