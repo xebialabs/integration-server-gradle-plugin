@@ -28,7 +28,7 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
             skipExisting)
         connectToCluster(name)
         val kubeContextInfo = getCurrentContextInfo()
-        createStorageClass(azureAksProvider.storageClass.getOrElse(name))
+        createStorageClass(resourceGroupName(name), azureAksProvider.storageClass.getOrElse(name))
 
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
@@ -131,12 +131,13 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         }
     }
 
-    private fun createStorageClassFromFile(storageClassName: String, filePath: String) {
+    private fun createStorageClassFromFile(resourceGroupName: String, storageClassName: String, filePath: String) {
         if (!getKubectlHelper().hasStorageClass(storageClassName)) {
             project.logger.lifecycle("Create storage class: {}", storageClassName)
             val azureFileScTemplateFile = getTemplate(filePath)
             val azureFileScTemplate = azureFileScTemplateFile.readText(Charsets.UTF_8)
                 .replace("{{NAME}}", storageClassName)
+                .replace("{{RESOURCE_GROUP}}", resourceGroupName)
             azureFileScTemplateFile.writeText(azureFileScTemplate)
             getKubectlHelper().applyFile(azureFileScTemplateFile)
         } else {
@@ -144,11 +145,11 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         }
     }
 
-    private fun createStorageClass(name: String) {
+    private fun createStorageClass(resourceGroupName: String, name: String) {
         val fileStorageClassName = fileStorageClassName(name)
-        createStorageClassFromFile(fileStorageClassName, "operator/azure-aks/azure-file-sc.yaml")
+        createStorageClassFromFile(resourceGroupName, fileStorageClassName, "operator/azure-aks/azure-file-sc.yaml")
         val diskStorageClassName = diskStorageClassName(name)
-        createStorageClassFromFile(diskStorageClassName, "operator/azure-aks/azure-disk-sc.yaml")
+        createStorageClassFromFile(resourceGroupName, diskStorageClassName, "operator/azure-aks/azure-disk-sc.yaml")
 
         getKubectlHelper().setDefaultStorageClass(fileStorageClassName)
     }

@@ -8,6 +8,7 @@ import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.operator.Provider
 import ai.digital.integration.server.common.util.*
+import ai.digital.integration.server.deploy.domain.Worker
 import ai.digital.integration.server.deploy.internals.CliUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
@@ -125,7 +126,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 }
 
                 if (productName == ProductName.DEPLOY) {
-                    List(getWorkerCount()) { position -> getWorkerPodName(position) }.forEach {
+                    List(getDeployWorkerCount()) { position -> getWorkerPodName(position) }.forEach {
                         getKubectlHelper().savePodLogs(it)
                     }
                 }
@@ -163,7 +164,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
     fun waitForWorkerPods() {
-        val resources = List(getWorkerCount()) { position -> getWorkerPodName(position) }
+        val resources = List(getDeployWorkerCount()) { position -> getWorkerPodName(position) }
         resources.forEach { resource ->
             if (!getKubectlHelper().wait(resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
                 throw RuntimeException("Resource $resource is not ready")
@@ -250,13 +251,15 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
         val pairs =
             mutableMapOf<String, Any>(
-                "spec.ImageRepository" to getImageRepository(),
+                "spec.ImageRepository" to getServerImageRepository(),
+                "spec.ServerImageRepository" to getServerImageRepository(),
+                "spec.WorkerImageRepository" to getDeployWorkerImageRepository(),
                 "spec.ImageTag" to getServerVersion(),
                 "spec.KeystorePassphrase" to getProvider().keystorePassphrase.get(),
                 "spec.Persistence.StorageClass" to getStorageClass(),
                 "spec.RepositoryKeystore" to getProvider().repositoryKeystore.get(),
                 "spec.postgresql.image.debug" to true,
-                "spec.postgresql.persistence.size" to "5Gi",
+                "spec.postgresql.persistence.size" to "1Gi",
                 "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
                 "spec.postgresql.postgresqlMaxConnections" to "500",
                 "spec.keycloak.postgresql.postgresqlMaxConnections" to "500",
@@ -281,7 +284,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
             ProductName.DEPLOY -> {
                 pairs.putAll(mutableMapOf<String, Any>(
                     "spec.XldMasterCount" to getMasterCount(),
-                    "spec.XldWorkerCount" to getWorkerCount(),
+                    "spec.XldWorkerCount" to getDeployWorkerCount(),
                     "spec.Persistence.XldMasterPvcSize" to "1Gi",
                     "spec.Persistence.XldWorkerPvcSize" to "1Gi"
                 ))
@@ -296,8 +299,12 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
-    private fun getImageRepository(): String {
+    private fun getServerImageRepository(): String {
         return getServer().dockerImage!!
+    }
+
+    private fun getDeployWorkerImageRepository(): String {
+        return getDeployWorker().dockerImage!!
     }
 
     private fun getServerVersion(): String {
@@ -311,6 +318,10 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         }
     }
 
+    private fun getDeployWorker(): Worker {
+        return WorkerUtil.getWorkers(project)[0]
+    }
+
     private fun getLicense(): String {
         val licenseFileName = when (productName) {
             ProductName.DEPLOY -> "deployit-license.lic"
@@ -321,7 +332,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return Base64.getEncoder().encodeToString(content.toByteArray())
     }
 
-    open fun getWorkerCount(): Int {
+    open fun getDeployWorkerCount(): Int {
         return WorkerUtil.getNumberOfWorkers(project)
     }
 

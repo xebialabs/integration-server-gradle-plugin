@@ -5,5 +5,3 @@ metadata:
 provisioner: kubernetes.io/azure-disk
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
-parameters:
-  storageaccounttype: Standard_LRS
