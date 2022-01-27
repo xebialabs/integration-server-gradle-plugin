@@ -27,8 +27,8 @@ class ServerInitializeUtil {
             w.write("http.context.root=${server.contextRoot}\n")
             w.write("threads.min=3\n")
             w.write("threads.max=24\n")
-            w.appendText("server.hostname=127.0.0.1\n")
-            w.appendText("server.port=8180\n")
+            w.write("server.hostname=127.0.0.1\n")
+            w.write("server.port=8180\n")
         }
     }
 
