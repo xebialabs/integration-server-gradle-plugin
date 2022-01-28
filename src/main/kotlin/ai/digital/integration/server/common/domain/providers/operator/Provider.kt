@@ -36,6 +36,6 @@ abstract class Provider @Inject constructor(val project: Project) {
     val rabbitmqReplicaCount = project.objects.property<Int>().value(1)
 
     @Input
-    val destroyClusterOnShutdown = project.objects.property<Boolean>().value(true)
+    val destroyClusterOnShutdown = project.objects.property<Boolean>().value(false)
 
 }
