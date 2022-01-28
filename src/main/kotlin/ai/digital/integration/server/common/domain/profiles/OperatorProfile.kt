@@ -2,6 +2,7 @@ package ai.digital.integration.server.common.domain.profiles
 
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.domain.providers.operator.*
+import ai.digital.integration.server.common.util.XlCliUtil
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
@@ -21,6 +22,9 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
 
     @Input
     val xlCliVersion = project.objects.property<String>().value("10.3.6")
+
+    @Input
+    val xlCliPath = project.objects.property<String>().value(XlCliUtil.getCliUrl(xlCliVersion.get()))
 
     val awsOpenshift: AwsOpenshiftProvider =
         DefaultOperatorProviderContainer(project.container(Provider::class) {
