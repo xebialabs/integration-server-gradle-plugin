@@ -374,8 +374,8 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         val digitalAiPath = File(getProviderHomeDir(), DIGITAL_AI_PATH)
         project.logger.lifecycle("Applying Digital AI $productName platform on cluster ($digitalAiPath)")
         XlCliUtil.xlApply(project,
+            getProfile().xlCliPath.get(),
             digitalAiPath,
-            getProfile().xlCliVersion.get(),
             File(getProviderHomeDir()),
             OperatorUtil(project).getOperatorServer().httpPort)
     }

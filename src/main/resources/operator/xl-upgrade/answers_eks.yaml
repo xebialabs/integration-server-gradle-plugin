@@ -11,6 +11,7 @@ OperatorImage: {{OPERATOR_IMAGE}}
 OperatorImageDeployGeneric: {{OPERATOR_IMAGE}}
 RepositoryName: {{REPOSITORY_NAME}}
 ImageNameDeploy: xl-deploy
+ImageNameDeployTaskEngine: deploy-task-engine
 ImageTag: {{IMAGE_TAG}}
 OsType: darwin
 ServerType: daiDeploy

@@ -126,8 +126,8 @@ open class OperatorBasedUpgradeDeployClusterTask : DefaultTask() {
 
         project.logger.lifecycle("Applying prepared answers file ${answersFile.absolutePath}")
         XlCliUtil.xlOp(project,
+            operatorHelper.getProfile().xlCliPath.get(),
             answersFile,
-            operatorHelper.getProfile().xlCliVersion.get(),
             File(operatorHelper.getProviderHomeDir()),
             opBlueprintPath.orNull)
     }
