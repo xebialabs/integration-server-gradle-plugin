@@ -20,7 +20,7 @@ import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 
-abstract class OperatorBasedUpgradeClusterTask(val productName: ProductName) : DefaultTask() {
+abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductName) : DefaultTask() {
 
     @Input
     val imageRepositoryName = project.objects.property<String>()
