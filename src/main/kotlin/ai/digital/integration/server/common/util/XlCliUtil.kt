@@ -33,9 +33,13 @@ class XlCliUtil {
         private fun checkAndDownload(project: Project, cliPath: String, workDir: File) {
             if (cliPath.startsWith("http")) {
                 if (!checkIfXlDownloaded(workDir)) {
+                    project.logger.lifecycle("Downloading xl-cli from $cliPath")
                     download(cliPath, workDir)
+                } else {
+                    project.logger.lifecycle("Using existing xl-cli from $cliPath")
                 }
             } else {
+                project.logger.lifecycle("Using xl-cli from $cliPath")
                 copyFromLocal(cliPath, workDir)
             }
         }

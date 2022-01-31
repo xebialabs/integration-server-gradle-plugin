@@ -48,6 +48,7 @@ import ai.digital.integration.server.deploy.tasks.tests.IntegrationTestsTask
 import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.tasks.worker.*
+import ai.digital.integration.server.release.tasks.cluster.operator.OperatorBasedUpgradeReleaseClusterTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 
@@ -111,8 +112,6 @@ open class DeployTaskRegistry {
                 StartDeployServerForOperatorInstanceTask::class.java)
             project.tasks.create(StopDeployServerForOperatorInstanceTask.NAME,
                 StopDeployServerForOperatorInstanceTask::class.java)
-            project.tasks.create(StopDeployServerForOperatorUpgradeTask.NAME,
-                    StopDeployServerForOperatorUpgradeTask::class.java)
             project.tasks.create(PrepareOperatorServerTask.NAME,
                 PrepareOperatorServerTask::class.java)
             project.tasks.create(OperatorBasedUpgradeDeployClusterTask.NAME, OperatorBasedUpgradeDeployClusterTask::class.java)

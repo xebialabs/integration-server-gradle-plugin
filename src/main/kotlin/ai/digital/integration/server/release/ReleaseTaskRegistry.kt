@@ -15,6 +15,7 @@ import ai.digital.integration.server.release.tasks.cluster.StopReleaseClusterTas
 import ai.digital.integration.server.release.tasks.cluster.operator.CheckingOutReleaseKubernetesOperatorTask
 import ai.digital.integration.server.release.tasks.cluster.operator.OperatorBasedStartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.OperatorBasedStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.OperatorBasedUpgradeReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksReleaseClusterStartTask
 import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksReleaseClusterStopTask
 import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftReleaseClusterStartTask
@@ -84,6 +85,9 @@ open class ReleaseTaskRegistry {
 
             project.tasks.create(CheckingOutReleaseKubernetesOperatorTask.NAME,
                 CheckingOutReleaseKubernetesOperatorTask::class.java)
+
+            project.tasks.create(OperatorBasedUpgradeReleaseClusterTask.NAME,
+                    OperatorBasedUpgradeReleaseClusterTask::class.java)
 
             project.tasks.create(StartReleaseToGetLicenceTask.NAME, StartReleaseToGetLicenceTask::class.java)
 
