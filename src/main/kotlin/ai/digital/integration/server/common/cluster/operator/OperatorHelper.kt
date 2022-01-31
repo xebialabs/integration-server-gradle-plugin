@@ -27,7 +27,6 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
-
 @Suppress("UnstableApiUsage")
 abstract class OperatorHelper(val project: Project, val productName: ProductName) {
 
@@ -79,8 +78,11 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     fun getOperatorHomeDir(): String =
         project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
-    fun getProviderWorkDir(): String =
-        project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
+    fun getProviderWorkDir(): String {
+        val path = project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
+        File(path).mkdirs()
+        return path
+    }
 
     fun getProfile(): OperatorProfile {
         return when (productName) {
@@ -253,7 +255,6 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
             mutableMapOf<String, Any>(
                 "spec.ImageRepository" to getServerImageRepository(),
                 "spec.ServerImageRepository" to getServerImageRepository(),
-                "spec.WorkerImageRepository" to getDeployWorkerImageRepository(),
                 "spec.ImageTag" to getServerVersion(),
                 "spec.KeystorePassphrase" to getProvider().keystorePassphrase.get(),
                 "spec.Persistence.StorageClass" to getStorageClass(),
@@ -285,12 +286,14 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 pairs.putAll(mutableMapOf<String, Any>(
                     "spec.XldMasterCount" to getMasterCount(),
                     "spec.XldWorkerCount" to getDeployWorkerCount(),
+                    "spec.WorkerImageRepository" to getDeployWorkerImageRepository(),
                     "spec.Persistence.XldMasterPvcSize" to "1Gi",
                     "spec.Persistence.XldWorkerPvcSize" to "1Gi"
                 ))
             }
             ProductName.RELEASE -> {
                 pairs.putAll(mutableMapOf<String, Any>(
+                    "spec.replicaCount" to getMasterCount(),
                     "spec.Persistence.Size" to "1Gi"
                 ))
             }
@@ -442,3 +445,4 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
 }
+

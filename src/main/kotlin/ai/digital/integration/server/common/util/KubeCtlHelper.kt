@@ -164,8 +164,8 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
                 "$command $subCommand -o 'jsonpath=$jsonpath'")
     }
 
-    fun getCrd(): String {
-        return getWithPath("get crd", "{.items[?(@..spec.group == \"xld.digital.ai\")].metadata.name}")
+    fun getCrd(groupName: String): String {
+        return getWithPath("get crd", "{.items[?(@..spec.group == \"$groupName\")].metadata.name}")
     }
 
     fun getCr(crdName: String): String {
