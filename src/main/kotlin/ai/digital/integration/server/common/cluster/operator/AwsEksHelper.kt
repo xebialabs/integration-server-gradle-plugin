@@ -22,6 +22,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         createCluster(skipExisting)
 
         updateKubeConfig()
+        cleanUpCluster()
 
         updateInfrastructure()
 

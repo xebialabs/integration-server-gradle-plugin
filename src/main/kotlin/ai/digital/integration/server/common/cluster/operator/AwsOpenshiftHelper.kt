@@ -29,6 +29,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
         ocLogin()
         turnOnLogging()
+        cleanUpCluster()
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()

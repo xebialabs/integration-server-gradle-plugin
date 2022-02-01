@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common.util
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.apache.commons.codec.binary.Base64
@@ -170,5 +171,26 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     fun getCr(crdName: String): String {
         return getWithPath("get $crdName", "{.items[0].metadata.name}")
+    }
+
+    fun getResourceNames(resource: String, productName: ProductName): String {
+        return ProcessUtil.executeCommand(project,
+            "$command get $resource -o name | grep ${productName.shortName} | tr \"\\n\" \" \" | sed -e 's/,\$//'",
+            logOutput = false, throwErrorOnFailure = false)
+    }
+
+    fun getResourceNames(resource: String): String {
+        return ProcessUtil.executeCommand(project,
+            "$command get $resource -o name", logOutput = false, throwErrorOnFailure = false)
+    }
+
+    fun deleteNames(names: String): String {
+        return ProcessUtil.executeCommand(project,
+            "$command delete $names", logOutput = false, throwErrorOnFailure = false)
+    }
+
+    fun clearCrFinalizers(names: String): String {
+        return ProcessUtil.executeCommand(project,
+            "$command patch $names -p '{\"metadata\":{\"finalizers\":[]}}' --type=merge", logOutput = false, throwErrorOnFailure = false)
     }
 }
