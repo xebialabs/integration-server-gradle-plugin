@@ -45,13 +45,7 @@ class CentralConfigurationTask extends DefaultTask {
         def serverDir = ServerUtil.getServerWorkingDir(project)
 
         overlayRepositoryConfig(serverDir)
-
-        project.logger.lifecycle("Creating custom deploy-server.yaml")
-        YamlFileUtil.overlayFile(
-                new File("${serverDir}/centralConfiguration/deploy-server.yaml"),
-                []
-        )
-
+        
         project.logger.lifecycle("Creating custom deploy-task.yaml")
         YamlFileUtil.overlayFile(
                 new File("${serverDir}/centralConfiguration/deploy-task.yaml"),
