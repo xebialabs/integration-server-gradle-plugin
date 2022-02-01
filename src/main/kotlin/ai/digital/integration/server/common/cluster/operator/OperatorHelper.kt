@@ -444,5 +444,49 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return productName.toString().toLowerCase()
     }
 
-}
+    fun cleanUpCluster() {
 
+        project.logger.lifecycle("Clean up cluster resources")
+
+        val productNames = ProductName.values()
+        val resources = arrayOf(
+            "all",
+            "roles",
+            "roleBinding",
+            "clusterRoles",
+            "clusterRoleBinding",
+            "ingressclass",
+            "crd",
+            "pvc"
+        )
+        val kubectlHelper = getKubectlHelper()
+
+        // delete all by product and resource
+        productNames.forEach { productName ->
+            resources.forEach { resource ->
+                val names = kubectlHelper.getResourceNames(resource, productName)
+                if (names.trim() != "") {
+                    project.logger.lifecycle("Deleting resources $resource on $productName:\n $names")
+                    if (resource == "crd") {
+                        val result = kubectlHelper.clearCrFinalizers(names)
+                        project.logger.lifecycle("Clearing finalizers for $resource on $productName:\n $result")
+                    }
+                    val deleteResult = kubectlHelper.deleteNames(names)
+                    if (deleteResult.trim() != "") {
+                        project.logger.lifecycle("Deleted resources $resource on $productName:\n $deleteResult")
+                    }
+                }
+            }
+        }
+
+        // delete ingressclass
+        val names = kubectlHelper.getResourceNames("ingressclass")
+        if (names.trim() != "") {
+            project.logger.lifecycle("Deleting resources ingressclass:\n $names")
+            val deleteResult = kubectlHelper.deleteNames(names)
+            if (deleteResult.trim() != "") {
+                project.logger.lifecycle("Deleted resources ingressclass:\n $deleteResult")
+            }
+        }
+    }
+}

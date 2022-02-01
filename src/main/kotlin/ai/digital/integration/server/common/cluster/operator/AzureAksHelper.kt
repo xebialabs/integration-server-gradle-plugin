@@ -27,6 +27,7 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
             azureAksProvider.kubernetesVersion,
             skipExisting)
         connectToCluster(name)
+        cleanUpCluster()
         val kubeContextInfo = getCurrentContextInfo()
         createStorageClass(resourceGroupName(name), azureAksProvider.storageClass.getOrElse(name))
 
