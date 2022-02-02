@@ -40,6 +40,6 @@ abstract class Provider @Inject constructor(val project: Project) {
     val destroyClusterOnShutdown = project.objects.property<Boolean>().value(false)
 
     @Input
-    val cleanUpWaitTimeout = project.objects.property<Duration>().value(Duration.ofMinutes(1))
+    val cleanUpWaitTimeout = project.objects.property<Duration>().value(Duration.ofMinutes(2))
 
 }

@@ -82,7 +82,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return "${getHost()}.endpoints.${getProvider().projectName.get()}.cloud.goog"
+        return "${productName.shortName}-${getHost()}.endpoints.${getProvider().projectName.get()}.cloud.goog"
     }
 
     private fun validateGCloudCli() {
@@ -230,6 +230,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         val dnsOpenApiTemplate = dnsOpenApiTemplateFile.readText(Charsets.UTF_8)
                 .replace("{{NAME}}", name)
                 .replace("{{PROJECT_ID}}", projectName)
+                .replace("{{PRODUCT_NAME}}", productName.shortName)
                 .replace("{{IP}}", ip)
         dnsOpenApiTemplateFile.writeText(dnsOpenApiTemplate)
         ProcessUtil.executeCommand(project,

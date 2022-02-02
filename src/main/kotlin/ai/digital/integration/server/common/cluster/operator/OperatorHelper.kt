@@ -462,6 +462,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
             "roleBinding",
             "clusterRoles",
             "clusterRoleBinding",
+            "ing",
             "ingressclass",
             "pvc"
         )
