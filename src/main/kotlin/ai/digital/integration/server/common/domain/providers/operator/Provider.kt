@@ -3,6 +3,7 @@ package ai.digital.integration.server.common.domain.providers.operator
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.kotlin.dsl.property
+import java.time.Duration
 import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
@@ -37,5 +38,8 @@ abstract class Provider @Inject constructor(val project: Project) {
 
     @Input
     val destroyClusterOnShutdown = project.objects.property<Boolean>().value(false)
+
+    @Input
+    val cleanUpWaitTimeout = project.objects.property<Duration>().value(Duration.ofMinutes(1))
 
 }

@@ -26,6 +26,8 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.Duration
+import java.time.LocalDateTime
 import java.util.*
 @Suppress("UnstableApiUsage")
 abstract class OperatorHelper(val project: Project, val productName: ProductName) {
@@ -262,8 +264,8 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 "spec.postgresql.image.debug" to true,
                 "spec.postgresql.persistence.size" to "1Gi",
                 "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
-                "spec.postgresql.postgresqlMaxConnections" to "500",
-                "spec.keycloak.postgresql.postgresqlMaxConnections" to "500",
+                "spec.postgresql.postgresqlMaxConnections" to "300",
+                "spec.keycloak.postgresql.postgresqlMaxConnections" to "300",
                 "spec.keycloak.install" to false,
                 "spec.oidc.enabled" to false,
                 "spec.rabbitmq.persistence.storageClass" to getMqStorageClass(),
@@ -376,11 +378,19 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
         val digitalAiPath = File(getProviderHomeDir(), DIGITAL_AI_PATH)
         project.logger.lifecycle("Applying Digital AI $productName platform on cluster ($digitalAiPath)")
-        XlCliUtil.xlApply(project,
-            getProfile().xlCliPath.get(),
-            digitalAiPath,
-            File(getProviderHomeDir()),
-            OperatorUtil(project).getOperatorServer().httpPort)
+        val operatorServer = OperatorUtil(project).getOperatorServer()
+        val startTime = LocalDateTime.now()
+        try {
+            XlCliUtil.xlApply(
+                project,
+                getProfile().xlCliPath.get(),
+                digitalAiPath,
+                File(getProviderHomeDir()),
+                operatorServer.httpPort
+            )
+        } finally {
+            DeployServerUtil.saveServerLogsToFile(project, operatorServer, "deploy-${operatorServer.version}", startTime)
+        }
     }
 
     fun getProviderHomeDir(): String = "${getOperatorHomeDir()}/${getProviderHomePath()}"
@@ -444,48 +454,100 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return productName.toString().toLowerCase()
     }
 
-    fun cleanUpCluster() {
+    fun cleanUpCluster(waiting: Duration) {
 
-        project.logger.lifecycle("Clean up cluster resources")
-
-        val productNames = ProductName.values()
-        val resources = arrayOf(
+        val resourcesList1 = arrayOf(
             "all",
             "roles",
             "roleBinding",
             "clusterRoles",
             "clusterRoleBinding",
             "ingressclass",
-            "crd",
             "pvc"
         )
+        // repeat delete of following resources to be sure that all is clean
+        val resourcesList2 = arrayOf(
+            "service",
+            "crd"
+        )
+
+        for (iteration in 1..2) {
+            project.logger.lifecycle("Clean up cluster resources iteration $iteration")
+            val deleteResourcesThread = Thread {
+                deleteResources(resourcesList1)
+
+                // delete ingressclass
+                val kubectlHelper = getKubectlHelper()
+                val names = kubectlHelper.getResourceNames("ingressclass")
+                if (names.trim() != "") {
+                    project.logger.lifecycle("Deleting resources ingressclass:\n $names")
+                    val deleteResult = kubectlHelper.deleteNames(names)
+                    if (deleteResult.trim() != "") {
+                        project.logger.lifecycle("Deleted resources ingressclass:\n $deleteResult")
+                    }
+                }
+
+                deleteResources(resourcesList2)
+            }
+            try {
+                deleteResourcesThread.start()
+                val repeat = 10
+                for (aliveCheckCount in 1..repeat) {
+                    if(deleteResourcesThread.isAlive) {
+                        Thread.sleep(waiting.toMillis() / repeat)
+                    } else {
+                        break
+                    }
+                }
+                val hasResources = getResources(resourcesList1).trim() != "" || getResources(resourcesList2).trim() != ""
+                if (!hasResources) {
+                    break
+                }
+            } finally {
+                if (deleteResourcesThread.isAlive) {
+                    try {
+                        deleteResourcesThread.interrupt()
+                    } catch (e: RuntimeException) {
+                        // ignore
+                    }
+                }
+            }
+        }
+
+        project.logger.lifecycle("Clean up cluster resources finished")
+    }
+
+    private fun getResources(resourcesList: Array<String>): String {
         val kubectlHelper = getKubectlHelper()
+        val productNames = ProductName.values()
+
+        val resources = resourcesList.flatMap { resource ->
+            productNames.map { productName ->
+                kubectlHelper.getResourceNames(resource, productName)
+            }
+        }
+        return resources.joinToString(" ")
+    }
+
+    private fun deleteResources(resourcesList: Array<String>) {
+        val kubectlHelper = getKubectlHelper()
+        val productNames = ProductName.values()
 
         // delete all by product and resource
-        productNames.forEach { productName ->
-            resources.forEach { resource ->
+        resourcesList.forEach { resource ->
+            productNames.forEach { productName ->
                 val names = kubectlHelper.getResourceNames(resource, productName)
                 if (names.trim() != "") {
                     project.logger.lifecycle("Deleting resources $resource on $productName:\n $names")
-                    if (resource == "crd") {
+                    if (resource == "crd" || resource == "service") {
                         val result = kubectlHelper.clearCrFinalizers(names)
-                        project.logger.lifecycle("Clearing finalizers for $resource on $productName:\n $result")
+                        project.logger.lifecycle("Cleared finalizers for $resource on $productName:\n $result")
                     }
                     val deleteResult = kubectlHelper.deleteNames(names)
                     if (deleteResult.trim() != "") {
                         project.logger.lifecycle("Deleted resources $resource on $productName:\n $deleteResult")
                     }
                 }
-            }
-        }
-
-        // delete ingressclass
-        val names = kubectlHelper.getResourceNames("ingressclass")
-        if (names.trim() != "") {
-            project.logger.lifecycle("Deleting resources ingressclass:\n $names")
-            val deleteResult = kubectlHelper.deleteNames(names)
-            if (deleteResult.trim() != "") {
-                project.logger.lifecycle("Deleted resources ingressclass:\n $deleteResult")
             }
         }
     }

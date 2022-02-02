@@ -28,7 +28,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
 
         createCluster(accountName, projectName, name, regionZone, gcpGkeProvider.clusterNodeCount, gcpGkeProvider.clusterNodeVmSize, gcpGkeProvider.kubernetesVersion, skipExisting)
         connectToCluster(accountName, projectName, name, regionZone)
-        cleanUpCluster()
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo(accountName, projectName)
 
         useCustomStorageClass(getStorageClass())

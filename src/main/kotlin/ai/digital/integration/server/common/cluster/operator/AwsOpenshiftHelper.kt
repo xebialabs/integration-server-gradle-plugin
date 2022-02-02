@@ -28,8 +28,8 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         applyYamlFiles()
 
         ocLogin()
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         turnOnLogging()
-        cleanUpCluster()
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()

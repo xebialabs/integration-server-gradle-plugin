@@ -27,7 +27,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
             kubernetesVersion,
             skipExisting)
         updateContext(name)
-        cleanUpCluster()
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo()
 
         updateOperatorDeployment()
