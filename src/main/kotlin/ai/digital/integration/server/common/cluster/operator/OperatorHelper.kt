@@ -17,10 +17,7 @@ import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import ai.digital.integration.server.release.util.ReleaseServerUtil
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.gradle.api.Project
 import java.io.File
 import java.io.IOException
@@ -472,45 +469,19 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
             "crd"
         )
 
-        for (iteration in 1..2) {
-            project.logger.lifecycle("Clean up cluster resources iteration $iteration")
-            val deleteResourcesThread = Thread {
-                deleteResources(resourcesList1)
+        runBlocking {
+            for (iteration in 1..3) {
+                project.logger.lifecycle("Clean up cluster resources iteration $iteration")
 
-                // delete ingressclass
-                val kubectlHelper = getKubectlHelper()
-                val names = kubectlHelper.getResourceNames("ingressclass")
-                if (names.trim() != "") {
-                    project.logger.lifecycle("Deleting resources ingressclass:\n $names")
-                    val deleteResult = kubectlHelper.deleteNames(names)
-                    if (deleteResult.trim() != "") {
-                        project.logger.lifecycle("Deleted resources ingressclass:\n $deleteResult")
+                val deleteResourcesJob = launch {
+                    withTimeout(waiting.toMillis()) {
+                        runInterruptible {
+                            deleteAllResources(resourcesList1, resourcesList2)
+                        }
                     }
                 }
-
-                deleteResources(resourcesList2)
-            }
-            try {
-                deleteResourcesThread.start()
-                val repeat = 10
-                for (aliveCheckCount in 1..repeat) {
-                    if(deleteResourcesThread.isAlive) {
-                        Thread.sleep(waiting.toMillis() / repeat)
-                    } else {
-                        break
-                    }
-                }
-                val hasResources = getResources(resourcesList1).trim() != "" || getResources(resourcesList2).trim() != ""
-                if (!hasResources) {
+                if (waitDeleteAllResources(deleteResourcesJob, iteration, waiting, resourcesList1, resourcesList2)) {
                     break
-                }
-            } finally {
-                if (deleteResourcesThread.isAlive) {
-                    try {
-                        deleteResourcesThread.interrupt()
-                    } catch (e: RuntimeException) {
-                        // ignore
-                    }
                 }
             }
         }
@@ -522,12 +493,53 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         val kubectlHelper = getKubectlHelper()
         val productNames = ProductName.values()
 
-        val resources = resourcesList.flatMap { resource ->
+        val resources: List<String> = resourcesList.flatMap { resource ->
             productNames.map { productName ->
                 kubectlHelper.getResourceNames(resource, productName)
             }
         }
-        return resources.joinToString(" ")
+
+        return resources.joinToString(" ").trim()
+    }
+
+    private fun deleteAllResources(resourcesList1: Array<String>, resourcesList2: Array<String>) {
+        deleteResources(resourcesList1)
+
+        // delete ingressclass
+        val kubectlHelper = getKubectlHelper()
+        val names = kubectlHelper.getResourceNames("ingressclass")
+        if (names.trim() != "") {
+            project.logger.lifecycle("Deleting resources ingressclass:\n $names")
+            val deleteResult = kubectlHelper.deleteNames(names)
+            if (deleteResult.trim() != "") {
+                project.logger.lifecycle("Deleted resources ingressclass:\n $deleteResult")
+            }
+        }
+        deleteResources(resourcesList2)
+    }
+
+    private suspend fun waitDeleteAllResources(
+        deleteResourcesJob: Job, iteration: Int, waiting: Duration, resourcesList1: Array<String>, resourcesList2: Array<String>) : Boolean {
+        val repeat = 10
+        for (i in 1..repeat) {
+            if (deleteResourcesJob.isActive) {
+                delay(waiting.toMillis() / repeat)
+            } else {
+                break
+            }
+        }
+
+        val existingResourcesFromList1 = getResources(resourcesList1)
+        val existingResourcesFromList2 = getResources(resourcesList2)
+        val hasResources = existingResourcesFromList1 != "" || existingResourcesFromList2 != ""
+        return if (hasResources) {
+            project.logger.lifecycle("Has more resources, cancelling in iteration $iteration: \n $existingResourcesFromList1 $existingResourcesFromList2")
+            deleteResourcesJob.cancelAndJoin()
+            false
+        } else {
+            project.logger.lifecycle("Clean up cluster resources finished in iteration $iteration")
+            true
+        }
     }
 
     private fun deleteResources(resourcesList: Array<String>) {

@@ -19,7 +19,7 @@ open class CleanUpClusterTask : DefaultTask() {
     }
 
     @Input
-    val cleanUpWaitTimeout = project.objects.property<Duration>().value(Duration.ofMinutes(2))
+    val cleanUpWaitTimeout = project.objects.property<Duration>().value(Duration.ofSeconds(90))
 
     @TaskAction
     fun launch() {
