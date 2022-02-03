@@ -133,11 +133,9 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     private fun configView(jsonPath: String, fallbackJsonPath: String): String {
         val data = configView(jsonPath)
-        return if (data == "") {
+        return data.ifEmpty {
             val path = configView(fallbackJsonPath)
             Base64.encodeBase64String(File(path).readText().toByteArray())
-        } else {
-            data
         }
     }
 

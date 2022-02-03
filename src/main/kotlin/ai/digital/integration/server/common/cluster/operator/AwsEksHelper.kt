@@ -1,7 +1,6 @@
 package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AwsEksProvider
 
 import ai.digital.integration.server.common.util.ProcessUtil
@@ -22,7 +21,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         createCluster(skipExisting)
 
         updateKubeConfig()
-        cleanUpCluster()
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
 
         updateInfrastructure()
 
