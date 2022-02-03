@@ -3,6 +3,7 @@ package ai.digital.integration.server.common.cluster.operator
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.constant.ServerConstants
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
@@ -261,8 +262,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 "spec.postgresql.image.debug" to true,
                 "spec.postgresql.persistence.size" to "1Gi",
                 "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
-                "spec.postgresql.postgresqlMaxConnections" to "300",
-                "spec.keycloak.postgresql.postgresqlMaxConnections" to "300",
+                "spec.postgresql.postgresqlMaxConnections" to getDbConnectionCount(),
                 "spec.keycloak.install" to false,
                 "spec.oidc.enabled" to false,
                 "spec.rabbitmq.persistence.storageClass" to getMqStorageClass(),
@@ -299,6 +299,17 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         }
 
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+    }
+
+    private fun getDbConnectionCount(): String {
+        val defaultMaxDbConnections = if (productName == ProductName.DEPLOY) {
+            ServerConstants.DEPLOY_DB_CONNECTION_NUMBER * (getMasterCount() + getDeployWorkerCount())
+        } else if (productName == ProductName.RELEASE) {
+            ServerConstants.RELEASE_DB_CONNECTION_NUMBER * getMasterCount()
+        } else {
+            throw IllegalArgumentException("Not supported produce name $productName")
+        }
+        return getProvider().maxDbConnections.getOrElse(defaultMaxDbConnections).toString()
     }
 
     private fun getServerImageRepository(): String {
@@ -508,10 +519,10 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         // delete ingressclass
         val kubectlHelper = getKubectlHelper()
         val names = kubectlHelper.getResourceNames("ingressclass")
-        if (names.trim() != "") {
+        if (names.isNotBlank()) {
             project.logger.lifecycle("Deleting resources ingressclass:\n $names")
             val deleteResult = kubectlHelper.deleteNames(names)
-            if (deleteResult.trim() != "") {
+            if (deleteResult.isNotBlank()) {
                 project.logger.lifecycle("Deleted resources ingressclass:\n $deleteResult")
             }
         }
@@ -531,7 +542,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
         val existingResourcesFromList1 = getResources(resourcesList1)
         val existingResourcesFromList2 = getResources(resourcesList2)
-        val hasResources = existingResourcesFromList1 != "" || existingResourcesFromList2 != ""
+        val hasResources = existingResourcesFromList1.isNotBlank() || existingResourcesFromList2.isNotBlank()
         return if (hasResources) {
             project.logger.lifecycle("Has more resources, cancelling in iteration $iteration: \n $existingResourcesFromList1 $existingResourcesFromList2")
             deleteResourcesJob.cancelAndJoin()
@@ -550,14 +561,14 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         resourcesList.forEach { resource ->
             productNames.forEach { productName ->
                 val names = kubectlHelper.getResourceNames(resource, productName)
-                if (names.trim() != "") {
+                if (names.isNotBlank()) {
                     project.logger.lifecycle("Deleting resources $resource on $productName:\n $names")
                     if (resource == "crd" || resource == "service") {
                         val result = kubectlHelper.clearCrFinalizers(names)
                         project.logger.lifecycle("Cleared finalizers for $resource on $productName:\n $result")
                     }
                     val deleteResult = kubectlHelper.deleteNames(names)
-                    if (deleteResult.trim() != "") {
+                    if (deleteResult.isNotBlank()) {
                         project.logger.lifecycle("Deleted resources $resource on $productName:\n $deleteResult")
                     }
                 }

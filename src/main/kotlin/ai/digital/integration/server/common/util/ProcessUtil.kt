@@ -169,7 +169,7 @@ class ProcessUtil {
                 throw RuntimeException("Process '$command' not finished")
             }
 
-            return if (error == "") {
+            return if (error.isEmpty()) {
                 input
             } else {
                 input + System.lineSeparator() + error
@@ -181,7 +181,7 @@ class ProcessUtil {
             var line = ""
             while (reader.readLine().also { if (it != null) line = it } != null) {
                 line.also {
-                    if (result != "")
+                    if (result.isNotEmpty())
                         result += System.lineSeparator()
                     result += it
                 }

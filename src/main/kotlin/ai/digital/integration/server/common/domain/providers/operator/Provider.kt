@@ -42,4 +42,7 @@ abstract class Provider @Inject constructor(val project: Project) {
     @Input
     val cleanUpWaitTimeout = project.objects.property<Duration>().value(Duration.ofSeconds(90))
 
+    @Input
+    val maxDbConnections = project.objects.property<Int>()
+
 }
