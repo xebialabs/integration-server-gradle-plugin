@@ -302,12 +302,11 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
     private fun getDbConnectionCount(): String {
-        val defaultMaxDbConnections = if (productName == ProductName.DEPLOY) {
-            ServerConstants.DEPLOY_DB_CONNECTION_NUMBER * (getMasterCount() + getDeployWorkerCount())
-        } else if (productName == ProductName.RELEASE) {
-            ServerConstants.RELEASE_DB_CONNECTION_NUMBER * getMasterCount()
-        } else {
-            throw IllegalArgumentException("Not supported produce name $productName")
+        val defaultMaxDbConnections = when (productName) {
+            ProductName.DEPLOY ->
+                ServerConstants.DEPLOY_DB_CONNECTION_NUMBER * (getMasterCount() + getDeployWorkerCount())
+            ProductName.RELEASE ->
+                ServerConstants.RELEASE_DB_CONNECTION_NUMBER * getMasterCount()
         }
         return getProvider().maxDbConnections.getOrElse(defaultMaxDbConnections).toString()
     }
