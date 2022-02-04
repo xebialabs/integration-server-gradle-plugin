@@ -485,7 +485,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
                 val deleteResourcesJob = launch {
                     withTimeout(waiting.toMillis()) {
-                        runInterruptible {
+                        runInterruptible(Dispatchers.IO) {
                             deleteAllResources(resourcesList1, resourcesList2)
                         }
                     }
@@ -532,6 +532,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         deleteResourcesJob: Job, iteration: Int, waiting: Duration, resourcesList1: Array<String>, resourcesList2: Array<String>) : Boolean {
         val repeat = 10
         for (i in 1..repeat) {
+            project.logger.lifecycle("Waiting cleanup $i")
             if (deleteResourcesJob.isActive) {
                 delay(waiting.toMillis() / repeat)
             } else {
@@ -544,7 +545,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         val hasResources = existingResourcesFromList1.isNotBlank() || existingResourcesFromList2.isNotBlank()
         return if (hasResources) {
             project.logger.lifecycle("Has more resources, cancelling in iteration $iteration: \n $existingResourcesFromList1 $existingResourcesFromList2")
-            deleteResourcesJob.cancelAndJoin()
+            deleteResourcesJob.cancel()
             false
         } else {
             project.logger.lifecycle("Clean up cluster resources finished in iteration $iteration")

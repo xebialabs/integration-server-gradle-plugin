@@ -25,10 +25,11 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
         updateInfrastructure(getApiServerUrl(), getOcApiServerToken())
 
-        applyYamlFiles()
-
         ocLogin()
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
+
+        applyYamlFiles()
+
         turnOnLogging()
         waitForDeployment()
         waitForMasterPods()
