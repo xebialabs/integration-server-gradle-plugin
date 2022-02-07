@@ -21,7 +21,7 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
     val deploymentTimeoutSeconds = project.objects.property<Int>().value(900)
 
     @Input
-    val xlCliVersion = project.objects.property<String>().value("10.3.6")
+    val xlCliVersion = project.objects.property<String>().value("22.0.1")
 
     @Input
     val xlCliPath = project.objects.property<String>().value(XlCliUtil.getCliUrl(xlCliVersion.get()))

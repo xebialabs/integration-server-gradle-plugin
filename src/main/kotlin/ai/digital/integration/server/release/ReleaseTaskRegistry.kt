@@ -38,9 +38,6 @@ open class ReleaseTaskRegistry {
     companion object {
         fun register(project: Project) {
 
-            // CLI
-            project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask::class.java)
-
             //Cluster
 
             project.tasks.create(StartReleaseClusterTask.NAME, StartReleaseClusterTask::class.java)

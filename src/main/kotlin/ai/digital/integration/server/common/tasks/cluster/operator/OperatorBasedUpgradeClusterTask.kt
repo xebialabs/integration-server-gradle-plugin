@@ -137,7 +137,7 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
 
         // copy CR file for reference
         FileUtils.copyFileToDirectory(
-            File(operatorHelper.getProviderHomeDir(), "xebialabs/dai-deploy/daideploy_cr.yaml"),
+            File(operatorHelper.getProviderHomeDir(), "xebialabs/dai-${productName.displayName}/dai${productName.displayName}_cr.yaml"),
             File(operatorHelper.getProviderWorkDir()))
         operatorHelper.createClusterMetadata()
     }
