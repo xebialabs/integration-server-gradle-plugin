@@ -2,6 +2,7 @@ package ai.digital.integration.server.release.tasks.cluster.operator
 
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
 import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorUpgradeTask
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
@@ -23,7 +24,9 @@ open class OperatorBasedStopReleaseClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        this.dependsOn(when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
+        this.dependsOn(
+            DownloadAndExtractCliDistTask.NAME,
+            when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
             OperatorProviderName.AWS_EKS.providerName ->
                 OperatorBasedAwsEksReleaseClusterStopTask.NAME
             OperatorProviderName.AWS_OPENSHIFT.providerName ->

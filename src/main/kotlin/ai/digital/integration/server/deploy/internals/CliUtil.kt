@@ -151,7 +151,7 @@ class CliUtil {
                 "admin"
             ) + extraParamsAsList).toMutableList()
 
-            if (DeployServerUtil.isTls(project) || secure) {
+            if (!auxiliaryServer && (DeployServerUtil.isTls(project) || secure)) {
                 params += arrayOf("-secure")
             }
 
@@ -165,7 +165,7 @@ class CliUtil {
 
             val environment = cli.environments +
                     extraEnvironments +
-                    EnvironmentUtil.getCliEnv(project, cli, extraParams, extraClassPath)
+                    EnvironmentUtil.getCliEnv(project, cli, extraParams, extraClassPath, auxiliaryServer)
             project.logger.info("Starting worker with environment: $environment")
             ProcessUtil.execAndCheck(
                 mutableMapOf(

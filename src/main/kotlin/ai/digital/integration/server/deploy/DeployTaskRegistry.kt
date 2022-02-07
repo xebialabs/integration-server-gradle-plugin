@@ -61,7 +61,6 @@ open class DeployTaskRegistry {
             project.tasks.create(CliCleanDefaultExtTask.NAME, CliCleanDefaultExtTask::class.java)
             project.tasks.create(CopyCliBuildArtifactsTask.NAME, CopyCliBuildArtifactsTask::class.java)
             project.tasks.create(CliOverlaysTask.NAME, CliOverlaysTask::class.java)
-            project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask::class.java)
             project.tasks.create(RunCliTask.NAME, RunCliTask::class.java)
 
             //Cluster

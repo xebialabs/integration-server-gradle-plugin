@@ -1,6 +1,7 @@
 package ai.digital.integration.server.release
 
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.maintenance.CleanupBeforeStartupTask
 import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.tasks.server.ServerCopyOverlaysTask
@@ -36,6 +37,10 @@ open class ReleaseTaskRegistry {
 
     companion object {
         fun register(project: Project) {
+
+            // CLI
+            project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask::class.java)
+
             //Cluster
 
             project.tasks.create(StartReleaseClusterTask.NAME, StartReleaseClusterTask::class.java)

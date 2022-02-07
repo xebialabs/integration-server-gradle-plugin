@@ -144,12 +144,12 @@ class YamlFileUtil {
          * @param sourceAndDestinationFle
          * @param pairs
          */
-        fun overlayFile(sourceAndDestinationFle: File, pairs: MutableMap<String, Any>, minimizeQuotes: Boolean = true) {
-            if (!sourceAndDestinationFle.exists()) {
-                sourceAndDestinationFle.createNewFile()
-                mingleValues(pairs, sourceAndDestinationFle, minimizeQuotes)
+        fun overlayFile(sourceAndDestinationFile: File, pairs: MutableMap<String, Any>, minimizeQuotes: Boolean = true) {
+            if (!sourceAndDestinationFile.exists()) {
+                sourceAndDestinationFile.createNewFile()
+                mingleValues(pairs, sourceAndDestinationFile, minimizeQuotes)
             } else {
-                mingleValues(sourceAndDestinationFle.toURI().toURL(), pairs, sourceAndDestinationFle, minimizeQuotes)
+                mingleValues(sourceAndDestinationFile.toURI().toURL(), pairs, sourceAndDestinationFile, minimizeQuotes)
             }
         }
 

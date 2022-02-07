@@ -38,7 +38,6 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         updateInfrastructure(kubeContextInfo)
         updateDeploymentValues()
         updateOperatorCrValues()
-        updateCrValues()
 
         applyYamlFiles()
         waitForDeployment()
@@ -202,12 +201,11 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         YamlFileUtil.overlayFile(file, pairs)
     }
 
-    private fun updateCrValues() {
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+    override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
                 "spec.ingress.hosts" to listOf(getFqdn())
         )
-        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     private fun useCustomStorageClass(storageClassName: String) {
