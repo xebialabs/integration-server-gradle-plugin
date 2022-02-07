@@ -19,6 +19,7 @@ import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import ai.digital.integration.server.release.util.ReleaseServerUtil
 import kotlinx.coroutines.*
+import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import java.io.File
 import java.io.IOException
@@ -34,7 +35,9 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     val OPERATOR_INFRASTRUCTURE_PATH = "digitalai-${getName()}/infrastructure.yaml"
 
-    val OPERATOR_CR_VALUES_REL_PATH = "digitalai-${getName()}/kubernetes/dai${getName()}_cr.yaml"
+    val OPERATOR_CR_VALUES_FILENAME = "dai${getName()}_cr.yaml"
+
+    val OPERATOR_CR_VALUES_REL_PATH = "digitalai-${getName()}/kubernetes/$OPERATOR_CR_VALUES_FILENAME"
 
     private val operatorMetadataPath = "${getName()}/operator/operator-metadata.properties"
 
@@ -210,15 +213,16 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
     fun undeployCis(): Boolean {
-        val fileStream = {}::class.java.classLoader.getResourceAsStream("operator/python/undeploy.py")
-        val resultComposeFilePath = Paths.get(getProviderWorkDir(), "undeploy.py")
+        val scriptName = "undeploy_${productName.displayName}.py"
+        val fileStream = {}::class.java.classLoader.getResourceAsStream("operator/python/$scriptName")
+        val resultComposeFilePath = Paths.get(getProviderWorkDir(), scriptName)
         fileStream?.let {
             FileUtil.copyFile(it, resultComposeFilePath)
         }
         return try {
             CliUtil.executeScripts(project,
                 listOf(resultComposeFilePath.toFile()),
-                "undeploy.py",
+                scriptName,
                 auxiliaryServer = true)
             true
         } catch (e: RuntimeException) {
@@ -250,7 +254,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     fun updateOperatorCrValues() {
         project.logger.lifecycle("Updating operator's CR values")
 
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+        val file = getInitialCrValuesFile()
         val pairs =
             mutableMapOf<String, Any>(
                 "spec.ImageRepository" to getServerImageRepository(),
@@ -267,14 +271,8 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 "spec.oidc.enabled" to false,
                 "spec.rabbitmq.persistence.storageClass" to getMqStorageClass(),
                 "spec.rabbitmq.image.debug" to true,
-                "spec.rabbitmq.image.tag" to "3.9.8-debian-10-r6", // original one is slow and unstable
                 "spec.rabbitmq.persistence.size" to "1Gi",
                 "spec.rabbitmq.replicaCount" to getProvider().rabbitmqReplicaCount.get(),
-                "spec.rabbitmq.extraConfiguration" to
-                        listOf(
-                            "load_definitions = /app/${getPrefixName()}-load_definition.json",
-                            "raft.wal_max_size_bytes = 1048576"
-                        ).joinToString(separator = "\n", postfix = "\n"),
                 "spec.rabbitmq.persistence.replicaCount" to 1,
                 "spec.route.hosts" to arrayOf(getHost()),
                 "spec.${getPrefixName()}License" to getLicense()
@@ -299,6 +297,10 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         }
 
         YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        updateCustomOperatorCrValues(file)
+    }
+
+    open fun updateCustomOperatorCrValues(crValuesFile: File) {
     }
 
     private fun getDbConnectionCount(): String {
@@ -364,8 +366,26 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return getProvider().host.getOrElse(getProvider().name.get())
     }
 
+    fun getInitialCrValuesFile(): File {
+        return File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+    }
+
+    fun getReferenceCrValuesFile(): File {
+        return File(getProviderWorkDir(), OPERATOR_CR_VALUES_FILENAME)
+    }
+
     open fun getContextRoot(): String {
-        return "/"
+        val file = getReferenceCrValuesFile()
+        val pathValue = YamlFileUtil.readFileKey(file, "spec.ingress.path") as String
+        val expectedPathValue = when (productName) {
+            ProductName.DEPLOY -> "/xl-deploy"
+            ProductName.RELEASE -> "/xl-release"
+        }
+        return if (pathValue.startsWith(expectedPathValue)) {
+            expectedPathValue
+        } else {
+            "/"
+        }
     }
 
     open fun getCurrentContextInfo(): InfrastructureInfo {
@@ -395,6 +415,8 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
                 File(getProviderHomeDir()),
                 operatorServer.httpPort
             )
+            // copy cr file for reference
+            FileUtils.copyFileToDirectory(getInitialCrValuesFile(), File(getProviderWorkDir()))
         } finally {
             DeployServerUtil.saveServerLogsToFile(project, operatorServer, "deploy-${operatorServer.version}", startTime)
         }

@@ -35,7 +35,6 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
         updateInfrastructure(kubeContextInfo)
         updateDeploymentValues()
         updateOperatorCrValues()
-        updateCrValues()
 
         updateEtcHosts(name)
 
@@ -184,14 +183,13 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
         return name
     }
 
-    private fun updateCrValues() {
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+    override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
             "spec.ingress.hosts" to listOf(getFqdn()),
             "spec.nginx-ingress-controller.defaultBackend.podSecurityContext" to mapOf("fsGroup" to 1001),
             "spec.nginx-ingress-controller.podSecurityContext" to mapOf("fsGroup" to 1001)
         )
-        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     override fun getCurrentContextInfo() = getKubectlHelper().getCurrentContextInfo()

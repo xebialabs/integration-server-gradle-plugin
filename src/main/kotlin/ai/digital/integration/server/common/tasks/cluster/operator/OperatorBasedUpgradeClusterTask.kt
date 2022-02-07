@@ -11,6 +11,7 @@ import ai.digital.integration.server.common.util.GitUtil
 import ai.digital.integration.server.common.util.XlCliUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
+import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -133,6 +134,12 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                 answersFile,
                 File(operatorHelper.getProviderHomeDir()),
                 opBlueprintPath.orNull)
+
+        // copy CR file for reference
+        FileUtils.copyFileToDirectory(
+            File(operatorHelper.getProviderHomeDir(), "xebialabs/dai-deploy/daideploy_cr.yaml"),
+            File(operatorHelper.getProviderWorkDir()))
+        operatorHelper.createClusterMetadata()
     }
 
     private fun operatorBranchToOperatorZip(operatorHelper: OperatorHelper): Path? {
@@ -142,6 +149,13 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                     Paths.get(operatorHelper.getProviderHomeDir()),
                     branch)
             val src = Paths.get(operatorPath.toAbsolutePath().toString(), operatorHelper.getProviderHomePath())
+
+            val newCrFilePath = File(src.toFile(), operatorHelper.OPERATOR_CR_VALUES_REL_PATH)
+            if (!newCrFilePath.exists()) {
+                throw IllegalArgumentException("No CR file from operator package in ${newCrFilePath.absolutePath}")
+            }
+            operatorHelper.updateCustomOperatorCrValues(newCrFilePath)
+
             val dest = Paths.get(operatorHelper.getProviderHomeDir(), "operator-${productName.displayName}-upgrade.zip")
             ant.withGroovyBuilder {
                 "zip"("basedir" to src.toAbsolutePath().toString(),

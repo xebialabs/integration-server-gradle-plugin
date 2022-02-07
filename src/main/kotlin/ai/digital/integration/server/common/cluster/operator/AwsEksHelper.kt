@@ -31,7 +31,6 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         updateOperatorDeploymentCr()
         updateDeploymentValues()
         updateOperatorCrValues()
-        updateCrValues()
 
         applyYamlFiles()
         waitForDeployment()
@@ -291,13 +290,12 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
             throwErrorOnFailure = false)
     }
 
-    private fun updateCrValues() {
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+    override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
             "spec.ingress.hosts" to arrayOf(getFqdn()),
             "spec.rabbitmq.persistence.storageClass" to "gp2"
         )
-        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     private fun updateRoute53() {

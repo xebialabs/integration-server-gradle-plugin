@@ -36,7 +36,6 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         updateInfrastructure(kubeContextInfo)
         updateDeploymentValues()
         updateOperatorCrValues()
-        updateCrValues()
 
         applyYamlFiles()
         turnOnLogging()
@@ -222,13 +221,12 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
             "az aks get-credentials --resource-group ${resourceGroupName(name)} --name ${aksClusterName(name)} --overwrite-existing")
     }
 
-    private fun updateCrValues() {
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+    override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
             "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to getHost()),
             "spec.ingress.hosts" to arrayOf(getFqdn())
         )
-        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     private fun resourceGroupName(name: String): String {

@@ -21,7 +21,6 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         updateOperatorDeploymentCr()
         updateDeploymentValues()
         updateOperatorCrValues()
-        updateCrValues()
 
         updateInfrastructure(getApiServerUrl(), getOcApiServerToken())
 
@@ -111,11 +110,10 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         YamlFileUtil.overlayFile(file, pairs)
     }
 
-    private fun updateCrValues() {
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+    override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> =
             mutableMapOf("spec.postgresql.postgresqlExtendedConf.listenAddresses" to "*")
-        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, true)

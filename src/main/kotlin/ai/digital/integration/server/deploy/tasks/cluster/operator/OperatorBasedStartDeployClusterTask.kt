@@ -3,6 +3,7 @@ package ai.digital.integration.server.deploy.tasks.cluster.operator
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStartTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftDeployClusterStartTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartDeployClusterTask
@@ -21,7 +22,9 @@ open class OperatorBasedStartDeployClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        this.dependsOn(when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
+        this.dependsOn(
+            DownloadAndExtractCliDistTask.NAME,
+            when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
             OperatorProviderName.AWS_EKS.providerName ->
                 OperatorBasedAwsEksDeployClusterStartTask.NAME
             OperatorProviderName.AWS_OPENSHIFT.providerName ->

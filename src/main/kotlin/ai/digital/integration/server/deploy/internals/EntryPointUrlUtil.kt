@@ -50,6 +50,9 @@ class EntryPointUrlUtil(
         if (isOperatorProvider() && !auxiliaryServer) {
             val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
             return operatorHelper.getContextRoot()
+        } else if (auxiliaryServer) {
+            val server = OperatorUtil(project).getOperatorServer()
+            return server.contextRoot
         }
 
         return getPropertyValue("http.context.root", "", auxiliaryServer)
