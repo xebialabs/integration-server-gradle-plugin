@@ -486,6 +486,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     fun cleanUpCluster(waiting: Duration) {
 
         val resourcesList1 = arrayOf(
+            "crd",
             "all",
             "roles",
             "roleBinding",
