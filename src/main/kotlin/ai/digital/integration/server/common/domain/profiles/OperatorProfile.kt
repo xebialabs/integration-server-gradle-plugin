@@ -24,7 +24,7 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
     val xlCliVersion = project.objects.property<String>().value("22.0.1")
 
     @Input
-    val xlCliPath = project.objects.property<String>().value(XlCliUtil.getCliUrl(xlCliVersion.get()))
+    val xlCliPath = project.objects.property<String>().value(xlCliVersion.map { XlCliUtil.getCliUrl(it) })
 
     val awsOpenshift: AwsOpenshiftProvider =
         DefaultOperatorProviderContainer(project.container(Provider::class) {
