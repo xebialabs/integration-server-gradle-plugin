@@ -130,6 +130,8 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
     override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-rabbitmq-$position"
 
+    override fun getProviderCrContextPath(): String = "spec.route.path"
+
     private fun getApiServerUrl() = getProvider().apiServerURL.get()
 
     private fun getOcLogin() = project.property("ocLogin")

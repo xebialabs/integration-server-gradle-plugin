@@ -374,9 +374,12 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return File(getProviderWorkDir(), OPERATOR_CR_VALUES_FILENAME)
     }
 
+    open fun getProviderCrContextPath(): String = "spec.ingress.path"
+
     open fun getContextRoot(): String {
         val file = getReferenceCrValuesFile()
-        val pathValue = YamlFileUtil.readFileKey(file, "spec.ingress.path") as String
+        val pathKey = getProviderCrContextPath()
+        val pathValue = YamlFileUtil.readFileKey(file, pathKey) as String
         val expectedPathValue = when (productName) {
             ProductName.DEPLOY -> "/xl-deploy"
             ProductName.RELEASE -> "/xl-release"
