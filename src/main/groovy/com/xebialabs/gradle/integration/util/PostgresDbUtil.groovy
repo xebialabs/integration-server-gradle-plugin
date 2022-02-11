@@ -15,7 +15,11 @@ class PostgresDbUtil {
                 String table = sequence.replace("_ID_seq", "")
                 Statement updStmt = connection.createStatement()
                 updStmt.closeOnCompletion()
-                updStmt.executeQuery("SELECT SETVAL('\"${sequence}\"', (SELECT MAX(id)+1 FROM \"${table}\"));")
+                if (sequence.toUpperCase().equals(sequence)) {
+                    updStmt.executeQuery("SELECT SETVAL('\"${sequence}\"', (SELECT MAX(\"ID\")+1 FROM \"${table}\"));")
+                } else {
+                    updStmt.executeQuery("SELECT SETVAL('\"${sequence}\"', (SELECT MAX(\"id\")+1 FROM \"${table}\"));")
+                }
             }
         } catch (SQLException e) {
             logger.error('Error occurred while resetting sequences.')
