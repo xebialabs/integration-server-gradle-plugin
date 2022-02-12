@@ -15,7 +15,7 @@ class PostgresDbUtil {
                 String table = sequence.replace("_ID_seq", "")
                 Statement updStmt = connection.createStatement()
                 updStmt.closeOnCompletion()
-                if (sequence.toUpperCase().equals(sequence)) {
+                if (table.toUpperCase().equals(table)) {
                     updStmt.executeQuery("SELECT SETVAL('\"${sequence}\"', (SELECT MAX(\"ID\")+1 FROM \"${table}\"));")
                 } else {
                     updStmt.executeQuery("SELECT SETVAL('\"${sequence}\"', (SELECT MAX(\"id\")+1 FROM \"${table}\"));")
