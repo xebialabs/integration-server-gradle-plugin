@@ -12,7 +12,7 @@ class PostgresDbUtil {
             ResultSet rs = seqStmt.executeQuery("SELECT c.relname FROM pg_class c WHERE c.relkind = 'S';")
             while (rs.next()) {
                 String sequence = rs.getString('relname')
-                String table = sequence.replace("_ID_seq", "")
+                String table = sequence.contains("_ID_seq") ? sequence.replace("_ID_seq", "") : sequence.replace("_id_seq", "")
                 Statement updStmt = connection.createStatement()
                 updStmt.closeOnCompletion()
                 if (table.toUpperCase().equals(table)) {
