@@ -10,6 +10,6 @@ open class Satellite(val name: String) {
     var serverAkkaHostname: String = "127.0.0.1"
     var serverAkkaPort: Int = 8380
     var stdoutFileName: String? = null
-    val syncPlugins: Boolean = true
+    var syncPlugins: Boolean = true
     var version: String? = null
 }
