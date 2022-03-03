@@ -2,12 +2,12 @@ CrName: {{CR_NAME}}
 CrdName: {{CRD_NAME}}
 DeployImageVersionForUpgrader: {{DEPLOY_VERSION_FOR_UPGRADER}}
 K8sApiServerURL: {{K8S_API_SERVER_URL}}
-K8sAuthentication: Token
-K8sToken: {{K8S_TOKEN}}
+K8sClientCert: {{K8S_CLIENT_CERT}}
+K8sClientKey: {{K8S_CLIENT_KEY}}
 K8sSetup: {{K8S_SETUP}}
 Namespace: default
 OperatorImage: {{OPERATOR_IMAGE}}
-OperatorImageDeployOpenshift: {{OPERATOR_IMAGE}}
+OperatorImageDeployGeneric: {{OPERATOR_IMAGE}}
 RepositoryName: {{REPOSITORY_NAME}}
 ImageNameDeploy: xl-deploy
 ImageNameDeployTaskEngine: deploy-task-engine
@@ -23,6 +23,7 @@ KeycloakUrl: {{KEYCLOAK_URL}}
 UseOperatorZipDeploy: true
 OperatorZipDeploy: {{OPERATOR_ZIP_DEPLOY}}
 PreserveCrValuesDeploy: |-
+  .spec.nginx-ingress-controller.service.annotations
   .spec.XldMasterCount
   .spec.XldWorkerCount
   .spec.Persistence.XldMasterPvcSize
@@ -37,10 +38,9 @@ PreserveCrValuesDeploy: |-
   .spec.keycloak.postgresql.postgresqlMaxConnections
   .spec.keycloak.install
   .spec.oidc.enabled
-  .spec.rabbitmq.persistence.replicaCount
-  .spec.rabbitmq.persistence.size
   .spec.rabbitmq.persistence.storageClass
+  .spec.rabbitmq.persistence.size
   .spec.rabbitmq.replicaCount
+  .spec.rabbitmq.persistence.replicaCount
   .spec.route.hosts
   .spec.xldLicense
-

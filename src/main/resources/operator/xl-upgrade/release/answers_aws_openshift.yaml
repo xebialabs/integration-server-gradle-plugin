@@ -1,5 +1,6 @@
 CrName: {{CR_NAME}}
 CrdName: {{CRD_NAME}}
+DeployImageVersionForUpgrader: {{DEPLOY_VERSION_FOR_UPGRADER}}
 K8sApiServerURL: {{K8S_API_SERVER_URL}}
 K8sAuthentication: Token
 K8sToken: {{K8S_TOKEN}}
@@ -17,6 +18,8 @@ UseCustomNamespace: true
 UseKubeconfig: true
 InstallXLD: false
 InstallXLR: false
+UseEmbeddedKeycloak: {{USE_KEYCLOAK}}
+KeycloakUrl: {{KEYCLOAK_URL}}
 UseOperatorZipRelease: true
 OperatorZipRelease: {{OPERATOR_ZIP_RELEASE}}
 PreserveCrValuesRelease: |-

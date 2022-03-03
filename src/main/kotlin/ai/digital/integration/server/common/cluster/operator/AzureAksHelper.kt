@@ -5,6 +5,8 @@ import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AzureAksProvider
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
@@ -246,4 +248,11 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
     }
 
     override fun getCurrentContextInfo() = getKubectlHelper().getCurrentContextInfo()
+
+    fun getAccessToken(): String {
+        val azToken = ProcessUtil.executeCommand(project,
+            "az account get-access-token -o yaml")
+        val azConfigMap = ObjectMapper(YAMLFactory.builder().build()).readValue(azToken, MutableMap::class.java)
+        return azConfigMap["accessToken"] as String
+    }
 }

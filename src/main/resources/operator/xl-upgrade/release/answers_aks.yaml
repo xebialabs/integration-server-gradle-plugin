@@ -2,45 +2,52 @@ CrName: {{CR_NAME}}
 CrdName: {{CRD_NAME}}
 DeployImageVersionForUpgrader: {{DEPLOY_VERSION_FOR_UPGRADER}}
 K8sApiServerURL: {{K8S_API_SERVER_URL}}
-K8sAuthentication: Token
-K8sToken: {{K8S_TOKEN}}
+K8sClientCert: {{K8S_CLIENT_CERT}}
+K8sClientKey: {{K8S_CLIENT_KEY}}
 K8sSetup: {{K8S_SETUP}}
 Namespace: default
 OperatorImage: {{OPERATOR_IMAGE}}
-OperatorImageDeployOpenshift: {{OPERATOR_IMAGE}}
+OperatorImageReleaseGeneric: {{OPERATOR_IMAGE}}
 RepositoryName: {{REPOSITORY_NAME}}
-ImageNameDeploy: xl-deploy
-ImageNameDeployTaskEngine: deploy-task-engine
+ImageNameRelease: xl-release
 ImageTag: {{IMAGE_TAG}}
 OsType: darwin
-ServerType: daiDeploy
+ServerType: daiRelease
 UpgradeType: operatorToOperator
 UseCustomNamespace: true
 UseKubeconfig: true
 InstallXLD: false
+InstallXLR: false
 UseEmbeddedKeycloak: {{USE_KEYCLOAK}}
 KeycloakUrl: {{KEYCLOAK_URL}}
-UseOperatorZipDeploy: true
-OperatorZipDeploy: {{OPERATOR_ZIP_DEPLOY}}
-PreserveCrValuesDeploy: |-
-  .spec.XldMasterCount
-  .spec.XldWorkerCount
-  .spec.Persistence.XldMasterPvcSize
-  .spec.Persistence.XldWorkerPvcSize
+UseOperatorZipRelease: true
+OperatorZipRelease: {{OPERATOR_ZIP_RELEASE}}
+PreserveCrValuesRelease: |-
+  .spec.nginx-ingress-controller.service.annotations
+  .spec.replicaCount
+  .spec.UseExistingDB.Enabled
+  .spec.UseExistingMQ.Enabled
   .spec.ingress.hosts
   .spec.KeystorePassphrase
+  .spec.Persistence.Size
   .spec.Persistence.StorageClass
   .spec.RepositoryKeystore
   .spec.postgresql.persistence.size
   .spec.postgresql.persistence.storageClass
   .spec.postgresql.postgresqlMaxConnections
+  .spec.keycloak.postgresql.persistence.size
   .spec.keycloak.postgresql.postgresqlMaxConnections
+  .spec.haproxy-ingress.install
+  .spec.rabbitmq.install
   .spec.keycloak.install
+  .spec.nginx-ingress-controller.install
+  .spec.postgresql.install
+  .spec.rabbitmq.install
   .spec.oidc.enabled
-  .spec.rabbitmq.persistence.replicaCount
-  .spec.rabbitmq.persistence.size
   .spec.rabbitmq.persistence.storageClass
+  .spec.rabbitmq.persistence.size
   .spec.rabbitmq.replicaCount
+  .spec.rabbitmq.persistence.replicaCount
+  .spec.rabbitmq.persistence.storageClass
   .spec.route.hosts
-  .spec.xldLicense
-
+  .spec.xlrLicense  
