@@ -1,5 +1,6 @@
 CrName: {{CR_NAME}}
 CrdName: {{CRD_NAME}}
+DeployImageVersionForUpgrader: {{DEPLOY_VERSION_FOR_UPGRADER}}
 K8sApiServerURL: {{K8S_API_SERVER_URL}}
 K8sClientCert: {{K8S_CLIENT_CERT}}
 EksClusterName: {{CLUSTER_NAME}}
@@ -21,6 +22,8 @@ UseKubeconfig: true
 InstallXLD: false
 IsEKS: true
 UseAWSconfig: true
+UseEmbeddedKeycloak: {{USE_KEYCLOAK}}
+KeycloakUrl: {{KEYCLOAK_URL}}
 UseOperatorZipDeploy: true
 OperatorZipDeploy: {{OPERATOR_ZIP_DEPLOY}}
 PreserveCrValuesDeploy: |-
