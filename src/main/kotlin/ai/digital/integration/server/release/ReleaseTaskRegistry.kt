@@ -1,7 +1,6 @@
 package ai.digital.integration.server.release
 
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
-import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.maintenance.CleanupBeforeStartupTask
 import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.tasks.server.ServerCopyOverlaysTask
@@ -13,20 +12,23 @@ import ai.digital.integration.server.release.tasks.DockerBasedStopReleaseTask
 import ai.digital.integration.server.release.tasks.StopReleaseIntegrationServerTask
 import ai.digital.integration.server.release.tasks.cluster.StartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.StopReleaseClusterTask
-import ai.digital.integration.server.release.tasks.cluster.operator.CheckingOutReleaseKubernetesOperatorTask
-import ai.digital.integration.server.release.tasks.cluster.operator.OperatorBasedStartReleaseClusterTask
-import ai.digital.integration.server.release.tasks.cluster.operator.OperatorBasedStopReleaseClusterTask
-import ai.digital.integration.server.release.tasks.cluster.operator.OperatorBasedUpgradeReleaseClusterTask
-import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksReleaseClusterStartTask
-import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksReleaseClusterStopTask
-import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftReleaseClusterStartTask
-import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftReleaseClusterStopTask
+import ai.digital.integration.server.release.tasks.cluster.operator.*
+import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.azureaks.OperatorBasedAzureAksInstallReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeInstallReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.onprem.OperatorBasedOnPremInstallReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.onprem.OperatorBasedOnPremStartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.onprem.OperatorBasedOnPremStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftInstallReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.server.StartReleaseServerInstanceTask
@@ -50,43 +52,57 @@ open class ReleaseTaskRegistry {
             project.tasks.create(DockerBasedStopReleaseTask.NAME, DockerBasedStopReleaseTask::class.java)
 
             // Cluster Operator
-            project.tasks.create(OperatorBasedAwsEksReleaseClusterStartTask.NAME,
-                OperatorBasedAwsEksReleaseClusterStartTask::class.java)
-            project.tasks.create(OperatorBasedAwsEksReleaseClusterStopTask.NAME,
-                OperatorBasedAwsEksReleaseClusterStopTask::class.java)
+            project.tasks.create(OperatorBasedAwsEksStartReleaseClusterTask.NAME,
+                OperatorBasedAwsEksStartReleaseClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsEksInstallReleaseClusterTask.NAME,
+                OperatorBasedAwsEksInstallReleaseClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsEksStopReleaseClusterTask.NAME,
+                OperatorBasedAwsEksStopReleaseClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedAwsOpenShiftReleaseClusterStartTask.NAME,
-                OperatorBasedAwsOpenShiftReleaseClusterStartTask::class.java)
-            project.tasks.create(OperatorBasedAwsOpenShiftReleaseClusterStopTask.NAME,
-                OperatorBasedAwsOpenShiftReleaseClusterStopTask::class.java)
+            project.tasks.create(OperatorBasedAwsOpenShiftStartReleaseClusterTask.NAME,
+                OperatorBasedAwsOpenShiftStartReleaseClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsOpenShiftInstallReleaseClusterTask.NAME,
+                OperatorBasedAwsOpenShiftInstallReleaseClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsOpenShiftStopReleaseClusterTask.NAME,
+                OperatorBasedAwsOpenShiftStopReleaseClusterTask::class.java)
 
             project.tasks.create(OperatorBasedAzureAksStartReleaseClusterTask.NAME,
                 OperatorBasedAzureAksStartReleaseClusterTask::class.java)
+            project.tasks.create(OperatorBasedAzureAksInstallReleaseClusterTask.NAME,
+                OperatorBasedAzureAksInstallReleaseClusterTask::class.java)
             project.tasks.create(OperatorBasedAzureAksStopReleaseClusterTask.NAME,
                 OperatorBasedAzureAksStopReleaseClusterTask::class.java)
 
             project.tasks.create(OperatorBasedGcpGkeStartReleaseClusterTask.NAME,
                 OperatorBasedGcpGkeStartReleaseClusterTask::class.java)
+            project.tasks.create(OperatorBasedGcpGkeInstallReleaseClusterTask.NAME,
+                OperatorBasedGcpGkeInstallReleaseClusterTask::class.java)
             project.tasks.create(OperatorBasedGcpGkeStopReleaseClusterTask.NAME,
                 OperatorBasedGcpGkeStopReleaseClusterTask::class.java)
 
             project.tasks.create(OperatorBasedOnPremStartReleaseClusterTask.NAME,
                 OperatorBasedOnPremStartReleaseClusterTask::class.java)
+            project.tasks.create(OperatorBasedOnPremInstallReleaseClusterTask.NAME,
+                OperatorBasedOnPremInstallReleaseClusterTask::class.java)
             project.tasks.create(OperatorBasedOnPremStopReleaseClusterTask.NAME,
                 OperatorBasedOnPremStopReleaseClusterTask::class.java)
 
             project.tasks.create(OperatorBasedVmWareOpenShiftStartReleaseClusterTask.NAME,
                 OperatorBasedVmWareOpenShiftStartReleaseClusterTask::class.java)
+            project.tasks.create(OperatorBasedVmWareOpenShiftInstallReleaseClusterTask.NAME,
+                OperatorBasedVmWareOpenShiftInstallReleaseClusterTask::class.java)
             project.tasks.create(OperatorBasedVmWareOpenShiftStopReleaseClusterTask.NAME,
                 OperatorBasedVmWareOpenShiftStopReleaseClusterTask::class.java)
 
             project.tasks.create(OperatorBasedStartReleaseClusterTask.NAME,
                 OperatorBasedStartReleaseClusterTask::class.java)
+            project.tasks.create(OperatorBasedInstallReleaseClusterTask.NAME,
+                OperatorBasedInstallReleaseClusterTask::class.java)
             project.tasks.create(OperatorBasedStopReleaseClusterTask.NAME,
                 OperatorBasedStopReleaseClusterTask::class.java)
 
-            project.tasks.create(CheckingOutReleaseKubernetesOperatorTask.NAME,
-                CheckingOutReleaseKubernetesOperatorTask::class.java)
+            project.tasks.create(ProvideReleaseKubernetesOperatorTask.NAME,
+                ProvideReleaseKubernetesOperatorTask::class.java)
 
             project.tasks.create(OperatorBasedUpgradeReleaseClusterTask.NAME,
                     OperatorBasedUpgradeReleaseClusterTask::class.java)

@@ -1,15 +1,15 @@
-package ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift
+package ai.digital.integration.server.deploy.tasks.cluster.operator.awseks
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.common.cluster.operator.AwsOpenshiftHelper
+import ai.digital.integration.server.common.cluster.operator.AwsEksHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStopTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedAwsOpenShiftDeployClusterStopTask : DeployOperatorBasedStopTask() {
+open class OperatorBasedAwsEksStopDeployClusterTask : DeployOperatorBasedStopTask() {
 
     companion object {
-        const val NAME = "operatorBasedAwsOpenShiftDeployClusterStop"
+        const val NAME = "operatorBasedAwsEksStopDeployCluster"
     }
 
     init {
@@ -19,6 +19,6 @@ open class OperatorBasedAwsOpenShiftDeployClusterStopTask : DeployOperatorBasedS
 
     @TaskAction
     fun launch() {
-        AwsOpenshiftHelper(project, ProductName.DEPLOY).shutdownCluster()
+        AwsEksHelper(project, ProductName.DEPLOY).shutdownCluster()
     }
 }

@@ -26,7 +26,9 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
         ocLogin()
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
+    }
 
+    fun installCluster() {
         applyYamlFiles()
 
         turnOnLogging()
@@ -90,11 +92,6 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
     override fun getProvider(): AwsOpenshiftProvider {
         return getProfile().awsOpenshift
-    }
-
-    override fun getOperatorImage(): String {
-        // it needs to be aligned with operatorBranch default value
-        return getProvider().operatorImage.getOrElse("xldevdocker/${getName()}-operator:1.3.0-openshift")
     }
 
     override fun getStorageClass(): String {

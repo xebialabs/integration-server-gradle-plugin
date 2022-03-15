@@ -6,7 +6,7 @@ import ai.digital.integration.server.common.constant.ProductName
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedAwsEksReleaseClusterStopTask : DefaultTask() {
+open class OperatorBasedAwsEksStopReleaseClusterTask : DefaultTask() {
 
     companion object {
         const val NAME = "operatorBasedAwsEksStopReleaseCluster"

@@ -3,13 +3,13 @@ package ai.digital.integration.server.release.tasks.cluster.operator.awseks
 import ai.digital.integration.server.common.cluster.operator.AwsEksHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.release.tasks.cluster.operator.ReleaseOperatorBasedStartTask
+import ai.digital.integration.server.release.tasks.cluster.operator.ReleaseOperatorBasedInstallTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedAwsEksReleaseClusterStartTask : ReleaseOperatorBasedStartTask() {
+open class OperatorBasedAwsEksInstallReleaseClusterTask : ReleaseOperatorBasedInstallTask() {
 
     companion object {
-        const val NAME = "operatorBasedAwsEksStartReleaseCluster"
+        const val NAME = "operatorBasedAwsEksInstallReleaseCluster"
     }
 
     init {
@@ -19,6 +19,6 @@ open class OperatorBasedAwsEksReleaseClusterStartTask : ReleaseOperatorBasedStar
 
     @TaskAction
     fun launch() {
-        AwsEksHelper(project, ProductName.RELEASE).launchCluster()
+        AwsEksHelper(project, ProductName.RELEASE).installCluster()
     }
 }

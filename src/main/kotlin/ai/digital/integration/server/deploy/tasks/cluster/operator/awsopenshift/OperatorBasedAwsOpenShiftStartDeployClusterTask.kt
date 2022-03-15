@@ -6,7 +6,7 @@ import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStartTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedAwsOpenShiftDeployClusterStartTask : DeployOperatorBasedStartTask() {
+open class OperatorBasedAwsOpenShiftStartDeployClusterTask : DeployOperatorBasedStartTask() {
 
     companion object {
         const val NAME = "operatorBasedAwsOpenShiftStartDeployCluster"

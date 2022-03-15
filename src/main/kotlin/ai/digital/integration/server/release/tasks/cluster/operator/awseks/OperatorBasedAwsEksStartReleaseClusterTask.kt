@@ -1,15 +1,15 @@
-package ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift
+package ai.digital.integration.server.release.tasks.cluster.operator.awseks
 
-import ai.digital.integration.server.common.cluster.operator.AwsOpenshiftHelper
+import ai.digital.integration.server.common.cluster.operator.AwsEksHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.release.tasks.cluster.operator.ReleaseOperatorBasedStartTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedAwsOpenShiftReleaseClusterStartTask : ReleaseOperatorBasedStartTask() {
+open class OperatorBasedAwsEksStartReleaseClusterTask : ReleaseOperatorBasedStartTask() {
 
     companion object {
-        const val NAME = "operatorBasedAwsOpenShiftStartReleaseCluster"
+        const val NAME = "operatorBasedAwsEksStartReleaseCluster"
     }
 
     init {
@@ -19,6 +19,6 @@ open class OperatorBasedAwsOpenShiftReleaseClusterStartTask : ReleaseOperatorBas
 
     @TaskAction
     fun launch() {
-        AwsOpenshiftHelper(project, ProductName.RELEASE).launchCluster()
+        AwsEksHelper(project, ProductName.RELEASE).launchCluster()
     }
 }

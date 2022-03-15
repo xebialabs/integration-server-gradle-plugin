@@ -8,6 +8,19 @@ import java.io.File
 class XlCliUtil {
     companion object {
 
+        val osFolder = when {
+            Os.isFamily(Os.FAMILY_WINDOWS) ->
+                "windows-amd64"
+            Os.isFamily(Os.FAMILY_MAC) ->
+                "darwin-amd64"
+            else ->
+                "linux-amd64"
+        }
+
+        fun distUrl(cliVersion: String) = "https://dist.xebialabs.com/public/xl-cli/$cliVersion/${osFolder}/xl"
+
+        fun localDir(project: Project) = project.buildDir.resolve("xl-cli")
+
         val XL_OP_MAPPING = mapOf(
                 Pair(OperatorProviderName.AWS_EKS, "AwsEKS"),
                 Pair(OperatorProviderName.AZURE_AKS, "AzureAKS"),
@@ -16,53 +29,20 @@ class XlCliUtil {
                 Pair(OperatorProviderName.ON_PREMISE, "PlainK8SCluster")
         )
 
-        private fun download(cliUrl: String, location: File) {
+        private fun copyFromLocal(project: Project, location: File) {
+            val cliPath = localDir(project).resolve("xl")
             ProcessUtil.executeCommand(
-                    "wget $cliUrl", location, logOutput = false)
+                    "cp -f $cliPath $location", logOutput = false)
             ProcessUtil.executeCommand("chmod +x xl", location, logOutput = false)
         }
 
-        private fun copyFromLocal(cliPath: String, location: File) {
-            ProcessUtil.executeCommand(
-                    "cp $cliPath $location", logOutput = false)
-            ProcessUtil.executeCommand("chmod +x xl", location, logOutput = false)
-        }
-
-        private fun checkIfXlDownloaded(location: File): Boolean = File(location.absolutePath, "xl").isFile
-
-        private fun checkAndDownload(project: Project, cliPath: String, workDir: File) {
-            if (cliPath.startsWith("http")) {
-                if (!checkIfXlDownloaded(workDir)) {
-                    project.logger.lifecycle("Downloading xl-cli from $cliPath")
-                    download(cliPath, workDir)
-                } else {
-                    project.logger.lifecycle("Using existing xl-cli from $cliPath")
-                }
-            } else {
-                project.logger.lifecycle("Using xl-cli from $cliPath")
-                copyFromLocal(cliPath, workDir)
-            }
-        }
-
-        fun getCliUrl(cliVersion: String): String {
-            val osFolder = when {
-                Os.isFamily(Os.FAMILY_WINDOWS) ->
-                    "windows-amd64"
-                Os.isFamily(Os.FAMILY_MAC) ->
-                    "darwin-amd64"
-                else ->
-                    "linux-amd64"
-            }
-            return "https://dist.xebialabs.com/public/xl-cli/$cliVersion/$osFolder/xl"
-        }
-
-        fun xlApply(project: Project, cliPath: String, file: File, workDir: File, deployServerForOperatorPort: Int) {
-            checkAndDownload(project, cliPath, workDir)
+        fun xlApply(project: Project, file: File, workDir: File, deployServerForOperatorPort: Int) {
+            copyFromLocal(project, workDir)
             ProcessUtil.executeCommand(project, "./xl apply --verbose -f \"${file.name}\" --xl-deploy-url http://localhost:${deployServerForOperatorPort}/ --xl-deploy-username admin --xl-deploy-password admin", workDir)
         }
 
-        fun xlOp(project: Project, cliPath: String, answersFile: File, workDir: File, blueprintPath: File?) {
-            checkAndDownload(project, cliPath, workDir)
+        fun xlOp(project: Project, answersFile: File, workDir: File, blueprintPath: File?) {
+            copyFromLocal(project, workDir)
             // hard coded container name "dai-deploy" is reserved for "xl op"
             DockerUtil.execute(project, arrayListOf("stop", "dai-deploy"), logOutput = false, throwErrorOnFailure = false)
             DockerUtil.execute(project, arrayListOf("rm", "dai-deploy"), logOutput = false, throwErrorOnFailure = false)
