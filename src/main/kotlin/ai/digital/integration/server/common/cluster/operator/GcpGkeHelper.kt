@@ -33,12 +33,15 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
 
         useCustomStorageClass(getStorageClass())
 
+        updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
         updateDeploymentValues()
         updateOperatorCrValues()
+    }
 
+    fun installCluster() {
         applyYamlFiles()
         waitForDeployment()
         waitForMasterPods()

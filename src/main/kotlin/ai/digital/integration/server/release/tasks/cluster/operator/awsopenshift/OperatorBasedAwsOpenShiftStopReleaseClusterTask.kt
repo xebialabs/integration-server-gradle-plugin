@@ -6,10 +6,10 @@ import ai.digital.integration.server.common.constant.ProductName
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedAwsOpenShiftReleaseClusterStopTask : DefaultTask() {
+open class OperatorBasedAwsOpenShiftStopReleaseClusterTask : DefaultTask() {
 
     companion object {
-        const val NAME = "operatorBasedAwsOpenShiftReleaseClusterStop"
+        const val NAME = "operatorBasedAwsOpenShiftStopReleaseCluster"
     }
 
     init {

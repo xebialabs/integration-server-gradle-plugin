@@ -27,11 +27,14 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
 
         if (getStorageClass() == "aws-efs") createStorageClass(getStorageClass())
 
+        updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateDeploymentValues()
         updateOperatorCrValues()
+    }
 
+    fun installCluster() {
         applyYamlFiles()
         waitForDeployment()
         waitForMasterPods()

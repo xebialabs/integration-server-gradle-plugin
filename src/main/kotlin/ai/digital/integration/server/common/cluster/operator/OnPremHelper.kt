@@ -30,6 +30,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo()
 
+        updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
@@ -37,7 +38,9 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
         updateOperatorCrValues()
 
         updateEtcHosts(name)
+    }
 
+    fun installCluster() {
         applyYamlFiles()
         waitForDeployment()
         waitForMasterPods()

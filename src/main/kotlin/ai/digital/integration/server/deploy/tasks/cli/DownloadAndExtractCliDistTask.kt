@@ -15,7 +15,7 @@ open class DownloadAndExtractCliDistTask : DefaultTask() {
 
         if (CliUtil.hasCli(project) || TestUtil.hasTests(project)) {
             val version = CliUtil.getCli(project).version
-            project.logger.lifecycle("Downloading and extracting the CLI ${version}.")
+            project.logger.lifecycle("Downloading and extracting the Deploy cli ${version}.")
             project.buildscript.dependencies.add(
                 SERVER_CLI_DIST,
                 "ai.digital.deploy:deploy-cli:${version}@zip"

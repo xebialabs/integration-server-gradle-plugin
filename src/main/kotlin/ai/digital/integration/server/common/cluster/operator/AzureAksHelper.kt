@@ -33,12 +33,15 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         val kubeContextInfo = getCurrentContextInfo()
         createStorageClass(resourceGroupName(name), azureAksProvider.storageClass.getOrElse(name))
 
+        updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
         updateDeploymentValues()
         updateOperatorCrValues()
+    }
 
+    fun installCluster() {
         applyYamlFiles()
         turnOnLogging()
         waitForDeployment()

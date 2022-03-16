@@ -4,19 +4,19 @@ import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStartDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStartDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStartDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftInstallDeployClusterTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedStartDeployClusterTask : DefaultTask() {
+open class OperatorBasedInstallDeployClusterTask : DefaultTask() {
 
     companion object {
-        const val NAME = "operatorBasedStartDeployCluster"
+        const val NAME = "operatorBasedInstallDeployCluster"
     }
 
     init {
@@ -26,17 +26,17 @@ open class OperatorBasedStartDeployClusterTask : DefaultTask() {
             DownloadAndExtractCliDistTask.NAME,
             when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
             OperatorProviderName.AWS_EKS.providerName ->
-                OperatorBasedAwsEksStartDeployClusterTask.NAME
+                OperatorBasedAwsEksInstallDeployClusterTask.NAME
             OperatorProviderName.AWS_OPENSHIFT.providerName ->
-                OperatorBasedAwsOpenShiftStartDeployClusterTask.NAME
+                OperatorBasedAwsOpenShiftInstallDeployClusterTask.NAME
             OperatorProviderName.AZURE_AKS.providerName ->
-                OperatorBasedAzureAksStartDeployClusterTask.NAME
+                OperatorBasedAzureAksInstallDeployClusterTask.NAME
             OperatorProviderName.GCP_GKE.providerName ->
-                OperatorBasedGcpGkeStartDeployClusterTask.NAME
+                OperatorBasedGcpGkeInstallDeployClusterTask.NAME
             OperatorProviderName.ON_PREMISE.providerName ->
-                OperatorBasedOnPremStartDeployClusterTask.NAME
+                OperatorBasedOnPremInstallDeployClusterTask.NAME
             OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
-                OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME
+                OperatorBasedVmWareOpenShiftInstallDeployClusterTask.NAME
             else -> {
                 throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
                     OperatorProviderName.values().joinToString()

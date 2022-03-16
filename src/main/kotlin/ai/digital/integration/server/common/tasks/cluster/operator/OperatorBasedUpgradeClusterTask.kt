@@ -7,12 +7,17 @@ import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.util.GitUtil
 import ai.digital.integration.server.common.util.XlCliUtil
+import ai.digital.integration.server.common.util.YamlFileUtil
+import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
+import ai.digital.integration.server.deploy.tasks.cli.DownloadXlCliDistTask
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.withGroovyBuilder
@@ -31,11 +36,20 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
     val imageTargetVersion = project.objects.property<String>()
 
     @Input
+    val deployUpgraderVersion = project.objects.property<String>().value(imageTargetVersion)
+
+    @Input
+    val useOperatorZip = project.objects.property<Boolean>().value(true)
+
+    @Optional
+    @Input
     val operatorBranch = project.objects.property<String>()
 
+    @Optional
     @Input
     val opBlueprintBranch = project.objects.property<String>()
 
+    @Optional
     @Input
     val keycloakUrl = project.objects.property<String>()
 
@@ -43,6 +57,29 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
 
     init {
         group = PluginConstant.PLUGIN_GROUP
+
+        val upgradeTask = this
+        project.afterEvaluate {
+
+            val dependencies = mutableListOf<Any>(DownloadXlCliDistTask.NAME)
+
+            val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
+            if (useOperatorZip.get() && operatorHelper.getProvider().operatorPackageVersion.isPresent) {
+                project.buildscript.dependencies.add(
+                    DeployConfigurationsUtil.OPERATOR_DIST,
+                    "ai.digital.${operatorHelper.productName.displayName}.operator:${operatorHelper.getProviderHomePath()}:${operatorHelper.getProvider().operatorPackageVersion.get()}@zip"
+                )
+
+                val taskName = "downloadOperator${operatorHelper.getProviderHomePath()}"
+                val providerHomePath = operatorHelper.getProviderHomePath()
+                val task = project.tasks.register(taskName, Copy::class.java) {
+                    from(project.zipTree(project.buildscript.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
+                    into(getUpgradeDir(operatorHelper).toFile().resolve(providerHomePath))
+                }
+                dependencies.add(task)
+            }
+            upgradeTask.dependsOn(dependencies)
+        }
     }
 
     @TaskAction
@@ -65,7 +102,7 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
 
         val clusterUtil = OperatorUtil(project)
         val server = clusterUtil.getOperatorServer()
-        val operatorImage = operatorHelper.getOperatorImage()
+        val operatorImage = operatorHelper.getOperatorImage() ?: getOperatorImage(operatorHelper)
         val crdName = operatorHelper.getKubectlHelper().getCrd("${productName.shortName}.digital.ai")
         val crName = operatorHelper.getKubectlHelper().getCr(crdName)
         val k8sSetup = when (productName) {
@@ -110,8 +147,9 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                 .replace("{{DEPLOY_VERSION_FOR_UPGRADER}}", server.version!!)
                 .replace("{{USE_KEYCLOAK}}", keycloakUrl.map { StringUtils.isNotBlank(it) }.getOrElse(false).toString())
                 .replace("{{KEYCLOAK_URL}}", keycloakUrl.getOrElse("null"))
-                .replace("{{DEPLOY_VERSION_FOR_UPGRADER}}", "22.0.0")
-                .replace("{{OPERATOR_ZIP_${productName.displayName.toUpperCase()}}}", operatorZip?.toAbsolutePath().toString())
+                .replace("{{DEPLOY_VERSION_FOR_UPGRADER}}", deployUpgraderVersion.get())
+                .replace("{{USE_OPERATOR_ZIP}}", (operatorZip != null).toString())
+                .replace("{{OPERATOR_ZIP_${productName.displayName.toUpperCase()}}}", operatorZip?.toAbsolutePath()?.toString() ?: "null")
 
         val answersFileTemplate = when (k8sSetup) {
             K8sSetup.GoogleGKE.toString() -> {
@@ -154,7 +192,6 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
 
         project.logger.lifecycle("Applying prepared answers file ${answersFile.absolutePath}")
         XlCliUtil.xlOp(project,
-                operatorHelper.getProfile().xlCliPath.get(),
                 answersFile,
                 getUpgradeDir(operatorHelper).toFile(),
                 opBlueprintPath.orNull)
@@ -168,25 +205,46 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
     }
 
     private fun operatorBranchToOperatorZip(operatorHelper: OperatorHelper): Path? {
-        operatorBranch.orNull.let { branch ->
-            project.logger.lifecycle("Using xl-${productName.displayName}-kubernetes-operator from branch $branch")
+        if (useOperatorZip.get() && operatorBranch.isPresent) {
+            project.logger.lifecycle("Using xl-${productName.displayName}-kubernetes-operator from branch ${operatorBranch.get()}")
             val operatorPath = GitUtil.checkout("xl-${productName.displayName}-kubernetes-operator",
                     getUpgradeDir(operatorHelper),
-                    branch)
+                    operatorBranch.get())
             val src = Paths.get(operatorPath.toAbsolutePath().toString(), operatorHelper.getProviderHomePath())
-
-            val newCrFilePath = File(src.toFile(), operatorHelper.OPERATOR_CR_VALUES_REL_PATH)
-            if (!newCrFilePath.exists()) {
-                throw IllegalArgumentException("No CR file from operator package in ${newCrFilePath.absolutePath}")
-            }
-            operatorHelper.updateCustomOperatorCrValues(newCrFilePath)
-
-            val dest = Paths.get(getUpgradeDir(operatorHelper).toFile().absolutePath, "operator-${productName.displayName}-upgrade.zip")
-            ant.withGroovyBuilder {
-                "zip"("basedir" to src.toAbsolutePath().toString(),
-                        "destfile" to dest.toAbsolutePath().toString())
-            }
-            return dest
+            return prepareOperatorZip(operatorHelper, src)
+        } else if (useOperatorZip.get() && useOperatorZip.get() && operatorHelper.getProvider().operatorPackageVersion.isPresent) {
+            project.logger.lifecycle("Downloading xl-${productName.displayName}-kubernetes-operator version ${operatorHelper.getProvider().operatorPackageVersion.get()}")
+            val providerHomePath = operatorHelper.getProviderHomePath()
+            return getUpgradeDir(operatorHelper).toFile().resolve(providerHomePath).toPath()
+        } else if (useOperatorZip.get()) {
+            val providerHomePath = operatorHelper.getProviderHomePath()
+            project.logger.lifecycle("Using current xl-${productName.displayName}-kubernetes-operator")
+            val operatorPath = getUpgradeDir(operatorHelper).toFile().resolve("xl-${productName.displayName}-kubernetes-operator")
+            project.rootDir.resolve(providerHomePath).copyRecursively(operatorPath.resolve(providerHomePath), true)
+            return prepareOperatorZip(operatorHelper, operatorPath.resolve(providerHomePath).toPath())
+        } else {
+            return null
         }
+    }
+
+    private fun prepareOperatorZip(operatorHelper: OperatorHelper, src: Path): Path {
+        val newCrFilePath = File(src.toFile(), operatorHelper.OPERATOR_CR_VALUES_REL_PATH)
+        if (!newCrFilePath.exists()) {
+            throw IllegalArgumentException("No CR file from operator package in ${newCrFilePath.absolutePath}")
+        }
+        operatorHelper.updateCustomOperatorCrValues(newCrFilePath)
+
+        val dest = Paths.get(getUpgradeDir(operatorHelper).toFile().absolutePath, "operator-${productName.displayName}-upgrade.zip")
+        ant.withGroovyBuilder {
+            "zip"("basedir" to src.toAbsolutePath().toString(),
+                "destfile" to dest.toAbsolutePath().toString())
+        }
+        return dest
+    }
+
+    private fun getOperatorImage(operatorHelper: OperatorHelper): String {
+        val operatorDeployment = project.rootDir.resolve(operatorHelper.getProviderHomePath()).resolve(operatorHelper.OPERATOR_DEPLOYMENT_PATH)
+        operatorHelper.getReferenceCrValuesFile()
+        return YamlFileUtil.readFileKey(operatorDeployment, "spec.template.spec.containers[1].image") as String
     }
 }

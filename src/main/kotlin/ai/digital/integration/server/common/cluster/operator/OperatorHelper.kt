@@ -49,11 +49,20 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     private val OPERATOR_PACKAGE_REL_PATH = "digitalai-${getName()}/deployment.yaml"
 
-    private val OPERATOR_DEPLOYMENT_PATH = "digitalai-${getName()}/kubernetes/template/deployment.yaml"
+    val OPERATOR_DEPLOYMENT_PATH = "digitalai-${getName()}/kubernetes/template/deployment.yaml"
 
     private val DIGITAL_AI_PATH = "digital-ai.yaml"
 
     companion object {
+        fun getOperatorHelper(project: Project): OperatorHelper {
+            val productName = if (ReleaseServerUtil.isReleaseServerDefined(project)) {
+                ProductName.RELEASE
+            } else {
+                ProductName.DEPLOY
+            }
+            return getOperatorHelper(project, productName)
+        }
+
         fun getOperatorHelper(project: Project, productName: ProductName): OperatorHelper {
             return when (val providerName = getOperatorProvider(project, productName)) {
                 OperatorProviderName.AWS_EKS.providerName -> AwsEksHelper(project, productName)
@@ -95,30 +104,37 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     }
 
     fun updateOperatorApplications() {
-        project.logger.lifecycle("Updating operator's applications")
+        if (getProvider().operatorPackageVersion.isPresent) {
+            project.logger.lifecycle("Updating operator's applications")
 
-        val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
-        val pairs = mutableMapOf<String, Any>("spec[0].children[0].name" to getProvider().operatorPackageVersion.get())
-        YamlFileUtil.overlayFile(file, pairs)
+            val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
+            val pairs = mutableMapOf<String, Any>("spec[0].children[0].name" to getProvider().operatorPackageVersion.get())
+            YamlFileUtil.overlayFile(file, pairs)
+        }
     }
 
     fun updateOperatorDeployment() {
-        project.logger.lifecycle("Updating operator's deployment")
+        if (getProvider().operatorPackageVersion.isPresent) {
+            project.logger.lifecycle("Updating operator's deployment")
 
-        val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
-        val pairs =
-            mutableMapOf<String, Any>(
-                "spec.package" to "Applications/${getPrefixName()}-operator-app/${getProvider().operatorPackageVersion.get()}")
-        YamlFileUtil.overlayFile(file, pairs)
+            val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
+            val pairs =
+                mutableMapOf<String, Any>(
+                    "spec.package" to "Applications/${getPrefixName()}-operator-app/${getProvider().operatorPackageVersion.get()}"
+                )
+            YamlFileUtil.overlayFile(file, pairs)
+        }
     }
 
     fun updateOperatorDeploymentCr() {
-        project.logger.lifecycle("Updating operator's deployment CR")
+        if (getProvider().operatorPackageVersion.isPresent) {
+            project.logger.lifecycle("Updating operator's deployment CR")
 
-        val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
-        val pairs =
-            mutableMapOf<String, Any>("spec.package" to "Applications/${getPrefixName()}-cr/${getProvider().operatorPackageVersion.get()}")
-        YamlFileUtil.overlayFile(file, pairs)
+            val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
+            val pairs =
+                mutableMapOf<String, Any>("spec.package" to "Applications/${getPrefixName()}-cr/${getProvider().operatorPackageVersion.get()}")
+            YamlFileUtil.overlayFile(file, pairs)
+        }
     }
 
     fun turnOnLogging() {
@@ -236,19 +252,21 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         }
     }
 
-    open fun getOperatorImage(): String {
+    open fun getOperatorImage(): String? {
         // it needs to be aligned with operatorBranch default value
-        return getProvider().operatorImage.getOrElse("xldevdocker/${getName()}-operator:1.3.0")
+        return getProvider().operatorImage.orNull
     }
 
     fun updateDeploymentValues() {
-        project.logger.lifecycle("Updating operator's deployment values")
-        val file = File(getProviderHomeDir(), OPERATOR_DEPLOYMENT_PATH)
-        val pairs =
-            mutableMapOf<String, Any>(
-                "spec.template.spec.containers[1].image" to getOperatorImage()
-            )
-        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        getOperatorImage()?.let { operatorImage ->
+            project.logger.lifecycle("Updating operator's deployment values")
+            val file = File(getProviderHomeDir(), OPERATOR_DEPLOYMENT_PATH)
+            val pairs =
+                mutableMapOf<String, Any>(
+                    "spec.template.spec.containers[1].image" to operatorImage
+                )
+            YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        }
     }
 
     fun updateOperatorCrValues() {
@@ -300,8 +318,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         updateCustomOperatorCrValues(file)
     }
 
-    open fun updateCustomOperatorCrValues(crValuesFile: File) {
-    }
+    abstract fun updateCustomOperatorCrValues(crValuesFile: File)
 
     private fun getDbConnectionCount(): String {
         val defaultMaxDbConnections = when (productName) {
@@ -413,7 +430,6 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         try {
             XlCliUtil.xlApply(
                 project,
-                getProfile().xlCliPath.get(),
                 digitalAiPath,
                 File(getProviderHomeDir()),
                 operatorServer.httpPort

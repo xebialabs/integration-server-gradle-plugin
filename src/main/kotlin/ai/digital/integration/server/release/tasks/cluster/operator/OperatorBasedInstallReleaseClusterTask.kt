@@ -3,19 +3,19 @@ package ai.digital.integration.server.release.tasks.cluster.operator
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
-import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartReleaseClusterTask
-import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStartReleaseClusterTask
-import ai.digital.integration.server.release.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartReleaseClusterTask
-import ai.digital.integration.server.release.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStartReleaseClusterTask
-import ai.digital.integration.server.release.tasks.cluster.operator.onprem.OperatorBasedOnPremStartReleaseClusterTask
-import ai.digital.integration.server.release.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.azureaks.OperatorBasedAzureAksInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.onprem.OperatorBasedOnPremInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftInstallReleaseClusterTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-open class OperatorBasedStartReleaseClusterTask : DefaultTask() {
+open class OperatorBasedInstallReleaseClusterTask : DefaultTask() {
 
     companion object {
-        const val NAME = "operatorBasedStartReleaseCluster"
+        const val NAME = "operatorBasedInstallReleaseCluster"
     }
 
     init {
@@ -23,17 +23,17 @@ open class OperatorBasedStartReleaseClusterTask : DefaultTask() {
 
         this.dependsOn(when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
             OperatorProviderName.AWS_EKS.providerName ->
-                OperatorBasedAwsEksStartReleaseClusterTask.NAME
+                OperatorBasedAwsEksInstallReleaseClusterTask.NAME
             OperatorProviderName.AWS_OPENSHIFT.providerName ->
-                OperatorBasedAwsOpenShiftStartReleaseClusterTask.NAME
+                OperatorBasedAwsOpenShiftInstallReleaseClusterTask.NAME
             OperatorProviderName.AZURE_AKS.providerName ->
-                OperatorBasedAzureAksStartReleaseClusterTask.NAME
+                OperatorBasedAzureAksInstallReleaseClusterTask.NAME
             OperatorProviderName.GCP_GKE.providerName ->
-                OperatorBasedGcpGkeStartReleaseClusterTask.NAME
+                OperatorBasedGcpGkeInstallReleaseClusterTask.NAME
             OperatorProviderName.ON_PREMISE.providerName ->
-                OperatorBasedOnPremStartReleaseClusterTask.NAME
+                OperatorBasedOnPremInstallReleaseClusterTask.NAME
             OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
-                OperatorBasedVmWareOpenShiftStartReleaseClusterTask.NAME
+                OperatorBasedVmWareOpenShiftInstallReleaseClusterTask.NAME
             else -> {
                 throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
                     OperatorProviderName.values().joinToString()

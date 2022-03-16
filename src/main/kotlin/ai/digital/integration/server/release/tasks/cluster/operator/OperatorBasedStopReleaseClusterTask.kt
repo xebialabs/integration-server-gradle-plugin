@@ -6,8 +6,8 @@ import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistT
 import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
 import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorUpgradeTask
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
-import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksReleaseClusterStopTask
-import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftReleaseClusterStopTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.onprem.OperatorBasedOnPremStopReleaseClusterTask
@@ -28,9 +28,9 @@ open class OperatorBasedStopReleaseClusterTask : DefaultTask() {
             DownloadAndExtractCliDistTask.NAME,
             when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
             OperatorProviderName.AWS_EKS.providerName ->
-                OperatorBasedAwsEksReleaseClusterStopTask.NAME
+                OperatorBasedAwsEksStopReleaseClusterTask.NAME
             OperatorProviderName.AWS_OPENSHIFT.providerName ->
-                OperatorBasedAwsOpenShiftReleaseClusterStopTask.NAME
+                OperatorBasedAwsOpenShiftStopReleaseClusterTask.NAME
             OperatorProviderName.AZURE_AKS.providerName ->
                 OperatorBasedAzureAksStopReleaseClusterTask.NAME
             OperatorProviderName.GCP_GKE.providerName ->
