@@ -32,7 +32,7 @@ class XlCliUtil {
         private fun copyFromLocal(project: Project, location: File) {
             val cliPath = localDir(project).resolve("xl")
             ProcessUtil.executeCommand(
-                    "cp -f $cliPath $location", logOutput = false)
+                    "cp -f \"$cliPath\" \"$location\"", logOutput = false)
             ProcessUtil.executeCommand("chmod +x xl", location, logOutput = false)
         }
 
