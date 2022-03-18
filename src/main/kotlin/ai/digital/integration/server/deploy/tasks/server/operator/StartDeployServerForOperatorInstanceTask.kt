@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.tasks.server.operator
 
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
@@ -50,6 +51,6 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
         OperatorUtil(project).waitForBoot(server)
 
         val dockerComposeFile = DeployServerUtil.getResolvedDockerFile(project, server).toFile()
-        DockerComposeUtil.allowToCleanMountedFiles(project, server, dockerComposeFile)
+        DockerComposeUtil.allowToCleanMountedFiles(project, ProductName.DEPLOY, server, dockerComposeFile)
     }
 }

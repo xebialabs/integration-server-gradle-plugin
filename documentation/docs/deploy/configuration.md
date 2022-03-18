@@ -14,6 +14,7 @@ deployIntegrationServer {
     database {}
     maintenance {}
     mqDriverVersions {}
+    operatorServer {}
     satellites {}
     servers {}
     tests {}
@@ -22,16 +23,19 @@ deployIntegrationServer {
 }
 ```
 
-|Name|Description|
-| :---: | :---: |
-|cli|The configuration section for Deploy CLI client to run Jython scripts against Deploy server instance.|
-|database|Database configuration, you can find this section helpful for overriding database driving versions or having more database level logs.|
-|mqDriverVersions|Points to the version of MQ to use, in case you wish to adapt it to your own version.|
-|satellites|You can configure as many satellites as you need here.|
-|servers|For non-cluster setup, you can specify here only 1 active server, the rest will be ignored. Unless it is a configuration for update from a previous installation.|
-|tests|You can define Jython based test setups|
-|xldIsDataVersion|**Only for internal use in Digital.ai** Points to the data which is going to be imported after server is booted. To run waste the time to generate a huge amount of test data.|
-|workers|You can configure as many workers as you need here.|
+|       Name       |                                                                                  Description                                                                                   |
+|:----------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|       cli        |                                     The configuration section for Deploy CLI client to run Jython scripts against Deploy server instance.                                      |
+|     cluster      |                                                  The configuration section for cluster based setup. By default it's disabled.                                                  |
+|     clusterProfiles      |                      In this section you can define multiple profiles for different providers and in cluster section define which profile is active now.                       |
+|     database     |                     Database configuration, you can find this section helpful for overriding database driving versions or having more database level logs.                     |
+| mqDriverVersions |                                             Points to the version of MQ to use, in case you wish to adapt it to your own version.                                              |
+| operatorServer |                   Operator is installed/upgraded with help of Deploy server. It can be configured of different image/version that one is running on cluster.                   |
+|    satellites    |                                                             You can configure as many satellites as you need here.                                                             |
+|     servers      |       For non-cluster setup, you can specify here only 1 active server, the rest will be ignored. Unless it is a configuration for update from a previous installation.        |
+|      tests       |                                                                    You can define Jython based test setups                                                                     |
+| xldIsDataVersion | **Only for internal use in Digital.ai** Points to the data which is going to be imported after server is booted. To run waste the time to generate a huge amount of test data. |
+|     workers      |                                                              You can configure as many workers as you need here.                                                               |
 
 ## CLI section
 
@@ -364,7 +368,7 @@ deployIntegrationServer {
            version = '10.2.2'
            yamlPatches = [
                'centralConfiguration/deploy-server.yaml': [
-                   'deploy.server.hostname': 'test.xebialabs.com',
+                   'deploy.server.aggregation-timeout': 5 seconds,
                    'deploy.server.label': 'XLD'
                ]
            ]     
@@ -677,6 +681,16 @@ deployIntegrationServer {
 ```
 
 In this sample you can see the default values used in the plugin.
+
+### Operator server section
+
+|Name|   Type   |Default Value|                                                                   Description                                                                   |
+| :---: |:--------:| :---: |:-----------------------------------------------------------------------------------------------------------------------------------------------:|
+|dockerImage| Required |None|                                         It has to be specified explicitly. In case of no value provided, it will be the same as cluster Deploy version                                         |
+|httpPort| Optional |Random port|               Public http port for Deploy server. Can be useful in case of troubleshooting of the failed deployment of operator.                |
+|pingRetrySleepTime| Optional |10| During the startup of the server we check when it's completely booted. This property configures how long to sleep (in seconds) between retries. |
+|pingTotalTries| Optional |60|            During the startup of the server we check when it's completely booted. This property configures how many times to retry.             |
+|version| Optional |None|                 It has to be specified explicitly. In case of no value provided, it will be the same as cluster Deploy version                  |
 
 ## XLD Integration Server Data Version
 

@@ -5,8 +5,8 @@ services:
     image: {{DEPLOY_IMAGE_VERSION}}
     container_name: deploy-{{DEPLOY_VERSION}}
     environment:
-      - ADMIN_PASSWORD=admin
       - ACCEPT_EULA=Y
+      - ADMIN_PASSWORD=admin
       - GENERATE_XL_CONFIG=false
       - PLUGINS_TO_EXCLUDE={{DEPLOY_PLUGINS_TO_EXCLUDE}}
       - FORCE_UPGRADE={{DEPLOY_FORCE_UPGRADE}}

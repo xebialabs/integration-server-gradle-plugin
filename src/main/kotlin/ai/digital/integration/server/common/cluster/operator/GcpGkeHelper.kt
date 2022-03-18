@@ -28,16 +28,20 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
 
         createCluster(accountName, projectName, name, regionZone, gcpGkeProvider.clusterNodeCount, gcpGkeProvider.clusterNodeVmSize, gcpGkeProvider.kubernetesVersion, skipExisting)
         connectToCluster(accountName, projectName, name, regionZone)
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo(accountName, projectName)
 
         useCustomStorageClass(getStorageClass())
 
+        updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
+        updateDeploymentValues()
         updateOperatorCrValues()
-        updateCrValues()
+    }
 
+    fun installCluster() {
         applyYamlFiles()
         waitForDeployment()
         waitForMasterPods()
@@ -71,8 +75,8 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         }
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-gcp-gke"
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-gcp-gke"
     }
 
     override fun getProvider(): GcpGkeProvider {
@@ -80,7 +84,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return "${getHost()}.endpoints.${getProvider().projectName.get()}.cloud.goog"
+        return "${productName.shortName}-${getHost()}.endpoints.${getProvider().projectName.get()}.cloud.goog"
     }
 
     private fun validateGCloudCli() {
@@ -178,13 +182,16 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
                 tlsCert = null,
                 tlsPrivateKey = null
         )
-        val gcloudConfig = ProcessUtil.executeCommand(project,
-                "gcloud config --account \"$accountName\" --project \"$projectName\" config-helper --format=yaml")
-
-        val gcloudConfigMap = ObjectMapper(YAMLFactory.builder().build()).readValue(gcloudConfig, MutableMap::class.java)
-        val accessToken = (gcloudConfigMap["credential"] as Map<*, *>)["access_token"] as String
+        val accessToken = getAccessToken(accountName, projectName)
 
         return Pair(info, accessToken)
+    }
+
+    private fun getAccessToken(accountName: String, projectName: String): String {
+        val gcloudConfig = ProcessUtil.executeCommand(project,
+                "gcloud config --account \"$accountName\" --project \"$projectName\" config-helper --format=yaml")
+        val gcloudConfigMap = ObjectMapper(YAMLFactory.builder().build()).readValue(gcloudConfig, MutableMap::class.java)
+        return (gcloudConfigMap["credential"] as Map<*, *>)["access_token"] as String
     }
 
     private fun updateInfrastructure(kubeContextInfo: Pair<InfrastructureInfo, String>) {
@@ -197,12 +204,11 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         YamlFileUtil.overlayFile(file, pairs)
     }
 
-    private fun updateCrValues() {
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+    override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
                 "spec.ingress.hosts" to listOf(getFqdn())
         )
-        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     private fun useCustomStorageClass(storageClassName: String) {
@@ -225,6 +231,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         val dnsOpenApiTemplate = dnsOpenApiTemplateFile.readText(Charsets.UTF_8)
                 .replace("{{NAME}}", name)
                 .replace("{{PROJECT_ID}}", projectName)
+                .replace("{{PRODUCT_NAME}}", productName.shortName)
                 .replace("{{IP}}", ip)
         dnsOpenApiTemplateFile.writeText(dnsOpenApiTemplate)
         ProcessUtil.executeCommand(project,
@@ -254,5 +261,11 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         val projectName = getProvider().projectName.get()
         val accountName = getProvider().accountName.get()
         return getCurrentContextInfo(accountName, projectName).first
+    }
+
+    fun getAccessToken(): String {
+        val projectName = getProvider().projectName.get()
+        val accountName = getProvider().accountName.get()
+        return getAccessToken(accountName, projectName)
     }
 }

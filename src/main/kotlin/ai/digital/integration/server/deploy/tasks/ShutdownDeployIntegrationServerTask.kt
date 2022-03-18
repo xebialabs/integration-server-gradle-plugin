@@ -2,11 +2,14 @@ package ai.digital.integration.server.deploy.tasks
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
+import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStopTask
 import ai.digital.integration.server.common.util.DbUtil
+import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.SatelliteUtil
-import ai.digital.integration.server.deploy.internals.ShutdownUtil
+import ai.digital.integration.server.deploy.internals.DeployShutdownUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
+import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.satellite.ShutdownSatelliteTask
 import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
@@ -42,6 +45,9 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
                 } else {
                     that.finalizedBy(DatabaseStopTask.NAME)
                 }
+                if (InfrastructureUtil.hasInfrastructures(project)){
+                    that.finalizedBy(InfrastructureStopTask.NAME)
+                }
             }
         }
     }
@@ -50,8 +56,8 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
     fun shutdown() {
         project.logger.lifecycle("About to shutting down Deploy Server.")
 
-        if (!DeployServerUtil.isDockerBased(project)) {
-            ShutdownUtil.shutdownServer(project)
+        if (!DeployServerUtil.isDockerBased(project) && !DeployClusterUtil.isOperatorProvider(project)) {
+            DeployShutdownUtil.shutdownServer(project)
         }
     }
 }

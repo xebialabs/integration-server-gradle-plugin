@@ -4,6 +4,7 @@ package ai.digital.integration.server.common.cluster.operator
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.operator.Provider
 import org.gradle.api.Project
+import java.io.File
 
 open class VmwareOpenshiftHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
@@ -11,12 +12,19 @@ open class VmwareOpenshiftHelper(project: Project, productName: ProductName) : O
 
     }
 
+    fun installCluster() {
+
+    }
+
     fun shutdownCluster() {
 
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-vmware-openshift"
+    override fun updateCustomOperatorCrValues(crValuesFile: File) {
+    }
+
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-vmware-openshift"
     }
 
     override fun getProvider(): Provider {

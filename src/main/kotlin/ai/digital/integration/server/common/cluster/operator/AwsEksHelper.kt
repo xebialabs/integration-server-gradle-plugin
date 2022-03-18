@@ -1,7 +1,6 @@
 package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AwsEksProvider
 
 import ai.digital.integration.server.common.util.ProcessUtil
@@ -22,16 +21,20 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         createCluster(skipExisting)
 
         updateKubeConfig()
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
 
         updateInfrastructure()
 
         if (getStorageClass() == "aws-efs") createStorageClass(getStorageClass())
 
+        updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateDeploymentValues()
         updateOperatorCrValues()
-        updateCrValues()
+    }
 
+    fun installCluster() {
         applyYamlFiles()
         waitForDeployment()
         waitForMasterPods()
@@ -290,13 +293,12 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
             throwErrorOnFailure = false)
     }
 
-    private fun updateCrValues() {
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+    override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
             "spec.ingress.hosts" to arrayOf(getFqdn()),
             "spec.rabbitmq.persistence.storageClass" to "gp2"
         )
-        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     private fun updateRoute53() {
@@ -311,6 +313,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         val hostZoneId = getHostZoneId(hostName)
 
         val awsRoute53Template = awsRoute53TemplateFile.readText(Charsets.UTF_8)
+            .replace("{{FQDN}}", getFqdn())
             .replace("{{HOSTNAME}}", "dualstack.$hostName")
             .replace("{{HOSTZONEID}}", hostZoneId)
 
@@ -440,8 +443,8 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         }
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-aws-eks"
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-aws-eks"
     }
 
     override fun getProvider(): AwsEksProvider {
@@ -468,7 +471,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return "${getName()}.digitalai-testing.com"
+        return "${getProvider().stack.get()}-${getName()}.digitalai-testing.com"
     }
 
     override fun getDbStorageClass(): String {

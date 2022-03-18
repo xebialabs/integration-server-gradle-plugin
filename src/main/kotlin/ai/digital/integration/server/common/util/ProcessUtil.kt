@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common.util
 
+import org.apache.commons.io.output.NullOutputStream
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 import java.io.BufferedReader
@@ -33,18 +34,29 @@ class ProcessUtil {
             project.logger.lifecycle("About to execute `$exec ${arguments.joinToString(" ")}`")
             if (logOutput) {
                 val stdout = ByteArrayOutputStream()
-                project.exec {
-                    args = arguments
-                    executable = exec
-                    standardOutput = stdout
+                try {
+                    project.exec {
+                        args = arguments
+                        executable = exec
+                        standardOutput = stdout
+                    }
+                    val output = stdout.toString(StandardCharsets.UTF_8)
+                    project.logger.lifecycle(output)
+                    return output
+                } finally {
+                    stdout.close()
                 }
-                val output = stdout.toString(StandardCharsets.UTF_8)
-                project.logger.lifecycle(output)
-                return output
             } else {
-                project.exec {
-                    args = arguments
-                    executable = exec
+                val stdout = NullOutputStream()
+                try {
+                    project.exec {
+                        args = arguments
+                        executable = exec
+                        standardOutput = stdout
+                        errorOutput = stdout
+                    }
+                } finally {
+                    stdout.close()
                 }
             }
             return ""
@@ -157,7 +169,7 @@ class ProcessUtil {
                 throw RuntimeException("Process '$command' not finished")
             }
 
-            return if (error == "") {
+            return if (error.isEmpty()) {
                 input
             } else {
                 input + System.lineSeparator() + error
@@ -169,7 +181,7 @@ class ProcessUtil {
             var line = ""
             while (reader.readLine().also { if (it != null) line = it } != null) {
                 line.also {
-                    if (result != "")
+                    if (result.isNotEmpty())
                         result += System.lineSeparator()
                     result += it
                 }

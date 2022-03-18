@@ -55,6 +55,10 @@ class ReleaseServerUtil {
             return Paths.get(getServerWorkingDir(project), "conf").toFile()
         }
 
+        fun getLicenseFile(project: Project): File {
+            return Paths.get(getConfDir(project).absolutePath, "xl-release-license.lic").toFile()
+        }
+
         fun readReleaseServerConfProperty(project: Project, key: String): String {
             val serverConf = Paths.get("${getServerWorkingDir(project)}/conf/xl-release-server.conf").toFile()
             return PropertiesUtil.readProperty(serverConf, key)
@@ -120,12 +124,10 @@ class ReleaseServerUtil {
         }
 
         fun grantPermissionsToIntegrationServerFolder(project: Project) {
-            if (isDockerBased(project)) {
-                val workDir = IntegrationServerUtil.getDist(project)
+            val workDir = IntegrationServerUtil.getDist(project)
 
-                File(workDir).walk().forEach {
-                    FileUtil.grantRWPermissions(it)
-                }
+            File(workDir).walk().forEach {
+                FileUtil.grantRWPermissions(it)
             }
         }
 

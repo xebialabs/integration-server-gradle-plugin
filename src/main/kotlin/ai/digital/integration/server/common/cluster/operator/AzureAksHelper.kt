@@ -5,6 +5,8 @@ import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.operator.AzureAksProvider
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
@@ -27,15 +29,19 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
             azureAksProvider.kubernetesVersion,
             skipExisting)
         connectToCluster(name)
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo()
-        createStorageClass(azureAksProvider.storageClass.getOrElse(name))
+        createStorageClass(resourceGroupName(name), azureAksProvider.storageClass.getOrElse(name))
 
+        updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
+        updateDeploymentValues()
         updateOperatorCrValues()
-        updateCrValues()
+    }
 
+    fun installCluster() {
         applyYamlFiles()
         turnOnLogging()
         waitForDeployment()
@@ -80,8 +86,8 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         YamlFileUtil.overlayFile(file, pairs)
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-azure-aks"
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-azure-aks"
     }
 
     override fun getProvider(): AzureAksProvider {
@@ -126,12 +132,13 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         }
     }
 
-    private fun createStorageClassFromFile(storageClassName: String, filePath: String) {
+    private fun createStorageClassFromFile(resourceGroupName: String, storageClassName: String, filePath: String) {
         if (!getKubectlHelper().hasStorageClass(storageClassName)) {
             project.logger.lifecycle("Create storage class: {}", storageClassName)
             val azureFileScTemplateFile = getTemplate(filePath)
             val azureFileScTemplate = azureFileScTemplateFile.readText(Charsets.UTF_8)
                 .replace("{{NAME}}", storageClassName)
+                .replace("{{RESOURCE_GROUP}}", resourceGroupName)
             azureFileScTemplateFile.writeText(azureFileScTemplate)
             getKubectlHelper().applyFile(azureFileScTemplateFile)
         } else {
@@ -139,11 +146,11 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         }
     }
 
-    private fun createStorageClass(name: String) {
+    private fun createStorageClass(resourceGroupName: String, name: String) {
         val fileStorageClassName = fileStorageClassName(name)
-        createStorageClassFromFile(fileStorageClassName, "operator/azure-aks/azure-file-sc.yaml")
+        createStorageClassFromFile(resourceGroupName, fileStorageClassName, "operator/azure-aks/azure-file-sc.yaml")
         val diskStorageClassName = diskStorageClassName(name)
-        createStorageClassFromFile(diskStorageClassName, "operator/azure-aks/azure-disk-sc.yaml")
+        createStorageClassFromFile(resourceGroupName, diskStorageClassName, "operator/azure-aks/azure-disk-sc.yaml")
 
         getKubectlHelper().setDefaultStorageClass(fileStorageClassName)
     }
@@ -219,13 +226,12 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
             "az aks get-credentials --resource-group ${resourceGroupName(name)} --name ${aksClusterName(name)} --overwrite-existing")
     }
 
-    private fun updateCrValues() {
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+    override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
             "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to getHost()),
             "spec.ingress.hosts" to arrayOf(getFqdn())
         )
-        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     private fun resourceGroupName(name: String): String {
@@ -245,4 +251,11 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
     }
 
     override fun getCurrentContextInfo() = getKubectlHelper().getCurrentContextInfo()
+
+    fun getAccessToken(): String {
+        val azToken = ProcessUtil.executeCommand(project,
+            "az account get-access-token -o yaml")
+        val azConfigMap = ObjectMapper(YAMLFactory.builder().build()).readValue(azToken, MutableMap::class.java)
+        return azConfigMap["accessToken"] as String
+    }
 }

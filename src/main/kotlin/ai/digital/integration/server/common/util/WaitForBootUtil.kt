@@ -42,11 +42,34 @@ class WaitForBootUtil {
             return triesLeft - 1
         }
 
+        fun byFile(
+            project: Project,
+            process: Process?,
+            file: File,
+            pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME,
+            pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES
+        ) {
+            project.logger.lifecycle("Waiting for $file to be created.")
+
+            var triesLeft = pingTotalTries
+            var success = false
+            while (triesLeft > 0 && !success) {
+                if (file.exists()) {
+                    success = true
+                }
+                triesLeft = waitForNext(project, process, triesLeft, success, pingRetrySleepTime)
+            }
+
+            if (!success) {
+                throw GradleException("$file has failed to be created.")
+            }
+        }
+
         fun byPort(
             project: Project, name: String, url: String, process: Process?,
             pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME,
             pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES,
-            callback: (LocalDateTime) -> LocalDateTime = {LocalDateTime.now().minusDays(1)}
+            callback: (LocalDateTime) -> LocalDateTime = { LocalDateTime.now().minusDays(1) }
         ): LocalDateTime {
             project.logger.lifecycle("Waiting for $name to start on URL: $url.")
             var triesLeft = pingTotalTries

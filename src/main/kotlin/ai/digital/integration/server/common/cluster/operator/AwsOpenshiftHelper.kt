@@ -19,14 +19,18 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateDeploymentValues()
         updateOperatorCrValues()
-        updateCrValues()
 
         updateInfrastructure(getApiServerUrl(), getOcApiServerToken())
 
+        ocLogin()
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
+    }
+
+    fun installCluster() {
         applyYamlFiles()
 
-        ocLogin()
         turnOnLogging()
         waitForDeployment()
         waitForMasterPods()
@@ -57,7 +61,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         }
     }
 
-    private fun getOcApiServerToken(): String {
+    fun getOcApiServerToken(): String {
         val basicAuthToken = Base64.getEncoder().encodeToString("${getOcLogin()}:${getOcPassword()}".toByteArray())
         val oauthHostName = getProvider().oauthHostName.get()
 
@@ -78,22 +82,16 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
     fun shutdownCluster() {
         ocLogin()
-
         undeployCluster()
-
         ocLogout()
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-openshift"
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-openshift"
     }
 
     override fun getProvider(): AwsOpenshiftProvider {
         return getProfile().awsOpenshift
-    }
-
-    override fun getOperatorImage(): String {
-        return getProvider().operatorImage.getOrElse("xebialabs/${getName()}-operator:1.2.0-openshift")
     }
 
     override fun getStorageClass(): String {
@@ -109,11 +107,10 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         YamlFileUtil.overlayFile(file, pairs)
     }
 
-    private fun updateCrValues() {
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+    override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> =
             mutableMapOf("spec.postgresql.postgresqlExtendedConf.listenAddresses" to "*")
-        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, true)
@@ -124,11 +121,13 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-worker-$position"
 
     override fun getMasterPodName(position: Int) =
-        "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-master-$position"
+        "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-${getMasterPodNameSuffix(position)}"
 
     override fun getPostgresPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-postgresql-$position"
 
     override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-rabbitmq-$position"
+
+    override fun getProviderCrContextPath(): String = "spec.route.path"
 
     private fun getApiServerUrl() = getProvider().apiServerURL.get()
 

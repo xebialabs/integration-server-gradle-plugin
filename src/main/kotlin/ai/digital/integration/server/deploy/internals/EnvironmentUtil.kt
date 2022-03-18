@@ -13,8 +13,8 @@ class EnvironmentUtil {
             return getEnv(project, "JDK_JAVA_OPTIONS", server.debugSuspend, server.debugPort, null)
         }
 
-        fun getCliEnv(project: Project, cli: Cli, extraParams: Map<String, String?>, extraClassPath: List<File>): Map<String, String> {
-            val env = getEnv(project, "JDK_JAVA_OPTIONS", cli.debugSuspend, cli.debugPort, null, extraParams)
+        fun getCliEnv(project: Project, cli: Cli, extraParams: Map<String, String?>, extraClassPath: List<File>, auxiliaryServer: Boolean = false): Map<String, String> {
+            val env = getEnv(project, "JDK_JAVA_OPTIONS", cli.debugSuspend, cli.debugPort, null, extraParams, auxiliaryServer)
             env["EXTRA_DEPLOYIT_CLI_CLASSPATH"] = extraClassPath.joinToString(separator = OsUtil.getPathSeparator())
             return env
         }
@@ -35,7 +35,8 @@ class EnvironmentUtil {
             debugSuspend: Boolean,
             debugPort: Int?,
             logFileName: String?,
-            extraProps: Map<String, String?>
+            extraProps: Map<String, String?>,
+            auxiliaryServer: Boolean = false
         ): MutableMap<String, String> {
             var opts = if (!logFileName.isNullOrEmpty()) "-Xmx1024m -DLOGFILE=\"$logFileName\"" else "-Xmx1024m"
 
@@ -43,7 +44,7 @@ class EnvironmentUtil {
                 opts = "$opts ${DeployServerUtil.createDebugString(debugSuspend, it)} "
             }
 
-            if (DeployServerUtil.isTls(project)) {
+            if (!auxiliaryServer && DeployServerUtil.isTls(project)) {
                 val tls = TlsUtil.getTls(project, DeployServerUtil.getServerWorkingDir(project))
                 opts = "$opts -Djavax.net.ssl.trustStore=\"${tls?.trustStoreFile()}\" -Djavax.net.ssl.trustStorePassword=\"${tls?.truststorePassword}\" "
             }

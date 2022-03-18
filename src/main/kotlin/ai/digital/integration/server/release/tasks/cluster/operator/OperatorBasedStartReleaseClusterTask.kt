@@ -3,8 +3,8 @@ package ai.digital.integration.server.release.tasks.cluster.operator
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
-import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksReleaseClusterStartTask
-import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftReleaseClusterStartTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.onprem.OperatorBasedOnPremStartReleaseClusterTask
@@ -23,9 +23,9 @@ open class OperatorBasedStartReleaseClusterTask : DefaultTask() {
 
         this.dependsOn(when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
             OperatorProviderName.AWS_EKS.providerName ->
-                OperatorBasedAwsEksReleaseClusterStartTask.NAME
+                OperatorBasedAwsEksStartReleaseClusterTask.NAME
             OperatorProviderName.AWS_OPENSHIFT.providerName ->
-                OperatorBasedAwsOpenShiftReleaseClusterStartTask.NAME
+                OperatorBasedAwsOpenShiftStartReleaseClusterTask.NAME
             OperatorProviderName.AZURE_AKS.providerName ->
                 OperatorBasedAzureAksStartReleaseClusterTask.NAME
             OperatorProviderName.GCP_GKE.providerName ->

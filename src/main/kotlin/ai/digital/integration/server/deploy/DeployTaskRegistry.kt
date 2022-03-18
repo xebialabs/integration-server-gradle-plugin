@@ -13,6 +13,8 @@ import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
+import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStartTask
+import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStopTask
 import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.ShutdownDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.anonymizer.ExportDatabaseTask
@@ -21,20 +23,23 @@ import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStopDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.CheckingOutDeployKubernetesOperatorTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStartDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedStopDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedUpgradeDeployClusterTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStartTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksDeployClusterStopTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftDeployClusterStartTask
-import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftDeployClusterStopTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.*
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStartDeployClusterTask
@@ -62,7 +67,6 @@ open class DeployTaskRegistry {
             project.tasks.create(CliCleanDefaultExtTask.NAME, CliCleanDefaultExtTask::class.java)
             project.tasks.create(CopyCliBuildArtifactsTask.NAME, CopyCliBuildArtifactsTask::class.java)
             project.tasks.create(CliOverlaysTask.NAME, CliOverlaysTask::class.java)
-            project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask::class.java)
             project.tasks.create(RunCliTask.NAME, RunCliTask::class.java)
 
             //Cluster
@@ -71,43 +75,57 @@ open class DeployTaskRegistry {
             project.tasks.create(StopDeployClusterTask.NAME, StopDeployClusterTask::class.java)
 
             // Cluster Operator
-            project.tasks.create(OperatorBasedAwsEksDeployClusterStartTask.NAME,
-                OperatorBasedAwsEksDeployClusterStartTask::class.java)
-            project.tasks.create(OperatorBasedAwsEksDeployClusterStopTask.NAME,
-                OperatorBasedAwsEksDeployClusterStopTask::class.java)
+            project.tasks.create(OperatorBasedAwsEksStartDeployClusterTask.NAME,
+                OperatorBasedAwsEksStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsEksInstallDeployClusterTask.NAME,
+                OperatorBasedAwsEksInstallDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsEksStopDeployClusterTask.NAME,
+                OperatorBasedAwsEksStopDeployClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedAwsOpenShiftDeployClusterStartTask.NAME,
-                OperatorBasedAwsOpenShiftDeployClusterStartTask::class.java)
-            project.tasks.create(OperatorBasedAwsOpenShiftDeployClusterStopTask.NAME,
-                OperatorBasedAwsOpenShiftDeployClusterStopTask::class.java)
+            project.tasks.create(OperatorBasedAwsOpenShiftStartDeployClusterTask.NAME,
+                OperatorBasedAwsOpenShiftStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsOpenShiftInstallDeployClusterTask.NAME,
+                OperatorBasedAwsOpenShiftInstallDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME,
+                OperatorBasedAwsOpenShiftStopDeployClusterTask::class.java)
 
             project.tasks.create(OperatorBasedAzureAksStartDeployClusterTask.NAME,
                 OperatorBasedAzureAksStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedAzureAksInstallDeployClusterTask.NAME,
+                OperatorBasedAzureAksInstallDeployClusterTask::class.java)
             project.tasks.create(OperatorBasedAzureAksStopDeployClusterTask.NAME,
                 OperatorBasedAzureAksStopDeployClusterTask::class.java)
 
             project.tasks.create(OperatorBasedGcpGkeStartDeployClusterTask.NAME,
                 OperatorBasedGcpGkeStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedGcpGkeInstallDeployClusterTask.NAME,
+                OperatorBasedGcpGkeInstallDeployClusterTask::class.java)
             project.tasks.create(OperatorBasedGcpGkeStopDeployClusterTask.NAME,
                 OperatorBasedGcpGkeStopDeployClusterTask::class.java)
 
             project.tasks.create(OperatorBasedOnPremStartDeployClusterTask.NAME,
                 OperatorBasedOnPremStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedOnPremInstallDeployClusterTask.NAME,
+                OperatorBasedOnPremInstallDeployClusterTask::class.java)
             project.tasks.create(OperatorBasedOnPremStopDeployClusterTask.NAME,
                 OperatorBasedOnPremStopDeployClusterTask::class.java)
 
             project.tasks.create(OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME,
                 OperatorBasedVmWareOpenShiftStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedVmWareOpenShiftInstallDeployClusterTask.NAME,
+                OperatorBasedVmWareOpenShiftInstallDeployClusterTask::class.java)
             project.tasks.create(OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME,
                 OperatorBasedVmWareOpenShiftStopDeployClusterTask::class.java)
 
             project.tasks.create(OperatorBasedStartDeployClusterTask.NAME,
                 OperatorBasedStartDeployClusterTask::class.java)
+            project.tasks.create(OperatorBasedInstallDeployClusterTask.NAME,
+                OperatorBasedInstallDeployClusterTask::class.java)
             project.tasks.create(OperatorBasedStopDeployClusterTask.NAME,
                 OperatorBasedStopDeployClusterTask::class.java)
 
-            project.tasks.create(CheckingOutDeployKubernetesOperatorTask.NAME,
-                CheckingOutDeployKubernetesOperatorTask::class.java)
+            project.tasks.create(ProvideDeployKubernetesOperatorTask.NAME,
+                ProvideDeployKubernetesOperatorTask::class.java)
             project.tasks.create(OperatorCentralConfigurationTask.NAME, OperatorCentralConfigurationTask::class.java)
             project.tasks.create(StartDeployServerForOperatorInstanceTask.NAME,
                 StartDeployServerForOperatorInstanceTask::class.java)
@@ -161,6 +179,8 @@ open class DeployTaskRegistry {
             //Infrastructure
             project.tasks.create(GitlabStartTask.NAME, GitlabStartTask::class.java)
             project.tasks.create(GitlabStopTask.NAME, GitlabStopTask::class.java)
+            project.tasks.create(InfrastructureStopTask.NAME, InfrastructureStopTask::class.java)
+            project.tasks.create(InfrastructureStartTask.NAME, InfrastructureStartTask::class.java)
 
             //Integration Server
             project.tasks.create(ShutdownDeployIntegrationServerTask.NAME,

@@ -1,7 +1,5 @@
 package ai.digital.integration.server.common.domain.profiles
 
-import ai.digital.integration.server.common.domain.providers.operator.OperatorProviderContainer
-import ai.digital.integration.server.common.domain.providers.terraform.TerraformProviderContainer
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer

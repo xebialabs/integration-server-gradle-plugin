@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common.util
 
+import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.apache.commons.codec.binary.Base64
@@ -50,12 +51,12 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     fun setDefaultStorageClass(newDefaultStorageClass: String) {
         ProcessUtil.executeCommand(project,
-                " $command get sc -o name" +
+                "$command get sc -o name" +
                         "|sed -e 's/.*\\///g' " +
                         "|xargs -I {} " +
                         "$command patch storageclass {} -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"false\"}}}'")
         ProcessUtil.executeCommand(project,
-                " $command patch storageclass $newDefaultStorageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'")
+                "$command patch storageclass $newDefaultStorageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'")
     }
 
     fun hasStorageClass(storageClass: String): Boolean {
@@ -67,7 +68,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         val context = getCurrentContext()
         val cluster = getContextCluster(context)
         val user = getContextUser(context)
-        val info = InfrastructureInfo(
+        return InfrastructureInfo(
                 cluster,
                 user,
                 getClusterServer(cluster),
@@ -75,8 +76,6 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
                 if (!skip) getUserClientCertificateData(user) else null,
                 if (!skip) getUserClientKeyData(user) else null
         )
-        project.logger.lifecycle("kubeContextInfo {}", info)
-        return info
     }
 
     fun deleteCurrentContext() {
@@ -134,11 +133,9 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     private fun configView(jsonPath: String, fallbackJsonPath: String): String {
         val data = configView(jsonPath)
-        return if (data == "") {
+        return data.ifEmpty {
             val path = configView(fallbackJsonPath)
             Base64.encodeBase64String(File(path).readText().toByteArray())
-        } else {
-            data
         }
     }
 
@@ -166,11 +163,32 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
                 "$command $subCommand -o 'jsonpath=$jsonpath'")
     }
 
-    fun getCrd(): String {
-        return getWithPath("get crd", "{.items[?(@..spec.group == \"xld.digital.ai\")].metadata.name}")
+    fun getCrd(groupName: String): String {
+        return getWithPath("get crd", "{.items[?(@..spec.group == \"$groupName\")].metadata.name}")
     }
 
     fun getCr(crdName: String): String {
         return getWithPath("get $crdName", "{.items[0].metadata.name}")
+    }
+
+    fun getResourceNames(resource: String, productName: ProductName): String {
+        return ProcessUtil.executeCommand(project,
+            "$command get $resource -o name | grep ${productName.shortName} | tr \"\\n\" \" \" | sed -e 's/,\$//'",
+            logOutput = false, throwErrorOnFailure = false)
+    }
+
+    fun getResourceNames(resource: String): String {
+        return ProcessUtil.executeCommand(project,
+            "$command get $resource -o name", logOutput = false, throwErrorOnFailure = false)
+    }
+
+    fun deleteNames(names: String): String {
+        return ProcessUtil.executeCommand(project,
+            "$command delete $names", logOutput = false, throwErrorOnFailure = false)
+    }
+
+    fun clearCrFinalizers(names: String): String {
+        return ProcessUtil.executeCommand(project,
+            "$command patch $names -p '{\"metadata\":{\"finalizers\":[]}}' --type=merge", logOutput = false, throwErrorOnFailure = false)
     }
 }

@@ -16,25 +16,31 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
         val name = onPremiseProvider.name.get()
         val skipExisting = onPremiseProvider.skipExisting.get()
         val kubernetesVersion = onPremiseProvider.kubernetesVersion.get()
+        val driver = onPremiseProvider.driver.get()
 
         validateMinikubeCli()
 
         createCluster(name,
+            driver,
             onPremiseProvider.clusterNodeCpus,
             onPremiseProvider.clusterNodeMemory,
             kubernetesVersion,
             skipExisting)
         updateContext(name)
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo()
 
+        updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateInfrastructure(kubeContextInfo)
+        updateDeploymentValues()
         updateOperatorCrValues()
-        updateCrValues()
 
         updateEtcHosts(name)
+    }
 
+    fun installCluster() {
         applyYamlFiles()
         waitForDeployment()
         waitForMasterPods()
@@ -49,8 +55,8 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
         destroyCluster()
     }
 
-    override fun getProviderHomeDir(): String {
-        return "${getOperatorHomeDir()}/${getName()}-operator-onprem"
+    override fun getProviderHomePath(): String {
+        return "${getName()}-operator-onprem"
     }
 
     override fun getProvider(): OnPremiseProvider {
@@ -103,6 +109,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
 
     private fun createCluster(
         name: String,
+        driver: String,
         clusterNodeCpus: Property<Int>,
         clusterNodeMemory: Property<Int>,
         kubernetesVersion: String,
@@ -118,7 +125,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
             val additions = clusterNodeCpus.map { " --cpus \"$it\"" }.getOrElse("") +
                     clusterNodeMemory.map { " --memory \"$it\"" }.getOrElse("")
             ProcessUtil.executeCommand(project,
-                "minikube start --driver=virtualbox --kubernetes-version \"$kubernetesVersion\" -p $clusterName $additions")
+                "minikube start --driver=$driver --kubernetes-version \"$kubernetesVersion\" -p $clusterName $additions")
             ProcessUtil.executeCommand(project,
                 "minikube addons enable ingress -p $clusterName")
             ProcessUtil.executeCommand(project,
@@ -179,14 +186,13 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
         return name
     }
 
-    private fun updateCrValues() {
-        val file = File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
+    override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
             "spec.ingress.hosts" to listOf(getFqdn()),
             "spec.nginx-ingress-controller.defaultBackend.podSecurityContext" to mapOf("fsGroup" to 1001),
             "spec.nginx-ingress-controller.podSecurityContext" to mapOf("fsGroup" to 1001)
         )
-        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
+        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     override fun getCurrentContextInfo() = getKubectlHelper().getCurrentContextInfo()

@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import org.gradle.api.Project
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
@@ -297,6 +298,32 @@ class DeployServerUtil {
             project.exec {
                 executable = "docker-compose"
                 args = listOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
+            }
+        }
+
+        fun stopDockerContainer(project: Project, server: Server) {
+            project.logger.lifecycle("Trying to stop ${server.version} container")
+            project.exec {
+                executable = "docker-compose"
+                args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().path, "stop")
+            }
+        }
+
+        fun getDockerContainerPort(project: Project, server: Server, privatePort: Int): Int? {
+            return ByteArrayOutputStream().use {
+                project.exec {
+                    executable = "docker-compose"
+                    args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "port", "deploy-${server.version}", privatePort.toString())
+                    standardOutput = it
+                    errorOutput = it
+                    isIgnoreExitValue = true
+                }
+                val hostAndPort = it.toString(Charsets.UTF_8)
+                if (hostAndPort.toLowerCase().contains("no container found")) {
+                    null
+                } else {
+                    hostAndPort.split(':')[1].trim().toInt()
+                }
             }
         }
     }

@@ -9,6 +9,9 @@ import javax.inject.Inject
 open class OnPremiseProvider @Inject constructor(project: Project) : Provider(project) {
 
     @Input
+    val driver = project.objects.property<String>().value("virtualbox")
+
+    @Input
     val clusterNodeMemory = project.objects.property<Int>()
 
     @Input

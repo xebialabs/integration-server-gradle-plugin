@@ -2,10 +2,12 @@ package ai.digital.integration.server.release.tasks.cluster.operator
 
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
+import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorUpgradeTask
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
-import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksReleaseClusterStopTask
-import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftReleaseClusterStopTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.gcpgke.OperatorBasedGcpGkeStopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.onprem.OperatorBasedOnPremStopReleaseClusterTask
@@ -22,11 +24,13 @@ open class OperatorBasedStopReleaseClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        this.dependsOn(when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
+        this.dependsOn(
+            DownloadAndExtractCliDistTask.NAME,
+            when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
             OperatorProviderName.AWS_EKS.providerName ->
-                OperatorBasedAwsEksReleaseClusterStopTask.NAME
+                OperatorBasedAwsEksStopReleaseClusterTask.NAME
             OperatorProviderName.AWS_OPENSHIFT.providerName ->
-                OperatorBasedAwsOpenShiftReleaseClusterStopTask.NAME
+                OperatorBasedAwsOpenShiftStopReleaseClusterTask.NAME
             OperatorProviderName.AZURE_AKS.providerName ->
                 OperatorBasedAzureAksStopReleaseClusterTask.NAME
             OperatorProviderName.GCP_GKE.providerName ->
@@ -41,12 +45,15 @@ open class OperatorBasedStopReleaseClusterTask : DefaultTask() {
                 }")
             }
         })
-        this.finalizedBy(StopDeployServerForOperatorInstanceTask.NAME)
+        this.finalizedBy(
+                StopDeployServerForOperatorInstanceTask.NAME,
+                StopDeployServerForOperatorUpgradeTask.NAME
+        )
     }
 
     @TaskAction
     fun launch() {
         val providerName = ReleaseClusterUtil.getOperatorProvider(project)
-        project.logger.lifecycle("Operator based Deploy Cluster with provider $providerName  is about to stop.")
+        project.logger.lifecycle("Operator based Release Cluster with provider $providerName  is about to stop.")
     }
 }
