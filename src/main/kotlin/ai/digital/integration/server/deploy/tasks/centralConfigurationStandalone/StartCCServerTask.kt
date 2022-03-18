@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone
 
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.WaitForBootUtil
 import ai.digital.integration.server.deploy.domain.CentralConfigurationStandalone
@@ -28,36 +29,52 @@ open class StartCCServerTask : DefaultTask() {
         const val NAME = "startCentralConfigServer"
     }
 
+
     @TaskAction
     fun launch() {
-        val centralConfigServer = CentralConfigurationStandaloneUtil.getCC(project)
-        val binDir = CentralConfigurationStandaloneUtil.getBinDir(project, centralConfigServer)
-        project.logger.lifecycle("Launching Central Config Server from '${binDir}'.")
+        if(!CentralConfigurationStandaloneUtil.isDockerBased(project)) {
+            val centralConfigServer = CentralConfigurationStandaloneUtil.getCC(project)
+            val binDir = CentralConfigurationStandaloneUtil.getBinDir(project, centralConfigServer)
+            project.logger.lifecycle("Launching Central Config Server from '${binDir}'.")
 
-        val environment = EnvironmentUtil.getEnv(
+            val environment = EnvironmentUtil.getEnv(
                 project,
                 "JDK_JAVA_OPTIONS",
                 centralConfigServer.debugSuspend,
                 centralConfigServer.debugPort,
-                logFileName())
+                logFileName()
+            )
 
-        project.logger.info("Starting Central Config Server with environment: $environment")
+            project.logger.info("Starting Central Config Server with environment: $environment")
 
-        val process = ProcessUtil.exec(mapOf(
-                "command" to "run",
-                "environment" to environment,
-                "workDir" to binDir,
-                "discardIO" to centralConfigServer.stdoutFileName.isNullOrEmpty(),
-                "redirectTo" to (
-                        if (!centralConfigServer.stdoutFileName.isNullOrEmpty())
-                            File("${CentralConfigurationStandaloneUtil.getLogDir(project, centralConfigServer)}/${centralConfigServer.stdoutFileName}")
-                        else null)
-        ))
-        project.logger.lifecycle(
+            val process = ProcessUtil.exec(
+                mapOf(
+                    "command" to "run",
+                    "environment" to environment,
+                    "workDir" to binDir,
+                    "discardIO" to centralConfigServer.stdoutFileName.isNullOrEmpty(),
+                    "redirectTo" to (
+                            if (!centralConfigServer.stdoutFileName.isNullOrEmpty())
+                                File(
+                                    "${
+                                        CentralConfigurationStandaloneUtil.getLogDir(
+                                            project,
+                                            centralConfigServer
+                                        )
+                                    }/${centralConfigServer.stdoutFileName}"
+                                )
+                            else null)
+                )
+            )
+            project.logger.lifecycle(
                 "Central Config Server '${centralConfigServer.version}' successfully started on PID [${process.pid()}] with command [${
                     process.info().commandLine().orElse("")
-                }].")
-        waitForBoot(project, process, centralConfigServer)
+                }]."
+            )
+            waitForBoot(project, process, centralConfigServer)
+        } else {
+
+        }
     }
 
     fun waitForBoot(project: Project, process: Process, CentralConfigurationStandalone: CentralConfigurationStandalone) {

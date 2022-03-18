@@ -1,8 +1,7 @@
 package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.Server
-import ai.digital.integration.server.common.util.PropertiesUtil
-import ai.digital.integration.server.common.util.PropertyUtil
+import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.domain.CentralConfigurationStandalone
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
@@ -16,6 +15,7 @@ class CentralConfigurationStandaloneUtil {
         fun hasCC(project: Project): Boolean {
             return DeployExtensionUtil.getExtension(project).CentralConfigurationStandalone.get().enable
         }
+
         fun getCC(project: Project): CentralConfigurationStandalone {
             val cc = DeployExtensionUtil.getExtension(project).CentralConfigurationStandalone.get()
             cc.version = getCCVersion(project, cc)
@@ -42,6 +42,14 @@ class CentralConfigurationStandaloneUtil {
                     project.logger.error("Central Configuration Server Version is not specified")
                     exitProcess(1)
                 }
+        }
+
+        fun isDockerBased(project: Project): Boolean {
+            return isDockerBased(getCC(project))
+        }
+
+        fun isDockerBased(cc: CentralConfigurationStandalone): Boolean {
+            return !cc.dockerImage.isNullOrBlank()
         }
 
         fun getCCServerPath(project: Project, cc: CentralConfigurationStandalone): Path {
@@ -90,5 +98,40 @@ class CentralConfigurationStandaloneUtil {
             val deployitConf = Paths.get("${getCCServerPath(project, cc)}/conf/deployit.conf").toFile()
             return PropertiesUtil.readProperty(deployitConf, key)
         }
+
+        fun getResolvedDockerFile(project: Project, cc: CentralConfigurationStandalone): Path {
+            val dockerComposeStream = {}::class.java.classLoader.getResourceAsStream(dockerCcRelativePath())
+            val newPath = "cc-${cc.version}/docker-compose-cc.yaml"
+            val destinationPath = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, newPath)
+            dockerComposeStream?.let {
+                FileUtil.copyFile(it, destinationPath)
+            }
+            val resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, newPath)
+
+            val serverTemplate = resultComposeFilePath.toFile()
+
+            val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
+                .replace("{{CC_IMAGE_VERSION}}", getDockerImageVersion(cc))
+
+            serverTemplate.writeText(configuredTemplate)
+
+            return resultComposeFilePath
+        }
+
+        fun getDockerImageVersion(cc: CentralConfigurationStandalone): String {
+            return "${cc.dockerImage}:${cc.version}"
+        }
+
+        private fun dockerCcRelativePath(): String {
+            return "central-conf/docker-compose-cc.yaml"
+        }
+
+        fun runDockerBasedInstance(project: Project, server: Server) {
+            project.exec {
+                executable = "docker-compose"
+                args = listOf("-f", DeployServerUtil.getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
+            }
+        }
+
     }
 }

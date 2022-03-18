@@ -12,4 +12,5 @@ open class CentralConfigurationStandalone(objects: ObjectFactory) {
     var enable: Boolean = objects.property<Boolean>().value(false).get()
     var version: String? = null
     var stdoutFileName: String? = null
+    var dockerImage: String? = null
 }
