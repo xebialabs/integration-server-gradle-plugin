@@ -9,17 +9,7 @@ services:
     ports:
       - "8888:8888"
     environment:
-      - ADMIN_PASSWORD=admin
-      - FORCE_UPGRADE=true
-      - XL_CLUSTER_MODE=default
-      - XL_DB_PASSWORD=admin
-      - XL_DB_USERNAME=postgres
-      - XL_DB_URL=jdbc:postgresql://postgresql:5432/xld-db
-      - XLD_IN_PROCESS=false
-      - XLD_TASK_QUEUE_DRIVER_CLASS_NAME=com.rabbitmq.jms.admin.RMQConnectionFactory
-      - XLD_TASK_QUEUE_PASSWORD=admin
-      - XLD_TASK_QUEUE_USERNAME=rabbitmq
-      - XLD_TASK_QUEUE_URL=amqp://rabbitmq:5672
-      - USE_IP_AS_HOSTNAME=true
-      - REPOSITORY_KEYSTORE_PASSPHRASE=deployit
       - CENTRAL_CONFIG_ENCRYPT_KEY=changeme
+networks:
+  xld-network:
+    external: true

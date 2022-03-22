@@ -32,8 +32,8 @@ open class StartCCServerTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
+        val centralConfigServer = CentralConfigurationStandaloneUtil.getCC(project)
         if(!CentralConfigurationStandaloneUtil.isDockerBased(project)) {
-            val centralConfigServer = CentralConfigurationStandaloneUtil.getCC(project)
             val binDir = CentralConfigurationStandaloneUtil.getBinDir(project, centralConfigServer)
             project.logger.lifecycle("Launching Central Config Server from '${binDir}'.")
 
@@ -73,7 +73,8 @@ open class StartCCServerTask : DefaultTask() {
             )
             waitForBoot(project, process, centralConfigServer)
         } else {
-
+            CentralConfigurationStandaloneUtil.createNetwork(project)
+            CentralConfigurationStandaloneUtil.runDockerBasedInstance(project, centralConfigServer)
         }
     }
 

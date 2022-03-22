@@ -3,6 +3,7 @@ package ai.digital.integration.server.deploy.internals
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.domain.CentralConfigurationStandalone
+import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import java.io.File
@@ -126,10 +127,30 @@ class CentralConfigurationStandaloneUtil {
             return "central-conf/docker-compose-cc.yaml"
         }
 
-        fun runDockerBasedInstance(project: Project, server: Server) {
+        fun runDockerBasedInstance(project: Project, cc: CentralConfigurationStandalone) {
             project.exec {
                 executable = "docker-compose"
-                args = listOf("-f", DeployServerUtil.getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
+                args = listOf("-f", getResolvedDockerFile(project, cc).toFile().toString(), "up", "-d")
+            }
+        }
+
+        fun networkExists(project: Project): Boolean {
+            return DockerUtil.execute(
+                project,
+                listOf("network",
+                    "ls",
+                    "--filter",
+                    "name=^${ClusterConstants.NETWORK_NAME}$",
+                    "--format=\"{{ .Name }}\"")
+            ).isNotBlank()
+        }
+
+        fun createNetwork(project: Project) {
+            if (!networkExists(project)) {
+                project.exec {
+                    executable = "docker"
+                    args = listOf("network", "create", ClusterConstants.NETWORK_NAME)
+                }
             }
         }
 

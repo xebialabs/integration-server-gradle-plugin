@@ -4,6 +4,8 @@ services:
   deploy-{{DEPLOY_VERSION}}:
     image: {{DEPLOY_IMAGE_VERSION}}
     container_name: deploy-{{DEPLOY_VERSION}}
+    networks:
+      - "xld-network"
     environment:
       - ACCEPT_EULA=Y
       - ADMIN_PASSWORD=admin
@@ -11,6 +13,9 @@ services:
       - PLUGINS_TO_EXCLUDE={{DEPLOY_PLUGINS_TO_EXCLUDE}}
       - FORCE_UPGRADE={{DEPLOY_FORCE_UPGRADE}}
       - PLUGIN_SOURCE=filesystem
+      - USE_EXTERNAL_CENTRAL_CONFIG={{USE_EXTERNAL_CENTRAL_CONFIG}}
+      - CENTRAL_CONFIG_URL={{CENTRAL_CONFIG_URL}}
+      - CENTRAL_CONFIG_ENCRYPT_KEY=changeme
     ports:
       - {{DEPLOY_SERVER_HTTP_PORT}}:4516
     volumes:
@@ -19,3 +24,6 @@ services:
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/hotfix/lib:/opt/xebialabs/xl-deploy-server/hotfix/lib
       - {{INTEGRATION_SERVER_ROOT_VOLUME}}/hotfix/plugins:/opt/xebialabs/xl-deploy-server/hotfix/plugins
       - ./plugins:/opt/xebialabs/xl-deploy-server/plugins
+networks:
+  xld-network:
+    external: true
