@@ -49,6 +49,7 @@ import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGeneration
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
 import ai.digital.integration.server.deploy.tasks.server.*
+import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopCCTask
 import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
 import ai.digital.integration.server.deploy.tasks.server.operator.*
 import ai.digital.integration.server.deploy.tasks.tests.IntegrationTestsTask
@@ -57,6 +58,7 @@ import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfiguratio
 import ai.digital.integration.server.deploy.tasks.worker.*
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.kotlin.dsl.create
 
 open class DeployTaskRegistry {
 
@@ -224,6 +226,7 @@ open class DeployTaskRegistry {
             project.tasks.create(PrepareCCTask.NAME, PrepareCCTask::class.java)
             project.tasks.create(StartCCServerTask.NAME, StartCCServerTask::class.java)
             project.tasks.create(CentralConfigOverlaysTask.NAME, CentralConfigOverlaysTask::class.java)
+            project.tasks.create(DockerBasedStopCCTask.NAME, DockerBasedStopCCTask::class.java)
 
         }
     }
