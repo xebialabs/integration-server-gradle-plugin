@@ -120,7 +120,7 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         if (username != null && password != null) {
             project.logger.lifecycle("Login user")
             ProcessUtil.executeCommand(project,
-                "az login -u $username -p $password", throwErrorOnFailure = false, logOutput = false)
+                "az login -u \"$username\" -p \"$password\"", throwErrorOnFailure = false, logOutput = false)
         }
     }
 
