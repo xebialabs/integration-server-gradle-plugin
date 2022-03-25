@@ -1,13 +1,13 @@
 package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
-import ai.digital.integration.server.common.constant.OperatorProviderName
+import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.constant.ServerConstants
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
-import ai.digital.integration.server.common.domain.providers.operator.Provider
+import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.domain.Worker
 import ai.digital.integration.server.deploy.internals.CliUtil
@@ -65,15 +65,15 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
         fun getOperatorHelper(project: Project, productName: ProductName): OperatorHelper {
             return when (val providerName = getOperatorProvider(project, productName)) {
-                OperatorProviderName.AWS_EKS.providerName -> AwsEksHelper(project, productName)
-                OperatorProviderName.AWS_OPENSHIFT.providerName -> AwsOpenshiftHelper(project, productName)
-                OperatorProviderName.AZURE_AKS.providerName -> AzureAksHelper(project, productName)
-                OperatorProviderName.GCP_GKE.providerName -> GcpGkeHelper(project, productName)
-                OperatorProviderName.ON_PREMISE.providerName -> OnPremHelper(project, productName)
-                OperatorProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftHelper(project, productName)
+                OperatorHelmProviderName.AWS_EKS.providerName -> AwsEksHelper(project, productName)
+                OperatorHelmProviderName.AWS_OPENSHIFT.providerName -> AwsOpenshiftHelper(project, productName)
+                OperatorHelmProviderName.AZURE_AKS.providerName -> AzureAksHelper(project, productName)
+                OperatorHelmProviderName.GCP_GKE.providerName -> GcpGkeHelper(project, productName)
+                OperatorHelmProviderName.ON_PREMISE.providerName -> OnPremHelper(project, productName)
+                OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftHelper(project, productName)
                 else -> {
                     throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
-                        OperatorProviderName.values().joinToString()
+                        OperatorHelmProviderName.values().joinToString()
                     }")
                 }
             }

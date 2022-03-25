@@ -2,7 +2,7 @@ package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
-import ai.digital.integration.server.common.domain.providers.operator.AzureAksProvider
+import ai.digital.integration.server.common.domain.providers.AzureAksProvider
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import com.fasterxml.jackson.databind.ObjectMapper

@@ -1,7 +1,7 @@
 package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.common.domain.providers.operator.AwsOpenshiftProvider
+import ai.digital.integration.server.common.domain.providers.AwsOpenshiftProvider
 import ai.digital.integration.server.common.util.HtmlUtil
 import ai.digital.integration.server.common.util.KubeCtlHelper
 import ai.digital.integration.server.common.util.ProcessUtil

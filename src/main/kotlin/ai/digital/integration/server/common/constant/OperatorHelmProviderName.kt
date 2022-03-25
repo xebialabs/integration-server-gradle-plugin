@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.constant
 
-enum class OperatorProviderName(val providerName: String) {
+enum class OperatorHelmProviderName(val providerName: String) {
     AWS_EKS("aws-eks"),
     AWS_OPENSHIFT("aws-openshift"),
     AZURE_AKS("azure-aks"),
@@ -9,7 +9,7 @@ enum class OperatorProviderName(val providerName: String) {
     VMWARE_OPENSHIFT("vmware-openshift");
 
     companion object {
-        fun valueOfProviderName(providerName: String): OperatorProviderName {
+        fun valueOfProviderName(providerName: String): OperatorHelmProviderName {
             for (operatorProviderName in values()) {
                 if (operatorProviderName.providerName == providerName) {
                     return operatorProviderName

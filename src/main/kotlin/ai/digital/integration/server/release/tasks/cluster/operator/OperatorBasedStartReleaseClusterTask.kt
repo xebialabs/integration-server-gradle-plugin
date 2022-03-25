@@ -1,6 +1,6 @@
 package ai.digital.integration.server.release.tasks.cluster.operator
 
-import ai.digital.integration.server.common.constant.OperatorProviderName
+import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartReleaseClusterTask
@@ -22,21 +22,21 @@ open class OperatorBasedStartReleaseClusterTask : DefaultTask() {
         group = PluginConstant.PLUGIN_GROUP
 
         this.dependsOn(when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
-            OperatorProviderName.AWS_EKS.providerName ->
+            OperatorHelmProviderName.AWS_EKS.providerName ->
                 OperatorBasedAwsEksStartReleaseClusterTask.NAME
-            OperatorProviderName.AWS_OPENSHIFT.providerName ->
+            OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
                 OperatorBasedAwsOpenShiftStartReleaseClusterTask.NAME
-            OperatorProviderName.AZURE_AKS.providerName ->
+            OperatorHelmProviderName.AZURE_AKS.providerName ->
                 OperatorBasedAzureAksStartReleaseClusterTask.NAME
-            OperatorProviderName.GCP_GKE.providerName ->
+            OperatorHelmProviderName.GCP_GKE.providerName ->
                 OperatorBasedGcpGkeStartReleaseClusterTask.NAME
-            OperatorProviderName.ON_PREMISE.providerName ->
+            OperatorHelmProviderName.ON_PREMISE.providerName ->
                 OperatorBasedOnPremStartReleaseClusterTask.NAME
-            OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
+            OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
                 OperatorBasedVmWareOpenShiftStartReleaseClusterTask.NAME
             else -> {
                 throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
-                    OperatorProviderName.values().joinToString()
+                    OperatorHelmProviderName.values().joinToString()
                 }")
             }
         })

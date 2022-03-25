@@ -2,7 +2,7 @@ package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
-import ai.digital.integration.server.common.domain.providers.operator.OnPremiseProvider
+import ai.digital.integration.server.common.domain.providers.OnPremiseProvider
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project

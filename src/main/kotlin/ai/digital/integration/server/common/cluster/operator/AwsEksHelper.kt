@@ -1,7 +1,7 @@
 package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.common.domain.providers.operator.AwsEksProvider
+import ai.digital.integration.server.common.domain.providers.AwsEksProvider
 
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
