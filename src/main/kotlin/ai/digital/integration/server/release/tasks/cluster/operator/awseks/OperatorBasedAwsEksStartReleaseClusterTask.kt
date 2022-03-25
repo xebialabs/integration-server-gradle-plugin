@@ -1,5 +1,6 @@
 package ai.digital.integration.server.release.tasks.cluster.operator.awseks
 
+import ai.digital.integration.server.common.cluster.setup.AwsEks
 import ai.digital.integration.server.common.cluster.operator.AwsEksHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
@@ -19,6 +20,7 @@ open class OperatorBasedAwsEksStartReleaseClusterTask : ReleaseOperatorBasedStar
 
     @TaskAction
     fun launch() {
-        AwsEksHelper(project, ProductName.RELEASE).launchCluster()
+        AwsEks(project, ProductName.RELEASE).launchCluster()
+        AwsEksHelper(project, ProductName.RELEASE).updateOperator()
     }
 }

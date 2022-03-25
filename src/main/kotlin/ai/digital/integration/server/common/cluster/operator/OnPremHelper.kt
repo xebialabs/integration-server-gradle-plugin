@@ -27,17 +27,19 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
             kubernetesVersion,
             skipExisting)
         updateContext(name)
+        updateEtcHosts(name)
+    }
+
+
+    fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo()
-
+        updateInfrastructure(kubeContextInfo)
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
-        updateInfrastructure(kubeContextInfo)
         updateDeploymentValues()
         updateOperatorCrValues()
-
-        updateEtcHosts(name)
     }
 
     fun installCluster() {
@@ -63,7 +65,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
         return getProfile().onPremise
     }
 
-    private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+     fun updateInfrastructure(infraInfo: InfrastructureInfo) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,

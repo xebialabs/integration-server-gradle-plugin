@@ -20,5 +20,6 @@ open class OperatorBasedGcpGkeStartDeployClusterTask : DeployOperatorBasedStartT
     @TaskAction
     fun launch() {
         GcpGkeHelper(project, ProductName.DEPLOY).launchCluster()
+        GcpGkeHelper(project, ProductName.DEPLOY).updateOperator()
     }
 }

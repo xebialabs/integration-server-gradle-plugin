@@ -20,5 +20,6 @@ open class OperatorBasedOnPremStartDeployClusterTask : DeployOperatorBasedStartT
     @TaskAction
     fun launch() {
         OnPremHelper(project, ProductName.DEPLOY).launchCluster()
+        OnPremHelper(project, ProductName.DEPLOY).updateOperator()
     }
 }

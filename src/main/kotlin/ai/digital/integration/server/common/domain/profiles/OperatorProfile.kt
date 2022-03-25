@@ -9,9 +9,6 @@ import javax.inject.Inject
 open class OperatorProfile @Inject constructor(@Input var name: String, project: Project) : OperatorHelmProfile(name, project) {
 
     @Input
-    val deploymentTimeoutSeconds = project.objects.property<Int>().value(900)
-
-    @Input
     val xlCliVersion = project.objects.property<String>()
 
     @Input

@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.cluster.Helper
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.ProductName
@@ -29,7 +30,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 @Suppress("UnstableApiUsage")
-abstract class OperatorHelper(val project: Project, val productName: ProductName) {
+abstract class OperatorHelper(project: Project, productName: ProductName) : Helper(project, productName){
 
     var loggingJob: Job? = null
 
@@ -90,11 +91,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     fun getOperatorHomeDir(): String =
         project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
-    fun getProviderWorkDir(): String {
-        val path = project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
-        File(path).mkdirs()
-        return path
-    }
+
 
     fun getProfile(): OperatorProfile {
         return when (productName) {
@@ -367,20 +364,12 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return WorkerUtil.getNumberOfWorkers(project)
     }
 
-    open fun getStorageClass(): String {
-        return getProvider().storageClass.getOrElse("standard")
-    }
-
     open fun getDbStorageClass(): String {
         return getStorageClass()
     }
 
     open fun getMqStorageClass(): String {
         return getStorageClass()
-    }
-
-    open fun getFqdn(): String {
-        return getProvider().host.getOrElse(getProvider().name.get())
     }
 
     fun getInitialCrValuesFile(): File {
@@ -412,14 +401,6 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return InfrastructureInfo(null, null, null, null, null, null)
     }
 
-    open fun getHost(): String {
-        return getProvider().host.getOrElse(getProvider().name.get())
-    }
-
-    open fun getPort(): String {
-        return "80"
-    }
-
     open fun applyYamlFiles() {
         project.logger.lifecycle("Applying prepared Yaml files")
 
@@ -445,44 +426,9 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     abstract fun getProviderHomePath(): String
 
-    abstract fun getProvider(): Provider
-
-    open fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project)
+    abstract override fun getProvider(): Provider
 
     open fun hasIngress(): Boolean = true
-
-    open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
-
-    open fun getMasterPodName(position: Int) =
-        "pod/dai-${getPrefixName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
-
-    open fun getMasterPodNameSuffix(position: Int): String {
-        return when (productName) {
-            ProductName.DEPLOY -> "master-$position"
-            ProductName.RELEASE -> "$position"
-        }
-    }
-
-    open fun getPostgresPodName(position: Int) = "pod/dai-${getPrefixName()}-postgresql-$position"
-
-    open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
-
-    fun getPrefixName(): String {
-        return when (productName) {
-            ProductName.DEPLOY -> "xld"
-            ProductName.RELEASE -> "xlr"
-        }
-    }
-
-    fun getTemplate(relativePath: String, targetFilename: String? = null): File {
-        val file = File(relativePath)
-        val fileStream = {}::class.java.classLoader.getResourceAsStream(relativePath)
-        val resultComposeFilePath = Paths.get(getProviderWorkDir(), targetFilename ?: file.name)
-        fileStream?.let {
-            FileUtil.copyFile(it, resultComposeFilePath)
-        }
-        return resultComposeFilePath.toFile()
-    }
 
     open fun getMasterCount(): Int {
         return when (productName) {
@@ -496,10 +442,6 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
             ProductName.DEPLOY -> DeployServerUtil.getConfDir(project)
             ProductName.RELEASE -> ReleaseServerUtil.getConfDir(project)
         }
-    }
-
-    fun getName(): String {
-        return productName.toString().toLowerCase()
     }
 
     fun cleanUpCluster(waiting: Duration) {

@@ -29,14 +29,16 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
             azureAksProvider.kubernetesVersion,
             skipExisting)
         connectToCluster(name)
+        createStorageClass(resourceGroupName(name), azureAksProvider.storageClass.getOrElse(name))
+    }
+
+    fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo()
-        createStorageClass(resourceGroupName(name), azureAksProvider.storageClass.getOrElse(name))
-
+        updateInfrastructure(kubeContextInfo)
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
-        updateInfrastructure(kubeContextInfo)
         updateDeploymentValues()
         updateOperatorCrValues()
     }

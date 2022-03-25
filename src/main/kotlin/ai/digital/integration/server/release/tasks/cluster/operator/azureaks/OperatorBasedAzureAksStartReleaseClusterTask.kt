@@ -20,5 +20,6 @@ open class OperatorBasedAzureAksStartReleaseClusterTask : ReleaseOperatorBasedSt
     @TaskAction
     fun launch() {
         AzureAksHelper(project, ProductName.RELEASE).launchCluster()
+        AzureAksHelper(project, ProductName.RELEASE).updateOperator()
     }
 }

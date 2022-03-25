@@ -1,5 +1,7 @@
 package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.cluster.setup.AwsEks
+import ai.digital.integration.server.common.cluster.setup.AwsOpenshift
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.AwsOpenshiftProvider
 import ai.digital.integration.server.common.util.HtmlUtil
@@ -13,19 +15,14 @@ import java.util.*
 @Suppress("UnstableApiUsage")
 open class AwsOpenshiftHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
-    fun launchCluster() {
-        createOcContext()
-
+    fun updateOperator() {
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
+        updateInfrastructure(AwsOpenshift(project, productName).getApiServerUrl(), getOcApiServerToken())
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateDeploymentValues()
         updateOperatorCrValues()
-
-        updateInfrastructure(getApiServerUrl(), getOcApiServerToken())
-
-        ocLogin()
-        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
     }
 
     fun installCluster() {
@@ -41,17 +38,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         turnOffLogging()
     }
 
-    private fun exec(command: String): String {
-        val workDir = File(getProviderHomeDir())
-        if (!workDir.exists()) {
-            workDir.mkdirs()
-        }
-        return ProcessUtil.executeCommand(command, workDir)
-    }
 
-    private fun ocLogin() {
-        exec("oc login ${getApiServerUrl()} --username ${getOcLogin()} --password \"${getOcPassword()}\"")
-    }
 
     private fun ocLogout() {
         try {
@@ -62,7 +49,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
     }
 
     fun getOcApiServerToken(): String {
-        val basicAuthToken = Base64.getEncoder().encodeToString("${getOcLogin()}:${getOcPassword()}".toByteArray())
+        val basicAuthToken = Base64.getEncoder().encodeToString("${AwsOpenshift(project, productName).getOcLogin()}:${AwsOpenshift(project, productName).getOcPassword()}".toByteArray())
         val oauthHostName = getProvider().oauthHostName.get()
 
         ocLogout()
@@ -81,7 +68,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
     }
 
     fun shutdownCluster() {
-        ocLogin()
+        AwsOpenshift(project, productName).ocLogin()
         undeployCluster()
         ocLogout()
     }
@@ -129,15 +116,4 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
     override fun getProviderCrContextPath(): String = "spec.route.path"
 
-    private fun getApiServerUrl() = getProvider().apiServerURL.get()
-
-    private fun getOcLogin() = project.property("ocLogin")
-
-    private fun getOcPassword() = project.property("ocPassword")
-
-    private fun createOcContext() {
-        project.logger.lifecycle("Updating kube config for Open Shift")
-        exec("export KUBECONFIG=~/.kube/config")
-        ocLogin()
-    }
 }

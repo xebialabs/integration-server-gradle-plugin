@@ -13,6 +13,9 @@ import org.gradle.kotlin.dsl.property
 abstract class OperatorHelmProfile (name: String, project: Project) : Profile {
 
     @Input
+    val deploymentTimeoutSeconds = project.objects.property<Int>().value(900)
+
+    @Input
     val activeProviderName = project.objects.property<String>().value(OperatorHelmProviderName.ON_PREMISE.providerName)
 
     val awsOpenshift: AwsOpenshiftProvider =

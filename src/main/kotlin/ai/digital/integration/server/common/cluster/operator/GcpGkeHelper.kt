@@ -28,15 +28,19 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
 
         createCluster(accountName, projectName, name, regionZone, gcpGkeProvider.clusterNodeCount, gcpGkeProvider.clusterNodeVmSize, gcpGkeProvider.kubernetesVersion, skipExisting)
         connectToCluster(accountName, projectName, name, regionZone)
-        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
-        val kubeContextInfo = getCurrentContextInfo(accountName, projectName)
-
         useCustomStorageClass(getStorageClass())
+    }
 
+    fun updateOperator() {
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
+        val gcpGkeProvider: GcpGkeProvider = getProvider()
+        val projectName = gcpGkeProvider.projectName.get()
+        val accountName = gcpGkeProvider.accountName.get()
+        val kubeContextInfo = getCurrentContextInfo(accountName, projectName)
+        updateInfrastructure(kubeContextInfo)
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
-        updateInfrastructure(kubeContextInfo)
         updateDeploymentValues()
         updateOperatorCrValues()
     }
