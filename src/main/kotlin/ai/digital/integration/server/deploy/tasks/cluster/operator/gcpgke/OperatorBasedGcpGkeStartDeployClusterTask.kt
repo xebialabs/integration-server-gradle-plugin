@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.cluster.operator.GcpGkeHelper
+import ai.digital.integration.server.common.cluster.setup.GcpGke
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStartTask
 import org.gradle.api.tasks.TaskAction
@@ -19,7 +20,7 @@ open class OperatorBasedGcpGkeStartDeployClusterTask : DeployOperatorBasedStartT
 
     @TaskAction
     fun launch() {
-        GcpGkeHelper(project, ProductName.DEPLOY).launchCluster()
+        GcpGke(project, ProductName.DEPLOY).launchCluster()
         GcpGkeHelper(project, ProductName.DEPLOY).updateOperator()
     }
 }
