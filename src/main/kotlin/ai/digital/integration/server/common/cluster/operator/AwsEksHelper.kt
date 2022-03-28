@@ -30,30 +30,17 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         waitForBoot()
     }
 
+    fun shutdownCluster() {
+        undeployCluster()
+        AwsEks(project,productName).destroyClusterOnShutdown()
+    }
+
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
             "spec.ingress.hosts" to arrayOf(getFqdn()),
             "spec.rabbitmq.persistence.storageClass" to "gp2"
         )
         YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
-    }
-
-    fun shutdownCluster() {
-        val awsEksProvider: AwsEksProvider = getProvider()
-
-        undeployCluster()
-
-        if (awsEksProvider.destroyClusterOnShutdown.get()) {
-            project.logger.lifecycle("Delete iamserviceaccount for CSI driver.")
-            AwsEks(project, productName).deleteIAMRoleForCSIDriver(getProvider())
-
-            project.logger.lifecycle("Delete cluster and ssh key")
-            AwsEks(project, productName).deleteSshKey(awsEksProvider)
-            AwsEks(project, productName).deleteCluster(awsEksProvider)
-
-            project.logger.lifecycle("Delete current context")
-            getKubectlHelper().deleteCurrentContext()
-        }
     }
 
     override fun getProviderHomePath(): String {

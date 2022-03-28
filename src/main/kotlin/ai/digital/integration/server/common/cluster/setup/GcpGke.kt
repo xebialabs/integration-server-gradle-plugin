@@ -115,7 +115,27 @@ open class GcpGke(project: Project, productName: ProductName)  : Helper(project,
         }
     }
 
-    fun deleteCluster(accountName: String, projectName: String, name: String, regionZone: String) {
+    fun applyDnsOpenApi(ip: String) {
+        val gcpGkeProvider: GcpGkeProvider = getProvider()
+        val projectName = gcpGkeProvider.projectName.get()
+        val name = gcpGkeProvider.name.get()
+        val accountName = gcpGkeProvider.accountName.get()
+        val serviceName = getFqdn()
+
+        val dnsOpenApiTemplateFile = getTemplate("operator/gcp-gke/dns-openapi.yaml")
+        val dnsOpenApiTemplate = dnsOpenApiTemplateFile.readText(Charsets.UTF_8)
+            .replace("{{NAME}}", name)
+            .replace("{{PROJECT_ID}}", projectName)
+            .replace("{{PRODUCT_NAME}}", productName.shortName)
+            .replace("{{IP}}", ip)
+        dnsOpenApiTemplateFile.writeText(dnsOpenApiTemplate)
+        ProcessUtil.executeCommand(project,
+            "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services undelete \"$serviceName\"", throwErrorOnFailure = false, logOutput = false)
+        ProcessUtil.executeCommand(project,
+            "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services deploy \"${dnsOpenApiTemplateFile.absolutePath}\" --force")
+    }
+
+    private fun deleteCluster(accountName: String, projectName: String, name: String, regionZone: String) {
         if (existsCluster(accountName, projectName, name, regionZone)) {
             project.logger.lifecycle("Delete cluster (async): {}", name)
             ProcessUtil.executeCommand(project,
@@ -125,9 +145,38 @@ open class GcpGke(project: Project, productName: ProductName)  : Helper(project,
         }
     }
 
-    fun logoutGCloudCli(accountName: String) {
+    private fun logoutGCloudCli(accountName: String) {
         project.logger.lifecycle("Revoke account $accountName")
         ProcessUtil.executeCommand(project,
                 "gcloud auth revoke $accountName --quiet", throwErrorOnFailure = false)
+    }
+
+    fun destroyClusterOnShutdown(existsCluster: Boolean, accountName: String, projectName: String, name: String, regionZone: String) {
+        val gcpGkeProvider: GcpGkeProvider = getProvider()
+        if (gcpGkeProvider.destroyClusterOnShutdown.get()) {
+            if (existsCluster) {
+                deleteCluster(accountName, projectName, name, regionZone)
+            }
+            deleteDnsOpenApi()
+            getKubectlHelper().deleteCurrentContext()
+            logoutGCloudCli(gcpGkeProvider.accountName.get())
+        }
+    }
+
+    private fun deleteDnsOpenApi() {
+        val gcpGkeProvider: GcpGkeProvider = getProvider()
+        val projectName = gcpGkeProvider.projectName.get()
+        val accountName = gcpGkeProvider.accountName.get()
+        if (existsDnsOpenApi(accountName, projectName)) {
+            ProcessUtil.executeCommand(project,
+                "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${getFqdn()}\" --quiet", throwErrorOnFailure = false)
+        }
+    }
+
+    private fun existsDnsOpenApi(accountName: String, projectName: String): Boolean {
+        val serviceName = getFqdn()
+        val result = ProcessUtil.executeCommand(project,
+            "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services list", throwErrorOnFailure = false, logOutput = false)
+        return result.contains(serviceName)
     }
 }

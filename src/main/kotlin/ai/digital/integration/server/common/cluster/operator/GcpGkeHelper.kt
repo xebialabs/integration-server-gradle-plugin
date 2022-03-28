@@ -1,6 +1,5 @@
 package ai.digital.integration.server.common.cluster.operator
 
-import ai.digital.integration.server.common.cluster.setup.AzureAks
 import ai.digital.integration.server.common.cluster.setup.GcpGke
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
@@ -10,7 +9,6 @@ import ai.digital.integration.server.common.util.YamlFileUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import org.gradle.api.Project
-import org.gradle.api.provider.Property
 import java.io.File
 
 open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
@@ -35,8 +33,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         waitForMasterPods()
         waitForWorkerPods()
         val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
-        applyDnsOpenApi(ip)
-
+        GcpGke(project, productName).applyDnsOpenApi(ip)
         createClusterMetadata()
         waitForBoot()
     }
@@ -52,14 +49,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         if (existsCluster) {
             undeployCluster()
         }
-        if (gcpGkeProvider.destroyClusterOnShutdown.get()) {
-            if (existsCluster) {
-                GcpGke(project, productName).deleteCluster(accountName, projectName, name, regionZone)
-            }
-            deleteDnsOpenApi()
-            getKubectlHelper().deleteCurrentContext()
-            GcpGke(project, productName).logoutGCloudCli(gcpGkeProvider.accountName.get())
-        }
+        GcpGke(project, productName).destroyClusterOnShutdown(existsCluster, accountName, projectName, name, regionZone)
     }
 
     override fun getProviderHomePath(): String {
@@ -115,45 +105,6 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
                 "spec.ingress.hosts" to listOf(getFqdn())
         )
         YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
-    }
-
-
-
-    private fun applyDnsOpenApi(ip: String) {
-        val gcpGkeProvider: GcpGkeProvider = getProvider()
-        val projectName = gcpGkeProvider.projectName.get()
-        val name = gcpGkeProvider.name.get()
-        val accountName = gcpGkeProvider.accountName.get()
-        val serviceName = getFqdn()
-
-        val dnsOpenApiTemplateFile = getTemplate("operator/gcp-gke/dns-openapi.yaml")
-        val dnsOpenApiTemplate = dnsOpenApiTemplateFile.readText(Charsets.UTF_8)
-                .replace("{{NAME}}", name)
-                .replace("{{PROJECT_ID}}", projectName)
-                .replace("{{PRODUCT_NAME}}", productName.shortName)
-                .replace("{{IP}}", ip)
-        dnsOpenApiTemplateFile.writeText(dnsOpenApiTemplate)
-        ProcessUtil.executeCommand(project,
-                "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services undelete \"$serviceName\"", throwErrorOnFailure = false, logOutput = false)
-        ProcessUtil.executeCommand(project,
-                "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services deploy \"${dnsOpenApiTemplateFile.absolutePath}\" --force")
-    }
-
-    private fun existsDnsOpenApi(accountName: String, projectName: String): Boolean {
-        val serviceName = getFqdn()
-        val result = ProcessUtil.executeCommand(project,
-                "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services list", throwErrorOnFailure = false, logOutput = false)
-        return result.contains(serviceName)
-    }
-
-    private fun deleteDnsOpenApi() {
-        val gcpGkeProvider: GcpGkeProvider = getProvider()
-        val projectName = gcpGkeProvider.projectName.get()
-        val accountName = gcpGkeProvider.accountName.get()
-        if (existsDnsOpenApi(accountName, projectName)) {
-            ProcessUtil.executeCommand(project,
-                    "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${getFqdn()}\" --quiet", throwErrorOnFailure = false)
-        }
     }
 
     override fun getCurrentContextInfo(): InfrastructureInfo {

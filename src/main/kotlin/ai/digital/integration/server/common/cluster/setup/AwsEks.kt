@@ -13,6 +13,7 @@ import net.sf.json.util.JSONTokener
 import org.gradle.api.Project
 import java.io.File
 
+
 open class AwsEks(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): AwsEksProvider {
@@ -350,7 +351,7 @@ open class AwsEks(project: Project, productName: ProductName) : Helper(project, 
         project.logger.lifecycle("Route 53 Status $changeStatus")
     }
 
-    fun deleteIAMRoleForCSIDriver(awsEksProvider: AwsEksProvider) {
+    private fun deleteIAMRoleForCSIDriver(awsEksProvider: AwsEksProvider) {
         if (awsEksProvider.skipExisting.get()) {
             project.logger.lifecycle("Skipping deletion of the storageClass and iamserviceaccount: {}",
                     awsEksProvider.sshKeyName.get())
@@ -366,7 +367,7 @@ open class AwsEks(project: Project, productName: ProductName) : Helper(project, 
         }
     }
 
-    fun deleteSshKey(awsEksProvider: AwsEksProvider) {
+    private fun deleteSshKey(awsEksProvider: AwsEksProvider) {
         if (awsEksProvider.skipExisting.get()) {
             project.logger.lifecycle("Skipping deletion of the ssh key: {}", awsEksProvider.sshKeyName.get())
         } else {
@@ -379,7 +380,7 @@ open class AwsEks(project: Project, productName: ProductName) : Helper(project, 
         }
     }
 
-    fun deleteCluster(awsEksProvider: AwsEksProvider) {
+    private fun deleteCluster(awsEksProvider: AwsEksProvider) {
         if (awsEksProvider.skipExisting.get()) {
             project.logger.lifecycle("Skipping deletion of the stack: {}", awsEksProvider.stack.get())
         } else {
@@ -404,6 +405,20 @@ open class AwsEks(project: Project, productName: ProductName) : Helper(project, 
                         stackId,
                         "DELETE_COMPLETE")
             }
+        }
+    }
+
+    fun destroyClusterOnShutdown() {
+        val awsEksProvider: AwsEksProvider = getProvider()
+        project.logger.lifecycle("$$$$$$$$$$$$$$$$$$$$$$$$$$$$44 destroyClusterOnShutdown $$$$$$$$$$$$$$$$$$$$$$$$")
+        if (awsEksProvider.destroyClusterOnShutdown.get()) {
+            project.logger.lifecycle("Delete iamserviceaccount for CSI driver.")
+            deleteIAMRoleForCSIDriver(getProvider())
+            project.logger.lifecycle("Delete cluster and ssh key")
+            deleteSshKey(awsEksProvider)
+            deleteCluster(awsEksProvider)
+            project.logger.lifecycle("Delete current context")
+            getKubectlHelper().deleteCurrentContext()
         }
     }
 }

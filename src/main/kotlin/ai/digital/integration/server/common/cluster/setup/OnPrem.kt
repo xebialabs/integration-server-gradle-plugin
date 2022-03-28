@@ -131,7 +131,7 @@ open class OnPrem(project: Project, productName: ProductName)   : Helper(project
         }
     }
 
-    fun destroyCluster() {
+    fun destroyClusterOnShutdown() {
         if (getProvider().destroyClusterOnShutdown.get()) {
             deleteCluster()
             project.logger.lifecycle("Current cluster context is being deleted")

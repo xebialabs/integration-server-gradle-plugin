@@ -36,7 +36,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
 
     fun shutdownCluster() {
         undeployCluster()
-        OnPrem(project, productName).destroyCluster()
+        OnPrem(project, productName).destroyClusterOnShutdown()
     }
 
     override fun getProviderHomePath(): String {

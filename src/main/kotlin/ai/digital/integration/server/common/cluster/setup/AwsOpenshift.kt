@@ -25,6 +25,14 @@ open class AwsOpenshift(project: Project, productName: ProductName) : Helper(pro
         exec("oc login ${getApiServerUrl()} --username ${getOcLogin()} --password \"${getOcPassword()}\"")
     }
 
+    fun ocLogout() {
+        try {
+            exec("oc logout")
+        } catch (e: Exception) {
+            // ignore, if throws exception, it only means that already loged out, safe to ignore.
+        }
+    }
+
     override fun getProvider(): AwsOpenshiftProvider {
         val profileName = DeployClusterUtil.getProfile(project)
         if (profileName == ClusterProfileName.OPERATOR.profileName) {

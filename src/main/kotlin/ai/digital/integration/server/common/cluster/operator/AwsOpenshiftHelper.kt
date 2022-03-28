@@ -1,12 +1,10 @@
 package ai.digital.integration.server.common.cluster.operator
 
-import ai.digital.integration.server.common.cluster.setup.AwsEks
 import ai.digital.integration.server.common.cluster.setup.AwsOpenshift
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.AwsOpenshiftProvider
 import ai.digital.integration.server.common.util.HtmlUtil
 import ai.digital.integration.server.common.util.KubeCtlHelper
-import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
 import java.io.File
@@ -38,21 +36,17 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         turnOffLogging()
     }
 
-
-
-    private fun ocLogout() {
-        try {
-            exec("oc logout")
-        } catch (e: Exception) {
-            // ignore, if throws exception, it only means that already loged out, safe to ignore.
-        }
+    fun shutdownCluster() {
+        AwsOpenshift(project, productName).ocLogin()
+        undeployCluster()
+        AwsOpenshift(project, productName).ocLogout()
     }
 
     fun getOcApiServerToken(): String {
         val basicAuthToken = Base64.getEncoder().encodeToString("${AwsOpenshift(project, productName).getOcLogin()}:${AwsOpenshift(project, productName).getOcPassword()}".toByteArray())
         val oauthHostName = getProvider().oauthHostName.get()
 
-        ocLogout()
+        AwsOpenshift(project, productName).ocLogout()
 
         val command1Output =
             exec("curl -vvv -L -k -c cookie -b cookie  -H \"Authorization: Basic $basicAuthToken\" https://$oauthHostName/oauth/token/request")
@@ -65,12 +59,6 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
             exec("curl -vvv -L -k -c cookie -b cookie -d 'code=$code&csrf=$csrf' -H \"Authorization: Basic $basicAuthToken\" https://$oauthHostName/oauth/token/display")
         val doc2 = HtmlUtil.htmlToDocument(command2Output)
         return doc2.select("code").text()
-    }
-
-    fun shutdownCluster() {
-        AwsOpenshift(project, productName).ocLogin()
-        undeployCluster()
-        ocLogout()
     }
 
     override fun getProviderHomePath(): String {

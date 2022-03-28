@@ -48,14 +48,7 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
             undeployCluster()
         }
 
-        if (azureAksProvider.destroyClusterOnShutdown.get()) {
-            if (existsResourceGroup) {
-                AzureAks(project, productName).deleteResourceGroup(name, groupName, location)
-            }
-
-            getKubectlHelper().deleteCurrentContext()
-            AzureAks(project, productName).logoutAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
-        }
+        AzureAks(project, productName).destroyClusterOnShutdown(existsResourceGroup, name, groupName, location)
     }
 
     private fun updateInfrastructure(infraInfo: InfrastructureInfo) {

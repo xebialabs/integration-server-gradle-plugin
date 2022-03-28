@@ -150,11 +150,11 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
         return result.contains(groupName)
     }
 
-    fun aksClusterName(name: String): String {
+    private fun aksClusterName(name: String): String {
         return name
     }
 
-    fun deleteResourceGroup(name: String, groupName: String, location: String) {
+    private fun deleteResourceGroup(name: String, groupName: String, location: String) {
         val clusterName = AzureAks(project, productName).aksClusterName(name)
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
         if (AzureAks(project, productName).existsResourceGroup(groupName, location)) {
@@ -166,11 +166,24 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
         }
     }
 
-    fun logoutAzCli(username: String?, password: String?) {
+    private fun logoutAzCli(username: String?, password: String?) {
         if (username != null && password != null) {
             project.logger.lifecycle("Logout user")
             ProcessUtil.executeCommand(project,
                     "az logout", throwErrorOnFailure = false)
+        }
+    }
+
+    fun destroyClusterOnShutdown(existsResourceGroup: Boolean, name: String, groupName: String, location: String) {
+        val azureAksProvider: AzureAksProvider = getProvider()
+
+        if (azureAksProvider.destroyClusterOnShutdown.get()) {
+            if (existsResourceGroup) {
+                deleteResourceGroup(name, groupName, location)
+            }
+
+            getKubectlHelper().deleteCurrentContext()
+            logoutAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
         }
     }
 
