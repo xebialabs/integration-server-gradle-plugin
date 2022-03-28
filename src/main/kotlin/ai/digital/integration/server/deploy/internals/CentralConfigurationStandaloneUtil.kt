@@ -13,6 +13,7 @@ import kotlin.system.exitProcess
 
 class CentralConfigurationStandaloneUtil {
     companion object {
+        val ccMountedVolumes = listOf("centralConfiguration", "conf")
         fun hasCC(project: Project): Boolean {
             return DeployExtensionUtil.getExtension(project).CentralConfigurationStandalone.get().enable
         }
@@ -113,6 +114,7 @@ class CentralConfigurationStandaloneUtil {
 
             val configuredTemplate = serverTemplate.readText(Charsets.UTF_8)
                 .replace("{{CC_IMAGE_VERSION}}", getDockerImageVersion(cc))
+                .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", IntegrationServerUtil.getDist(project))
 
             serverTemplate.writeText(configuredTemplate)
 
@@ -128,10 +130,29 @@ class CentralConfigurationStandaloneUtil {
         }
 
         fun runDockerBasedInstance(project: Project, cc: CentralConfigurationStandalone) {
+            createCcFolders(project);
             project.exec {
                 executable = "docker-compose"
                 args = listOf("-f", getResolvedDockerFile(project, cc).toFile().toString(), "up", "-d")
             }
+        }
+
+        private fun createCcFolders(project: Project) {
+            ccMountedVolumes.forEach { folderName ->
+                val folderPath = "${IntegrationServerUtil.getDist(project)}/central-configuration-server/${folderName}"
+                val folder = File(folderPath)
+                folder.mkdirs()
+                giveAllPermissionsForMountedVolume(folderPath, project)
+                project.logger.lifecycle("Folder $folderPath has been created.")
+            }
+        }
+
+        private fun giveAllPermissionsForMountedVolume(folderPath: String, project: Project) {
+            ProcessUtil.chMod(
+                project,
+                "777",
+                folderPath
+            )
         }
 
         fun networkExists(project: Project): Boolean {
