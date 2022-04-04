@@ -338,18 +338,9 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
         if (IngressType.valueOf(getProfile().ingressType.get()) == IngressType.HAPROXY) {
             val namespaceAsSuffix = getNamespace()?.let { "-$it" } ?: ""
-            val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
-            val ingressAnnotations = HashMap(YamlFileUtil.readFileKey(file, "spec.ingress.annotations") as Map<*, *>)
-            ingressAnnotations.put("kubernetes.io/ingress.class", "haproxy$namespaceAsSuffix")
-            val keycloackIngressAnnotations = HashMap(YamlFileUtil.readFileKey(file, "spec.keycloak.ingress.annotations") as Map<*, *>)
-            keycloackIngressAnnotations.put("kubernetes.io/ingress.class", "haproxy$namespaceAsSuffix")
             pairs.putAll(mutableMapOf<String, Any>(
                 "spec.haproxy-ingress.install" to true,
-                "spec.haproxy-ingress.controller.ingressClass" to "haproxy$namespaceAsSuffix",
-                "spec.haproxy-ingress.fullnameOverride" to namespaceAsPrefix + "dai-" + getPrefixName() + "-haproxy-ingress",
-                "spec.nginx-ingress-controller.install" to false,
-                "spec.ingress.annotations" to ingressAnnotations,
-                "spec.keycloak.ingress.annotations" to keycloackIngressAnnotations
+                "spec.nginx-ingress-controller.install" to false
             ))
         }
 
