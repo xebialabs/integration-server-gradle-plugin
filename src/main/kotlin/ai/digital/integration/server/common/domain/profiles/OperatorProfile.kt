@@ -14,7 +14,7 @@ import javax.inject.Inject
 open class OperatorProfile @Inject constructor(@Input var name: String, project: Project) : Profile {
 
     @Input
-    val activeProviderName = project.objects.property<String>().value(OperatorProviderName.ON_PREMISE.providerName)
+    val activeProviderName = project.objects.property<String>()
 
     @Input
     val deploymentTimeoutSeconds = project.objects.property<Int>().value(900)
@@ -27,6 +27,15 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
 
     @Input
     val xlCliPath = project.objects.property<String>()
+
+    @Input
+    val namespace = project.objects.property<String>()
+
+    @Input
+    val ingressType = project.objects.property<String>().value(IngressType.NGINX.name)
+
+    @Input
+    val doCleanup = project.objects.property<Boolean>().value(true)
 
     val awsOpenshift: AwsOpenshiftProvider =
         DefaultOperatorProviderContainer(project.container(Provider::class) {

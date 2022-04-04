@@ -59,7 +59,7 @@ class EntryPointUrlUtil(
     }
 
     fun getHttpHost(auxiliaryServer: Boolean = false): String {
-        if (isOperatorProvider() && !auxiliaryServer) {
+        if (isOperatorProvider() && !auxiliaryServer && DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
             val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
             return operatorHelper.getFqdn()
         }

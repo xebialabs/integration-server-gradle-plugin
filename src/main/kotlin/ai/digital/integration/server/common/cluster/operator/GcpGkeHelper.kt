@@ -36,6 +36,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateOperatorEnvironment()
         updateInfrastructure(kubeContextInfo)
         updateDeploymentValues()
         updateOperatorCrValues()
@@ -84,7 +85,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return "${productName.shortName}-${getHost()}.endpoints.${getProvider().projectName.get()}.cloud.goog"
+        return "${productName.shortName}-${getHost()}-${getNamespace() ?: "default"}.endpoints.${getProvider().projectName.get()}.cloud.goog"
     }
 
     private fun validateGCloudCli() {

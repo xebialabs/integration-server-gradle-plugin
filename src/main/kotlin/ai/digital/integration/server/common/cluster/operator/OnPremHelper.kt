@@ -33,6 +33,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateOperatorEnvironment()
         updateInfrastructure(kubeContextInfo)
         updateDeploymentValues()
         updateOperatorCrValues()

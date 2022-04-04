@@ -36,6 +36,7 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateOperatorEnvironment()
         updateInfrastructure(kubeContextInfo)
         updateDeploymentValues()
         updateOperatorCrValues()
@@ -120,7 +121,7 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         if (username != null && password != null) {
             project.logger.lifecycle("Login user")
             ProcessUtil.executeCommand(project,
-                "az login -u \"$username\" -p \"$password\"", throwErrorOnFailure = false, logOutput = false)
+                "az login -u $username -p $password", throwErrorOnFailure = false, logOutput = false)
         }
     }
 
@@ -229,6 +230,7 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
             "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to getHost()),
+            "spec.haproxy-ingress.controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to getHost()),
             "spec.ingress.hosts" to arrayOf(getFqdn())
         )
         YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
