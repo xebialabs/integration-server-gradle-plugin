@@ -2,6 +2,7 @@ package ai.digital.integration.server.release.tasks.cluster.operator
 
 import ai.digital.integration.server.common.constant.OperatorProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
+import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksInstallReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftInstallReleaseClusterTask
@@ -21,25 +22,29 @@ open class OperatorBasedInstallReleaseClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        this.dependsOn(when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
-            OperatorProviderName.AWS_EKS.providerName ->
-                OperatorBasedAwsEksInstallReleaseClusterTask.NAME
-            OperatorProviderName.AWS_OPENSHIFT.providerName ->
-                OperatorBasedAwsOpenShiftInstallReleaseClusterTask.NAME
-            OperatorProviderName.AZURE_AKS.providerName ->
-                OperatorBasedAzureAksInstallReleaseClusterTask.NAME
-            OperatorProviderName.GCP_GKE.providerName ->
-                OperatorBasedGcpGkeInstallReleaseClusterTask.NAME
-            OperatorProviderName.ON_PREMISE.providerName ->
-                OperatorBasedOnPremInstallReleaseClusterTask.NAME
-            OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
-                OperatorBasedVmWareOpenShiftInstallReleaseClusterTask.NAME
-            else -> {
-                throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
-                    OperatorProviderName.values().joinToString()
-                }")
-            }
-        })
+        if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
+            this.dependsOn(when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
+                OperatorProviderName.AWS_EKS.providerName ->
+                    OperatorBasedAwsEksInstallReleaseClusterTask.NAME
+                OperatorProviderName.AWS_OPENSHIFT.providerName ->
+                    OperatorBasedAwsOpenShiftInstallReleaseClusterTask.NAME
+                OperatorProviderName.AZURE_AKS.providerName ->
+                    OperatorBasedAzureAksInstallReleaseClusterTask.NAME
+                OperatorProviderName.GCP_GKE.providerName ->
+                    OperatorBasedGcpGkeInstallReleaseClusterTask.NAME
+                OperatorProviderName.ON_PREMISE.providerName ->
+                    OperatorBasedOnPremInstallReleaseClusterTask.NAME
+                OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
+                    OperatorBasedVmWareOpenShiftInstallReleaseClusterTask.NAME
+                else -> {
+                    throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
+                        OperatorProviderName.values().joinToString()
+                    }")
+                }
+            })
+        } else {
+            project.logger.warn("Active provider name is not set - OperatorBasedInstallReleaseClusterTask")
+        }
     }
 
     @TaskAction

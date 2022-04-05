@@ -30,6 +30,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateOperatorEnvironment()
         updateDeploymentValues()
         updateOperatorCrValues()
     }
@@ -333,9 +334,10 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     private fun getHostName(): String {
+        val namespace = getNamespace()?.let { "$it-" } ?: ""
         return ProcessUtil.executeCommand(project,
             "kubectl get service" +
-                    " dai-${getPrefixName()}-nginx-ingress-controller " +
+                    " ${namespace}dai-${getPrefixName()}-nginx-ingress-controller " +
                     "-o=jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\"",
             logOutput = false,
             throwErrorOnFailure = false)
@@ -471,7 +473,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return "${getProvider().stack.get()}-${getName()}.digitalai-testing.com"
+        return "${getProvider().stack.get()}-${getName()}-${getNamespace() ?: "default"}.digitalai-testing.com"
     }
 
     override fun getDbStorageClass(): String {

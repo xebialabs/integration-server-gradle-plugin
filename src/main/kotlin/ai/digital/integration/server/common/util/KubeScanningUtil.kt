@@ -72,7 +72,7 @@ class KubeScanningUtil {
             return existingCommand
         }
 
-        fun getKubectlHelper(project: Project): KubeCtlHelper = KubeCtlHelper(project)
+        fun getKubectlHelper(project: Project): KubeCtlHelper = KubeCtlHelper(project, null)
 
     }
 }

@@ -7,7 +7,7 @@ EksClusterName: {{CLUSTER_NAME}}
 AWSAccessKey: {{AWS_ACCESS_KEY}}
 AWSAccessSecret: {{AWS_ACCESS_SECRET}}
 K8sSetup: {{K8S_SETUP}}
-Namespace: default
+Namespace: {{K8S_NAMESPACE}}
 OperatorImage: {{OPERATOR_IMAGE}}
 OperatorImageDeployGeneric: {{OPERATOR_IMAGE}}
 RepositoryName: {{REPOSITORY_NAME}}
