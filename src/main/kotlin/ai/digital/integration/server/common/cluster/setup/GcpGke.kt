@@ -12,7 +12,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class GcpGke(project: Project, productName: ProductName)  : Helper(project, productName) {
+open class GcpGke(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): GcpGkeProvider {
         val profileName = DeployClusterUtil.getProfile(project)
@@ -36,14 +36,25 @@ open class GcpGke(project: Project, productName: ProductName)  : Helper(project,
         changeDefaultProject(projectName)
         changeDefaultRegionZone(regionZone)
 
-        createCluster(accountName, projectName, name, regionZone, gcpGkeProvider.clusterNodeCount, gcpGkeProvider.clusterNodeVmSize, gcpGkeProvider.kubernetesVersion, skipExisting)
+        createCluster(
+            accountName,
+            projectName,
+            name,
+            regionZone,
+            gcpGkeProvider.clusterNodeCount,
+            gcpGkeProvider.clusterNodeVmSize,
+            gcpGkeProvider.kubernetesVersion,
+            skipExisting
+        )
         connectToCluster(accountName, projectName, name, regionZone)
         useCustomStorageClass(getStorageClass())
     }
 
     private fun validateGCloudCli() {
-        val result = ProcessUtil.executeCommand(project,
-                "gcloud -v", throwErrorOnFailure = false, logOutput = false)
+        val result = ProcessUtil.executeCommand(
+            project,
+            "gcloud -v", throwErrorOnFailure = false, logOutput = false
+        )
         if (!result.contains("Google Cloud SDK")) {
             throw RuntimeException("No Google Cloud SDK \"gcloud\" in the path. Please verify your installation")
         }
@@ -51,27 +62,42 @@ open class GcpGke(project: Project, productName: ProductName)  : Helper(project,
 
     private fun loginGCloudCli(accountName: String, accountCredFile: String) {
         project.logger.lifecycle("Login account $accountName")
-        val additions = if(accountCredFile.isNotBlank())
+        val additions = if (accountCredFile.isNotBlank())
             " --cred-file=\"${File(accountCredFile).absolutePath}\""
         else
             ""
-        ProcessUtil.executeCommand(project,
-                "gcloud auth login $accountName $additions --quiet")
+        ProcessUtil.executeCommand(
+            project,
+            "gcloud auth login $accountName $additions --quiet"
+        )
     }
 
     private fun changeDefaultProject(projectName: String) {
         project.logger.lifecycle("Change default project to $projectName")
-        ProcessUtil.executeCommand(project,
-                "gcloud config set project $projectName")
+        ProcessUtil.executeCommand(
+            project,
+            "gcloud config set project $projectName"
+        )
     }
 
     private fun changeDefaultRegionZone(regionZone: String) {
         project.logger.lifecycle("Change default region to $regionZone")
-        ProcessUtil.executeCommand(project,
-                "gcloud config set compute/zone $regionZone")
+        ProcessUtil.executeCommand(
+            project,
+            "gcloud config set compute/zone $regionZone"
+        )
     }
 
-    private fun createCluster(accountName: String, projectName: String, name: String, regionZone: String, clusterNodeCount: Property<Int>, clusterNodeVmSize: Property<String>, kubernetesVersion: Property<String>, skipExisting: Boolean) {
+    private fun createCluster(
+        accountName: String,
+        projectName: String,
+        name: String,
+        regionZone: String,
+        clusterNodeCount: Property<Int>,
+        clusterNodeVmSize: Property<String>,
+        kubernetesVersion: Property<String>,
+        skipExisting: Boolean
+    ) {
         val shouldSkipExisting = if (skipExisting) {
             existsCluster(accountName, projectName, name, regionZone)
         } else {
@@ -83,27 +109,36 @@ open class GcpGke(project: Project, productName: ProductName)  : Helper(project,
             project.logger.lifecycle("Create cluster: {}", name)
 
             val additions = clusterNodeVmSize.map { " --machine-type \"$it\"" }.getOrElse("") +
-                    kubernetesVersion.map { " --cluster-version \"$it\"" }.getOrElse(" --cluster-version \"1.21.5-gke.1802\"")
+                    kubernetesVersion.map { " --cluster-version \"$it\"" }
+                        .getOrElse(" --cluster-version \"1.21.5-gke.1802\"")
 
-            ProcessUtil.executeCommand(project,
-                    "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters create \"$name\" --zone  \"$regionZone\" " +
-                            "--release-channel \"regular\" " +
-                            "--num-nodes \"${clusterNodeCount.getOrElse(3)}\" --image-type \"COS_CONTAINERD\" --metadata disable-legacy-endpoints=true " +
-                            "--logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --no-enable-master-authorized-networks " +
-                            "--addons HorizontalPodAutoscaling,HttpLoadBalancing,GcpFilestoreCsiDriver --enable-autoupgrade --enable-autorepair " +
-                            "--enable-shielded-nodes $additions")
+            ProcessUtil.executeCommand(
+                project,
+                "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters create \"$name\" --zone  \"$regionZone\" " +
+                        "--release-channel \"regular\" " +
+                        "--num-nodes \"${clusterNodeCount.getOrElse(3)}\" --image-type \"COS_CONTAINERD\" --metadata disable-legacy-endpoints=true " +
+                        "--logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --no-enable-master-authorized-networks " +
+                        "--addons HorizontalPodAutoscaling,HttpLoadBalancing,GcpFilestoreCsiDriver --enable-autoupgrade --enable-autorepair " +
+                        "--enable-shielded-nodes $additions"
+            )
         }
     }
 
     fun existsCluster(accountName: String, projectName: String, name: String, regionZone: String): Boolean {
-        val result = ProcessUtil.executeCommand(project,
-                "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters list --zone \"$regionZone\"", throwErrorOnFailure = false, logOutput = false)
+        val result = ProcessUtil.executeCommand(
+            project,
+            "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters list --zone \"$regionZone\"",
+            throwErrorOnFailure = false,
+            logOutput = false
+        )
         return result.contains(name)
     }
 
     private fun connectToCluster(accountName: String, projectName: String, name: String, regionZone: String) {
-        ProcessUtil.executeCommand(project,
-                "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters get-credentials \"$name\" --zone \"$regionZone\"")
+        ProcessUtil.executeCommand(
+            project,
+            "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters get-credentials \"$name\" --zone \"$regionZone\""
+        )
     }
 
     private fun useCustomStorageClass(storageClassName: String) {
@@ -129,17 +164,26 @@ open class GcpGke(project: Project, productName: ProductName)  : Helper(project,
             .replace("{{PRODUCT_NAME}}", productName.shortName)
             .replace("{{IP}}", ip)
         dnsOpenApiTemplateFile.writeText(dnsOpenApiTemplate)
-        ProcessUtil.executeCommand(project,
-            "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services undelete \"$serviceName\"", throwErrorOnFailure = false, logOutput = false)
-        ProcessUtil.executeCommand(project,
-            "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services deploy \"${dnsOpenApiTemplateFile.absolutePath}\" --force")
+        ProcessUtil.executeCommand(
+            project,
+            "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services undelete \"$serviceName\"",
+            throwErrorOnFailure = false,
+            logOutput = false
+        )
+        ProcessUtil.executeCommand(
+            project,
+            "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services deploy \"${dnsOpenApiTemplateFile.absolutePath}\" --force"
+        )
     }
 
     private fun deleteCluster(accountName: String, projectName: String, name: String, regionZone: String) {
         if (existsCluster(accountName, projectName, name, regionZone)) {
             project.logger.lifecycle("Delete cluster (async): {}", name)
-            ProcessUtil.executeCommand(project,
-                    "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters delete \"$name\" --zone \"$regionZone\" --quiet", throwErrorOnFailure = false)
+            ProcessUtil.executeCommand(
+                project,
+                "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters delete \"$name\" --zone \"$regionZone\" --quiet",
+                throwErrorOnFailure = false
+            )
         } else {
             project.logger.lifecycle("Skipping delete of the cluster: {}", name)
         }
@@ -147,11 +191,19 @@ open class GcpGke(project: Project, productName: ProductName)  : Helper(project,
 
     private fun logoutGCloudCli(accountName: String) {
         project.logger.lifecycle("Revoke account $accountName")
-        ProcessUtil.executeCommand(project,
-                "gcloud auth revoke $accountName --quiet", throwErrorOnFailure = false)
+        ProcessUtil.executeCommand(
+            project,
+            "gcloud auth revoke $accountName --quiet", throwErrorOnFailure = false
+        )
     }
 
-    fun destroyClusterOnShutdown(existsCluster: Boolean, accountName: String, projectName: String, name: String, regionZone: String) {
+    fun destroyClusterOnShutdown(
+        existsCluster: Boolean,
+        accountName: String,
+        projectName: String,
+        name: String,
+        regionZone: String
+    ) {
         val gcpGkeProvider: GcpGkeProvider = getProvider()
         if (gcpGkeProvider.destroyClusterOnShutdown.get()) {
             if (existsCluster) {
@@ -168,15 +220,26 @@ open class GcpGke(project: Project, productName: ProductName)  : Helper(project,
         val projectName = gcpGkeProvider.projectName.get()
         val accountName = gcpGkeProvider.accountName.get()
         if (existsDnsOpenApi(accountName, projectName)) {
-            ProcessUtil.executeCommand(project,
-                "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${getFqdn()}\" --quiet", throwErrorOnFailure = false)
+            ProcessUtil.executeCommand(
+                project,
+                "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${getFqdn()}\" --quiet",
+                throwErrorOnFailure = false
+            )
         }
     }
 
     private fun existsDnsOpenApi(accountName: String, projectName: String): Boolean {
         val serviceName = getFqdn()
-        val result = ProcessUtil.executeCommand(project,
-            "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services list", throwErrorOnFailure = false, logOutput = false)
+        val result = ProcessUtil.executeCommand(
+            project,
+            "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services list",
+            throwErrorOnFailure = false,
+            logOutput = false
+        )
         return result.contains(serviceName)
+    }
+
+    override fun getFqdn(): String {
+        return "${productName.shortName}-${getHost()}.endpoints.${getProvider().projectName.get()}.cloud.goog"
     }
 }

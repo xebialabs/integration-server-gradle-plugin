@@ -66,11 +66,11 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
     }
 
     override fun getProvider(): AwsOpenshiftProvider {
-        return getProfile().awsOpenshift
+        return AwsOpenshift(project, productName).getProvider()
     }
 
     override fun getStorageClass(): String {
-        return getProvider().storageClass.getOrElse("aws-efs")
+        return AwsOpenshift(project, productName).getStorageClass()
     }
 
     private fun updateInfrastructure(apiServerURL: String, token: String) {

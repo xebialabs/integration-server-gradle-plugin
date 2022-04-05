@@ -31,18 +31,22 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
         loginAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
 
         createResourceGroup(name, location, skipExisting)
-        createCluster(name,
-                azureAksProvider.clusterNodeCount,
-                azureAksProvider.clusterNodeVmSize,
-                azureAksProvider.kubernetesVersion,
-                skipExisting)
+        createCluster(
+            name,
+            azureAksProvider.clusterNodeCount,
+            azureAksProvider.clusterNodeVmSize,
+            azureAksProvider.kubernetesVersion,
+            skipExisting
+        )
         connectToCluster(name)
         createStorageClass(resourceGroupName(name), azureAksProvider.storageClass.getOrElse(name))
     }
 
     private fun validateAzCli() {
-        val result = ProcessUtil.executeCommand(project,
-                "az -v", throwErrorOnFailure = false, logOutput = false)
+        val result = ProcessUtil.executeCommand(
+            project,
+            "az -v", throwErrorOnFailure = false, logOutput = false
+        )
         if (!result.contains("azure-cli")) {
             throw RuntimeException("No azure-cli \"az\" in the path. Please verify your installation")
         }
@@ -51,8 +55,10 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
     private fun loginAzCli(username: String?, password: String?) {
         if (username != null && password != null) {
             project.logger.lifecycle("Login user")
-            ProcessUtil.executeCommand(project,
-                    "az login -u $username -p $password", throwErrorOnFailure = false, logOutput = false)
+            ProcessUtil.executeCommand(
+                project,
+                "az login -u $username -p $password", throwErrorOnFailure = false, logOutput = false
+            )
         }
     }
 
@@ -65,11 +71,11 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
         getKubectlHelper().setDefaultStorageClass(fileStorageClassName)
     }
 
-    fun diskStorageClassName(name: String): String {
+    private fun diskStorageClassName(name: String): String {
         return "${name}-disk-storage-class"
     }
 
-    fun fileStorageClassName(name: String): String {
+    private fun fileStorageClassName(name: String): String {
         return "${name}-file-storage-class"
     }
 
@@ -78,8 +84,8 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
             project.logger.lifecycle("Create storage class: {}", storageClassName)
             val azureFileScTemplateFile = getTemplate(filePath)
             val azureFileScTemplate = azureFileScTemplateFile.readText(Charsets.UTF_8)
-                    .replace("{{NAME}}", storageClassName)
-                    .replace("{{RESOURCE_GROUP}}", resourceGroupName)
+                .replace("{{NAME}}", storageClassName)
+                .replace("{{RESOURCE_GROUP}}", resourceGroupName)
             azureFileScTemplateFile.writeText(azureFileScTemplate)
             getKubectlHelper().applyFile(azureFileScTemplateFile)
         } else {
@@ -88,17 +94,19 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
     }
 
     private fun createCluster(
-            name: String,
-            clusterNodeCount: Property<Int>,
-            clusterNodeVmSize: Property<String>,
-            kubernetesVersion: Property<String>,
-            skipExisting: Boolean
+        name: String,
+        clusterNodeCount: Property<Int>,
+        clusterNodeVmSize: Property<String>,
+        kubernetesVersion: Property<String>,
+        skipExisting: Boolean
     ) {
         val groupName = resourceGroupName(name)
         val clusterName = aksClusterName(name)
         val shouldSkipExisting = if (skipExisting) {
-            val result = ProcessUtil.executeCommand(project,
-                    "az aks list --output tsv | grep $clusterName", throwErrorOnFailure = false, logOutput = false)
+            val result = ProcessUtil.executeCommand(
+                project,
+                "az aks list --output tsv | grep $clusterName", throwErrorOnFailure = false, logOutput = false
+            )
             result.contains(clusterName)
         } else {
             false
@@ -109,17 +117,21 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
             project.logger.lifecycle("Create AKS cluster: {}", clusterName)
             val additions = clusterNodeVmSize.map { " --node-vm-size \"$it\"" }.getOrElse("") +
                     kubernetesVersion.map { " --kubernetes-version \"$it\"" }.getOrElse("")
-            ProcessUtil.executeCommand(project,
-                    "az aks create --resource-group $groupName --name $clusterName --node-count ${
-                        clusterNodeCount.getOrElse(2)
-                    } " +
-                            "--generate-ssh-keys --enable-addons monitoring $additions")
+            ProcessUtil.executeCommand(
+                project,
+                "az aks create --resource-group $groupName --name $clusterName --node-count ${
+                    clusterNodeCount.getOrElse(2)
+                } " +
+                        "--generate-ssh-keys --enable-addons monitoring $additions"
+            )
         }
     }
 
     private fun connectToCluster(name: String) {
-        ProcessUtil.executeCommand(project,
-                "az aks get-credentials --resource-group ${resourceGroupName(name)} --name ${aksClusterName(name)} --overwrite-existing")
+        ProcessUtil.executeCommand(
+            project,
+            "az aks get-credentials --resource-group ${resourceGroupName(name)} --name ${aksClusterName(name)} --overwrite-existing"
+        )
     }
 
     private fun createResourceGroup(name: String, location: String, skipExisting: Boolean) {
@@ -133,8 +145,10 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
             project.logger.lifecycle("Skipping creation of the existing resource group: {}", groupName)
         } else {
             project.logger.lifecycle("Create resource group: {}", groupName)
-            ProcessUtil.executeCommand(project,
-                    "az group create --name $groupName --location $location")
+            ProcessUtil.executeCommand(
+                project,
+                "az group create --name $groupName --location $location"
+            )
         }
     }
 
@@ -143,10 +157,12 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
     }
 
     fun existsResourceGroup(groupName: String, location: String): Boolean {
-        val result = ProcessUtil.executeCommand(project,
-                "az group list --query \"[?location=='$location']\" --output tsv | grep $groupName",
-                throwErrorOnFailure = false,
-                logOutput = false)
+        val result = ProcessUtil.executeCommand(
+            project,
+            "az group list --query \"[?location=='$location']\" --output tsv | grep $groupName",
+            throwErrorOnFailure = false,
+            logOutput = false
+        )
         return result.contains(groupName)
     }
 
@@ -159,8 +175,10 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
         if (AzureAks(project, productName).existsResourceGroup(groupName, location)) {
             project.logger.lifecycle("Delete resource group: {}", groupName)
-            ProcessUtil.executeCommand(project,
-                    "az group delete --name $groupName --yes")
+            ProcessUtil.executeCommand(
+                project,
+                "az group delete --name $groupName --yes"
+            )
         } else {
             project.logger.lifecycle("Skipping delete of the resource group: {}", groupName)
         }
@@ -169,8 +187,10 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
     private fun logoutAzCli(username: String?, password: String?) {
         if (username != null && password != null) {
             project.logger.lifecycle("Logout user")
-            ProcessUtil.executeCommand(project,
-                    "az logout", throwErrorOnFailure = false)
+            ProcessUtil.executeCommand(
+                project,
+                "az logout", throwErrorOnFailure = false
+            )
         }
     }
 
@@ -185,6 +205,20 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
             getKubectlHelper().deleteCurrentContext()
             logoutAzCli(azureAksProvider.getAzUsername(), azureAksProvider.getAzPassword())
         }
+    }
+
+    override fun getFqdn(): String {
+        val azureAksProvider: AzureAksProvider = getProvider()
+        val location = azureAksProvider.location.get()
+        return "${getHost()}.${location}.cloudapp.azure.com"
+    }
+
+    override fun getStorageClass(): String {
+        return fileStorageClassName(getProvider().storageClass.getOrElse(getProvider().name.get()))
+    }
+
+    override fun getDbStorageClass(): String {
+        return diskStorageClassName(getProvider().storageClass.getOrElse(getProvider().name.get()))
     }
 
 }

@@ -67,21 +67,19 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
     }
 
     override fun getProvider(): AzureAksProvider {
-        return getProfile().azureAks
+        return AzureAks(project, productName).getProvider()
     }
 
     override fun getStorageClass(): String {
-        return AzureAks(project, productName).fileStorageClassName(getProvider().storageClass.getOrElse(getProvider().name.get()))
+        return AzureAks(project, productName).getStorageClass()
     }
 
     override fun getDbStorageClass(): String {
-        return AzureAks(project, productName).diskStorageClassName(getProvider().storageClass.getOrElse(getProvider().name.get()))
+        return AzureAks(project, productName).getDbStorageClass()
     }
 
     override fun getFqdn(): String {
-        val azureAksProvider: AzureAksProvider = getProvider()
-        val location = azureAksProvider.location.get()
-        return "${getHost()}.${location}.cloudapp.azure.com"
+        return AzureAks(project, productName).getFqdn()
     }
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {

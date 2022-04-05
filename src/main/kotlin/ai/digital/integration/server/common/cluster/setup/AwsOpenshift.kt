@@ -47,4 +47,8 @@ open class AwsOpenshift(project: Project, productName: ProductName) : Helper(pro
         exec("export KUBECONFIG=~/.kube/config")
         ocLogin()
     }
+
+    override fun getStorageClass(): String {
+        return getProvider().storageClass.getOrElse("aws-efs")
+    }
 }

@@ -19,24 +19,12 @@ abstract class Helper(val project: Project, val productName: ProductName) {
         return path
     }
 
-    open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
-
-    open fun getMasterPodName(position: Int) =
-            "pod/dai-${getPrefixName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
-
-    open fun getPostgresPodName(position: Int) = "pod/dai-${getPrefixName()}-postgresql-$position"
-
-    open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
-
-    open fun getMasterPodNameSuffix(position: Int): String {
-        return when (productName) {
-            ProductName.DEPLOY -> "master-$position"
-            ProductName.RELEASE -> "$position"
-        }
-    }
-
     open fun getStorageClass(): String {
         return getProvider().storageClass.getOrElse("standard")
+    }
+
+    open fun getDbStorageClass(): String {
+        return getStorageClass()
     }
 
     open fun getFqdn(): String {

@@ -44,7 +44,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getProvider(): OnPremiseProvider {
-        return getProfile().onPremise
+        return OnPrem(project, productName).getProvider()
     }
 
      fun updateInfrastructure(infraInfo: InfrastructureInfo) {
@@ -59,7 +59,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return "${getHost()}.digitalai-testing.com"
+        return OnPrem(project, productName).getFqdn()
     }
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {

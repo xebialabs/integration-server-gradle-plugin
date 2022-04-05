@@ -48,11 +48,11 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getProvider(): AwsEksProvider {
-        return getProfile().awsEks
+        return AwsEks(project,productName).getProvider()
     }
 
     override fun getStorageClass(): String {
-        return getProvider().storageClass.getOrElse("aws-efs")
+        return AwsEks(project,productName).getStorageClass()
     }
 
     private fun updateInfrastructure() {
@@ -71,7 +71,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return "${getProvider().stack.get()}-${getName()}.digitalai-testing.com"
+        return AwsEks(project, productName).getFqdn()
     }
 
     override fun getDbStorageClass(): String {

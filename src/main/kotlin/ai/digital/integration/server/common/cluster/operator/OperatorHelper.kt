@@ -364,10 +364,6 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         return WorkerUtil.getNumberOfWorkers(project)
     }
 
-    open fun getDbStorageClass(): String {
-        return getStorageClass()
-    }
-
     open fun getMqStorageClass(): String {
         return getStorageClass()
     }
@@ -434,6 +430,22 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         return when (productName) {
             ProductName.DEPLOY -> DeployServerUtil.getServers(project).size
             ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).servers.size
+        }
+    }
+
+    open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
+
+    open fun getMasterPodName(position: Int) =
+        "pod/dai-${getPrefixName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
+
+    open fun getPostgresPodName(position: Int) = "pod/dai-${getPrefixName()}-postgresql-$position"
+
+    open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
+
+    open fun getMasterPodNameSuffix(position: Int): String {
+        return when (productName) {
+            ProductName.DEPLOY -> "master-$position"
+            ProductName.RELEASE -> "$position"
         }
     }
 

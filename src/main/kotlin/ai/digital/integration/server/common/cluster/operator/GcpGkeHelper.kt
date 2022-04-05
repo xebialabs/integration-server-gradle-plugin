@@ -57,11 +57,11 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getProvider(): GcpGkeProvider {
-        return getProfile().gcpGke
+        return GcpGke(project, productName).getProvider()
     }
 
     override fun getFqdn(): String {
-        return "${productName.shortName}-${getHost()}.endpoints.${getProvider().projectName.get()}.cloud.goog"
+        return GcpGke(project, productName).getFqdn()
     }
 
     private fun getCurrentContextInfo(accountName: String, projectName: String): Pair<InfrastructureInfo, String> {

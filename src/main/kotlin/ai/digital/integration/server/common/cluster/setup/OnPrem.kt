@@ -10,7 +10,7 @@ import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 
-open class OnPrem(project: Project, productName: ProductName)   : Helper(project, productName)  {
+open class OnPrem(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): OnPremiseProvider {
         val profileName = DeployClusterUtil.getProfile(project)
@@ -30,19 +30,23 @@ open class OnPrem(project: Project, productName: ProductName)   : Helper(project
 
         validateMinikubeCli()
 
-        createCluster(name,
+        createCluster(
+            name,
             driver,
             onPremiseProvider.clusterNodeCpus,
             onPremiseProvider.clusterNodeMemory,
             kubernetesVersion,
-            skipExisting)
+            skipExisting
+        )
         updateContext(name)
         updateEtcHosts(name)
     }
 
     private fun validateMinikubeCli() {
-        val result = ProcessUtil.executeCommand(project,
-            "minikube version", throwErrorOnFailure = false, logOutput = false)
+        val result = ProcessUtil.executeCommand(
+            project,
+            "minikube version", throwErrorOnFailure = false, logOutput = false
+        )
         if (!result.contains("minikube version")) {
             throw RuntimeException("No minikube-cli \"minikube\" in the path. Please verify your installation")
         }
@@ -65,12 +69,18 @@ open class OnPrem(project: Project, productName: ProductName)   : Helper(project
             project.logger.lifecycle("Create minikube cluster: {}", clusterName)
             val additions = clusterNodeCpus.map { " --cpus \"$it\"" }.getOrElse("") +
                     clusterNodeMemory.map { " --memory \"$it\"" }.getOrElse("")
-            ProcessUtil.executeCommand(project,
-                "minikube start --driver=$driver --kubernetes-version \"$kubernetesVersion\" -p $clusterName $additions")
-            ProcessUtil.executeCommand(project,
-                "minikube addons enable ingress -p $clusterName")
-            ProcessUtil.executeCommand(project,
-                "minikube addons enable ingress-dns -p $clusterName")
+            ProcessUtil.executeCommand(
+                project,
+                "minikube start --driver=$driver --kubernetes-version \"$kubernetesVersion\" -p $clusterName $additions"
+            )
+            ProcessUtil.executeCommand(
+                project,
+                "minikube addons enable ingress -p $clusterName"
+            )
+            ProcessUtil.executeCommand(
+                project,
+                "minikube addons enable ingress-dns -p $clusterName"
+            )
         }
     }
 
@@ -81,14 +91,20 @@ open class OnPrem(project: Project, productName: ProductName)   : Helper(project
     private fun shouldSkipExisting(name: String, skipExisting: Boolean): Boolean {
         val clusterName = onPremClusterName(name)
         return if (skipExisting) {
-            val profileListResult = ProcessUtil.executeCommand(project,
-                "minikube profile list | grep $clusterName", throwErrorOnFailure = false, logOutput = false)
+            val profileListResult = ProcessUtil.executeCommand(
+                project,
+                "minikube profile list | grep $clusterName", throwErrorOnFailure = false, logOutput = false
+            )
             if (profileListResult.contains(clusterName)) {
-                val profileResult = ProcessUtil.executeCommand(project,
-                    "minikube profile", throwErrorOnFailure = false, logOutput = false)
+                val profileResult = ProcessUtil.executeCommand(
+                    project,
+                    "minikube profile", throwErrorOnFailure = false, logOutput = false
+                )
                 if (!profileResult.contains(clusterName)) {
-                    ProcessUtil.executeCommand(project,
-                        "minikube profile $clusterName", logOutput = false)
+                    ProcessUtil.executeCommand(
+                        project,
+                        "minikube profile $clusterName", logOutput = false
+                    )
                 }
                 true
             } else {
@@ -101,29 +117,41 @@ open class OnPrem(project: Project, productName: ProductName)   : Helper(project
 
     private fun updateContext(name: String) {
         val clusterName = onPremClusterName(name)
-        ProcessUtil.executeCommand(project,
-            "minikube update-context -p $clusterName", throwErrorOnFailure = false)
+        ProcessUtil.executeCommand(
+            project,
+            "minikube update-context -p $clusterName", throwErrorOnFailure = false
+        )
     }
 
     private fun updateEtcHosts(name: String) {
         val infoScriptPath = getTemplate("operator/on-perm/info_etc_hosts.sh")
         val scriptPath = getTemplate("operator/on-perm/update_etc_hosts.sh")
 
-        ProcessUtil.executeCommand(project,
-            "chmod 755 \"${infoScriptPath.absolutePath}\"")
-        ProcessUtil.executeCommand(project,
-            "chmod 755 \"${scriptPath.absolutePath}\"")
-        ProcessUtil.executeCommand(project,
-            "\"${infoScriptPath.absolutePath}\"", throwErrorOnFailure = false)
-        ProcessUtil.executeCommand(project,
-            "sudo \"${scriptPath.absolutePath}\" ${getMinikubeIp(name)} \"${getFqdn()}\"", throwErrorOnFailure = false)
+        ProcessUtil.executeCommand(
+            project,
+            "chmod 755 \"${infoScriptPath.absolutePath}\""
+        )
+        ProcessUtil.executeCommand(
+            project,
+            "chmod 755 \"${scriptPath.absolutePath}\""
+        )
+        ProcessUtil.executeCommand(
+            project,
+            "\"${infoScriptPath.absolutePath}\"", throwErrorOnFailure = false
+        )
+        ProcessUtil.executeCommand(
+            project,
+            "sudo \"${scriptPath.absolutePath}\" ${getMinikubeIp(name)} \"${getFqdn()}\"", throwErrorOnFailure = false
+        )
     }
 
     private fun getMinikubeIp(name: String): String? {
         val clusterName = onPremClusterName(name)
         return try {
-            val ip = ProcessUtil.executeCommand(project,
-                "minikube -p $clusterName ip", logOutput = false)
+            val ip = ProcessUtil.executeCommand(
+                project,
+                "minikube -p $clusterName ip", logOutput = false
+            )
             project.logger.lifecycle("Get cluster IP for {}: {}", clusterName, ip)
             ip
         } catch (e: RuntimeException) {
@@ -144,7 +172,15 @@ open class OnPrem(project: Project, productName: ProductName)   : Helper(project
         val name = onPremiseProvider.name.get()
         val clusterName = onPremClusterName(name)
         project.logger.lifecycle("Minikube cluster is being deleted {} ", clusterName)
-        ProcessUtil.executeCommand(project,
-            "minikube delete -p $clusterName", throwErrorOnFailure = false)
+        ProcessUtil.executeCommand(
+            project,
+            "minikube delete -p $clusterName", throwErrorOnFailure = false
+        )
     }
+
+    override fun getFqdn(): String {
+        return "${getHost()}.digitalai-testing.com"
+    }
+
+
 }
