@@ -171,9 +171,9 @@ open class AzureAks(project: Project, productName: ProductName) : Helper(project
     }
 
     private fun deleteResourceGroup(name: String, groupName: String, location: String) {
-        val clusterName = AzureAks(project, productName).aksClusterName(name)
+        val clusterName = aksClusterName(name)
         project.logger.lifecycle("Delete resource group {} and AKS cluster {} ", groupName, clusterName)
-        if (AzureAks(project, productName).existsResourceGroup(groupName, location)) {
+        if (existsResourceGroup(groupName, location)) {
             project.logger.lifecycle("Delete resource group: {}", groupName)
             ProcessUtil.executeCommand(
                 project,
