@@ -25,6 +25,9 @@ abstract class Provider @Inject constructor(val project: Project) {
     val operatorBranch = project.objects.property<String>()
 
     @Input
+    val helmBranch = project.objects.property<String>().value("master")
+
+    @Input
     val operatorPackageVersion = project.objects.property<String>()
 
     @Input

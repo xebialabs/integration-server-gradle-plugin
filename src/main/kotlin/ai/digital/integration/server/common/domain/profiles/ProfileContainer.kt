@@ -13,6 +13,10 @@ interface ProfileContainer : NamedDomainObjectContainer<Profile> {
     fun operator(closure: Closure<*>): OperatorProfile
     fun operator(action: Action<in Profile>): OperatorProfile
 
+    fun helm(): HelmProfile
+    fun helm(closure: Closure<*>): HelmProfile
+    fun helm(action: Action<in Profile>): HelmProfile
+
     fun terraform(): TerraformProfile
     fun terraform(closure: Closure<*>): TerraformProfile
     fun terraform(action: Action<in Profile>): TerraformProfile

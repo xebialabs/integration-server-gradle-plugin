@@ -1,6 +1,7 @@
 package ai.digital.integration.server.common.cluster.setup
 
 import ai.digital.integration.server.common.cluster.Helper
+import ai.digital.integration.server.common.cluster.helm.HelmHelper
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
@@ -14,11 +15,16 @@ import java.io.File
 open class GcpGkeHelper(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): GcpGkeProvider {
-        val profileName = getProfileName()
-        if (profileName == ClusterProfileName.OPERATOR.profileName) {
-            return OperatorHelper.getOperatorHelper(project, productName).getProfile().gcpGke
-        } else {
-            throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+        return when (val profileName = getProfileName()) {
+            ClusterProfileName.OPERATOR.profileName -> {
+                OperatorHelper.getOperatorHelper(project, productName).getProfile().gcpGke
+            }
+            ClusterProfileName.HELM.profileName -> {
+                HelmHelper.getHelmHelper(project, productName).getProfile().gcpGke
+            }
+            else -> {
+                throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+            }
         }
     }
 

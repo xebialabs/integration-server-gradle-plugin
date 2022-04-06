@@ -1,6 +1,7 @@
 package ai.digital.integration.server.common.cluster.setup
 
 import ai.digital.integration.server.common.cluster.Helper
+import ai.digital.integration.server.common.cluster.helm.HelmHelper
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
@@ -12,11 +13,16 @@ import org.gradle.api.provider.Property
 open class AzureAksHelper(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): AzureAksProvider {
-        val profileName = getProfileName()
-        if (profileName == ClusterProfileName.OPERATOR.profileName) {
-            return OperatorHelper.getOperatorHelper(project, productName).getProfile().azureAks
-        } else {
-            throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+        return when (val profileName = getProfileName()) {
+            ClusterProfileName.OPERATOR.profileName -> {
+                OperatorHelper.getOperatorHelper(project, productName).getProfile().azureAks
+            }
+            ClusterProfileName.HELM.profileName -> {
+                HelmHelper.getHelmHelper(project, productName).getProfile().azureAks
+            }
+            else -> {
+                throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+            }
         }
     }
 

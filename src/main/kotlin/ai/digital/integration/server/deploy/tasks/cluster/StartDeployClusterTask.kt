@@ -6,6 +6,7 @@ import ai.digital.integration.server.common.constant.TerraformProviderName
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.HelmBasedInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.OperatorBasedInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.terraform.TerraformBasedAwsEksStartDeployClusterTask
 import org.gradle.api.DefaultTask
@@ -26,6 +27,8 @@ open class StartDeployClusterTask : DefaultTask() {
                     DockerComposeBasedStartDeployClusterTask.NAME
                 ClusterProfileName.OPERATOR.profileName ->
                     OperatorBasedInstallDeployClusterTask.NAME
+                ClusterProfileName.HELM.profileName ->
+                    HelmBasedInstallDeployClusterTask.NAME
                 ClusterProfileName.TERRAFORM.profileName -> {
                     when (val providerName = DeployClusterUtil.getTerraformProvider(project)) {
                         TerraformProviderName.AWS_EKS.providerName ->
