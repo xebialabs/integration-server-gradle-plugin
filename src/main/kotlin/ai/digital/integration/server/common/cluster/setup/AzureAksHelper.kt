@@ -12,7 +12,7 @@ import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 
-open class AzureAks(project: Project, productName: ProductName) : Helper(project, productName) {
+open class AzureAksHelper(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): AzureAksProvider {
         val profileName = getProfileName()

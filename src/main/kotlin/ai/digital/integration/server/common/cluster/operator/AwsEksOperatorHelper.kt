@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.cluster.operator
 
-import ai.digital.integration.server.common.cluster.setup.AwsEks
+import ai.digital.integration.server.common.cluster.setup.AwsEksHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.AwsEksProvider
 import ai.digital.integration.server.common.util.YamlFileUtil
@@ -27,13 +27,13 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
         waitForWorkerPods()
 
         createClusterMetadata()
-        AwsEks(project, productName).updateRoute53(getFqdn())
+        AwsEksHelper(project, productName).updateRoute53(getFqdn())
         waitForBoot()
     }
 
     fun shutdownCluster() {
         undeployCluster()
-        AwsEks(project,productName).destroyClusterOnShutdown()
+        AwsEksHelper(project,productName).destroyClusterOnShutdown()
     }
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
@@ -49,11 +49,11 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getProvider(): AwsEksProvider {
-        return AwsEks(project,productName).getProvider()
+        return AwsEksHelper(project,productName).getProvider()
     }
 
     override fun getStorageClass(): String {
-        return AwsEks(project,productName).getStorageClass()
+        return AwsEksHelper(project,productName).getStorageClass()
     }
 
     private fun updateInfrastructure() {

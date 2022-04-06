@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.cluster.operator
 
-import ai.digital.integration.server.common.cluster.setup.AwsOpenshift
+import ai.digital.integration.server.common.cluster.setup.AwsOpenshiftHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.AwsOpenshiftProvider
 import ai.digital.integration.server.common.util.HtmlUtil
@@ -15,7 +15,7 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
 
     fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
-        updateInfrastructure(AwsOpenshift(project, productName).getApiServerUrl(), getOcApiServerToken())
+        updateInfrastructure(AwsOpenshiftHelper(project, productName).getApiServerUrl(), getOcApiServerToken())
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
@@ -38,16 +38,16 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
     }
 
     fun shutdownCluster() {
-        AwsOpenshift(project, productName).ocLogin()
+        AwsOpenshiftHelper(project, productName).ocLogin()
         undeployCluster()
-        AwsOpenshift(project, productName).ocLogout()
+        AwsOpenshiftHelper(project, productName).ocLogout()
     }
 
     fun getOcApiServerToken(): String {
-        val basicAuthToken = Base64.getEncoder().encodeToString("${AwsOpenshift(project, productName).getOcLogin()}:${AwsOpenshift(project, productName).getOcPassword()}".toByteArray())
+        val basicAuthToken = Base64.getEncoder().encodeToString("${AwsOpenshiftHelper(project, productName).getOcLogin()}:${AwsOpenshiftHelper(project, productName).getOcPassword()}".toByteArray())
         val oauthHostName = getProvider().oauthHostName.get()
 
-        AwsOpenshift(project, productName).ocLogout()
+        AwsOpenshiftHelper(project, productName).ocLogout()
 
         val command1Output =
             exec("curl -vvv -L -k -c cookie -b cookie  -H \"Authorization: Basic $basicAuthToken\" https://$oauthHostName/oauth/token/request")
@@ -67,11 +67,11 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
     }
 
     override fun getProvider(): AwsOpenshiftProvider {
-        return AwsOpenshift(project, productName).getProvider()
+        return AwsOpenshiftHelper(project, productName).getProvider()
     }
 
     override fun getStorageClass(): String {
-        return AwsOpenshift(project, productName).getStorageClass()
+        return AwsOpenshiftHelper(project, productName).getStorageClass()
     }
 
     private fun updateInfrastructure(apiServerURL: String, token: String) {

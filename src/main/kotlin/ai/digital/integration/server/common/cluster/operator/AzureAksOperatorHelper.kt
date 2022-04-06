@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.cluster.operator
 
-import ai.digital.integration.server.common.cluster.setup.AzureAks
+import ai.digital.integration.server.common.cluster.setup.AzureAksHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.AzureAksProvider
@@ -41,15 +41,15 @@ open class AzureAksOperatorHelper(project: Project, productName: ProductName) : 
         val azureAksProvider: AzureAksProvider = getProvider()
         val name = azureAksProvider.name.get()
 
-        val groupName = AzureAks(project, productName).resourceGroupName(name)
+        val groupName = AzureAksHelper(project, productName).resourceGroupName(name)
         val location = azureAksProvider.location.get()
 
-        val existsResourceGroup = AzureAks(project, productName).existsResourceGroup(groupName, location)
+        val existsResourceGroup = AzureAksHelper(project, productName).existsResourceGroup(groupName, location)
         if (existsResourceGroup) {
             undeployCluster()
         }
 
-        AzureAks(project, productName).destroyClusterOnShutdown(existsResourceGroup, name, groupName, location)
+        AzureAksHelper(project, productName).destroyClusterOnShutdown(existsResourceGroup, name, groupName, location)
     }
 
     private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
@@ -68,15 +68,15 @@ open class AzureAksOperatorHelper(project: Project, productName: ProductName) : 
     }
 
     override fun getProvider(): AzureAksProvider {
-        return AzureAks(project, productName).getProvider()
+        return AzureAksHelper(project, productName).getProvider()
     }
 
     override fun getStorageClass(): String {
-        return AzureAks(project, productName).getStorageClass()
+        return AzureAksHelper(project, productName).getStorageClass()
     }
 
     override fun getDbStorageClass(): String {
-        return AzureAks(project, productName).getDbStorageClass()
+        return AzureAksHelper(project, productName).getDbStorageClass()
     }
 
     override fun getFqdn(): String {

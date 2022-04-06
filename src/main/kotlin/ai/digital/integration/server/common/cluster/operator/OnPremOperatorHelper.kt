@@ -1,20 +1,17 @@
 package ai.digital.integration.server.common.cluster.operator
 
-import ai.digital.integration.server.common.cluster.setup.AwsEks
-import ai.digital.integration.server.common.cluster.setup.OnPrem
+import ai.digital.integration.server.common.cluster.setup.OnPremHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.providers.OnPremiseProvider
-import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
-import org.gradle.api.provider.Property
 import java.io.File
 
 open class OnPremOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun updateOperator() {
-        OnPrem(project, productName).updateEtcHosts(getProvider().name.get() , getFqdn())
+        OnPremHelper(project, productName).updateEtcHosts(getProvider().name.get() , getFqdn())
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo()
         updateInfrastructure(kubeContextInfo)
@@ -38,7 +35,7 @@ open class OnPremOperatorHelper(project: Project, productName: ProductName) : Op
 
     fun shutdownCluster() {
         undeployCluster()
-        OnPrem(project, productName).destroyClusterOnShutdown()
+        OnPremHelper(project, productName).destroyClusterOnShutdown()
     }
 
     override fun getProviderHomePath(): String {
@@ -46,7 +43,7 @@ open class OnPremOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getProvider(): OnPremiseProvider {
-        return OnPrem(project, productName).getProvider()
+        return OnPremHelper(project, productName).getProvider()
     }
 
      fun updateInfrastructure(infraInfo: InfrastructureInfo) {

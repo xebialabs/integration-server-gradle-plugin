@@ -17,7 +17,7 @@ import org.gradle.api.Project
 import java.io.File
 
 
-open class AwsEks(project: Project, productName: ProductName) : Helper(project, productName) {
+open class AwsEksHelper(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): AwsEksProvider {
         val profileName = getProfileName()

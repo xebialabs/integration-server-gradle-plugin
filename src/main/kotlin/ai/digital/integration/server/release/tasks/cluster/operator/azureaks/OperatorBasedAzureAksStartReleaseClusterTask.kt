@@ -1,7 +1,7 @@
 package ai.digital.integration.server.release.tasks.cluster.operator.azureaks
 
 import ai.digital.integration.server.common.cluster.operator.AzureAksOperatorHelper
-import ai.digital.integration.server.common.cluster.setup.AzureAks
+import ai.digital.integration.server.common.cluster.setup.AzureAksHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.release.tasks.cluster.operator.ReleaseOperatorBasedStartTask
@@ -20,7 +20,7 @@ open class OperatorBasedAzureAksStartReleaseClusterTask : ReleaseOperatorBasedSt
 
     @TaskAction
     fun launch() {
-        AzureAks(project, ProductName.RELEASE).launchCluster()
+        AzureAksHelper(project, ProductName.RELEASE).launchCluster()
         AzureAksOperatorHelper(project, ProductName.RELEASE).updateOperator()
     }
 }

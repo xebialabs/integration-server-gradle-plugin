@@ -10,7 +10,7 @@ import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import org.gradle.api.Project
 
-open class AwsOpenshift(project: Project, productName: ProductName) : Helper(project, productName) {
+open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): AwsOpenshiftProvider {
         val profileName = getProfileName()

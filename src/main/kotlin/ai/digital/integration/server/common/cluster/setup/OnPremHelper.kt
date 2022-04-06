@@ -10,7 +10,7 @@ import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 
-open class OnPrem(project: Project, productName: ProductName) : Helper(project, productName) {
+open class OnPremHelper(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): OnPremiseProvider {
         val profileName = getProfileName()

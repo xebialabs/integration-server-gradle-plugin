@@ -11,7 +11,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class GcpGke(project: Project, productName: ProductName) : Helper(project, productName) {
+open class GcpGkeHelper(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): GcpGkeProvider {
         val profileName = getProfileName()
