@@ -6,7 +6,6 @@ import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.OnPremiseProvider
 import ai.digital.integration.server.common.util.ProcessUtil
-import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 

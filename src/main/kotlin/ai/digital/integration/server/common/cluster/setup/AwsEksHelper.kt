@@ -6,11 +6,6 @@ import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.AwsEksProvider
 import ai.digital.integration.server.common.util.ProcessUtil
-import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
-import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
-import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
-import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
-
 import net.sf.json.JSONObject
 import net.sf.json.util.JSONTokener
 import org.gradle.api.Project
