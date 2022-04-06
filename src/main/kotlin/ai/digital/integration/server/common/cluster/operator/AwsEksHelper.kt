@@ -15,6 +15,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateOperatorEnvironment()
         updateDeploymentValues()
         updateOperatorCrValues()
     }
@@ -26,7 +27,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         waitForWorkerPods()
 
         createClusterMetadata()
-        AwsEks(project, productName).updateRoute53()
+        AwsEks(project, productName).updateRoute53(getFqdn())
         waitForBoot()
     }
 
@@ -71,7 +72,7 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return AwsEks(project, productName).getFqdn()
+        return "${getProvider().stack.get()}-${getName()}-${getNamespace() ?: "default"}.digitalai-testing.com"
     }
 
     override fun getDbStorageClass(): String {

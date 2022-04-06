@@ -7,6 +7,7 @@ import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.constant.ServerConstants
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.Server
+import ai.digital.integration.server.common.domain.profiles.IngressType
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.*
@@ -29,6 +30,8 @@ import java.nio.file.Paths
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.collections.HashMap
+
 @Suppress("UnstableApiUsage")
 abstract class OperatorHelper(project: Project, productName: ProductName) : Helper(project, productName){
 
@@ -49,6 +52,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     private val OPERATOR_CR_PACKAGE_REL_PATH = "digitalai-${getName()}/deployment-cr.yaml"
 
     private val OPERATOR_PACKAGE_REL_PATH = "digitalai-${getName()}/deployment.yaml"
+
+    private val OPERATOR_ENVIRONMENT_REL_PATH = "digitalai-${getName()}/environment.yaml"
 
     val OPERATOR_DEPLOYMENT_PATH = "digitalai-${getName()}/kubernetes/template/deployment.yaml"
 
@@ -101,37 +106,63 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     }
 
     fun updateOperatorApplications() {
-        if (getProvider().operatorPackageVersion.isPresent) {
-            project.logger.lifecycle("Updating operator's applications")
+        project.logger.lifecycle("Updating operator's applications")
 
-            val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
-            val pairs = mutableMapOf<String, Any>("spec[0].children[0].name" to getProvider().operatorPackageVersion.get())
-            YamlFileUtil.overlayFile(file, pairs)
-        }
+        val operatorNamespaceVersion = getOperatorNamespaceVersion()
+
+        val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
+        val pairs = mutableMapOf<String, Any>("spec[0].children[0].name" to operatorNamespaceVersion)
+        YamlFileUtil.overlayFile(file, pairs)
+    }
+
+    fun updateOperatorEnvironment() {
+        project.logger.lifecycle("Updating operator's environment")
+
+        val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
+
+        val file = File(getProviderHomeDir(), OPERATOR_ENVIRONMENT_REL_PATH)
+        val pairs =
+            mutableMapOf<String, Any>(
+                "spec[0].children[0].name" to "${getPrefixName()}$operatorNamespace"
+            )
+        YamlFileUtil.overlayFile(file, pairs)
     }
 
     fun updateOperatorDeployment() {
-        if (getProvider().operatorPackageVersion.isPresent) {
-            project.logger.lifecycle("Updating operator's deployment")
+        project.logger.lifecycle("Updating operator's deployment")
 
-            val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
-            val pairs =
-                mutableMapOf<String, Any>(
-                    "spec.package" to "Applications/${getPrefixName()}-operator-app/${getProvider().operatorPackageVersion.get()}"
-                )
-            YamlFileUtil.overlayFile(file, pairs)
-        }
+        val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
+        val operatorNamespaceVersion = getOperatorNamespaceVersion()
+
+        val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
+        val pairs =
+            mutableMapOf<String, Any>(
+                "spec.package" to "Applications/${getPrefixName()}-operator-app/$operatorNamespaceVersion",
+                "spec.environment" to "Environments/kubernetes-envs/${getPrefixName()}$operatorNamespace"
+            )
+        YamlFileUtil.overlayFile(file, pairs)
     }
 
     fun updateOperatorDeploymentCr() {
-        if (getProvider().operatorPackageVersion.isPresent) {
-            project.logger.lifecycle("Updating operator's deployment CR")
+        project.logger.lifecycle("Updating operator's deployment CR")
 
-            val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
-            val pairs =
-                mutableMapOf<String, Any>("spec.package" to "Applications/${getPrefixName()}-cr/${getProvider().operatorPackageVersion.get()}")
-            YamlFileUtil.overlayFile(file, pairs)
-        }
+        val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
+        val operatorNamespaceVersion = getOperatorNamespaceVersion()
+
+        val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
+        val pairs =
+            mutableMapOf<String, Any>(
+                "spec.package" to "Applications/${getPrefixName()}-cr/$operatorNamespaceVersion",
+                "spec.environment" to "Environments/kubernetes-envs/${getPrefixName()}$operatorNamespace"
+            )
+        YamlFileUtil.overlayFile(file, pairs)
+    }
+
+    private fun getOperatorNamespaceVersion(): String {
+        val namespace = getNamespace()?.let { "-$it" } ?: ""
+        return getProvider().operatorPackageVersion
+            .map { "$it$namespace" }
+            .getOrElse("${getServerVersion()}$namespace")
     }
 
     fun turnOnLogging() {
@@ -158,13 +189,21 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     }
 
     fun waitForDeployment() {
-        val resources = if (hasIngress()) arrayOf("deployment.apps/${getPrefixName()}-operator-controller-manager",
-            "deployment.apps/dai-${getPrefixName()}-nginx-ingress-controller",
-            "deployment.apps/dai-${getPrefixName()}-nginx-ingress-controller-default-backend")
-        else
-            arrayOf("deployment.apps/${getPrefixName()}-operator-controller-manager")
+        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
+        val resources = if (hasIngress()) {
+            when (IngressType.valueOf(getProfile().ingressType.get())) {
+                IngressType.NGINX ->
+                    arrayOf(
+                        "deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-nginx-ingress-controller",
+                        "deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-nginx-ingress-controller-default-backend"
+                    )
+                IngressType.HAPROXY ->
+                    arrayOf("deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-haproxy-ingress")
+            }
+        } else
+            arrayOf()
 
-        resources.forEach { resource ->
+        (resources + "deployment.apps/${getPrefixName()}-operator-controller-manager").forEach { resource ->
             if (!getKubectlHelper().wait(resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
                 throw RuntimeException("Resource $resource  is not available")
             }
@@ -283,6 +322,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
                 "spec.postgresql.persistence.storageClass" to getDbStorageClass(),
                 "spec.postgresql.postgresqlMaxConnections" to getDbConnectionCount(),
                 "spec.keycloak.install" to false,
+                "spec.keycloak.postgresql.persistence.size" to "1Gi",
                 "spec.oidc.enabled" to false,
                 "spec.rabbitmq.persistence.storageClass" to getMqStorageClass(),
                 "spec.rabbitmq.image.debug" to true,
@@ -292,6 +332,14 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
                 "spec.route.hosts" to arrayOf(getHost()),
                 "spec.${getPrefixName()}License" to getLicense()
             )
+
+        if (IngressType.valueOf(getProfile().ingressType.get()) == IngressType.HAPROXY) {
+            val namespaceAsSuffix = getNamespace()?.let { "-$it" } ?: ""
+            pairs.putAll(mutableMapOf<String, Any>(
+                "spec.haproxy-ingress.install" to true,
+                "spec.nginx-ingress-controller.install" to false
+            ))
+        }
 
         when (productName) {
             ProductName.DEPLOY -> {
@@ -368,6 +416,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         return getStorageClass()
     }
 
+    override fun getFqdn(): String = getHost()
+
     fun getInitialCrValuesFile(): File {
         return File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
     }
@@ -397,6 +447,16 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         return InfrastructureInfo(null, null, null, null, null, null)
     }
 
+    override fun getHost(): String {
+        return getProvider().host.getOrElse("${getProvider().name.get()}-${productName.shortName}-${getNamespace() ?: "default"}")
+    }
+
+    fun getNamespace(): String? = getProfile().namespace.orNull
+
+    override fun getPort(): String {
+        return "80"
+    }
+
     open fun applyYamlFiles() {
         project.logger.lifecycle("Applying prepared Yaml files")
 
@@ -423,6 +483,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     abstract fun getProviderHomePath(): String
 
     abstract override fun getProvider(): Provider
+
+    override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace())
 
     open fun hasIngress(): Boolean = true
 
@@ -457,42 +519,46 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     }
 
     fun cleanUpCluster(waiting: Duration) {
+        if (getProfile().doCleanup.get()) {
 
-        val resourcesList1 = arrayOf(
-            "crd",
-            "all",
-            "roles",
-            "roleBinding",
-            "clusterRoles",
-            "clusterRoleBinding",
-            "ing",
-            "ingressclass",
-            "pvc"
-        )
-        // repeat delete of following resources to be sure that all is clean
-        val resourcesList2 = arrayOf(
-            "service",
-            "crd"
-        )
+            val resourcesList1 = arrayOf(
+                "crd",
+                "all",
+                "roles",
+                "roleBinding",
+                "clusterRoles",
+                "clusterRoleBinding",
+                "ing",
+                "ingressclass",
+                "pvc"
+            )
+            // repeat delete of following resources to be sure that all is clean
+            val resourcesList2 = arrayOf(
+                "service",
+                "crd"
+            )
 
-        runBlocking {
-            for (iteration in 1..3) {
-                project.logger.lifecycle("Clean up cluster resources iteration $iteration")
+            runBlocking {
+                for (iteration in 1..3) {
+                    project.logger.lifecycle("Clean up cluster resources in namespace ${getKubectlHelper().namespace} iteration $iteration")
 
-                val deleteResourcesJob = launch {
-                    withTimeout(waiting.toMillis()) {
-                        runInterruptible(Dispatchers.IO) {
-                            deleteAllResources(resourcesList1, resourcesList2)
+                    val deleteResourcesJob = launch {
+                        withTimeout(waiting.toMillis()) {
+                            runInterruptible(Dispatchers.IO) {
+                                deleteAllResources(resourcesList1, resourcesList2)
+                            }
                         }
                     }
-                }
-                if (waitDeleteAllResources(deleteResourcesJob, iteration, waiting, resourcesList1, resourcesList2)) {
-                    break
+                    if (waitDeleteAllResources(deleteResourcesJob, iteration, waiting, resourcesList1, resourcesList2)) {
+                        break
+                    }
                 }
             }
-        }
 
-        project.logger.lifecycle("Clean up cluster resources finished")
+            project.logger.lifecycle("Clean up cluster resources finished in namespace ${getKubectlHelper().namespace}")
+        } else {
+            project.logger.lifecycle("Skip up cluster resources in namespace ${getKubectlHelper().namespace}")
+        }
     }
 
     private fun getResources(resourcesList: Array<String>): String {
@@ -544,7 +610,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
             deleteResourcesJob.cancel()
             false
         } else {
-            project.logger.lifecycle("Clean up cluster resources finished in iteration $iteration")
+            project.logger.lifecycle("Clean up cluster resources finished in iteration $iteration in namespace ${getKubectlHelper().namespace}")
             true
         }
     }

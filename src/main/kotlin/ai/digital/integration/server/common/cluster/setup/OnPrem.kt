@@ -13,7 +13,7 @@ import org.gradle.api.provider.Property
 open class OnPrem(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): OnPremiseProvider {
-        val profileName = DeployClusterUtil.getProfile(project)
+        val profileName = getProfileName()
         if (profileName == ClusterProfileName.OPERATOR.profileName) {
             return OperatorHelper.getOperatorHelper(project, productName).getProfile().onPremise
         } else {
@@ -123,7 +123,7 @@ open class OnPrem(project: Project, productName: ProductName) : Helper(project, 
         )
     }
 
-    private fun updateEtcHosts(name: String) {
+    fun updateEtcHosts(name: String, fqdn: String = getFqdn()) {
         val infoScriptPath = getTemplate("operator/on-perm/info_etc_hosts.sh")
         val scriptPath = getTemplate("operator/on-perm/update_etc_hosts.sh")
 
@@ -141,7 +141,7 @@ open class OnPrem(project: Project, productName: ProductName) : Helper(project, 
         )
         ProcessUtil.executeCommand(
             project,
-            "sudo \"${scriptPath.absolutePath}\" ${getMinikubeIp(name)} \"${getFqdn()}\"", throwErrorOnFailure = false
+            "sudo \"${scriptPath.absolutePath}\" ${getMinikubeIp(name)} \"${fqdn}\"", throwErrorOnFailure = false
         )
     }
 

@@ -1,15 +1,27 @@
 package ai.digital.integration.server.common.cluster
 
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.FileUtil
 import ai.digital.integration.server.common.util.KubeCtlHelper
 import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
+import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
+import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
+import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Paths
 
 abstract class Helper(val project: Project, val productName: ProductName) {
+
+    fun getProfileName(): String {
+        return when (productName) {
+            ProductName.DEPLOY -> DeployClusterUtil.getProfile(project)
+            ProductName.RELEASE -> ReleaseClusterUtil.getProfile(project)
+        }
+    }
 
     abstract fun getProvider(): Provider
 
@@ -39,7 +51,8 @@ abstract class Helper(val project: Project, val productName: ProductName) {
         return "80"
     }
 
-    open fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project)
+    open fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project,null)
+
 
     fun getName(): String {
         return productName.toString().toLowerCase()

@@ -7,7 +7,6 @@ import ai.digital.integration.server.common.constant.ProductName
 
 import ai.digital.integration.server.common.domain.providers.GcpGkeProvider
 import ai.digital.integration.server.common.util.ProcessUtil
-import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
@@ -15,7 +14,7 @@ import java.io.File
 open class GcpGke(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): GcpGkeProvider {
-        val profileName = DeployClusterUtil.getProfile(project)
+        val profileName = getProfileName()
         if (profileName == ClusterProfileName.OPERATOR.profileName) {
             return OperatorHelper.getOperatorHelper(project, productName).getProfile().gcpGke
         } else {
@@ -150,23 +149,23 @@ open class GcpGke(project: Project, productName: ProductName) : Helper(project, 
         }
     }
 
-    fun applyDnsOpenApi(ip: String) {
+    fun applyDnsOpenApi(ip: String, fqdn: String = getFqdn(), host: String = getHost(), nameSpace: String = "default") {
         val gcpGkeProvider: GcpGkeProvider = getProvider()
         val projectName = gcpGkeProvider.projectName.get()
         val name = gcpGkeProvider.name.get()
         val accountName = gcpGkeProvider.accountName.get()
-        val serviceName = getFqdn()
-
         val dnsOpenApiTemplateFile = getTemplate("operator/gcp-gke/dns-openapi.yaml")
         val dnsOpenApiTemplate = dnsOpenApiTemplateFile.readText(Charsets.UTF_8)
             .replace("{{NAME}}", name)
             .replace("{{PROJECT_ID}}", projectName)
             .replace("{{PRODUCT_NAME}}", productName.shortName)
+            .replace("{{HOST}}", host)
+            .replace("{{NAMESPACE}}", nameSpace)
             .replace("{{IP}}", ip)
         dnsOpenApiTemplateFile.writeText(dnsOpenApiTemplate)
         ProcessUtil.executeCommand(
             project,
-            "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services undelete \"$serviceName\"",
+                "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services undelete \"$fqdn\"",
             throwErrorOnFailure = false,
             logOutput = false
         )
@@ -202,41 +201,41 @@ open class GcpGke(project: Project, productName: ProductName) : Helper(project, 
         accountName: String,
         projectName: String,
         name: String,
-        regionZone: String
+        regionZone: String,
+        fqdn: String = getFqdn()
     ) {
         val gcpGkeProvider: GcpGkeProvider = getProvider()
         if (gcpGkeProvider.destroyClusterOnShutdown.get()) {
             if (existsCluster) {
                 deleteCluster(accountName, projectName, name, regionZone)
             }
-            deleteDnsOpenApi()
+            deleteDnsOpenApi(fqdn)
             getKubectlHelper().deleteCurrentContext()
             logoutGCloudCli(gcpGkeProvider.accountName.get())
         }
     }
 
-    private fun deleteDnsOpenApi() {
+    private fun deleteDnsOpenApi(fqdn: String) {
         val gcpGkeProvider: GcpGkeProvider = getProvider()
         val projectName = gcpGkeProvider.projectName.get()
         val accountName = gcpGkeProvider.accountName.get()
-        if (existsDnsOpenApi(accountName, projectName)) {
+        if (existsDnsOpenApi(accountName, projectName, fqdn)) {
             ProcessUtil.executeCommand(
                 project,
-                "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${getFqdn()}\" --quiet",
+                "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services delete \"${fqdn}\" --quiet",
                 throwErrorOnFailure = false
             )
         }
     }
 
-    private fun existsDnsOpenApi(accountName: String, projectName: String): Boolean {
-        val serviceName = getFqdn()
+    private fun existsDnsOpenApi(accountName: String, projectName: String, fqdn: String): Boolean {
         val result = ProcessUtil.executeCommand(
             project,
             "gcloud endpoints --account \"$accountName\" --project \"$projectName\" services list",
             throwErrorOnFailure = false,
             logOutput = false
         )
-        return result.contains(serviceName)
+        return result.contains(fqdn)
     }
 
     override fun getFqdn(): String {

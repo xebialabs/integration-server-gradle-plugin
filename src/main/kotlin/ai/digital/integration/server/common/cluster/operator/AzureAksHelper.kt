@@ -20,6 +20,7 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateOperatorEnvironment()
         updateDeploymentValues()
         updateOperatorCrValues()
     }
@@ -79,13 +80,16 @@ open class AzureAksHelper(project: Project, productName: ProductName) : Operator
     }
 
     override fun getFqdn(): String {
-        return AzureAks(project, productName).getFqdn()
+        val azureAksProvider: AzureAksProvider = getProvider()
+        val location = azureAksProvider.location.get()
+        return "${getHost()}.${location}.cloudapp.azure.com"    
     }
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
-                "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to getHost()),
-                "spec.ingress.hosts" to arrayOf(getFqdn())
+            "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to getHost()),
+            "spec.haproxy-ingress.controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to getHost()),
+            "spec.ingress.hosts" to arrayOf(getFqdn())
         )
         YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }

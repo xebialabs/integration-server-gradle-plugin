@@ -19,6 +19,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateOperatorEnvironment()
         updateDeploymentValues()
         updateOperatorCrValues()
     }
@@ -88,7 +89,7 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
-    override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, true)
+    override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace(), true)
 
     override fun hasIngress(): Boolean = false
 

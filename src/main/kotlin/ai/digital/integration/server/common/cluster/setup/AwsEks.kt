@@ -6,7 +6,10 @@ import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.AwsEksProvider
 import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
+import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
+import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 
 import net.sf.json.JSONObject
 import net.sf.json.util.JSONTokener
@@ -17,7 +20,7 @@ import java.io.File
 open class AwsEks(project: Project, productName: ProductName) : Helper(project, productName) {
 
     override fun getProvider(): AwsEksProvider {
-        val profileName = DeployClusterUtil.getProfile(project)
+        val profileName = getProfileName()
         if (profileName == ClusterProfileName.OPERATOR.profileName) {
             return OperatorHelper.getOperatorHelper(project, productName).getProfile().awsEks
         } else {
@@ -318,19 +321,19 @@ open class AwsEks(project: Project, productName: ProductName) : Helper(project, 
         )
     }
 
-    fun updateRoute53() {
-        val templateFile = updateRoute53Json()
+    fun updateRoute53(fqdn: String = getFqdn()) {
+        val templateFile = updateRoute53Json(fqdn)
         val changeInfo = updateRoute53RecordSet(templateFile)
         verifyRoute53Status(changeInfo)
     }
 
-    private fun updateRoute53Json(): File {
+    private fun updateRoute53Json(fqdn: String): File {
         val awsRoute53TemplateFile = getTemplate("operator/aws-eks/aws-route53-record-update.json")
         val hostName = getHostName()
         val hostZoneId = getHostZoneId(hostName)
 
         val awsRoute53Template = awsRoute53TemplateFile.readText(Charsets.UTF_8)
-            .replace("{{FQDN}}", getFqdn())
+            .replace("{{FQDN}}", fqdn)
             .replace("{{HOSTNAME}}", "dualstack.$hostName")
             .replace("{{HOSTZONEID}}", hostZoneId)
 

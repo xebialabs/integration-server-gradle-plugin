@@ -23,6 +23,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateOperatorEnvironment()
         updateDeploymentValues()
         updateOperatorCrValues()
     }
@@ -33,7 +34,8 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         waitForMasterPods()
         waitForWorkerPods()
         val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
-        GcpGke(project, productName).applyDnsOpenApi(ip)
+        val nameSpace = getNamespace() ?: "default"
+        GcpGke(project, productName).applyDnsOpenApi(ip, getFqdn(), getHost(), nameSpace)
         createClusterMetadata()
         waitForBoot()
     }
@@ -49,7 +51,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
         if (existsCluster) {
             undeployCluster()
         }
-        GcpGke(project, productName).destroyClusterOnShutdown(existsCluster, accountName, projectName, name, regionZone)
+        GcpGke(project, productName).destroyClusterOnShutdown(existsCluster, accountName, projectName, name, regionZone, getFqdn())
     }
 
     override fun getProviderHomePath(): String {
@@ -61,7 +63,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return GcpGke(project, productName).getFqdn()
+        return "${productName.shortName}-${getHost()}-${getNamespace() ?: "default"}.endpoints.${getProvider().projectName.get()}.cloud.goog"
     }
 
     private fun getCurrentContextInfo(accountName: String, projectName: String): Pair<InfrastructureInfo, String> {

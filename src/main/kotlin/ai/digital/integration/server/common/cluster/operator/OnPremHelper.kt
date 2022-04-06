@@ -14,12 +14,14 @@ import java.io.File
 open class OnPremHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun updateOperator() {
+        OnPrem(project, productName).updateEtcHosts(getProvider().name.get() , getFqdn())
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo()
         updateInfrastructure(kubeContextInfo)
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
+        updateOperatorEnvironment()
         updateDeploymentValues()
         updateOperatorCrValues()
     }
@@ -59,7 +61,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     override fun getFqdn(): String {
-        return OnPrem(project, productName).getFqdn()
+        return "${getHost()}.digitalai-testing.com"
     }
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
