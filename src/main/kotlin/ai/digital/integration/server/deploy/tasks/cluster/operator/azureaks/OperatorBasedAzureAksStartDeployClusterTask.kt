@@ -1,8 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.common.cluster.operator.AzureAksHelper
-import ai.digital.integration.server.common.cluster.setup.AwsOpenshift
+import ai.digital.integration.server.common.cluster.operator.AzureAksOperatorHelper
 import ai.digital.integration.server.common.cluster.setup.AzureAks
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStartTask
@@ -22,6 +21,6 @@ open class OperatorBasedAzureAksStartDeployClusterTask : DeployOperatorBasedStar
     @TaskAction
     fun launch() {
         AzureAks(project, ProductName.DEPLOY).launchCluster()
-        AzureAksHelper(project, ProductName.DEPLOY).updateOperator()
+        AzureAksOperatorHelper(project, ProductName.DEPLOY).updateOperator()
     }
 }

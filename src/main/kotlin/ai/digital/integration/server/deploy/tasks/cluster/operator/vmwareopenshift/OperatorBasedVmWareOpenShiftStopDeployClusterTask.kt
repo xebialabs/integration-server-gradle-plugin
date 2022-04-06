@@ -1,6 +1,6 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift
 
-import ai.digital.integration.server.common.cluster.operator.VmwareOpenshiftHelper
+import ai.digital.integration.server.common.cluster.operator.VmwareOpenshiftOperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStopTask
@@ -19,6 +19,6 @@ open class OperatorBasedVmWareOpenShiftStopDeployClusterTask : DeployOperatorBas
 
     @TaskAction
     fun launch() {
-        VmwareOpenshiftHelper(project, ProductName.DEPLOY).shutdownCluster()
+        VmwareOpenshiftOperatorHelper(project, ProductName.DEPLOY).shutdownCluster()
     }
 }

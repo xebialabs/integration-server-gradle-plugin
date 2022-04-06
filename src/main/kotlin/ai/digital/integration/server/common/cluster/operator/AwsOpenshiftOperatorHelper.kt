@@ -11,7 +11,7 @@ import java.io.File
 import java.util.*
 
 @Suppress("UnstableApiUsage")
-open class AwsOpenshiftHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
+open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())

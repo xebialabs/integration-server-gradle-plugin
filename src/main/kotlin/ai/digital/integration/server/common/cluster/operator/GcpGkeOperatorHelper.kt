@@ -11,7 +11,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import org.gradle.api.Project
 import java.io.File
 
-open class GcpGkeHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
+open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())

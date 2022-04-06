@@ -7,7 +7,7 @@ import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
 import java.io.File
 
-open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
+open class AwsEksOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())

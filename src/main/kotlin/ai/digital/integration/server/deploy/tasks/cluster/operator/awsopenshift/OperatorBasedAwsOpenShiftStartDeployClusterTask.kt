@@ -1,7 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.common.cluster.operator.AwsOpenshiftHelper
+import ai.digital.integration.server.common.cluster.operator.AwsOpenshiftOperatorHelper
 import ai.digital.integration.server.common.cluster.setup.AwsOpenshift
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStartTask
@@ -21,6 +21,6 @@ open class OperatorBasedAwsOpenShiftStartDeployClusterTask : DeployOperatorBased
     @TaskAction
     fun launch() {
         AwsOpenshift(project, ProductName.DEPLOY).launchCluster()
-        AwsOpenshiftHelper(project, ProductName.DEPLOY).updateOperator()
+        AwsOpenshiftOperatorHelper(project, ProductName.DEPLOY).updateOperator()
     }
 }

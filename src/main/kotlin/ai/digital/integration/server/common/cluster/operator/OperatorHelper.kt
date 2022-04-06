@@ -30,7 +30,6 @@ import java.nio.file.Paths
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.collections.HashMap
 
 @Suppress("UnstableApiUsage")
 abstract class OperatorHelper(project: Project, productName: ProductName) : Helper(project, productName){
@@ -71,12 +70,12 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
         fun getOperatorHelper(project: Project, productName: ProductName): OperatorHelper {
             return when (val providerName = getOperatorProvider(project, productName)) {
-                OperatorHelmProviderName.AWS_EKS.providerName -> AwsEksHelper(project, productName)
-                OperatorHelmProviderName.AWS_OPENSHIFT.providerName -> AwsOpenshiftHelper(project, productName)
-                OperatorHelmProviderName.AZURE_AKS.providerName -> AzureAksHelper(project, productName)
-                OperatorHelmProviderName.GCP_GKE.providerName -> GcpGkeHelper(project, productName)
-                OperatorHelmProviderName.ON_PREMISE.providerName -> OnPremHelper(project, productName)
-                OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftHelper(project, productName)
+                OperatorHelmProviderName.AWS_EKS.providerName -> AwsEksOperatorHelper(project, productName)
+                OperatorHelmProviderName.AWS_OPENSHIFT.providerName -> AwsOpenshiftOperatorHelper(project, productName)
+                OperatorHelmProviderName.AZURE_AKS.providerName -> AzureAksOperatorHelper(project, productName)
+                OperatorHelmProviderName.GCP_GKE.providerName -> GcpGkeOperatorHelper(project, productName)
+                OperatorHelmProviderName.ON_PREMISE.providerName -> OnPremOperatorHelper(project, productName)
+                OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftOperatorHelper(project, productName)
                 else -> {
                     throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
                         OperatorHelmProviderName.values().joinToString()

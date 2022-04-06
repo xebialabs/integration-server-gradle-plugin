@@ -1,7 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator.awseks
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.common.cluster.operator.AwsEksHelper
+import ai.digital.integration.server.common.cluster.operator.AwsEksOperatorHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStopTask
 import org.gradle.api.tasks.TaskAction
@@ -19,6 +19,6 @@ open class OperatorBasedAwsEksStopDeployClusterTask : DeployOperatorBasedStopTas
 
     @TaskAction
     fun launch() {
-        AwsEksHelper(project, ProductName.DEPLOY).shutdownCluster()
+        AwsEksOperatorHelper(project, ProductName.DEPLOY).shutdownCluster()
     }
 }

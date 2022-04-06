@@ -1,6 +1,6 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator.awseks
 
-import ai.digital.integration.server.common.cluster.operator.AwsEksHelper
+import ai.digital.integration.server.common.cluster.operator.AwsEksOperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedInstallTask
@@ -19,6 +19,6 @@ open class OperatorBasedAwsEksInstallDeployClusterTask : DeployOperatorBasedInst
 
     @TaskAction
     fun launch() {
-        AwsEksHelper(project, ProductName.DEPLOY).installCluster()
+        AwsEksOperatorHelper(project, ProductName.DEPLOY).installCluster()
     }
 }

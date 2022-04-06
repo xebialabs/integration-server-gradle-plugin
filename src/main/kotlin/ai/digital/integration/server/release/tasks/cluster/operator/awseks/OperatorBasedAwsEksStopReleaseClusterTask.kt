@@ -1,6 +1,6 @@
 package ai.digital.integration.server.release.tasks.cluster.operator.awseks
 
-import ai.digital.integration.server.common.cluster.operator.AwsEksHelper
+import ai.digital.integration.server.common.cluster.operator.AwsEksOperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
 import org.gradle.api.DefaultTask
@@ -18,6 +18,6 @@ open class OperatorBasedAwsEksStopReleaseClusterTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        AwsEksHelper(project, ProductName.RELEASE).shutdownCluster()
+        AwsEksOperatorHelper(project, ProductName.RELEASE).shutdownCluster()
     }
 }

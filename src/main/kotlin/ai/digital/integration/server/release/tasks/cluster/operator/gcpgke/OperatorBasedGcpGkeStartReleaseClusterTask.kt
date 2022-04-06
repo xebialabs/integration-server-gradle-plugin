@@ -1,6 +1,6 @@
 package ai.digital.integration.server.release.tasks.cluster.operator.gcpgke
 
-import ai.digital.integration.server.common.cluster.operator.GcpGkeHelper
+import ai.digital.integration.server.common.cluster.operator.GcpGkeOperatorHelper
 import ai.digital.integration.server.common.cluster.setup.GcpGke
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
@@ -21,6 +21,6 @@ open class OperatorBasedGcpGkeStartReleaseClusterTask : ReleaseOperatorBasedStar
     @TaskAction
     fun launch() {
         GcpGke(project, ProductName.RELEASE).launchCluster()
-        GcpGkeHelper(project, ProductName.RELEASE).updateOperator()
+        GcpGkeOperatorHelper(project, ProductName.RELEASE).updateOperator()
     }
 }

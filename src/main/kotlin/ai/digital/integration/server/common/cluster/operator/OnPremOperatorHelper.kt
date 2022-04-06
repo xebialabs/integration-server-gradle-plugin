@@ -11,7 +11,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class OnPremHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
+open class OnPremOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
     fun updateOperator() {
         OnPrem(project, productName).updateEtcHosts(getProvider().name.get() , getFqdn())

@@ -1,6 +1,6 @@
 package ai.digital.integration.server.release.tasks.cluster.operator.vmwareopenshift
 
-import ai.digital.integration.server.common.cluster.operator.VmwareOpenshiftHelper
+import ai.digital.integration.server.common.cluster.operator.VmwareOpenshiftOperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.release.tasks.cluster.operator.ReleaseOperatorBasedInstallTask
@@ -19,6 +19,6 @@ open class OperatorBasedVmWareOpenShiftInstallReleaseClusterTask : ReleaseOperat
 
     @TaskAction
     fun launch() {
-        VmwareOpenshiftHelper(project, ProductName.RELEASE).installCluster()
+        VmwareOpenshiftOperatorHelper(project, ProductName.RELEASE).installCluster()
     }
 }
