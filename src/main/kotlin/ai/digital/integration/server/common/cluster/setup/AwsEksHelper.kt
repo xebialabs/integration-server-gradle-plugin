@@ -1,16 +1,27 @@
-package ai.digital.integration.server.common.cluster.operator
+package ai.digital.integration.server.common.cluster.setup
 
+import ai.digital.integration.server.common.cluster.Helper
+import ai.digital.integration.server.common.cluster.operator.OperatorHelper
+import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.common.domain.providers.operator.AwsEksProvider
-
+import ai.digital.integration.server.common.domain.providers.AwsEksProvider
 import ai.digital.integration.server.common.util.ProcessUtil
-import ai.digital.integration.server.common.util.YamlFileUtil
 import net.sf.json.JSONObject
 import net.sf.json.util.JSONTokener
 import org.gradle.api.Project
 import java.io.File
 
-open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
+
+open class AwsEksHelper(project: Project, productName: ProductName) : Helper(project, productName) {
+
+    override fun getProvider(): AwsEksProvider {
+        val profileName = getProfileName()
+        if (profileName == ClusterProfileName.OPERATOR.profileName) {
+            return OperatorHelper.getOperatorHelper(project, productName).getProfile().awsEks
+        } else {
+            throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+        }
+    }
 
     fun launchCluster() {
         val awsEksProvider: AwsEksProvider = getProvider()
@@ -21,43 +32,25 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         createCluster(skipExisting)
 
         updateKubeConfig()
-        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
-
-        updateInfrastructure()
 
         if (getStorageClass() == "aws-efs") createStorageClass(getStorageClass())
-
-        updateOperatorApplications()
-        updateOperatorDeployment()
-        updateOperatorDeploymentCr()
-        updateOperatorEnvironment()
-        updateDeploymentValues()
-        updateOperatorCrValues()
-    }
-
-    fun installCluster() {
-        applyYamlFiles()
-        waitForDeployment()
-        waitForMasterPods()
-        waitForWorkerPods()
-
-        createClusterMetadata()
-        updateRoute53()
-        waitForBoot()
     }
 
     private fun configureAws(awsEksProvider: AwsEksProvider) {
         project.logger.lifecycle("Configure AWS access key and secret key")
-        ProcessUtil.executeCommand(project,
+        ProcessUtil.executeCommand(
+            project,
             "aws configure set aws_access_key_id ${awsEksProvider.getAwsAccessKey()} --profile default",
             logOutput = false,
-            throwErrorOnFailure = false)
-        ProcessUtil.executeCommand(project,
+            throwErrorOnFailure = false
+        )
+        ProcessUtil.executeCommand(
+            project,
             "aws configure set aws_secret_access_key ${awsEksProvider.getAwsSecretKey()} --profile default",
             logOutput = false,
-            throwErrorOnFailure = false)
+            throwErrorOnFailure = false
+        )
     }
-
 
     private fun createSshKey(skipExisting: Boolean) {
         val shouldSkipExisting = if (skipExisting) {
@@ -66,29 +59,35 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
             false
         }
         if (shouldSkipExisting) {
-            project.logger.lifecycle("Skipping creation of the existing ssh key pair: {}",
-                getProvider().sshKeyName.get())
+            project.logger.lifecycle(
+                "Skipping creation of the existing ssh key pair: {}",
+                getProvider().sshKeyName.get()
+            )
         } else {
             project.logger.lifecycle("Create ssh key pair : {}", getProvider().sshKeyName.get())
-            ProcessUtil.executeCommand(project,
+            ProcessUtil.executeCommand(
+                project,
                 "aws --region ${getProvider().region.get()} " +
                         "ec2 create-key-pair " +
                         "--key-name ${getProvider().sshKeyName.get()}",
                 logOutput = true,
-                throwErrorOnFailure = false)
+                throwErrorOnFailure = false
+            )
 
         }
     }
 
     private fun existingSshKeyPair(): Boolean {
-        val result: String = ProcessUtil.executeCommand(project,
+        val result: String = ProcessUtil.executeCommand(
+            project,
             "aws  --region ${getProvider().region.get()} " +
                     "ec2 describe-key-pairs " +
                     "--key-names=${getProvider().sshKeyName.get()} " +
                     "--query 'KeyPairs[0].KeyName' " +
                     "--output text",
             logOutput = true,
-            throwErrorOnFailure = false)
+            throwErrorOnFailure = false
+        )
         if (result.contains("does not exist")) {
             return false
         } else if (result.contains(getProvider().sshKeyName.get())) {
@@ -110,7 +109,8 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
             val awsEksClusterTemplateFile = getTemplate("operator/aws-eks/aws-eks-cluster.yaml")
             val awsEksProvider: AwsEksProvider = getProvider()
 
-            val stackId = ProcessUtil.executeCommand(project,
+            val stackId = ProcessUtil.executeCommand(
+                project,
                 "aws --region  ${awsEksProvider.region.get()} " +
                         "cloudformation create-stack " +
                         "--stack-name ${awsEksProvider.stack.get()} " +
@@ -126,11 +126,14 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
                         "ParameterKey=KubernetesVersion,ParameterValue=${awsEksProvider.kubernetesVersion.get()} " +
                         "--on-failure DELETE " +
                         "--output text",
-                logOutput = true)
-            verifyClusterStatus(awsEksProvider.stackTimeoutSeconds.get(),
+                logOutput = true
+            )
+            verifyClusterStatus(
+                awsEksProvider.stackTimeoutSeconds.get(),
                 awsEksProvider.stackSleepTimeBeforeRetrySeconds.get().toLong(),
                 stackId,
-                "CREATE_COMPLETE")
+                "CREATE_COMPLETE"
+            )
         }
     }
 
@@ -142,10 +145,12 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
                 "--query 'Stacks[0].StackStatus' " +
                 "--output text"
 
-        val result = ProcessUtil.executeCommand(project,
+        val result = ProcessUtil.executeCommand(
+            project,
             stackStatusCmd,
             logOutput = true,
-            throwErrorOnFailure = false)
+            throwErrorOnFailure = false
+        )
         if (result == "CREATE_COMPLETE") {
             return true
         } else if (result.contains("does not exist")) {
@@ -153,7 +158,6 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         }
         return false
     }
-
 
     private fun verifyClusterStatus(totalTimeInSec: Int, sleepTime: Long, stackId: String, status: String) {
         val awsEksProvider: AwsEksProvider = getProvider()
@@ -171,11 +175,13 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
                 "cloudformation  list-stacks " +
                 "--query 'StackSummaries[?StackId==`$stackId`].StackStatus' " +
                 "--output text"
-        val stackStatus = wait(status,
+        val stackStatus = wait(
+            status,
             stackStatusCmd,
             "Stack",
             totalTimeInSec,
-            sleepTime)
+            sleepTime
+        )
         if (!stackStatus) {
             throw RuntimeException("Resource STACK status is not $status")
         }
@@ -190,10 +196,12 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     ): Boolean {
         val expectedEndTime = System.currentTimeMillis() + totalTimeInSec
         while (expectedEndTime > System.currentTimeMillis()) {
-            val result = ProcessUtil.executeCommand(project,
+            val result = ProcessUtil.executeCommand(
+                project,
                 command,
                 logOutput = true,
-                throwErrorOnFailure = false)
+                throwErrorOnFailure = false
+            )
             if (result.contains(status)) {
                 return true
             } else if (result.contains("does not exist")) {
@@ -211,14 +219,17 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     private fun createIAMOidcProvider() {
-        ProcessUtil.executeCommand(project,
+        ProcessUtil.executeCommand(
+            project,
             "eksctl utils associate-iam-oidc-provider --cluster ${getProvider().clusterName.get()} --approve --region ${getProvider().region.get()}",
             logOutput = true,
-            throwErrorOnFailure = false)
+            throwErrorOnFailure = false
+        )
     }
 
     private fun createIAMRoleForCSIDriver() {
-        ProcessUtil.executeCommand(project,
+        ProcessUtil.executeCommand(
+            project,
             "eksctl create iamserviceaccount " +
                     "--name efs-csi-controller-sa " +
                     "--namespace kube-system " +
@@ -228,25 +239,32 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
                     "--override-existing-serviceaccounts " +
                     "--region ${getProvider().region.get()}",
             logOutput = true,
-            throwErrorOnFailure = false)
+            throwErrorOnFailure = false
+        )
     }
 
     private fun installEFSDriver() {
-        ProcessUtil.executeCommand(project,
+        ProcessUtil.executeCommand(
+            project,
             "helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/",
             logOutput = true,
-            throwErrorOnFailure = false)
-        ProcessUtil.executeCommand(project,
+            throwErrorOnFailure = false
+        )
+        ProcessUtil.executeCommand(
+            project,
             "helm repo update",
             logOutput = true,
-            throwErrorOnFailure = false)
-        ProcessUtil.executeCommand(project,
+            throwErrorOnFailure = false
+        )
+        ProcessUtil.executeCommand(
+            project,
             "helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver " +
                     "--namespace kube-system " +
                     "--set controller.serviceAccount.create=false " +
                     "--set controller.serviceAccount.name=efs-csi-controller-sa",
             logOutput = true,
-            throwErrorOnFailure = false)
+            throwErrorOnFailure = false
+        )
     }
 
     private fun createStorageClassEFS(storageClassName: String) {
@@ -275,46 +293,42 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     private fun getFileSystemId(): String {
-        return ProcessUtil.executeCommand(project,
+        return ProcessUtil.executeCommand(
+            project,
             "aws --region ${getProvider().region.get()} " +
                     "cloudformation describe-stacks " +
                     "--stack-name ${getProvider().stack.get()} " +
                     "--query 'Stacks[0].Outputs[?OutputKey==`Filesystem`].OutputValue' " +
                     "--output text",
             logOutput = false,
-            throwErrorOnFailure = false)
+            throwErrorOnFailure = false
+        )
     }
 
     private fun updateKubeConfig() {
         val awsEksProvider: AwsEksProvider = getProvider()
-        ProcessUtil.executeCommand(project,
+        ProcessUtil.executeCommand(
+            project,
             "aws eks --region ${awsEksProvider.region.get()} " +
                     "update-kubeconfig " +
                     "--name ${awsEksProvider.clusterName.get()}",
-            throwErrorOnFailure = false)
-    }
-
-    override fun updateCustomOperatorCrValues(crValuesFile: File) {
-        val pairs: MutableMap<String, Any> = mutableMapOf(
-            "spec.ingress.hosts" to arrayOf(getFqdn()),
-            "spec.rabbitmq.persistence.storageClass" to "gp2"
+            throwErrorOnFailure = false
         )
-        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
-    private fun updateRoute53() {
-        val templateFile = updateRoute53Json()
+    fun updateRoute53(fqdn: String = getFqdn()) {
+        val templateFile = updateRoute53Json(fqdn)
         val changeInfo = updateRoute53RecordSet(templateFile)
         verifyRoute53Status(changeInfo)
     }
 
-    private fun updateRoute53Json(): File {
+    private fun updateRoute53Json(fqdn: String): File {
         val awsRoute53TemplateFile = getTemplate("operator/aws-eks/aws-route53-record-update.json")
         val hostName = getHostName()
         val hostZoneId = getHostZoneId(hostName)
 
         val awsRoute53Template = awsRoute53TemplateFile.readText(Charsets.UTF_8)
-            .replace("{{FQDN}}", getFqdn())
+            .replace("{{FQDN}}", fqdn)
             .replace("{{HOSTNAME}}", "dualstack.$hostName")
             .replace("{{HOSTZONEID}}", hostZoneId)
 
@@ -323,34 +337,39 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
     }
 
     private fun getHostZoneId(hostName: String): String {
-        return ProcessUtil.executeCommand(project,
+        return ProcessUtil.executeCommand(
+            project,
             "aws --region ${getProvider().region.get()} " +
                     "elb describe-load-balancers" +
                     " --load-balancer-name " +
                     "${hostName.substring(0, 32)} " +
                     "--query LoadBalancerDescriptions[*].CanonicalHostedZoneNameID --output text",
             logOutput = false,
-            throwErrorOnFailure = false)
+            throwErrorOnFailure = false
+        )
     }
 
     private fun getHostName(): String {
-        val namespace = getNamespace()?.let { "$it-" } ?: ""
-        return ProcessUtil.executeCommand(project,
+        return ProcessUtil.executeCommand(
+            project,
             "kubectl get service" +
-                    " ${namespace}dai-${getPrefixName()}-nginx-ingress-controller " +
+                    " dai-${getPrefixName()}-nginx-ingress-controller " +
                     "-o=jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\"",
             logOutput = false,
-            throwErrorOnFailure = false)
+            throwErrorOnFailure = false
+        )
     }
 
     private fun updateRoute53RecordSet(awsRoute53TemplateFile: File): String {
-        return ProcessUtil.executeCommand(project,
+        return ProcessUtil.executeCommand(
+            project,
             "aws route53 " +
                     "change-resource-record-sets " +
                     "--hosted-zone-id Z0621108QZWN6SHNIF6I " +
                     "--change-batch file://\"${awsRoute53TemplateFile}\"",
             logOutput = false,
-            throwErrorOnFailure = false)
+            throwErrorOnFailure = false
+        )
     }
 
     private fun verifyRoute53Status(route53Change: String) {
@@ -363,44 +382,32 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
                 "--query=ChangeInfo.Status " +
                 "--output text"
 
-        val changeStatus = wait("INSYNC",
+        val changeStatus = wait(
+            "INSYNC",
             route53GetChange,
-            "Route 53 change record set", getProvider().route53InsycAwaitTimeoutSeconds.get(), 1000)
+            "Route 53 change record set", getProvider().route53InsycAwaitTimeoutSeconds.get(), 1000
+        )
 
         project.logger.lifecycle("Route 53 Status $changeStatus")
     }
 
-    fun shutdownCluster() {
-        val awsEksProvider: AwsEksProvider = getProvider()
-
-        undeployCluster()
-
-        if (awsEksProvider.destroyClusterOnShutdown.get()) {
-            project.logger.lifecycle("Delete iamserviceaccount for CSI driver.")
-            deleteIAMRoleForCSIDriver(getProvider())
-
-            project.logger.lifecycle("Delete cluster and ssh key")
-            deleteSshKey(awsEksProvider)
-            deleteCluster(awsEksProvider)
-
-            project.logger.lifecycle("Delete current context")
-            getKubectlHelper().deleteCurrentContext()
-        }
-    }
-
     private fun deleteIAMRoleForCSIDriver(awsEksProvider: AwsEksProvider) {
         if (awsEksProvider.skipExisting.get()) {
-            project.logger.lifecycle("Skipping deletion of the storageClass and iamserviceaccount: {}",
-                awsEksProvider.sshKeyName.get())
+            project.logger.lifecycle(
+                "Skipping deletion of the storageClass and iamserviceaccount: {}",
+                awsEksProvider.sshKeyName.get()
+            )
         } else {
-            ProcessUtil.executeCommand(project,
+            ProcessUtil.executeCommand(
+                project,
                 "eksctl delete iamserviceaccount " +
                         "--name efs-csi-controller-sa " +
                         "--namespace kube-system " +
                         "--cluster ${getProvider().clusterName.get()} " +
                         "--region ${getProvider().region.get()}",
                 logOutput = true,
-                throwErrorOnFailure = false)
+                throwErrorOnFailure = false
+            )
         }
     }
 
@@ -408,12 +415,14 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         if (awsEksProvider.skipExisting.get()) {
             project.logger.lifecycle("Skipping deletion of the ssh key: {}", awsEksProvider.sshKeyName.get())
         } else {
-            ProcessUtil.executeCommand(project,
+            ProcessUtil.executeCommand(
+                project,
                 "aws --region ${awsEksProvider.region.get()} " +
                         "ec2 delete-key-pair " +
                         "--key-name ${awsEksProvider.sshKeyName.get()}",
                 logOutput = false,
-                throwErrorOnFailure = false)
+                throwErrorOnFailure = false
+            )
         }
     }
 
@@ -421,69 +430,55 @@ open class AwsEksHelper(project: Project, productName: ProductName) : OperatorHe
         if (awsEksProvider.skipExisting.get()) {
             project.logger.lifecycle("Skipping deletion of the stack: {}", awsEksProvider.stack.get())
         } else {
-            val stackId = ProcessUtil.executeCommand(project,
+            val stackId = ProcessUtil.executeCommand(
+                project,
                 "aws --region ${awsEksProvider.region.get()} " +
                         "cloudformation describe-stacks " +
                         "--stack-name ${awsEksProvider.stack.get()} " +
                         "--query='Stacks[0].StackId' " +
                         "--output text",
                 logOutput = false,
-                throwErrorOnFailure = false)
+                throwErrorOnFailure = false
+            )
             if (!stackId.contains("does not exist")) {
-                ProcessUtil.executeCommand(project,
+                ProcessUtil.executeCommand(
+                    project,
                     "aws --region ${awsEksProvider.region.get()}" +
                             " cloudformation delete-stack " +
                             "--stack-name ${awsEksProvider.stack.get()} " +
                             "--output text",
                     logOutput = false,
-                    throwErrorOnFailure = false)
-                verifyClusterStatus(awsEksProvider.stackTimeoutSeconds.get(),
+                    throwErrorOnFailure = false
+                )
+                verifyClusterStatus(
+                    awsEksProvider.stackTimeoutSeconds.get(),
                     awsEksProvider.stackSleepTimeBeforeRetrySeconds.get().toLong(),
                     stackId,
-                    "DELETE_COMPLETE")
+                    "DELETE_COMPLETE"
+                )
             }
         }
     }
 
-    override fun getProviderHomePath(): String {
-        return "${getName()}-operator-aws-eks"
+    fun destroyClusterOnShutdown() {
+        val awsEksProvider: AwsEksProvider = getProvider()
+        project.logger.lifecycle("$$$$$$$$$$$$$$$$$$$$$$$$$$$$44 destroyClusterOnShutdown $$$$$$$$$$$$$$$$$$$$$$$$")
+        if (awsEksProvider.destroyClusterOnShutdown.get()) {
+            project.logger.lifecycle("Delete iamserviceaccount for CSI driver.")
+            deleteIAMRoleForCSIDriver(getProvider())
+            project.logger.lifecycle("Delete cluster and ssh key")
+            deleteSshKey(awsEksProvider)
+            deleteCluster(awsEksProvider)
+            project.logger.lifecycle("Delete current context")
+            getKubectlHelper().deleteCurrentContext()
+        }
     }
 
-    override fun getProvider(): AwsEksProvider {
-        return getProfile().awsEks
+    override fun getFqdn(): String {
+        return "${getProvider().stack.get()}-${getName()}.digitalai-testing.com"
     }
 
     override fun getStorageClass(): String {
         return getProvider().storageClass.getOrElse("aws-efs")
     }
-
-    private fun updateInfrastructure() {
-        val infraInfo = getCurrentContextInfo()
-        val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
-        val awsEksProvider: AwsEksProvider = getProvider()
-        val pairs = mutableMapOf<String, Any>(
-            "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,
-            "spec[0].children[0].caCert" to infraInfo.caCert!!,
-            "spec[0].children[0].accessKey" to awsEksProvider.getAwsAccessKey(),
-            "spec[0].children[0].accessSecret" to awsEksProvider.getAwsSecretKey(),
-            "spec[0].children[0].regionName" to awsEksProvider.region.get(),
-            "spec[0].children[0].clusterName" to awsEksProvider.clusterName.get()
-        )
-        YamlFileUtil.overlayFile(file, pairs)
-    }
-
-    override fun getFqdn(): String {
-        return "${getProvider().stack.get()}-${getName()}-${getNamespace() ?: "default"}.digitalai-testing.com"
-    }
-
-    override fun getDbStorageClass(): String {
-        return ("gp2")
-    }
-
-    override fun getMqStorageClass(): String {
-        return ("gp2")
-    }
-
-    override fun getCurrentContextInfo() = getKubectlHelper().getCurrentContextInfo(skip = true)
-
 }

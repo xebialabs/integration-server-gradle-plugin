@@ -1,4 +1,4 @@
-package ai.digital.integration.server.common.domain.providers.operator
+package ai.digital.integration.server.common.domain.providers
 
 import groovy.lang.Closure
 import org.gradle.api.Action
@@ -9,7 +9,7 @@ import org.gradle.kotlin.dsl.property
 import org.gradle.util.ConfigureUtil
 
 @Suppress("UnstableApiUsage")
-internal class DefaultOperatorProviderContainer(delegate: NamedDomainObjectContainer<Provider>, project: Project) :
+internal class DefaultProviderContainer(delegate: NamedDomainObjectContainer<Provider>, project: Project) :
     OperatorProviderContainer, NamedDomainObjectContainer<Provider> by delegate {
 
     private var _activeProviderName: Property<String> = project.objects.property()

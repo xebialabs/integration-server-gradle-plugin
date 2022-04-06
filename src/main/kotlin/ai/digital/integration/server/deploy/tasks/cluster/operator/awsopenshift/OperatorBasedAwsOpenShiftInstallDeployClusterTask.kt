@@ -1,7 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.common.cluster.operator.AwsOpenshiftHelper
+import ai.digital.integration.server.common.cluster.operator.AwsOpenshiftOperatorHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedInstallTask
 import org.gradle.api.tasks.TaskAction
@@ -19,6 +19,6 @@ open class OperatorBasedAwsOpenShiftInstallDeployClusterTask : DeployOperatorBas
 
     @TaskAction
     fun launch() {
-        AwsOpenshiftHelper(project, ProductName.DEPLOY).installCluster()
+        AwsOpenshiftOperatorHelper(project, ProductName.DEPLOY).installCluster()
     }
 }

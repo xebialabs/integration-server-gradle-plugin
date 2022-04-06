@@ -162,11 +162,11 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
         val answersFileTemplate = when (k8sSetup) {
             K8sSetup.GoogleGKE.toString() -> {
                 answersFileTemplateTmp
-                        .replace("{{K8S_TOKEN}}", (operatorHelper as GcpGkeHelper).getAccessToken())
+                        .replace("{{K8S_TOKEN}}", (operatorHelper as GcpGkeOperatorHelper).getAccessToken())
             }
             K8sSetup.Openshift.toString() -> {
                 answersFileTemplateTmp
-                        .replace("{{K8S_TOKEN}}", (operatorHelper as AwsOpenshiftHelper).getOcApiServerToken())
+                        .replace("{{K8S_TOKEN}}", (operatorHelper as AwsOpenshiftOperatorHelper).getOcApiServerToken())
             }
             K8sSetup.AzureAKS.toString() -> {
                 answersFileTemplateTmp
@@ -174,7 +174,7 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                     .replace("{{K8S_CLIENT_KEY}}", kubeContextInfo.tlsPrivateKey!!)
             }
             K8sSetup.AwsEKS.toString() -> {
-                val awsEksHelper = operatorHelper as AwsEksHelper
+                val awsEksHelper = operatorHelper as AwsEksOperatorHelper
                 answersFileTemplateTmp
                         .replace("{{K8S_CLIENT_CERT}}", kubeContextInfo.caCert!!)
                         .replace("{{CLUSTER_NAME}}", awsEksHelper.getProvider().clusterName.get())

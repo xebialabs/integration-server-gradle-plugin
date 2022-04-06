@@ -1,6 +1,6 @@
 package ai.digital.integration.server.release.tasks.cluster.operator.awsopenshift
 
-import ai.digital.integration.server.common.cluster.operator.AwsOpenshiftHelper
+import ai.digital.integration.server.common.cluster.operator.AwsOpenshiftOperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.release.tasks.cluster.operator.ReleaseOperatorBasedInstallTask
@@ -19,6 +19,6 @@ open class OperatorBasedAwsOpenShiftInstallReleaseClusterTask : ReleaseOperatorB
 
     @TaskAction
     fun launch() {
-        AwsOpenshiftHelper(project, ProductName.RELEASE).installCluster()
+        AwsOpenshiftOperatorHelper(project, ProductName.RELEASE).installCluster()
     }
 }

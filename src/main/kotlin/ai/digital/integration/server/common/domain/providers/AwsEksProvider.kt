@@ -1,4 +1,4 @@
-package ai.digital.integration.server.common.domain.providers.operator
+package ai.digital.integration.server.common.domain.providers
 
 import ai.digital.integration.server.common.util.ProcessUtil
 import org.gradle.api.Project

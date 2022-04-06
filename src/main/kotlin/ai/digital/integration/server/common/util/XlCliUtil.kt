@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.util
 
-import ai.digital.integration.server.common.constant.OperatorProviderName
+import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 import java.io.File
@@ -22,11 +22,11 @@ class XlCliUtil {
         fun localDir(project: Project) = project.buildDir.resolve("xl-cli")
 
         val XL_OP_MAPPING = mapOf(
-                Pair(OperatorProviderName.AWS_EKS, "AwsEKS"),
-                Pair(OperatorProviderName.AZURE_AKS, "AzureAKS"),
-                Pair(OperatorProviderName.GCP_GKE, "GoogleGKE"),
-                Pair(OperatorProviderName.AWS_OPENSHIFT, "Openshift"),
-                Pair(OperatorProviderName.ON_PREMISE, "PlainK8SCluster")
+                Pair(OperatorHelmProviderName.AWS_EKS, "AwsEKS"),
+                Pair(OperatorHelmProviderName.AZURE_AKS, "AzureAKS"),
+                Pair(OperatorHelmProviderName.GCP_GKE, "GoogleGKE"),
+                Pair(OperatorHelmProviderName.AWS_OPENSHIFT, "Openshift"),
+                Pair(OperatorHelmProviderName.ON_PREMISE, "PlainK8SCluster")
         )
 
         private fun copyFromLocal(project: Project, location: File) {

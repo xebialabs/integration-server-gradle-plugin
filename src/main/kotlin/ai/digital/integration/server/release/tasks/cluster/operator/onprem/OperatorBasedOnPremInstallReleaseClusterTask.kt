@@ -1,6 +1,6 @@
 package ai.digital.integration.server.release.tasks.cluster.operator.onprem
 
-import ai.digital.integration.server.common.cluster.operator.OnPremHelper
+import ai.digital.integration.server.common.cluster.operator.OnPremOperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.release.tasks.cluster.operator.ReleaseOperatorBasedInstallTask
@@ -19,6 +19,6 @@ open class OperatorBasedOnPremInstallReleaseClusterTask : ReleaseOperatorBasedIn
 
     @TaskAction
     fun launch() {
-        OnPremHelper(project, ProductName.RELEASE).installCluster()
+        OnPremOperatorHelper(project, ProductName.RELEASE).installCluster()
     }
 }

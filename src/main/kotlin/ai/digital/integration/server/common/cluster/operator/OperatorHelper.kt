@@ -1,14 +1,15 @@
 package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.cluster.Helper
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
-import ai.digital.integration.server.common.constant.OperatorProviderName
+import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.constant.ServerConstants
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.IngressType
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
-import ai.digital.integration.server.common.domain.providers.operator.Provider
+import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.domain.Worker
 import ai.digital.integration.server.deploy.internals.CliUtil
@@ -29,10 +30,9 @@ import java.nio.file.Paths
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.collections.HashMap
 
 @Suppress("UnstableApiUsage")
-abstract class OperatorHelper(val project: Project, val productName: ProductName) {
+abstract class OperatorHelper(project: Project, productName: ProductName) : Helper(project, productName){
 
     var loggingJob: Job? = null
 
@@ -70,15 +70,15 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
         fun getOperatorHelper(project: Project, productName: ProductName): OperatorHelper {
             return when (val providerName = getOperatorProvider(project, productName)) {
-                OperatorProviderName.AWS_EKS.providerName -> AwsEksHelper(project, productName)
-                OperatorProviderName.AWS_OPENSHIFT.providerName -> AwsOpenshiftHelper(project, productName)
-                OperatorProviderName.AZURE_AKS.providerName -> AzureAksHelper(project, productName)
-                OperatorProviderName.GCP_GKE.providerName -> GcpGkeHelper(project, productName)
-                OperatorProviderName.ON_PREMISE.providerName -> OnPremHelper(project, productName)
-                OperatorProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftHelper(project, productName)
+                OperatorHelmProviderName.AWS_EKS.providerName -> AwsEksOperatorHelper(project, productName)
+                OperatorHelmProviderName.AWS_OPENSHIFT.providerName -> AwsOpenshiftOperatorHelper(project, productName)
+                OperatorHelmProviderName.AZURE_AKS.providerName -> AzureAksOperatorHelper(project, productName)
+                OperatorHelmProviderName.GCP_GKE.providerName -> GcpGkeOperatorHelper(project, productName)
+                OperatorHelmProviderName.ON_PREMISE.providerName -> OnPremOperatorHelper(project, productName)
+                OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftOperatorHelper(project, productName)
                 else -> {
                     throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
-                        OperatorProviderName.values().joinToString()
+                        OperatorHelmProviderName.values().joinToString()
                     }")
                 }
             }
@@ -95,11 +95,7 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
     fun getOperatorHomeDir(): String =
         project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
-    fun getProviderWorkDir(): String {
-        val path = project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
-        File(path).mkdirs()
-        return path
-    }
+
 
     fun getProfile(): OperatorProfile {
         return when (productName) {
@@ -415,19 +411,11 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return WorkerUtil.getNumberOfWorkers(project)
     }
 
-    open fun getStorageClass(): String {
-        return getProvider().storageClass.getOrElse("standard")
-    }
-
-    open fun getDbStorageClass(): String {
-        return getStorageClass()
-    }
-
     open fun getMqStorageClass(): String {
         return getStorageClass()
     }
 
-    open fun getFqdn(): String = getHost()
+    override fun getFqdn(): String = getHost()
 
     fun getInitialCrValuesFile(): File {
         return File(getProviderHomeDir(), OPERATOR_CR_VALUES_REL_PATH)
@@ -458,13 +446,13 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         return InfrastructureInfo(null, null, null, null, null, null)
     }
 
-    open fun getHost(): String {
+    override fun getHost(): String {
         return getProvider().host.getOrElse("${getProvider().name.get()}-${productName.shortName}-${getNamespace() ?: "default"}")
     }
 
     fun getNamespace(): String? = getProfile().namespace.orNull
 
-    open fun getPort(): String {
+    override fun getPort(): String {
         return "80"
     }
 
@@ -493,44 +481,11 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
 
     abstract fun getProviderHomePath(): String
 
-    abstract fun getProvider(): Provider
+    abstract override fun getProvider(): Provider
 
-    open fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace())
+    override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace())
 
     open fun hasIngress(): Boolean = true
-
-    open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
-
-    open fun getMasterPodName(position: Int) =
-        "pod/dai-${getPrefixName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
-
-    open fun getMasterPodNameSuffix(position: Int): String {
-        return when (productName) {
-            ProductName.DEPLOY -> "master-$position"
-            ProductName.RELEASE -> "$position"
-        }
-    }
-
-    open fun getPostgresPodName(position: Int) = "pod/dai-${getPrefixName()}-postgresql-$position"
-
-    open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
-
-    fun getPrefixName(): String {
-        return when (productName) {
-            ProductName.DEPLOY -> "xld"
-            ProductName.RELEASE -> "xlr"
-        }
-    }
-
-    fun getTemplate(relativePath: String, targetFilename: String? = null): File {
-        val file = File(relativePath)
-        val fileStream = {}::class.java.classLoader.getResourceAsStream(relativePath)
-        val resultComposeFilePath = Paths.get(getProviderWorkDir(), targetFilename ?: file.name)
-        fileStream?.let {
-            FileUtil.copyFile(it, resultComposeFilePath)
-        }
-        return resultComposeFilePath.toFile()
-    }
 
     open fun getMasterCount(): Int {
         return when (productName) {
@@ -539,15 +494,27 @@ abstract class OperatorHelper(val project: Project, val productName: ProductName
         }
     }
 
+    open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
+
+    open fun getMasterPodName(position: Int) =
+        "pod/dai-${getPrefixName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
+
+    open fun getPostgresPodName(position: Int) = "pod/dai-${getPrefixName()}-postgresql-$position"
+
+    open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
+
+    open fun getMasterPodNameSuffix(position: Int): String {
+        return when (productName) {
+            ProductName.DEPLOY -> "master-$position"
+            ProductName.RELEASE -> "$position"
+        }
+    }
+
     private fun getConfigDir(): File {
         return when (productName) {
             ProductName.DEPLOY -> DeployServerUtil.getConfDir(project)
             ProductName.RELEASE -> ReleaseServerUtil.getConfDir(project)
         }
-    }
-
-    fun getName(): String {
-        return productName.toString().toLowerCase()
     }
 
     fun cleanUpCluster(waiting: Duration) {

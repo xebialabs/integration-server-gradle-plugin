@@ -1,4 +1,4 @@
-package ai.digital.integration.server.common.domain.providers.operator
+package ai.digital.integration.server.common.domain.providers
 
 import groovy.lang.Closure
 import org.gradle.api.Action

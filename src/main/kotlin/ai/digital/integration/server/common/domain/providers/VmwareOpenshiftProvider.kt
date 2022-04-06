@@ -1,4 +1,4 @@
-package ai.digital.integration.server.common.domain.providers.operator
+package ai.digital.integration.server.common.domain.providers
 
 import org.gradle.api.Project
 import javax.inject.Inject

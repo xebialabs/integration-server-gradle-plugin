@@ -1,32 +1,27 @@
 package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.cluster.setup.AwsOpenshiftHelper
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.common.domain.providers.operator.AwsOpenshiftProvider
+import ai.digital.integration.server.common.domain.providers.AwsOpenshiftProvider
 import ai.digital.integration.server.common.util.HtmlUtil
 import ai.digital.integration.server.common.util.KubeCtlHelper
-import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
 import java.io.File
 import java.util.*
 
 @Suppress("UnstableApiUsage")
-open class AwsOpenshiftHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
+open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
-    fun launchCluster() {
-        createOcContext()
-
+    fun updateOperator() {
+        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
+        updateInfrastructure(AwsOpenshiftHelper(project, productName).getApiServerUrl(), getOcApiServerToken())
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
         updateOperatorEnvironment()
         updateDeploymentValues()
         updateOperatorCrValues()
-
-        updateInfrastructure(getApiServerUrl(), getOcApiServerToken())
-
-        ocLogin()
-        cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
     }
 
     fun installCluster() {
@@ -42,31 +37,17 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         turnOffLogging()
     }
 
-    private fun exec(command: String): String {
-        val workDir = File(getProviderHomeDir())
-        if (!workDir.exists()) {
-            workDir.mkdirs()
-        }
-        return ProcessUtil.executeCommand(command, workDir)
-    }
-
-    private fun ocLogin() {
-        exec("oc login ${getApiServerUrl()} --username ${getOcLogin()} --password \"${getOcPassword()}\"")
-    }
-
-    private fun ocLogout() {
-        try {
-            exec("oc logout")
-        } catch (e: Exception) {
-            // ignore, if throws exception, it only means that already loged out, safe to ignore.
-        }
+    fun shutdownCluster() {
+        AwsOpenshiftHelper(project, productName).ocLogin()
+        undeployCluster()
+        AwsOpenshiftHelper(project, productName).ocLogout()
     }
 
     fun getOcApiServerToken(): String {
-        val basicAuthToken = Base64.getEncoder().encodeToString("${getOcLogin()}:${getOcPassword()}".toByteArray())
+        val basicAuthToken = Base64.getEncoder().encodeToString("${AwsOpenshiftHelper(project, productName).getOcLogin()}:${AwsOpenshiftHelper(project, productName).getOcPassword()}".toByteArray())
         val oauthHostName = getProvider().oauthHostName.get()
 
-        ocLogout()
+        AwsOpenshiftHelper(project, productName).ocLogout()
 
         val command1Output =
             exec("curl -vvv -L -k -c cookie -b cookie  -H \"Authorization: Basic $basicAuthToken\" https://$oauthHostName/oauth/token/request")
@@ -81,22 +62,16 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
         return doc2.select("code").text()
     }
 
-    fun shutdownCluster() {
-        ocLogin()
-        undeployCluster()
-        ocLogout()
-    }
-
     override fun getProviderHomePath(): String {
         return "${getName()}-operator-openshift"
     }
 
     override fun getProvider(): AwsOpenshiftProvider {
-        return getProfile().awsOpenshift
+        return AwsOpenshiftHelper(project, productName).getProvider()
     }
 
     override fun getStorageClass(): String {
-        return getProvider().storageClass.getOrElse("aws-efs")
+        return AwsOpenshiftHelper(project, productName).getStorageClass()
     }
 
     private fun updateInfrastructure(apiServerURL: String, token: String) {
@@ -130,15 +105,4 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Oper
 
     override fun getProviderCrContextPath(): String = "spec.route.path"
 
-    private fun getApiServerUrl() = getProvider().apiServerURL.get()
-
-    private fun getOcLogin() = project.property("ocLogin")
-
-    private fun getOcPassword() = project.property("ocPassword")
-
-    private fun createOcContext() {
-        project.logger.lifecycle("Updating kube config for Open Shift")
-        exec("export KUBECONFIG=~/.kube/config")
-        ocLogin()
-    }
 }

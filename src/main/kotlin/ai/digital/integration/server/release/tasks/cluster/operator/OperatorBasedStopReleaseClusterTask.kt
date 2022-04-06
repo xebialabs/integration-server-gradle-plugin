@@ -1,6 +1,6 @@
 package ai.digital.integration.server.release.tasks.cluster.operator
 
-import ai.digital.integration.server.common.constant.OperatorProviderName
+import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
@@ -29,21 +29,21 @@ open class OperatorBasedStopReleaseClusterTask : DefaultTask() {
             this.dependsOn(
                 DownloadAndExtractCliDistTask.NAME,
                 when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
-                OperatorProviderName.AWS_EKS.providerName ->
+                    OperatorHelmProviderName.AWS_EKS.providerName ->
                     OperatorBasedAwsEksStopReleaseClusterTask.NAME
-                OperatorProviderName.AWS_OPENSHIFT.providerName ->
+                    OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
                     OperatorBasedAwsOpenShiftStopReleaseClusterTask.NAME
-                OperatorProviderName.AZURE_AKS.providerName ->
+                    OperatorHelmProviderName.AZURE_AKS.providerName ->
                     OperatorBasedAzureAksStopReleaseClusterTask.NAME
-                OperatorProviderName.GCP_GKE.providerName ->
+                    OperatorHelmProviderName.GCP_GKE.providerName ->
                     OperatorBasedGcpGkeStopReleaseClusterTask.NAME
-                OperatorProviderName.ON_PREMISE.providerName ->
+                    OperatorHelmProviderName.ON_PREMISE.providerName ->
                     OperatorBasedOnPremStopReleaseClusterTask.NAME
-                OperatorProviderName.VMWARE_OPENSHIFT.providerName ->
+                    OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
                     OperatorBasedVmWareOpenShiftStopReleaseClusterTask.NAME
                 else -> {
                     throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
-                        OperatorProviderName.values().joinToString()
+                        OperatorHelmProviderName.values().joinToString()
                     }")
                 }
             })
