@@ -67,7 +67,7 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
     }
 
     override fun getProvider(): AwsOpenshiftProvider {
-        return AwsOpenshiftHelper(project, productName).getProvider()
+        return getProfile().awsOpenshift
     }
 
     override fun getStorageClass(): String {

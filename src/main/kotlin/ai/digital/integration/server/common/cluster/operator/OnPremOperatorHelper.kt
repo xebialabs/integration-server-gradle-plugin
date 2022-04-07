@@ -43,7 +43,7 @@ open class OnPremOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getProvider(): OnPremiseProvider {
-        return OnPremHelper(project, productName).getProvider()
+        return getProfile().onPremise
     }
 
      fun updateInfrastructure(infraInfo: InfrastructureInfo) {

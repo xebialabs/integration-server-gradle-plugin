@@ -3,6 +3,7 @@ package ai.digital.integration.server.common.cluster.operator
 import ai.digital.integration.server.common.cluster.setup.AwsEksHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.AwsEksProvider
+import ai.digital.integration.server.common.domain.providers.OnPremiseProvider
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
 import java.io.File
@@ -49,7 +50,7 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getProvider(): AwsEksProvider {
-        return AwsEksHelper(project,productName).getProvider()
+        return getProfile().awsEks
     }
 
     override fun getStorageClass(): String {
