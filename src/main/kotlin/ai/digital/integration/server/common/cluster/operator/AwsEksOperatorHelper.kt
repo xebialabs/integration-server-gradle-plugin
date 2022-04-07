@@ -49,7 +49,7 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getProvider(): AwsEksProvider {
-        return AwsEksHelper(project,productName).getProvider()
+        return getProfile().awsEks
     }
 
     override fun getStorageClass(): String {

@@ -68,7 +68,7 @@ open class AzureAksOperatorHelper(project: Project, productName: ProductName) : 
     }
 
     override fun getProvider(): AzureAksProvider {
-        return AzureAksHelper(project, productName).getProvider()
+        return getProfile().azureAks
     }
 
     override fun getStorageClass(): String {

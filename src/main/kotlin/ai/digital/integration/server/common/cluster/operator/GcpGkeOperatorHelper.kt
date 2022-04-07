@@ -59,7 +59,7 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getProvider(): GcpGkeProvider {
-        return GcpGkeHelper(project, productName).getProvider()
+        return getProfile().gcpGke
     }
 
     override fun getFqdn(): String {
