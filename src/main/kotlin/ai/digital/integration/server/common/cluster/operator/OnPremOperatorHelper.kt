@@ -11,7 +11,7 @@ import java.io.File
 
 open class OnPremOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
-    val onPremHelper : OnPremHelper = OnPremHelper(project, productName, getProfile())
+    private val onPremHelper : OnPremHelper = OnPremHelper(project, productName, getProfile())
 
     fun launchCluster(){
         onPremHelper.launchCluster()

@@ -4,16 +4,21 @@ import ai.digital.integration.server.common.cluster.setup.AwsEksHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.AwsEksProvider
 import ai.digital.integration.server.common.domain.providers.Provider
+import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
+import java.io.File
 
 open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHelper(project, productName) {
 
+    private val awsEksHelper: AwsEksHelper = AwsEksHelper(project, ProductName.DEPLOY, getProfile())
+
     fun launchCluster() {
-        AwsEksHelper(project, ProductName.DEPLOY,getProfile()).launchCluster()
+        awsEksHelper.launchCluster()
     }
 
-    fun updateHelmValues() {
-
+    fun setupHelmValues() {
+        copyValuesFile()
+        updateHelmValues()
     }
 
     fun installCluster() {
@@ -26,5 +31,25 @@ open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHe
 
     override fun getProvider(): AwsEksProvider {
         return getProfile().awsEks
+    }
+
+    override fun getStorageClass(): String {
+        return awsEksHelper.getStorageClass()
+    }
+
+    override fun getDbStorageClass(): String {
+        return ("gp2")
+    }
+
+    override fun getMqStorageClass(): String {
+        return ("gp2")
+    }
+
+    override fun updateCustomHelmValues(valuesFile: File) {
+        val pairs: MutableMap<String, Any> = mutableMapOf(
+                ".ingress.hosts[0]" to awsEksHelper.getFqdn(),
+                ".rabbitmq.persistence.storageClass" to "gp2"
+        )
+        updateYamlFile(valuesFile, pairs)
     }
 }

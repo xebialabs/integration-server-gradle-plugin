@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.tasks.cluster.helm
 
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.maintenance.CleanupBeforeStartupTask
+import ai.digital.integration.server.deploy.tasks.server.ServerCopyOverlaysTask
 import org.gradle.api.DefaultTask
 
 abstract class DeployHelmBasedStartTask : DefaultTask() {
@@ -10,7 +11,8 @@ abstract class DeployHelmBasedStartTask : DefaultTask() {
         return arrayOf(
             CleanupBeforeStartupTask.NAME,
             DownloadAndExtractCliDistTask.NAME,
-            ProvideDeployKubernetesHelmChartTask.NAME
+            ProvideDeployKubernetesHelmChartTask.NAME,
+            ServerCopyOverlaysTask.NAME
                     )
     }
 }

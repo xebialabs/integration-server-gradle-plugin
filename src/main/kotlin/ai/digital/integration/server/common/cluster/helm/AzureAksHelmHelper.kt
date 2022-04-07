@@ -13,9 +13,15 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import org.gradle.api.Project
 import java.io.File
 
-open class AzureAksHelmHelper(project: Project, productName: ProductName) : HelmHelper(project, productName)
-{
-    fun updateHelmValues() {
+open class AzureAksHelmHelper(project: Project, productName: ProductName) : HelmHelper(project, productName) {
+
+    private val azureAksHelper: AzureAksHelper = AzureAksHelper(project, productName, getProfile())
+
+    fun launchCluster() {
+        azureAksHelper.launchCluster()
+    }
+
+    fun setupHelmValues() {
 
     }
 
@@ -29,5 +35,13 @@ open class AzureAksHelmHelper(project: Project, productName: ProductName) : Helm
 
     override fun getProvider(): AzureAksProvider {
         return getProfile().azureAks
+    }
+
+    override fun updateCustomHelmValues(valuesFile: File) {
+        /*val pairs: MutableMap<String, Any> = mutableMapOf(
+                "spec.ingress.hosts" to arrayOf(awsEksHelper.getFqdn()),
+                "spec.rabbitmq.persistence.storageClass" to "gp2"
+        )
+        updateYamlFile(valuesFile, pairs)*/
     }
 }

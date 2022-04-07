@@ -15,7 +15,13 @@ import java.io.File
 
 open class GcpGkeHelmHelper(project: Project, productName: ProductName) : HelmHelper(project, productName) {
 
-    fun updateHelmValues() {
+    private val gcpGkeHelper: GcpGkeHelper = GcpGkeHelper(project, productName, getProfile())
+
+    fun launchCluster() {
+        gcpGkeHelper.launchCluster()
+    }
+
+    fun setupHelmValues() {
 
     }
 
@@ -29,5 +35,13 @@ open class GcpGkeHelmHelper(project: Project, productName: ProductName) : HelmHe
 
     override fun getProvider(): GcpGkeProvider {
         return getProfile().gcpGke
+    }
+
+    override fun updateCustomHelmValues(valuesFile: File) {
+        /*  val pairs: MutableMap<String, Any> = mutableMapOf(
+              "spec.ingress.hosts" to arrayOf(awsEksHelper.getFqdn()),
+                "spec.rabbitmq.persistence.storageClass" to "gp2"
+        )
+        updateYamlFile(valuesFile, pairs)*/
     }
 }

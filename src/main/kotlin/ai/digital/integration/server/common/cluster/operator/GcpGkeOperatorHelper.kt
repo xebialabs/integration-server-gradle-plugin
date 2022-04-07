@@ -1,6 +1,5 @@
 package ai.digital.integration.server.common.cluster.operator
 
-import ai.digital.integration.server.common.cluster.setup.AzureAksHelper
 import ai.digital.integration.server.common.cluster.setup.GcpGkeHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
@@ -14,7 +13,7 @@ import java.io.File
 
 open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
-    val gcpGkeHelper: GcpGkeHelper = GcpGkeHelper(project, productName, getProfile())
+    private val gcpGkeHelper: GcpGkeHelper = GcpGkeHelper(project, productName, getProfile())
 
     fun launchCluster(){
         gcpGkeHelper.launchCluster()

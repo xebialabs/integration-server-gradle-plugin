@@ -9,7 +9,7 @@ import java.io.File
 
 open class VmwareOpenshiftHelmHelper(project: Project, productName: ProductName) : HelmHelper(project, productName) {
 
-    fun updateHelmValues() {
+    fun setupHelmValues() {
 
     }
 
@@ -22,6 +22,14 @@ open class VmwareOpenshiftHelmHelper(project: Project, productName: ProductName)
     }
 
     override fun getProvider(): Provider {
-       return getProfile().vmwareOpenshift
+        return getProfile().vmwareOpenshift
+    }
+
+    override fun updateCustomHelmValues(valuesFile: File) {
+        /* val pairs: MutableMap<String, Any> = mutableMapOf(
+                 "spec.ingress.hosts" to arrayOf(awsEksHelper.getFqdn()),
+                 "spec.rabbitmq.persistence.storageClass" to "gp2"
+         )
+         updateYamlFile(valuesFile, pairs)*/
     }
 }

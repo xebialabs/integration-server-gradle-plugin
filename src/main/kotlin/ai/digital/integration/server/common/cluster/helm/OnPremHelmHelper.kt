@@ -12,10 +12,13 @@ import java.io.File
 
 open class OnPremHelmHelper(project: Project, productName: ProductName) : HelmHelper(project, productName) {
 
-    fun launchCluster () {
+    private val onPremHelper: OnPremHelper = OnPremHelper(project, productName, getProfile())
 
+    fun launchCluster() {
+        onPremHelper.launchCluster()
     }
-    fun updateHelmValues() {
+
+    fun setupHelmValues() {
 
     }
 
@@ -29,5 +32,13 @@ open class OnPremHelmHelper(project: Project, productName: ProductName) : HelmHe
 
     override fun getProvider(): OnPremiseProvider {
         return getProfile().onPremise
+    }
+
+    override fun updateCustomHelmValues(valuesFile: File) {
+       /* val pairs: MutableMap<String, Any> = mutableMapOf(
+                "spec.ingress.hosts" to arrayOf(awsEksHelper.getFqdn()),
+                "spec.rabbitmq.persistence.storageClass" to "gp2"
+        )
+        updateYamlFile(valuesFile, pairs)*/
     }
 }

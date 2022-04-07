@@ -22,6 +22,7 @@ open class HelmBasedAwsEksStartDeployClusterTask : DeployHelmBasedStartTask() {
 
     @TaskAction
     fun launch() {
-        AwsEksHelmHelper(project, ProductName.DEPLOY).launchCluster()
+        //AwsEksHelmHelper(project, ProductName.DEPLOY).launchCluster()
+        AwsEksHelmHelper(project, ProductName.DEPLOY).setupHelmValues()
     }
 }
