@@ -13,9 +13,14 @@ import java.util.*
 @Suppress("UnstableApiUsage")
 open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
+    val awsOpenshiftHelper : AwsOpenshiftHelper = AwsOpenshiftHelper(project, productName, getProfile())
+    fun launchCluster(){
+        awsOpenshiftHelper.launchCluster()
+    }
+
     fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
-        updateInfrastructure(AwsOpenshiftHelper(project, productName).getApiServerUrl(), getOcApiServerToken())
+        updateInfrastructure(awsOpenshiftHelper.getApiServerUrl(), getOcApiServerToken())
         updateOperatorApplications()
         updateOperatorDeployment()
         updateOperatorDeploymentCr()
@@ -38,16 +43,16 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
     }
 
     fun shutdownCluster() {
-        AwsOpenshiftHelper(project, productName).ocLogin()
+        awsOpenshiftHelper.ocLogin()
         undeployCluster()
-        AwsOpenshiftHelper(project, productName).ocLogout()
+        awsOpenshiftHelper.ocLogout()
     }
 
     fun getOcApiServerToken(): String {
-        val basicAuthToken = Base64.getEncoder().encodeToString("${AwsOpenshiftHelper(project, productName).getOcLogin()}:${AwsOpenshiftHelper(project, productName).getOcPassword()}".toByteArray())
+        val basicAuthToken = Base64.getEncoder().encodeToString("${awsOpenshiftHelper.getOcLogin()}:${awsOpenshiftHelper.getOcPassword()}".toByteArray())
         val oauthHostName = getProvider().oauthHostName.get()
 
-        AwsOpenshiftHelper(project, productName).ocLogout()
+        awsOpenshiftHelper.ocLogout()
 
         val command1Output =
             exec("curl -vvv -L -k -c cookie -b cookie  -H \"Authorization: Basic $basicAuthToken\" https://$oauthHostName/oauth/token/request")
@@ -67,11 +72,11 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
     }
 
     override fun getProvider(): AwsOpenshiftProvider {
-        return AwsOpenshiftHelper(project, productName).getProvider()
+        return getProfile().awsOpenshift
     }
 
     override fun getStorageClass(): String {
-        return AwsOpenshiftHelper(project, productName).getStorageClass()
+        return awsOpenshiftHelper.getStorageClass()
     }
 
     private fun updateInfrastructure(apiServerURL: String, token: String) {

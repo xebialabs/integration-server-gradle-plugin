@@ -27,7 +27,7 @@ open class GcpGkeHelmHelper(project: Project, productName: ProductName) : HelmHe
 
     }
 
-    override fun getProvider(): Provider {
-        return AwsEksHelper(project,productName).getProvider()
+    override fun getProvider(): GcpGkeProvider {
+        return getProfile().gcpGke
     }
 }

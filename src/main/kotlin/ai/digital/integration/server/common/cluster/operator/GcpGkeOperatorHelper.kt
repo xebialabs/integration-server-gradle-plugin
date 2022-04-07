@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.cluster.setup.AzureAksHelper
 import ai.digital.integration.server.common.cluster.setup.GcpGkeHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
@@ -12,6 +13,12 @@ import org.gradle.api.Project
 import java.io.File
 
 open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
+
+    val gcpGkeHelper: GcpGkeHelper = GcpGkeHelper(project, productName, getProfile())
+
+    fun launchCluster(){
+        gcpGkeHelper.launchCluster()
+    }
 
     fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
@@ -35,7 +42,7 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
         waitForWorkerPods()
         val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
         val nameSpace = getNamespace() ?: "default"
-        GcpGkeHelper(project, productName).applyDnsOpenApi(ip, getFqdn(), getHost(), nameSpace)
+        gcpGkeHelper.applyDnsOpenApi(ip, getFqdn(), getHost(), nameSpace)
         createClusterMetadata()
         waitForBoot()
     }
@@ -47,11 +54,11 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
         val regionZone = gcpGkeProvider.regionZone.get()
         val accountName = gcpGkeProvider.accountName.get()
 
-        val existsCluster = GcpGkeHelper(project, productName).existsCluster(accountName, projectName, name, regionZone)
+        val existsCluster = gcpGkeHelper.existsCluster(accountName, projectName, name, regionZone)
         if (existsCluster) {
             undeployCluster()
         }
-        GcpGkeHelper(project, productName).destroyClusterOnShutdown(existsCluster, accountName, projectName, name, regionZone, getFqdn())
+        gcpGkeHelper.destroyClusterOnShutdown(existsCluster, accountName, projectName, name, regionZone, getFqdn())
     }
 
     override fun getProviderHomePath(): String {
@@ -59,7 +66,7 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getProvider(): GcpGkeProvider {
-        return GcpGkeHelper(project, productName).getProvider()
+        return getProfile().gcpGke
     }
 
     override fun getFqdn(): String {

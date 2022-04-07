@@ -6,6 +6,7 @@ import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStartDeployClusterTask
@@ -35,10 +36,10 @@ open class HelmBasedStartDeployClusterTask : DefaultTask() {
                     OperatorHelmProviderName.AZURE_AKS.providerName ->
                         OperatorBasedAzureAksStartDeployClusterTask.NAME
                     OperatorHelmProviderName.GCP_GKE.providerName ->
-                        OperatorBasedGcpGkeStartDeployClusterTask.NAME
+                        OperatorBasedGcpGkeStartDeployClusterTask.NAME*/
                     OperatorHelmProviderName.ON_PREMISE.providerName ->
-                        OperatorBasedOnPremStartDeployClusterTask.NAME
-                    OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
+                        HelmBasedOnPremStartDeployClusterTask.NAME
+                    /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
                         OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME*/
                     else -> {
                         throw IllegalArgumentException(

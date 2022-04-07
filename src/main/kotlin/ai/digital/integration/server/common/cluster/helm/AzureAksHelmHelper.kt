@@ -27,7 +27,7 @@ open class AzureAksHelmHelper(project: Project, productName: ProductName) : Helm
 
     }
 
-    override fun getProvider(): Provider {
-        return AwsEksHelper(project,productName).getProvider()
+    override fun getProvider(): AzureAksProvider {
+        return getProfile().azureAks
     }
 }

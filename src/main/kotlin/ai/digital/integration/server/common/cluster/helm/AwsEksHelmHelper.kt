@@ -2,10 +2,15 @@ package ai.digital.integration.server.common.cluster.helm
 
 import ai.digital.integration.server.common.cluster.setup.AwsEksHelper
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.providers.AwsEksProvider
 import ai.digital.integration.server.common.domain.providers.Provider
 import org.gradle.api.Project
 
 open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHelper(project, productName) {
+
+    fun launchCluster() {
+        AwsEksHelper(project, ProductName.DEPLOY,getProfile()).launchCluster()
+    }
 
     fun updateHelmValues() {
 
@@ -19,7 +24,7 @@ open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHe
 
     }
 
-    override fun getProvider(): Provider {
-        return AwsEksHelper(project,productName).getProvider()
+    override fun getProvider(): AwsEksProvider {
+        return getProfile().awsEks
     }
 }

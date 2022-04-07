@@ -20,7 +20,7 @@ open class OperatorBasedAwsOpenShiftStartDeployClusterTask : DeployOperatorBased
 
     @TaskAction
     fun launch() {
-        AwsOpenshiftHelper(project, ProductName.DEPLOY).launchCluster()
+        AwsOpenshiftOperatorHelper(project, ProductName.DEPLOY).launchCluster()
         AwsOpenshiftOperatorHelper(project, ProductName.DEPLOY).updateOperator()
     }
 }

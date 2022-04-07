@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.azureaks.OperatorBasedAzureAksStopDeployClusterTask
@@ -35,10 +36,10 @@ open class HelmBasedStopDeployClusterTask : DefaultTask() {
                     OperatorHelmProviderName.AZURE_AKS.providerName ->
                         OperatorBasedAzureAksStopDeployClusterTask.NAME
                     OperatorHelmProviderName.GCP_GKE.providerName ->
-                        OperatorBasedGcpGkeStopDeployClusterTask.NAME
+                        OperatorBasedGcpGkeStopDeployClusterTask.NAME*/
                     OperatorHelmProviderName.ON_PREMISE.providerName ->
-                        OperatorBasedOnPremStopDeployClusterTask.NAME
-                    OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
+                        HelmBasedOnPremStopDeployClusterTask.NAME
+                    /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
                         OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME*/
                     else -> {
                         throw IllegalArgumentException(

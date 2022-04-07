@@ -9,6 +9,12 @@ import java.io.File
 
 open class AwsEksOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
+    val awsEksHelper : AwsEksHelper = AwsEksHelper(project, ProductName.DEPLOY, getProfile())
+
+    fun launchCluster(){
+        awsEksHelper.launchCluster()
+    }
+
     fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         updateInfrastructure()
@@ -27,13 +33,13 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
         waitForWorkerPods()
 
         createClusterMetadata()
-        AwsEksHelper(project, productName).updateRoute53(getFqdn())
+        awsEksHelper.updateRoute53(getFqdn())
         waitForBoot()
     }
 
     fun shutdownCluster() {
         undeployCluster()
-        AwsEksHelper(project,productName).destroyClusterOnShutdown()
+        awsEksHelper.destroyClusterOnShutdown()
     }
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
@@ -49,11 +55,11 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getProvider(): AwsEksProvider {
-        return AwsEksHelper(project,productName).getProvider()
+        return getProfile().awsEks
     }
 
     override fun getStorageClass(): String {
-        return AwsEksHelper(project,productName).getStorageClass()
+        return awsEksHelper.getStorageClass()
     }
 
     private fun updateInfrastructure() {

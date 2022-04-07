@@ -5,6 +5,9 @@ import ai.digital.integration.server.common.cluster.helm.HelmHelper
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.profiles.HelmProfile
+import ai.digital.integration.server.common.domain.profiles.OperatorProfile
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.domain.providers.AwsEksProvider
 import ai.digital.integration.server.common.util.ProcessUtil
 import net.sf.json.JSONObject
@@ -13,15 +16,17 @@ import org.gradle.api.Project
 import java.io.File
 
 
-open class AwsEksHelper(project: Project, productName: ProductName) : Helper(project, productName) {
+open class AwsEksHelper(project: Project, productName: ProductName, val profile: Profile) : Helper(project, productName) {
 
     override fun getProvider(): AwsEksProvider {
         return when (val profileName = getProfileName()) {
             ClusterProfileName.OPERATOR.profileName -> {
-                OperatorHelper.getOperatorHelper(project, productName).getProfile().awsEks
+                val operatorProfile = profile as OperatorProfile
+                operatorProfile.awsEks
             }
             ClusterProfileName.HELM.profileName -> {
-                HelmHelper.getHelmHelper(project, productName).getProfile().awsEks
+                val helmProfile = profile as HelmProfile
+                helmProfile.awsEks
             }
             else -> {
                 throw IllegalArgumentException("Provided profile name `$profileName` is not supported")

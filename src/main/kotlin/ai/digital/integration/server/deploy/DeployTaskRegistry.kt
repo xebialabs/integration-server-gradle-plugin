@@ -26,6 +26,9 @@ import ai.digital.integration.server.deploy.tasks.cluster.helm.ProvideDeployKube
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.*
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartDeployClusterTask
@@ -156,6 +159,13 @@ open class DeployTaskRegistry {
                     HelmBasedAwsEksInstallDeployClusterTask::class.java)
             project.tasks.create(HelmBasedAwsEksStopDeployClusterTask.NAME,
                     HelmBasedAwsEksStopDeployClusterTask::class.java)
+
+            project.tasks.create(HelmBasedOnPremStartDeployClusterTask.NAME,
+                    HelmBasedOnPremStartDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedOnPremInstallDeployClusterTask.NAME,
+                    HelmBasedOnPremInstallDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedOnPremStopDeployClusterTask.NAME,
+                    HelmBasedOnPremStopDeployClusterTask::class.java)
 
 
             // Cluster Terraform

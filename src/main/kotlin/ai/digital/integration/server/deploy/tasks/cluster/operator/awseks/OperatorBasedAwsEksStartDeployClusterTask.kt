@@ -20,7 +20,7 @@ open class OperatorBasedAwsEksStartDeployClusterTask : DeployOperatorBasedStartT
 
     @TaskAction
     fun launch() {
-        AwsEksHelper(project, ProductName.DEPLOY).launchCluster()
+        AwsEksOperatorHelper(project, ProductName.DEPLOY).launchCluster()
         AwsEksOperatorHelper(project, ProductName.DEPLOY).updateOperator()
     }
 }

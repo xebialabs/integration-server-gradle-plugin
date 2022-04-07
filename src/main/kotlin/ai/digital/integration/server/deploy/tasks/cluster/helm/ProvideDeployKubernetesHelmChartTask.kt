@@ -21,9 +21,8 @@ open class ProvideDeployKubernetesHelmChartTask : DefaultTask() {
     @TaskAction
     fun launch() {
         val helmHelper = HelmHelper.getHelmHelper(project, ProductName.DEPLOY)
-        // it needs to be aligned with operatorImage default value
         val branch = helmHelper.getProvider().helmBranch.get()
-        project.logger.lifecycle("Checking out xl-deploy-kubernetes-operator branch $branch")
+        project.logger.lifecycle("Checking out xl-deploy-kubernetes-helm-chart branch $branch")
         cloneRepository(branch)
 
     }

@@ -11,6 +11,10 @@ import org.gradle.api.Project
 import java.io.File
 
 open class OnPremHelmHelper(project: Project, productName: ProductName) : HelmHelper(project, productName) {
+
+    fun launchCluster () {
+
+    }
     fun updateHelmValues() {
 
     }
@@ -23,7 +27,7 @@ open class OnPremHelmHelper(project: Project, productName: ProductName) : HelmHe
 
     }
 
-    override fun getProvider(): Provider {
-        return AwsEksHelper(project,productName).getProvider()
+    override fun getProvider(): OnPremiseProvider {
+        return getProfile().onPremise
     }
 }

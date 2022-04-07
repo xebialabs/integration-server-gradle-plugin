@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.tasks.cluster.helm.awseks
 
+import ai.digital.integration.server.common.cluster.helm.AwsEksHelmHelper
 import ai.digital.integration.server.common.cluster.setup.AwsEksHelper
 import ai.digital.integration.server.common.cluster.operator.AwsEksOperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
@@ -21,7 +22,6 @@ open class HelmBasedAwsEksStartDeployClusterTask : DeployHelmBasedStartTask() {
 
     @TaskAction
     fun launch() {
-        AwsEksHelper(project, ProductName.DEPLOY).launchCluster()
-        //AwsEksOperatorHelper(project, ProductName.DEPLOY).updateOperator()
+        AwsEksHelmHelper(project, ProductName.DEPLOY).launchCluster()
     }
 }

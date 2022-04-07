@@ -22,6 +22,6 @@ open class VmwareOpenshiftHelmHelper(project: Project, productName: ProductName)
     }
 
     override fun getProvider(): Provider {
-        return AwsEksHelper(project,productName).getProvider()
+       return getProfile().vmwareOpenshift
     }
 }

@@ -5,6 +5,9 @@ import ai.digital.integration.server.common.cluster.helm.HelmHelper
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.profiles.HelmProfile
+import ai.digital.integration.server.common.domain.profiles.OperatorProfile
+import ai.digital.integration.server.common.domain.profiles.Profile
 
 import ai.digital.integration.server.common.domain.providers.GcpGkeProvider
 import ai.digital.integration.server.common.util.ProcessUtil
@@ -12,15 +15,17 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class GcpGkeHelper(project: Project, productName: ProductName) : Helper(project, productName) {
+open class GcpGkeHelper(project: Project, productName: ProductName, val profile: Profile) : Helper(project, productName) {
 
     override fun getProvider(): GcpGkeProvider {
         return when (val profileName = getProfileName()) {
             ClusterProfileName.OPERATOR.profileName -> {
-                OperatorHelper.getOperatorHelper(project, productName).getProfile().gcpGke
+                val operatorProfile = profile as OperatorProfile
+                operatorProfile.gcpGke
             }
             ClusterProfileName.HELM.profileName -> {
-                HelmHelper.getHelmHelper(project, productName).getProfile().gcpGke
+                val helmProfile = profile as HelmProfile
+                helmProfile.gcpGke
             }
             else -> {
                 throw IllegalArgumentException("Provided profile name `$profileName` is not supported")

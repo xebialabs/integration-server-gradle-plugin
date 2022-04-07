@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common.cluster.operator
 
+import ai.digital.integration.server.common.cluster.setup.GcpGkeHelper
 import ai.digital.integration.server.common.cluster.setup.OnPremHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
@@ -10,8 +11,14 @@ import java.io.File
 
 open class OnPremOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
+    val onPremHelper : OnPremHelper = OnPremHelper(project, productName, getProfile())
+
+    fun launchCluster(){
+        onPremHelper.launchCluster()
+    }
+
     fun updateOperator() {
-        OnPremHelper(project, productName).updateEtcHosts(getProvider().name.get() , getFqdn())
+        onPremHelper.updateEtcHosts(getProvider().name.get() , getFqdn())
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo()
         updateInfrastructure(kubeContextInfo)
@@ -35,7 +42,7 @@ open class OnPremOperatorHelper(project: Project, productName: ProductName) : Op
 
     fun shutdownCluster() {
         undeployCluster()
-        OnPremHelper(project, productName).destroyClusterOnShutdown()
+        onPremHelper.destroyClusterOnShutdown()
     }
 
     override fun getProviderHomePath(): String {
@@ -43,10 +50,11 @@ open class OnPremOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getProvider(): OnPremiseProvider {
-        return OnPremHelper(project, productName).getProvider()
+        return getProfile().onPremise
     }
 
-     fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+
+    fun updateInfrastructure(infraInfo: InfrastructureInfo) {
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,
