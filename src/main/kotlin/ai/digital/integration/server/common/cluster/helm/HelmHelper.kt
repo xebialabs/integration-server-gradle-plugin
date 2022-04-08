@@ -80,17 +80,10 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
             project.buildDir.toPath().resolve(HELM_FOLDER_NAME).toAbsolutePath().toString()
 
 
-    fun getProfile(): HelmProfile {
+    override fun getProfile(): HelmProfile {
         return when (productName) {
             ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).clusterProfiles.helm()
             ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm()
-        }
-    }
-
-    private fun getConfigDir(): File {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getConfDir(project)
-            ProductName.RELEASE -> ReleaseServerUtil.getConfDir(project)
         }
     }
 
@@ -206,78 +199,5 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
     }
 
     abstract fun updateCustomHelmValues(valuesFile: File)
-
-    open fun getMqStorageClass(): String {
-        return getStorageClass()
-    }
-
-    private fun getServerImageRepository(): String {
-        return getServer().dockerImage!!
-    }
-
-    private fun getCentralConfigImageRepository(): String {
-        return getServer().centralConfigDockerImage!!
-    }
-
-
-    private fun getDeployWorkerImageRepository(): String {
-        return getDeployWorker().dockerImage!!
-    }
-
-    private fun getServerVersion(): String {
-        return getServer().version!!
-    }
-
-    private fun getServer(): Server {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getServer(project)
-            ProductName.RELEASE -> ReleaseServerUtil.getServer(project)
-        }
-    }
-
-    private fun getDeployWorker(): Worker {
-        return WorkerUtil.getWorkers(project)[0]
-    }
-
-    private fun getDbConnectionCount(): String {
-        val defaultMaxDbConnections = when (productName) {
-            ProductName.DEPLOY ->
-                ServerConstants.DEPLOY_DB_CONNECTION_NUMBER * (getMasterCount() + getDeployWorkerCount())
-            ProductName.RELEASE ->
-                ServerConstants.RELEASE_DB_CONNECTION_NUMBER * getMasterCount()
-        }
-        return getProvider().maxDbConnections.getOrElse(defaultMaxDbConnections).toString()
-    }
-
-    open fun getMasterCount(): Int {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getServers(project).size
-            ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).servers.size
-        }
-    }
-
-    open fun getDeployWorkerCount(): Int {
-        return WorkerUtil.getNumberOfWorkers(project)
-    }
-
-    private fun getLicense(): String {
-        val licenseFileName = when (productName) {
-            ProductName.DEPLOY -> "deployit-license.lic"
-            ProductName.RELEASE -> "xl-release-license.lic"
-        }
-        val licenseFile = File(getConfigDir(), licenseFileName)
-        val content = Files.readString(licenseFile.toPath())
-        return Base64.getEncoder().encodeToString(content.toByteArray())
-    }
-
-    fun updateYamlFile(filePath: File, pairs: MutableMap<String, Any>) {
-        pairs.forEach { entry ->
-            project.logger.lifecycle("${entry.key} : ${entry.value}")
-            var value1 = entry.value
-            var command = "\'${entry.key} = \"${entry.value}\"\'"
-            project.logger.lifecycle("command -> $command")
-            ProcessUtil.executeCommand("yq -i $command \"${getHelmValuesFile()}\"")
-        }
-    }
 }
 

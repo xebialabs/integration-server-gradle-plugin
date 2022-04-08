@@ -97,7 +97,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
 
 
-    fun getProfile(): OperatorProfile {
+    override fun getProfile(): OperatorProfile {
         return when (productName) {
             ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
             ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator()
@@ -333,14 +333,9 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
             )
 
         if (IngressType.valueOf(getProfile().ingressType.get()) == IngressType.HAPROXY) {
-            val namespaceAsSuffix = getNamespace()?.let { "-$it" } ?: ""
             pairs.putAll(mutableMapOf<String, Any>(
                 "spec.haproxy-ingress.install" to true,
                 "spec.nginx-ingress-controller.install" to false
-            ))
-        } else {
-            pairs.putAll(mutableMapOf<String, Any>(
-                    "nginx-ingress-controller.service.type" to "LoadBalancer"
             ))
         }
 
@@ -367,57 +362,6 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     }
 
     abstract fun updateCustomOperatorCrValues(crValuesFile: File)
-
-    private fun getDbConnectionCount(): String {
-        val defaultMaxDbConnections = when (productName) {
-            ProductName.DEPLOY ->
-                ServerConstants.DEPLOY_DB_CONNECTION_NUMBER * (getMasterCount() + getDeployWorkerCount())
-            ProductName.RELEASE ->
-                ServerConstants.RELEASE_DB_CONNECTION_NUMBER * getMasterCount()
-        }
-        return getProvider().maxDbConnections.getOrElse(defaultMaxDbConnections).toString()
-    }
-
-    private fun getServerImageRepository(): String {
-        return getServer().dockerImage!!
-    }
-
-    private fun getDeployWorkerImageRepository(): String {
-        return getDeployWorker().dockerImage!!
-    }
-
-    private fun getServerVersion(): String {
-        return getServer().version!!
-    }
-
-    private fun getServer(): Server {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getServer(project)
-            ProductName.RELEASE -> ReleaseServerUtil.getServer(project)
-        }
-    }
-
-    private fun getDeployWorker(): Worker {
-        return WorkerUtil.getWorkers(project)[0]
-    }
-
-    private fun getLicense(): String {
-        val licenseFileName = when (productName) {
-            ProductName.DEPLOY -> "deployit-license.lic"
-            ProductName.RELEASE -> "xl-release-license.lic"
-        }
-        val licenseFile = File(getConfigDir(), licenseFileName)
-        val content = Files.readString(licenseFile.toPath())
-        return Base64.getEncoder().encodeToString(content.toByteArray())
-    }
-
-    open fun getDeployWorkerCount(): Int {
-        return WorkerUtil.getNumberOfWorkers(project)
-    }
-
-    open fun getMqStorageClass(): String {
-        return getStorageClass()
-    }
 
     override fun getFqdn(): String = getHost()
 
@@ -491,13 +435,6 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
     open fun hasIngress(): Boolean = true
 
-    open fun getMasterCount(): Int {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getServers(project).size
-            ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).servers.size
-        }
-    }
-
     open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
 
     open fun getMasterPodName(position: Int) =
@@ -511,13 +448,6 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         return when (productName) {
             ProductName.DEPLOY -> "master-$position"
             ProductName.RELEASE -> "$position"
-        }
-    }
-
-    private fun getConfigDir(): File {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getConfDir(project)
-            ProductName.RELEASE -> ReleaseServerUtil.getConfDir(project)
         }
     }
 
