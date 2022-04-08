@@ -231,7 +231,7 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
             project.logger.lifecycle("${entry.key} : ${entry.value}")
             var value1 = entry.value
             var command = "\'${entry.key} = \"${entry.value}\"\'"
-            if (value1 is String){
+          /*  if (value1 is String){
                 command = "\'${entry.key} = \"${entry.value}\"\'"
             } else if reflect.TypeOf(value1).Kind() == reflect.Bool {
                 command = "\'${entry.key} = ${entry.value}\'"
@@ -239,7 +239,7 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
                 result = fmt.Sprintf("%f", value)
             } else if reflect.TypeOf(value1).Kind() == reflect.Int {
                 result = fmt.Sprintf("%d", value)
-            }
+            }*/
             project.logger.lifecycle("command -> $command")
             ProcessUtil.executeCommand("yq -i $command \"${getHelmValuesFile()}\"")
         }
