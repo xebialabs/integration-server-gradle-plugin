@@ -15,6 +15,7 @@ open class Server(name: String) : Container(name) {
     var defaultOfficialPluginsToExclude: List<String> = mutableListOf()
     var devOpsAsCodes: NamedDomainObjectContainer<DevOpsAsCode>? = null
     var dockerImage: String? = null
+    var centralConfigDockerImage: String? = null
     var httpPort: Int = HTTPUtil.findFreePort()
     var generateDatasets: List<String> = mutableListOf()
     var pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME

@@ -20,10 +20,6 @@ open class AwsOpenshiftHelmHelper(project: Project, productName: ProductName) : 
 
     }
 
-    fun installCluster() {
-
-    }
-
     fun shutdownCluster() {
 
     }

@@ -338,6 +338,10 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
                 "spec.haproxy-ingress.install" to true,
                 "spec.nginx-ingress-controller.install" to false
             ))
+        } else {
+            pairs.putAll(mutableMapOf<String, Any>(
+                    "nginx-ingress-controller.service.type" to "LoadBalancer"
+            ))
         }
 
         when (productName) {

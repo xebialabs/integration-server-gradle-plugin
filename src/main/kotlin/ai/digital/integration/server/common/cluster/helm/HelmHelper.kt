@@ -24,6 +24,7 @@ import ai.digital.integration.server.release.util.ReleaseServerUtil
 import kotlinx.coroutines.*
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
+import org.gradle.api.provider.Property
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -93,7 +94,7 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
         }
     }
 
-    fun copyValuesFile () {
+    fun copyValuesYamlFile() {
         when (IngressType.valueOf(getProfile().ingressType.get())) {
             IngressType.NGINX -> {
                 val fileNginxValues = File(getHelmHomeDir(), VALUES_NGINX_PATH)
@@ -115,42 +116,55 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
         return File(getHelmHomeDir(), VALUES_PATH)
     }
 
-    open fun updateHelmValues() {
+    open fun updateHelmValuesYaml() {
         project.logger.lifecycle("Updating Helm values")
 
         val file = getHelmValuesFile()
         val pairs =
                 mutableMapOf<String, Any>(
                         //"spec.ImageRepository" to getServerImageRepository(),
-                        ".AdminPassword" to "admin",
-                        ".ServerImageRepository" to getServerImageRepository(),
-                        ".ImageTag" to getServerVersion(),
-                        ".KeystorePassphrase" to getProvider().keystorePassphrase.get(),
-                        ".Persistence.StorageClass" to getStorageClass(),
-                        ".RepositoryKeystore" to getProvider().repositoryKeystore.get(),
-                        ".postgresql.image.debug" to true,
-                        ".postgresql.persistence.size" to "1Gi",
-                        ".postgresql.persistence.storageClass" to getDbStorageClass(),
-                        ".postgresql.postgresqlMaxConnections" to getDbConnectionCount(),
-                        ".keycloak.install" to false,
-                        ".keycloak.postgresql.persistence.size" to "1Gi",
-                        ".oidc.enabled" to false,
-                        ".rabbitmq.persistence.storageClass" to getMqStorageClass(),
-                        ".rabbitmq.image.debug" to true,
-                        ".rabbitmq.persistence.size" to "1Gi",
-                        ".rabbitmq.replicaCount" to getProvider().rabbitmqReplicaCount.get(),
-                        ".rabbitmq.persistence.replicaCount" to 1,
-                        ".${getPrefixName()}License" to getLicense()
+                        "AdminPassword" to "admin",
+                        "ServerImageRepository" to getServerImageRepository(),
+                        "ImageTag" to getServerVersion(),
+                        "centralConfiguration.image.repository" to getCentralConfigImageRepository(),
+                        "KeystorePassphrase" to getProvider().keystorePassphrase.get(),
+                        "Persistence.StorageClass" to getStorageClass(),
+                        "RepositoryKeystore" to getProvider().repositoryKeystore.get(),
+                        "postgresql.image.debug" to true,
+                        "postgresql.persistence.size" to "1Gi",
+                        "postgresql.persistence.storageClass" to getDbStorageClass(),
+                        "postgresql.postgresqlMaxConnections" to getDbConnectionCount(),
+                        "keycloak.install" to false,
+                        "keycloak.postgresql.persistence.size" to "1Gi",
+                        "oidc.enabled" to false,
+                        "rabbitmq.persistence.storageClass" to getMqStorageClass(),
+                        "rabbitmq.image.debug" to true,
+                        "rabbitmq.persistence.size" to "1Gi",
+                        "rabbitmq.replicaCount" to getProvider().rabbitmqReplicaCount.get(),
+                        "rabbitmq.persistence.replicaCount" to 1,
+                        "${getPrefixName()}License" to getLicense()
                 )
+
+        if (IngressType.valueOf(getProfile().ingressType.get()) == IngressType.HAPROXY) {
+            pairs.putAll(mutableMapOf<String, Any>(
+                    "haproxy-ingress.install" to true,
+                    "haproxy-ingress.service.type" to "LoadBalancer",
+                    "nginx-ingress-controller.install" to false
+            ))
+        } else {
+            pairs.putAll(mutableMapOf<String, Any>(
+                    "nginx-ingress-controller.service.type" to "LoadBalancer"
+            ))
+        }
 
         when (productName) {
             ProductName.DEPLOY -> {
                 pairs.putAll(mutableMapOf<String, Any>(
-                        ".XldMasterCount" to getMasterCount(),
-                        ".XldWorkerCount" to getDeployWorkerCount(),
-                        ".WorkerImageRepository" to getDeployWorkerImageRepository(),
-                        ".Persistence.XldMasterPvcSize" to "1Gi",
-                        ".Persistence.XldWorkerPvcSize" to "1Gi"
+                        "XldMasterCount" to getMasterCount(),
+                        "XldWorkerCount" to getDeployWorkerCount(),
+                        "WorkerImageRepository" to getDeployWorkerImageRepository(),
+                        "Persistence.XldMasterPvcSize" to "1Gi",
+                        "Persistence.XldWorkerPvcSize" to "1Gi"
                 ))
             }
             ProductName.RELEASE -> {
@@ -160,10 +174,35 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
                 ))
             }
         }
-        updateYamlFile(file, pairs)
+        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
         updateCustomHelmValues(file)
-       // YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
-      //  updateCustomOperatorCrValues(file)
+    }
+
+    fun updateHelmDependency() {
+        ProcessUtil.executeCommand("helm dependency update \"${getHelmHomeDir()}\"")
+    }
+
+    fun installCluster() {
+        uninstallExistingHelmReleaseFromCluster()
+        ProcessUtil.executeCommand("helm install ${getHelmReleaseName()} \"${getHelmHomeDir()}\"")
+    }
+
+    fun undeployCluster() {
+        project.logger.lifecycle("Release ${getHelmReleaseName()} is being uninstalled")
+        uninstallExistingHelmReleaseFromCluster()
+        project.logger.lifecycle("PVCs are being deleted")
+        getKubectlHelper().deleteAllPVCs()
+    }
+
+    private fun uninstallExistingHelmReleaseFromCluster() {
+        ProcessUtil.executeCommand("helm uninstall ${getHelmReleaseName()}", throwErrorOnFailure= false)
+    }
+
+    private fun getHelmReleaseName(): String {
+        return when (productName) {
+            ProductName.DEPLOY -> getProvider().helmXldReleaseName.get()
+            ProductName.RELEASE -> getProvider().helmXlrReleaseName.get()
+        }
     }
 
     abstract fun updateCustomHelmValues(valuesFile: File)
@@ -175,6 +214,11 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
     private fun getServerImageRepository(): String {
         return getServer().dockerImage!!
     }
+
+    private fun getCentralConfigImageRepository(): String {
+        return getServer().centralConfigDockerImage!!
+    }
+
 
     private fun getDeployWorkerImageRepository(): String {
         return getDeployWorker().dockerImage!!
@@ -231,15 +275,6 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
             project.logger.lifecycle("${entry.key} : ${entry.value}")
             var value1 = entry.value
             var command = "\'${entry.key} = \"${entry.value}\"\'"
-          /*  if (value1 is String){
-                command = "\'${entry.key} = \"${entry.value}\"\'"
-            } else if reflect.TypeOf(value1).Kind() == reflect.Bool {
-                command = "\'${entry.key} = ${entry.value}\'"
-            } else if reflect.TypeOf(value1).Kind() == reflect.Float64 {
-                result = fmt.Sprintf("%f", value)
-            } else if reflect.TypeOf(value1).Kind() == reflect.Int {
-                result = fmt.Sprintf("%d", value)
-            }*/
             project.logger.lifecycle("command -> $command")
             ProcessUtil.executeCommand("yq -i $command \"${getHelmValuesFile()}\"")
         }

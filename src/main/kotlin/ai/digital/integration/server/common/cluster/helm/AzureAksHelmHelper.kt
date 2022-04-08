@@ -25,10 +25,6 @@ open class AzureAksHelmHelper(project: Project, productName: ProductName) : Helm
 
     }
 
-    fun installCluster() {
-
-    }
-
     fun shutdownCluster() {
 
     }

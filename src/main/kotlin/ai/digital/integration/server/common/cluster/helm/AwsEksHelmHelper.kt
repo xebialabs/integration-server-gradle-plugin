@@ -16,17 +16,20 @@ open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHe
         awsEksHelper.launchCluster()
     }
 
-    fun setupHelmValues() {
-        copyValuesFile()
-        updateHelmValues()
+    fun helmInstallCluster() {
+        installCluster()
+        awsEksHelper.updateRoute53(getFqdn())
     }
 
-    fun installCluster() {
-
+    fun setupHelmValues() {
+        copyValuesYamlFile()
+        updateHelmValuesYaml()
+        updateHelmDependency()
     }
 
     fun shutdownCluster() {
-
+        undeployCluster()
+        awsEksHelper.destroyClusterOnShutdown()
     }
 
     override fun getProvider(): AwsEksProvider {
@@ -47,9 +50,13 @@ open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHe
 
     override fun updateCustomHelmValues(valuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
-                ".ingress.hosts[0]" to awsEksHelper.getFqdn(),
-                ".rabbitmq.persistence.storageClass" to "gp2"
+                "ingress.hosts" to arrayOf(getFqdn()),
+                "rabbitmq.persistence.storageClass" to "gp2"
         )
-        updateYamlFile(valuesFile, pairs)
+        YamlFileUtil.overlayFile(valuesFile, pairs, minimizeQuotes = false)
+    }
+
+    override fun getFqdn(): String {
+        return awsEksHelper.getFqdn()
     }
 }

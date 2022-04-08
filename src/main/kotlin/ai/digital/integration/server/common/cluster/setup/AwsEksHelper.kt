@@ -473,7 +473,6 @@ open class AwsEksHelper(project: Project, productName: ProductName, val profile:
 
     fun destroyClusterOnShutdown() {
         val awsEksProvider: AwsEksProvider = getProvider()
-        project.logger.lifecycle("$$$$$$$$$$$$$$$$$$$$$$$$$$$$44 destroyClusterOnShutdown $$$$$$$$$$$$$$$$$$$$$$$$")
         if (awsEksProvider.destroyClusterOnShutdown.get()) {
             project.logger.lifecycle("Delete iamserviceaccount for CSI driver.")
             deleteIAMRoleForCSIDriver(getProvider())

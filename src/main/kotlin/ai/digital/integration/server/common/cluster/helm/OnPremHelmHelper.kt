@@ -22,9 +22,6 @@ open class OnPremHelmHelper(project: Project, productName: ProductName) : HelmHe
 
     }
 
-    fun installCluster() {
-
-    }
 
     fun shutdownCluster() {
 

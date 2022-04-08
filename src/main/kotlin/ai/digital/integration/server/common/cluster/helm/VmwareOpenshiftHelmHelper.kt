@@ -13,10 +13,6 @@ open class VmwareOpenshiftHelmHelper(project: Project, productName: ProductName)
 
     }
 
-    fun installCluster() {
-
-    }
-
     fun shutdownCluster() {
 
     }

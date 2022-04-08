@@ -25,10 +25,6 @@ open class GcpGkeHelmHelper(project: Project, productName: ProductName) : HelmHe
 
     }
 
-    fun installCluster() {
-
-    }
-
     fun shutdownCluster() {
 
     }
