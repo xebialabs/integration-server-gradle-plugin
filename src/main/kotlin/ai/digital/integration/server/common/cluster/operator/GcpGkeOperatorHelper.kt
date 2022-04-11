@@ -36,14 +36,15 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
 
     fun installCluster() {
         applyYamlFiles()
-        waitForDeployment()
-        waitForMasterPods()
-        waitForWorkerPods()
+        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), namespaceAsPrefix)
+        waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
+        waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
         val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
         val nameSpace = getNamespace() ?: "default"
         gcpGkeHelper.applyDnsOpenApi(ip, getFqdn(), getHost(), nameSpace)
         createClusterMetadata()
-        waitForBoot()
+        waitForBoot(getContextRoot(), getFqdn())
     }
 
     fun shutdownCluster() {

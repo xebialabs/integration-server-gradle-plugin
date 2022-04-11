@@ -18,7 +18,12 @@ open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHe
 
     fun helmInstallCluster() {
         installCluster()
+
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), skipOperator = true)
+        waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
+        waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
         awsEksHelper.updateRoute53(getFqdn())
+        waitForBoot(getContextRoot(), getFqdn())
     }
 
     fun setupHelmValues() {

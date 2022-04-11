@@ -3,12 +3,11 @@ package ai.digital.integration.server.common.cluster
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.constant.ServerConstants
 import ai.digital.integration.server.common.domain.Server
+import ai.digital.integration.server.common.domain.profiles.IngressType
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.domain.providers.Provider
-import ai.digital.integration.server.common.util.FileUtil
-import ai.digital.integration.server.common.util.KubeCtlHelper
-import ai.digital.integration.server.common.util.ProcessUtil
+import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.domain.Worker
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
@@ -26,8 +25,6 @@ import java.util.*
 abstract class Helper(val project: Project, val productName: ProductName) {
 
     abstract fun getProvider(): Provider
-
-    abstract fun getProfile(): Profile
 
     open fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, null)
 
@@ -64,6 +61,37 @@ abstract class Helper(val project: Project, val productName: ProductName) {
 
     open fun getPort(): String {
         return "80"
+    }
+
+    open fun hasIngress(): Boolean = true
+
+    open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
+
+    open fun getMasterPodName(position: Int) =
+            "pod/dai-${getPrefixName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
+
+    open fun getPostgresPodName(position: Int) = "pod/dai-${getPrefixName()}-postgresql-$position"
+
+    open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
+
+    open fun getMasterPodNameSuffix(position: Int): String {
+        return when (productName) {
+            ProductName.DEPLOY -> "master-$position"
+            ProductName.RELEASE -> "$position"
+        }
+    }
+
+    fun getContextRootPath(file: File, pathKey: String): String {
+        val pathValue = YamlFileUtil.readFileKey(file, pathKey) as String
+        val expectedPathValue = when (productName) {
+            ProductName.DEPLOY -> "/xl-deploy"
+            ProductName.RELEASE -> "/xl-release"
+        }
+        return if (pathValue.startsWith(expectedPathValue)) {
+            expectedPathValue
+        } else {
+            "/"
+        }
     }
 
     fun getProfileName(): String {
@@ -158,11 +186,64 @@ abstract class Helper(val project: Project, val productName: ProductName) {
         return ProcessUtil.executeCommand(command)
     }
 
+    fun waitForDeployment(ingressType : String, deploymentTimeoutSeconds: Int, namespaceAsPrefix: String = "", skipOperator: Boolean = false) {
+        val resources = if (hasIngress()) {
+            when (IngressType.valueOf(ingressType)) {
+                IngressType.NGINX ->
+                    arrayOf(
+                            "deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-nginx-ingress-controller",
+                            "deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-nginx-ingress-controller-default-backend"
+                    )
+                IngressType.HAPROXY ->
+                    arrayOf("deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-haproxy-ingress")
+            }
+        } else
+            arrayOf()
+
+        (resources + "deployment.apps/${getPrefixName()}-operator-controller-manager").forEach { resource ->
+            if (!skipOperator && !getKubectlHelper().wait(resource, "Available", deploymentTimeoutSeconds)) {
+                throw RuntimeException("Resource $resource  is not available")
+            }
+        }
+    }
+
+    fun waitForMasterPods(deploymentTimeoutSeconds: Int) {
+        val resources = List(getMasterCount()) { position -> getMasterPodName(position) }
+
+        resources.forEach { resource ->
+            if (!getKubectlHelper().wait(resource, "Ready", deploymentTimeoutSeconds)) {
+                throw RuntimeException("Resource $resource is not ready")
+            }
+        }
+    }
+
+    fun waitForWorkerPods(deploymentTimeoutSeconds: Int) {
+        val resources = List(getDeployWorkerCount()) { position -> getWorkerPodName(position) }
+        resources.forEach { resource ->
+            if (!getKubectlHelper().wait(resource, "Ready", deploymentTimeoutSeconds)) {
+                throw RuntimeException("Resource $resource is not ready")
+            }
+        }
+    }
     private fun getConfigDir(): File {
         return when (productName) {
             ProductName.DEPLOY -> DeployServerUtil.getConfDir(project)
             ProductName.RELEASE -> ReleaseServerUtil.getConfDir(project)
         }
+    }
+
+    fun waitForBoot(pContextRoot : String, fqdn: String) {
+        val contextRoot = when (pContextRoot == "/") {
+            true -> ""
+            false -> pContextRoot
+        }
+
+        val url = when (productName) {
+            ProductName.DEPLOY -> "http://${fqdn}${contextRoot}/deployit/metadata/type"
+            ProductName.RELEASE -> "http://${fqdn}${contextRoot}/api/extension/metadata"
+        }
+        val server = ServerUtil(project, productName).getServer()
+        WaitForBootUtil.byPort(project, getName(), url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
 
 }

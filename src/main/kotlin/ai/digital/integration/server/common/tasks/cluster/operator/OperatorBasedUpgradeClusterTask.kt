@@ -96,10 +96,10 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
         val answersFile = prepareAnswersFile(operatorHelper, operatorZip)
         opUsingAnswersFile(operatorHelper, answersFile)
 
-        operatorHelper.waitForDeployment()
-        operatorHelper.waitForMasterPods()
-        operatorHelper.waitForWorkerPods()
-        operatorHelper.waitForBoot()
+        operatorHelper.waitForDeployment(operatorHelper.getProfile().ingressType.get(), operatorHelper.getProfile().deploymentTimeoutSeconds.get())
+        operatorHelper.waitForMasterPods(operatorHelper.getProfile().deploymentTimeoutSeconds.get())
+        operatorHelper.waitForWorkerPods(operatorHelper.getProfile().deploymentTimeoutSeconds.get())
+        operatorHelper.waitForBoot(operatorHelper.getContextRoot(), operatorHelper.getFqdn())
     }
 
     private fun getUpgradeDir(operatorHelper: OperatorHelper): Path = Paths.get(operatorHelper.getProviderWorkDir(), runningTime)

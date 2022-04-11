@@ -80,7 +80,7 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
             project.buildDir.toPath().resolve(HELM_FOLDER_NAME).toAbsolutePath().toString()
 
 
-    override fun getProfile(): HelmProfile {
+    fun getProfile(): HelmProfile {
         return when (productName) {
             ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).clusterProfiles.helm()
             ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm()
@@ -199,5 +199,19 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
     }
 
     abstract fun updateCustomHelmValues(valuesFile: File)
+
+    open fun getContextPath(): String = "ingress.path"
+
+    open fun getContextRoot(): String {
+        val file = getHelmValuesFile()
+        val pathKey = getContextPath()
+        return getContextRootPath(file, pathKey)
+    }
+
+    override fun getPort(): String {
+        return "80"
+    }
+
+    override fun getFqdn(): String = getHost()
 }
 
