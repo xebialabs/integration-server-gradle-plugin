@@ -42,6 +42,8 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
     private val VALUES_HAPROXY_PATH = "values-haproxy.yaml"
     private val VALUES_PATH = "values.yaml"
 
+    private val helmMetadataPath = "${getName()}/helm/helm-metadata.properties"
+
     companion object {
         fun getHelmHelper(project: Project): HelmHelper {
             val productName = if (ReleaseServerUtil.isReleaseServerDefined(project)) {
@@ -181,14 +183,25 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
     }
 
     fun undeployCluster() {
-        project.logger.lifecycle("Release ${getHelmReleaseName()} is being uninstalled")
         uninstallExistingHelmReleaseFromCluster()
-        project.logger.lifecycle("PVCs are being deleted")
-        getKubectlHelper().deleteAllPVCs()
+    }
+
+    fun createClusterMetadata() {
+        val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, helmMetadataPath)
+        path.parent.toFile().mkdirs()
+        val props = Properties()
+        props["cluster.port"] = getPort()
+        props["cluster.context-root"] = getContextRoot()
+        props["cluster.host"] = getHost()
+        props["cluster.fqdn"] = getFqdn()
+        PropertiesUtil.writePropertiesFile(path.toFile(), props)
     }
 
     private fun uninstallExistingHelmReleaseFromCluster() {
+        project.logger.lifecycle("Release ${getHelmReleaseName()} is being uninstalled")
         ProcessUtil.executeCommand("helm uninstall ${getHelmReleaseName()}", throwErrorOnFailure= false)
+        project.logger.lifecycle("PVCs are being deleted")
+        getKubectlHelper().deleteAllPVCs()
     }
 
     private fun getHelmReleaseName(): String {
