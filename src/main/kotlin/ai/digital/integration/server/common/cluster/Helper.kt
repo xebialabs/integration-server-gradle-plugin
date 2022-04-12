@@ -175,6 +175,17 @@ abstract class Helper(val project: Project, val productName: ProductName) {
         return resultComposeFilePath.toFile()
     }
 
+    fun clusterMetadata(metaDataPath: String, contextRoot: String) {
+        val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, metaDataPath)
+        path.parent.toFile().mkdirs()
+        val props = Properties()
+        props["cluster.port"] = getPort()
+        props["cluster.context-root"] = contextRoot
+        props["cluster.host"] = getHost()
+        props["cluster.fqdn"] = getFqdn()
+        PropertiesUtil.writePropertiesFile(path.toFile(), props)
+    }
+
     /**
      * AWSOpenshift
      */

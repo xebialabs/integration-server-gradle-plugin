@@ -9,7 +9,7 @@ import java.io.File
 
 open class AwsEksOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
-    private val awsEksHelper : AwsEksHelper = AwsEksHelper(project, ProductName.DEPLOY, getProfile())
+    private val awsEksHelper : AwsEksHelper = AwsEksHelper(project, productName, getProfile())
 
     fun launchCluster(){
         awsEksHelper.launchCluster()

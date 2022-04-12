@@ -187,14 +187,7 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
     }
 
     fun createClusterMetadata() {
-        val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, helmMetadataPath)
-        path.parent.toFile().mkdirs()
-        val props = Properties()
-        props["cluster.port"] = getPort()
-        props["cluster.context-root"] = getContextRoot()
-        props["cluster.host"] = getHost()
-        props["cluster.fqdn"] = getFqdn()
-        PropertiesUtil.writePropertiesFile(path.toFile(), props)
+        clusterMetadata(helmMetadataPath, getContextRoot())
     }
 
     private fun uninstallExistingHelmReleaseFromCluster() {

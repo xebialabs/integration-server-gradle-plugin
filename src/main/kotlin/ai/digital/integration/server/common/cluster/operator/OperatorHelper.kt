@@ -188,17 +188,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     }
 
     fun createClusterMetadata() {
-        val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, operatorMetadataPath)
-        path.parent.toFile().mkdirs()
-        val props = Properties()
-        props["cluster.port"] = getPort()
-        props["cluster.context-root"] = getContextRoot()
-        props["cluster.host"] = getHost()
-        props["cluster.fqdn"] = getFqdn()
-        PropertiesUtil.writePropertiesFile(path.toFile(), props)
+        clusterMetadata(operatorMetadataPath, getContextRoot())
     }
-
-
 
     fun undeployCluster() {
         project.logger.lifecycle("Operator is being undeployed")
