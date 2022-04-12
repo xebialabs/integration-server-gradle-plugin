@@ -333,11 +333,22 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
             )
 
         if (IngressType.valueOf(getProfile().ingressType.get()) == IngressType.HAPROXY) {
-            val namespaceAsSuffix = getNamespace()?.let { "-$it" } ?: ""
-            pairs.putAll(mutableMapOf<String, Any>(
-                "spec.haproxy-ingress.install" to true,
-                "spec.nginx-ingress-controller.install" to false
-            ))
+            pairs.putAll(
+                mutableMapOf(
+                    "spec.haproxy-ingress.install" to true,
+                    "spec.nginx-ingress-controller.install" to false,
+                    "spec.ingress.path" to getContextRoot(),
+                    "spec.ingress.annotations" to mapOf(
+                        "kubernetes.io/ingress.class" to "haproxy",
+                        "ingress.kubernetes.io/ssl-redirect" to false,
+                        "ingress.kubernetes.io/rewrite-target" to getContextRoot(),
+                        "ingress.kubernetes.io/affinity" to "cookie",
+                        "ingress.kubernetes.io/session-cookie-name" to "JSESSIONID",
+                        "ingress.kubernetes.io/session-cookie-strategy" to "prefix",
+                        "ingress.kubernetes.io/config-backend" to "option httpchk GET /ha/health HTTP/1.0"
+                    )
+                )
+            )
         }
 
         when (productName) {
