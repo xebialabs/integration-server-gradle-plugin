@@ -25,7 +25,21 @@ open class DownloadXlCliDistTask : DefaultTask() {
             val profile = operatorHelper.getProfile()
 
             val taskName = "xlCliExec"
-            if (profile.xlCliVersion.isPresent) {
+            if (profile.xlCliPath.isPresent) {
+                val path = profile.xlCliPath.get()
+
+                if (path.startsWith("http")) {
+                    this.dependsOn(project.tasks.register(taskName, Download::class.java) {
+                        src(path)
+                        dest(XlCliUtil.localDir(project))
+                    })
+                } else {
+                    this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
+                        from(path)
+                        into(XlCliUtil.localDir(project))
+                    })
+                }
+            } else if (profile.xlCliVersion.isPresent) {
                 val version = profile.xlCliVersion.get()
                 project.logger.lifecycle("Downloading XL cli ${version}.")
                 if (profile.cliNightly.get()) {
@@ -43,20 +57,6 @@ open class DownloadXlCliDistTask : DefaultTask() {
                     this.dependsOn(project.tasks.register(taskName, Download::class.java) {
                         src(XlCliUtil.distUrl(version))
                         dest(XlCliUtil.localDir(project))
-                    })
-                }
-            } else if (profile.xlCliPath.isPresent) {
-                val path = profile.xlCliPath.get()
-
-                if (path.startsWith("http")) {
-                    this.dependsOn(project.tasks.register(taskName, Download::class.java) {
-                        src(path)
-                        dest(XlCliUtil.localDir(project))
-                    })
-                } else {
-                    this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
-                        from(path)
-                        into(XlCliUtil.localDir(project))
                     })
                 }
             }
