@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopDeployClusterTask
@@ -32,10 +33,10 @@ open class HelmBasedStopDeployClusterTask : DefaultTask() {
                     OperatorHelmProviderName.AWS_EKS.providerName ->
                         HelmBasedAwsEksStopDeployClusterTask.NAME
                     /*OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                        OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME
+                        OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME*/
                     OperatorHelmProviderName.AZURE_AKS.providerName ->
-                        OperatorBasedAzureAksStopDeployClusterTask.NAME
-                    OperatorHelmProviderName.GCP_GKE.providerName ->
+                        HelmBasedAzureAksStopDeployClusterTask.NAME
+                    /*OperatorHelmProviderName.GCP_GKE.providerName ->
                         OperatorBasedGcpGkeStopDeployClusterTask.NAME*/
                     OperatorHelmProviderName.ON_PREMISE.providerName ->
                         HelmBasedOnPremStopDeployClusterTask.NAME

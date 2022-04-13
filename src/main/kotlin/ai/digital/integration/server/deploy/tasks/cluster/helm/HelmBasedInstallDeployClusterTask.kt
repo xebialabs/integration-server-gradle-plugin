@@ -6,6 +6,7 @@ import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremInstallDeployClusterTask
 
 import org.gradle.api.DefaultTask
@@ -27,10 +28,10 @@ open class HelmBasedInstallDeployClusterTask : DefaultTask() {
                     OperatorHelmProviderName.AWS_EKS.providerName ->
                     HelmBasedAwsEksInstallDeployClusterTask.NAME
                    /* OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                    OperatorBasedAwsOpenShiftInstallDeployClusterTask.NAME
+                    OperatorBasedAwsOpenShiftInstallDeployClusterTask.NAME*/
                     OperatorHelmProviderName.AZURE_AKS.providerName ->
-                    OperatorBasedAzureAksInstallDeployClusterTask.NAME
-                    OperatorHelmProviderName.GCP_GKE.providerName ->
+                    HelmBasedAzureAksInstallDeployClusterTask.NAME
+                   /* OperatorHelmProviderName.GCP_GKE.providerName ->
                     OperatorBasedGcpGkeInstallDeployClusterTask.NAME*/
                     OperatorHelmProviderName.ON_PREMISE.providerName ->
                     HelmBasedOnPremInstallDeployClusterTask.NAME

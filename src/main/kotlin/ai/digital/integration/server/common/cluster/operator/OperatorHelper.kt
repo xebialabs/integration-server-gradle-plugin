@@ -1,6 +1,7 @@
 package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.cluster.Helper
+import ai.digital.integration.server.common.cluster.helm.HelmHelper
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.ProductName
@@ -362,24 +363,24 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
     override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace())
 
-    fun cleanUpCluster(waiting: Duration) {
+    fun operatorCleanUpCluster(waiting: Duration) {
         if (getProfile().doCleanup.get()) {
 
             val resourcesList1 = arrayOf(
-                "crd",
-                "all",
-                "roles",
-                "roleBinding",
-                "clusterRoles",
-                "clusterRoleBinding",
-                "ing",
-                "ingressclass",
-                "pvc"
+                    "crd",
+                    "all",
+                    "roles",
+                    "roleBinding",
+                    "clusterRoles",
+                    "clusterRoleBinding",
+                    "ing",
+                    "ingressclass",
+                    "pvc"
             )
             // repeat delete of following resources to be sure that all is clean
             val resourcesList2 = arrayOf(
-                "service",
-                "crd"
+                    "service",
+                    "crd"
             )
 
             runBlocking {
@@ -403,6 +404,11 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         } else {
             project.logger.lifecycle("Skip up cluster resources in namespace ${getKubectlHelper().namespace}")
         }
+    }
+    fun cleanUpCluster(waiting: Duration) {
+        val helmHelper = HelmHelper.getHelmHelper(project, productName)
+        helmHelper.helmCleanUpCluster()
+        operatorCleanUpCluster(waiting)
     }
 
     private fun getResources(resourcesList: Array<String>): String {

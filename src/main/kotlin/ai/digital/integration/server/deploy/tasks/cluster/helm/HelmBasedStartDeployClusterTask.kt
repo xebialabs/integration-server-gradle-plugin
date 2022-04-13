@@ -6,6 +6,7 @@ import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStartDeployClusterTask
@@ -32,10 +33,10 @@ open class HelmBasedStartDeployClusterTask : DefaultTask() {
                     OperatorHelmProviderName.AWS_EKS.providerName ->
                         HelmBasedAwsEksStartDeployClusterTask.NAME
                    /* OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                        OperatorBasedAwsOpenShiftStartDeployClusterTask.NAME
+                        OperatorBasedAwsOpenShiftStartDeployClusterTask.NAME*/
                     OperatorHelmProviderName.AZURE_AKS.providerName ->
-                        OperatorBasedAzureAksStartDeployClusterTask.NAME
-                    OperatorHelmProviderName.GCP_GKE.providerName ->
+                        HelmBasedAzureAksStartDeployClusterTask.NAME
+                    /*OperatorHelmProviderName.GCP_GKE.providerName ->
                         OperatorBasedGcpGkeStartDeployClusterTask.NAME*/
                     OperatorHelmProviderName.ON_PREMISE.providerName ->
                         HelmBasedOnPremStartDeployClusterTask.NAME

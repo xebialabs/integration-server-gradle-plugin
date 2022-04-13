@@ -26,6 +26,9 @@ import ai.digital.integration.server.deploy.tasks.cluster.helm.ProvideDeployKube
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStopDeployClusterTask
@@ -153,12 +156,20 @@ open class DeployTaskRegistry {
             project.tasks.create(ProvideDeployKubernetesHelmChartTask.NAME,
                     ProvideDeployKubernetesHelmChartTask::class.java)
 
+            project.tasks.create(HelmBasedAzureAksStartDeployClusterTask.NAME,
+                    HelmBasedAzureAksStartDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedAzureAksInstallDeployClusterTask.NAME,
+                    HelmBasedAzureAksInstallDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedAzureAksStopDeployClusterTask.NAME,
+                    HelmBasedAzureAksStopDeployClusterTask::class.java)
+
             project.tasks.create(HelmBasedAwsEksStartDeployClusterTask.NAME,
                     HelmBasedAwsEksStartDeployClusterTask::class.java)
             project.tasks.create(HelmBasedAwsEksInstallDeployClusterTask.NAME,
                     HelmBasedAwsEksInstallDeployClusterTask::class.java)
             project.tasks.create(HelmBasedAwsEksStopDeployClusterTask.NAME,
                     HelmBasedAwsEksStopDeployClusterTask::class.java)
+
 
             project.tasks.create(HelmBasedOnPremStartDeployClusterTask.NAME,
                     HelmBasedOnPremStartDeployClusterTask::class.java)

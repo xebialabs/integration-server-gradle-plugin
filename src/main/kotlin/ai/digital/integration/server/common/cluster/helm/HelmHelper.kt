@@ -1,6 +1,7 @@
 package ai.digital.integration.server.common.cluster.helm
 
 import ai.digital.integration.server.common.cluster.Helper
+import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.ProductName
@@ -178,19 +179,17 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
     }
 
     fun installCluster() {
-        uninstallExistingHelmReleaseFromCluster()
+        helmCleanUpCluster()
+        val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
+        operatorHelper.operatorCleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         ProcessUtil.executeCommand("helm install ${getHelmReleaseName()} \"${getHelmHomeDir()}\"")
-    }
-
-    fun undeployCluster() {
-        uninstallExistingHelmReleaseFromCluster()
     }
 
     fun createClusterMetadata() {
         clusterMetadata(helmMetadataPath, getContextRoot())
     }
 
-    private fun uninstallExistingHelmReleaseFromCluster() {
+    fun helmCleanUpCluster() {
         project.logger.lifecycle("Release ${getHelmReleaseName()} is being uninstalled")
         ProcessUtil.executeCommand("helm uninstall ${getHelmReleaseName()}", throwErrorOnFailure= false)
         project.logger.lifecycle("PVCs are being deleted")

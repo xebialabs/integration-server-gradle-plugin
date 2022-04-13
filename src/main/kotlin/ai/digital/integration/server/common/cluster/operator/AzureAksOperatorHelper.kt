@@ -96,7 +96,7 @@ open class AzureAksOperatorHelper(project: Project, productName: ProductName) : 
         val pairs: MutableMap<String, Any> = mutableMapOf(
             "spec.nginx-ingress-controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to getHost()),
             "spec.haproxy-ingress.controller.service.annotations" to mapOf("service.beta.kubernetes.io/azure-dns-label-name" to getHost()),
-            "spec.ingress.hosts[]" to arrayOf(getFqdn())
+            "spec.ingress.hosts" to arrayOf(getFqdn())
         )
         YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }

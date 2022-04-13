@@ -34,7 +34,7 @@ open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHe
     }
 
     fun shutdownCluster() {
-        undeployCluster()
+        helmCleanUpCluster()
         awsEksHelper.destroyClusterOnShutdown()
     }
 
