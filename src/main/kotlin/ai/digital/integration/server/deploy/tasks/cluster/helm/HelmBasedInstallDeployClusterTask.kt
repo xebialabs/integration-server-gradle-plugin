@@ -6,7 +6,9 @@ import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremInstallDeployClusterTask
 
 import org.gradle.api.DefaultTask
@@ -27,12 +29,12 @@ open class HelmBasedInstallDeployClusterTask : DefaultTask() {
                 when (val providerName = DeployClusterUtil.getHelmProvider(project)) {
                     OperatorHelmProviderName.AWS_EKS.providerName ->
                     HelmBasedAwsEksInstallDeployClusterTask.NAME
-                   /* OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                    OperatorBasedAwsOpenShiftInstallDeployClusterTask.NAME*/
+                    OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
+                    HelmBasedAwsOpenShiftInstallDeployClusterTask.NAME
                     OperatorHelmProviderName.AZURE_AKS.providerName ->
                     HelmBasedAzureAksInstallDeployClusterTask.NAME
-                   /* OperatorHelmProviderName.GCP_GKE.providerName ->
-                    OperatorBasedGcpGkeInstallDeployClusterTask.NAME*/
+                    OperatorHelmProviderName.GCP_GKE.providerName ->
+                    HelmBasedGcpGkeInstallDeployClusterTask.NAME
                     OperatorHelmProviderName.ON_PREMISE.providerName ->
                     HelmBasedOnPremInstallDeployClusterTask.NAME
                     /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->

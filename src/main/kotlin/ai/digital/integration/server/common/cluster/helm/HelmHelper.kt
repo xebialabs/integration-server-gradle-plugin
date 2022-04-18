@@ -138,6 +138,7 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
                         "rabbitmq.persistence.size" to "1Gi",
                         "rabbitmq.replicaCount" to getProvider().rabbitmqReplicaCount.get(),
                         "rabbitmq.persistence.replicaCount" to 1,
+                        "route.hosts" to arrayOf(getHost()),
                         "${getPrefixName()}License" to getLicense()
                 )
 

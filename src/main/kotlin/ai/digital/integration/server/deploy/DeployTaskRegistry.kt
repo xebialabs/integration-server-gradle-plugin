@@ -26,9 +26,15 @@ import ai.digital.integration.server.deploy.tasks.cluster.helm.ProvideDeployKube
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStopDeployClusterTask
@@ -170,6 +176,19 @@ open class DeployTaskRegistry {
             project.tasks.create(HelmBasedAwsEksStopDeployClusterTask.NAME,
                     HelmBasedAwsEksStopDeployClusterTask::class.java)
 
+            project.tasks.create(HelmBasedGcpGkeStartDeployClusterTask.NAME,
+                    HelmBasedGcpGkeStartDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedGcpGkeInstallDeployClusterTask.NAME,
+                    HelmBasedGcpGkeInstallDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedGcpGkeStopDeployClusterTask.NAME,
+                    HelmBasedGcpGkeStopDeployClusterTask::class.java)
+
+            project.tasks.create(HelmBasedAwsOpenShiftStartDeployClusterTask.NAME,
+                    HelmBasedAwsOpenShiftStartDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedAwsOpenShiftInstallDeployClusterTask.NAME,
+                    HelmBasedAwsOpenShiftInstallDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedAwsOpenShiftStopDeployClusterTask.NAME,
+                    HelmBasedAwsOpenShiftStopDeployClusterTask::class.java)
 
             project.tasks.create(HelmBasedOnPremStartDeployClusterTask.NAME,
                     HelmBasedOnPremStartDeployClusterTask::class.java)

@@ -5,7 +5,9 @@ import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awsopenshift.OperatorBasedAwsOpenShiftStopDeployClusterTask
@@ -32,12 +34,12 @@ open class HelmBasedStopDeployClusterTask : DefaultTask() {
                 when (val providerName = DeployClusterUtil.getHelmProvider(project)) {
                     OperatorHelmProviderName.AWS_EKS.providerName ->
                         HelmBasedAwsEksStopDeployClusterTask.NAME
-                    /*OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                        OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME*/
+                    OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
+                        HelmBasedAwsOpenShiftStopDeployClusterTask.NAME
                     OperatorHelmProviderName.AZURE_AKS.providerName ->
                         HelmBasedAzureAksStopDeployClusterTask.NAME
-                    /*OperatorHelmProviderName.GCP_GKE.providerName ->
-                        OperatorBasedGcpGkeStopDeployClusterTask.NAME*/
+                    OperatorHelmProviderName.GCP_GKE.providerName ->
+                        HelmBasedGcpGkeStopDeployClusterTask.NAME
                     OperatorHelmProviderName.ON_PREMISE.providerName ->
                         HelmBasedOnPremStopDeployClusterTask.NAME
                     /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->

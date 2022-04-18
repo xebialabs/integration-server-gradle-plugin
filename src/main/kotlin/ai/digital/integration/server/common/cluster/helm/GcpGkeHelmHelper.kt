@@ -22,11 +22,35 @@ open class GcpGkeHelmHelper(project: Project, productName: ProductName) : HelmHe
     }
 
     fun setupHelmValues() {
+        copyValuesYamlFile()
+        updateHelmValuesYaml()
+        updateHelmDependency()
+    }
 
+    fun helmInstallCluster() {
+        installCluster()
+
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), skipOperator = true)
+        waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
+        waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
+        val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
+        gcpGkeHelper.applyDnsOpenApi(ip, getFqdn(), getHost())
+        createClusterMetadata()
+        waitForBoot(getContextRoot(), getFqdn())
     }
 
     fun shutdownCluster() {
+        val gcpGkeProvider: GcpGkeProvider = getProvider()
+        val projectName = gcpGkeProvider.projectName.get()
+        val name = gcpGkeProvider.name.get()
+        val regionZone = gcpGkeProvider.regionZone.get()
+        val accountName = gcpGkeProvider.accountName.get()
 
+        val existsCluster = gcpGkeHelper.existsCluster(accountName, projectName, name, regionZone)
+        if (existsCluster) {
+            helmCleanUpCluster()
+        }
+        gcpGkeHelper.destroyClusterOnShutdown(existsCluster, accountName, projectName, name, regionZone, getFqdn())
     }
 
     override fun getProvider(): GcpGkeProvider {
@@ -34,10 +58,13 @@ open class GcpGkeHelmHelper(project: Project, productName: ProductName) : HelmHe
     }
 
     override fun updateCustomHelmValues(valuesFile: File) {
-        /*  val pairs: MutableMap<String, Any> = mutableMapOf(
-              "spec.ingress.hosts" to arrayOf(awsEksHelper.getFqdn()),
-                "spec.rabbitmq.persistence.storageClass" to "gp2"
+        val pairs: MutableMap<String, Any> = mutableMapOf(
+                "ingress.hosts" to arrayOf(getFqdn())
         )
-        updateYamlFile(valuesFile, pairs)*/
+        YamlFileUtil.overlayFile(valuesFile, pairs, minimizeQuotes = false)
+    }
+
+    override fun getFqdn(): String {
+        return gcpGkeHelper.getFqdn()
     }
 }
