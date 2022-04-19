@@ -23,5 +23,6 @@ open class HelmBasedOnPremStartDeployClusterTask : DeployHelmBasedStartTask() {
     @TaskAction
     fun launch() {
         OnPremHelmHelper(project, ProductName.DEPLOY).launchCluster()
+        OnPremHelmHelper(project, ProductName.DEPLOY).setupHelmValues()
     }
 }

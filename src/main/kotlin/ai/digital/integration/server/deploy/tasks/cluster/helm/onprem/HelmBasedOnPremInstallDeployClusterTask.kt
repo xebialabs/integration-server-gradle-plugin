@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.tasks.cluster.helm.onprem
 
+import ai.digital.integration.server.common.cluster.helm.OnPremHelmHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.cluster.operator.OnPremOperatorHelper
 import ai.digital.integration.server.common.constant.ProductName
@@ -20,6 +21,6 @@ open class HelmBasedOnPremInstallDeployClusterTask : DeployHelmBasedInstallTask(
 
     @TaskAction
     fun launch() {
-        //OnPremOperatorHelper(project, ProductName.DEPLOY).installCluster()
+        OnPremHelmHelper(project, ProductName.DEPLOY).helmInstallCluster()
     }
 }

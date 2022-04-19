@@ -19,23 +19,45 @@ open class OnPremHelmHelper(project: Project, productName: ProductName) : HelmHe
     }
 
     fun setupHelmValues() {
+        onPremHelper.updateEtcHosts(getProvider().name.get() , getFqdn())
+        copyValuesYamlFile()
+        updateHelmValuesYaml()
+        updateHelmDependency()
+    }
 
+    fun helmInstallCluster() {
+        installCluster()
+
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), skipOperator = true)
+        waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
+        waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
+        createClusterMetadata()
+
+        waitForBoot(getContextRoot(), getFqdn())
     }
 
 
     fun shutdownCluster() {
-
+        helmCleanUpCluster()
+        onPremHelper.destroyClusterOnShutdown()
     }
 
     override fun getProvider(): OnPremiseProvider {
         return getProfile().onPremise
     }
 
-    override fun updateCustomHelmValues(valuesFile: File) {
-       /* val pairs: MutableMap<String, Any> = mutableMapOf(
-                "spec.ingress.hosts" to arrayOf(awsEksHelper.getFqdn()),
-                "spec.rabbitmq.persistence.storageClass" to "gp2"
-        )
-        updateYamlFile(valuesFile, pairs)*/
+    override fun getFqdn(): String {
+        return "${getHost()}.digitalai-testing.com"
     }
+
+    override fun updateCustomHelmValues(valuesFile: File) {
+        val pairs: MutableMap<String, Any> = mutableMapOf(
+                "ingress.hosts" to arrayOf(getFqdn()),
+                "nginx-ingress-controller.defaultBackend.podSecurityContext" to mapOf("fsGroup" to 1001),
+                "nginx-ingress-controller.podSecurityContext" to mapOf("fsGroup" to 1001)
+        )
+        YamlFileUtil.overlayFile(valuesFile, pairs, minimizeQuotes = false)
+    }
+
+
 }
