@@ -2,36 +2,19 @@ package ai.digital.integration.server.common.cluster.helm
 
 import ai.digital.integration.server.common.cluster.Helper
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
-import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.common.constant.ServerConstants
-import ai.digital.integration.server.common.domain.InfrastructureInfo
-import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.HelmProfile
 import ai.digital.integration.server.common.domain.profiles.IngressType
-import ai.digital.integration.server.common.domain.profiles.OperatorProfile
-import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.*
-import ai.digital.integration.server.deploy.domain.Worker
-import ai.digital.integration.server.deploy.internals.CliUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
-import ai.digital.integration.server.deploy.internals.DeployServerUtil
-import ai.digital.integration.server.deploy.internals.WorkerUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import ai.digital.integration.server.release.util.ReleaseServerUtil
 import kotlinx.coroutines.*
-import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
-import org.gradle.api.provider.Property
 import java.io.File
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.time.Duration
-import java.time.LocalDateTime
 import java.util.*
 
 @Suppress("UnstableApiUsage")
@@ -118,11 +101,10 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
         val file = getHelmValuesFile()
         val pairs =
                 mutableMapOf<String, Any>(
-                        //"spec.ImageRepository" to getServerImageRepository(),
+                        "ImageRepository" to getServerImageRepository(),
                         "AdminPassword" to "admin",
                         "ServerImageRepository" to getServerImageRepository(),
                         "ImageTag" to getServerVersion(),
-                        "centralConfiguration.image.repository" to getCentralConfigImageRepository(),
                         "KeystorePassphrase" to getProvider().keystorePassphrase.get(),
                         "Persistence.StorageClass" to getStorageClass(),
                         "RepositoryKeystore" to getProvider().repositoryKeystore.get(),
@@ -161,7 +143,8 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
                         "XldWorkerCount" to getDeployWorkerCount(),
                         "WorkerImageRepository" to getDeployWorkerImageRepository(),
                         "Persistence.XldMasterPvcSize" to "1Gi",
-                        "Persistence.XldWorkerPvcSize" to "1Gi"
+                        "Persistence.XldWorkerPvcSize" to "1Gi",
+                        "centralConfiguration.image.repository" to getCentralConfigImageRepository()
                 ))
             }
             ProductName.RELEASE -> {
@@ -192,7 +175,8 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
 
     fun helmCleanUpCluster() {
         project.logger.lifecycle("Release ${getHelmReleaseName()} is being uninstalled")
-        ProcessUtil.executeCommand("helm uninstall ${getHelmReleaseName()}", throwErrorOnFailure= false)
+        ProcessUtil.executeCommand("helm uninstall ${getProvider().helmXldReleaseName.get()}", throwErrorOnFailure= false)
+        ProcessUtil.executeCommand("helm uninstall ${getProvider().helmXlrReleaseName.get()}", throwErrorOnFailure= false)
         project.logger.lifecycle("PVCs are being deleted")
         getKubectlHelper().deleteAllPVCs()
     }

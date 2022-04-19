@@ -49,7 +49,7 @@ open class OnPremHelper(project: Project, productName: ProductName, val profile:
             skipExisting
         )
         updateContext(name)
-        updateEtcHosts(name)
+        //updateEtcHosts(name)
     }
 
     private fun validateMinikubeCli() {

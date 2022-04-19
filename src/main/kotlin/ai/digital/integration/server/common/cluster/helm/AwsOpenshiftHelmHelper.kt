@@ -63,14 +63,10 @@ open class AwsOpenshiftHelmHelper(project: Project, productName: ProductName) : 
     }
 
     override fun getWorkerPodName(position: Int) =
-            "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-worker-$position"
+            "pod/dai-${getPrefixName()}-digitalai-${getName()}-ocp-worker-$position"
 
     override fun getMasterPodName(position: Int) =
-            "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-${getMasterPodNameSuffix(position)}"
-
-    override fun getPostgresPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-postgresql-$position"
-
-    override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-rabbitmq-$position"
+            "pod/dai-${getPrefixName()}-digitalai-${getName()}-ocp-${getMasterPodNameSuffix(position)}"
 
     override fun getContextPath(): String = "route.path"
 

@@ -10,7 +10,7 @@ import java.io.File
 
 open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHelper(project, productName) {
 
-    private val awsEksHelper: AwsEksHelper = AwsEksHelper(project, ProductName.DEPLOY, getProfile())
+    private val awsEksHelper: AwsEksHelper = AwsEksHelper(project, productName, getProfile())
 
     fun launchCluster() {
         awsEksHelper.launchCluster()

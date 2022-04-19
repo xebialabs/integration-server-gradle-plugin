@@ -33,7 +33,7 @@ class ReleaseClusterUtil {
         }
 
         fun isOperatorProvider(project: Project): Boolean {
-            return ReleaseExtensionUtil.getExtension(project).cluster.get().profile == ClusterProfileName.HELM.profileName
+            return ReleaseExtensionUtil.getExtension(project).cluster.get().profile == ClusterProfileName.OPERATOR.profileName
         }
 
         fun isHelmProvider(project: Project): Boolean {
