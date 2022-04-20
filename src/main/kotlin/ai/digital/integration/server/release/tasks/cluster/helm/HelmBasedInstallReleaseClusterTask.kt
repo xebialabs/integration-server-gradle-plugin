@@ -6,6 +6,8 @@ import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import ai.digital.integration.server.release.tasks.cluster.helm.awseks.HelmBasedAwsEksInstallReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.azureaks.HelmBasedAzureAksInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeInstallReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.helm.onprem.HelmBasedOnPremInstallReleaseClusterTask
 
 import org.gradle.api.DefaultTask
@@ -26,10 +28,10 @@ open class HelmBasedInstallReleaseClusterTask : DefaultTask() {
                     HelmBasedAwsEksInstallReleaseClusterTask.NAME
                 OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
                     HelmBasedAwsOpenShiftInstallReleaseClusterTask.NAME
-                /*OperatorHelmProviderName.AZURE_AKS.providerName ->
-                    OperatorBasedAzureAksInstallReleaseClusterTask.NAME
+                OperatorHelmProviderName.AZURE_AKS.providerName ->
+                    HelmBasedAzureAksInstallReleaseClusterTask.NAME
                 OperatorHelmProviderName.GCP_GKE.providerName ->
-                    OperatorBasedGcpGkeInstallReleaseClusterTask.NAME*/
+                    HelmBasedGcpGkeInstallReleaseClusterTask.NAME
                 OperatorHelmProviderName.ON_PREMISE.providerName ->
                     HelmBasedOnPremInstallReleaseClusterTask.NAME
                 /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->

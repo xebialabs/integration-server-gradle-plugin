@@ -1,15 +1,15 @@
-package ai.digital.integration.server.deploy.tasks.cluster.helm.gcpgke
+package ai.digital.integration.server.release.tasks.cluster.helm.gcpgke
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.deploy.tasks.cluster.helm.DeployHelmBasedInstallTask
+import ai.digital.integration.server.release.tasks.cluster.helm.ReleaseHelmBasedInstallTask
 import ai.digital.integration.server.common.cluster.helm.GcpGkeHelmHelper
 import org.gradle.api.tasks.TaskAction
 
-open class HelmBasedGcpGkeInstallDeployClusterTask : DeployHelmBasedInstallTask() {
+open class HelmBasedGcpGkeInstallReleaseClusterTask : ReleaseHelmBasedInstallTask() {
 
     companion object {
-        const val NAME = "helmBasedGcpGkeInstallDeployCluster"
+        const val NAME = "helmBasedGcpGkeInstallReleaseCluster"
     }
 
     init {
@@ -19,6 +19,6 @@ open class HelmBasedGcpGkeInstallDeployClusterTask : DeployHelmBasedInstallTask(
 
     @TaskAction
     fun launch() {
-        GcpGkeHelmHelper(project, ProductName.DEPLOY).helmInstallCluster()
+        GcpGkeHelmHelper(project, ProductName.RELEASE).helmInstallCluster()
     }
 }
