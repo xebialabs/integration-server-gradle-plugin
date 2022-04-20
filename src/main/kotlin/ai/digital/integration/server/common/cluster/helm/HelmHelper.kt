@@ -174,11 +174,10 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
     }
 
     fun helmCleanUpCluster() {
-        project.logger.lifecycle("Release ${getHelmReleaseName()} is being uninstalled")
+        project.logger.lifecycle("Release ${getProvider().helmXldReleaseName.get()} is being uninstalled")
         ProcessUtil.executeCommand("helm uninstall ${getProvider().helmXldReleaseName.get()}", throwErrorOnFailure= false)
+        project.logger.lifecycle("Release ${getProvider().helmXlrReleaseName.get()} is being uninstalled")
         ProcessUtil.executeCommand("helm uninstall ${getProvider().helmXlrReleaseName.get()}", throwErrorOnFailure= false)
-        project.logger.lifecycle("PVCs are being deleted")
-        getKubectlHelper().deleteAllPVCs()
     }
 
     private fun getHelmReleaseName(): String {

@@ -3,7 +3,6 @@ package ai.digital.integration.server.common.cluster.helm
 import ai.digital.integration.server.common.cluster.setup.AwsEksHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.AwsEksProvider
-import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
 import java.io.File
@@ -35,6 +34,7 @@ open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHe
 
     fun shutdownCluster() {
         helmCleanUpCluster()
+        getKubectlHelper().deleteAllPVCs()
         awsEksHelper.destroyClusterOnShutdown()
     }
 

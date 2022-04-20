@@ -1,6 +1,5 @@
 package ai.digital.integration.server.common.cluster.operator
 
-import ai.digital.integration.server.common.cluster.setup.GcpGkeHelper
 import ai.digital.integration.server.common.cluster.setup.OnPremHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo

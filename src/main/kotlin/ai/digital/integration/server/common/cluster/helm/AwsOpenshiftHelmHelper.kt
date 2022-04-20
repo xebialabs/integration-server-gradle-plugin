@@ -1,10 +1,8 @@
 package ai.digital.integration.server.common.cluster.helm
 
-import ai.digital.integration.server.common.cluster.setup.AwsEksHelper
 import ai.digital.integration.server.common.cluster.setup.AwsOpenshiftHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.AwsOpenshiftProvider
-import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.KubeCtlHelper
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
@@ -37,6 +35,7 @@ open class AwsOpenshiftHelmHelper(project: Project, productName: ProductName) : 
     fun shutdownCluster() {
         awsOpenshiftHelper.ocLogin()
         helmCleanUpCluster()
+        getKubectlHelper().deleteAllPVCs()
         awsOpenshiftHelper.ocLogout()
     }
 
