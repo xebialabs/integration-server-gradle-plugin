@@ -272,10 +272,22 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
             )
 
         if (IngressType.valueOf(getProfile().ingressType.get()) == IngressType.HAPROXY) {
-            pairs.putAll(mutableMapOf<String, Any>(
-                "spec.haproxy-ingress.install" to true,
-                "spec.nginx-ingress-controller.install" to false
-            ))
+            pairs.putAll(
+                mutableMapOf(
+                    "spec.haproxy-ingress.install" to true,
+                    "spec.nginx-ingress-controller.install" to false,
+                    "spec.ingress.path" to getContextRoot(),
+                    "spec.ingress.annotations" to mapOf(
+                        "kubernetes.io/ingress.class" to "haproxy",
+                        "ingress.kubernetes.io/ssl-redirect" to false,
+                        "ingress.kubernetes.io/rewrite-target" to getContextRoot(),
+                        "ingress.kubernetes.io/affinity" to "cookie",
+                        "ingress.kubernetes.io/session-cookie-name" to "JSESSIONID",
+                        "ingress.kubernetes.io/session-cookie-strategy" to "prefix",
+                        "ingress.kubernetes.io/config-backend" to "option httpchk GET /ha/health HTTP/1.0"
+                    )
+                )
+            )
         }
 
         when (productName) {
@@ -365,22 +377,20 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
     fun operatorCleanUpCluster(waiting: Duration) {
         if (getProfile().doCleanup.get()) {
-
-            val resourcesList1 = arrayOf(
-                    "crd",
-                    "all",
-                    "roles",
-                    "roleBinding",
-                    "clusterRoles",
-                    "clusterRoleBinding",
-                    "ing",
-                    "ingressclass",
-                    "pvc"
-            )
-            // repeat delete of following resources to be sure that all is clean
-            val resourcesList2 = arrayOf(
-                    "service",
-                    "crd"
+            val resourcesList = arrayOf(
+                "crd",
+                "all",
+                "service",
+                "roles",
+                "roleBinding",
+                "clusterRoles",
+                "clusterRoleBinding",
+                "ing",
+                "ingressclass",
+                "pvc",
+                "configmap",
+                "secret",
+                "job"
             )
 
             runBlocking {
@@ -390,11 +400,11 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
                     val deleteResourcesJob = launch {
                         withTimeout(waiting.toMillis()) {
                             runInterruptible(Dispatchers.IO) {
-                                deleteAllResources(resourcesList1, resourcesList2)
+                                deleteAllResources(resourcesList)
                             }
                         }
                     }
-                    if (waitDeleteAllResources(deleteResourcesJob, iteration, waiting, resourcesList1, resourcesList2)) {
+                    if (waitDeleteAllResources(deleteResourcesJob, iteration, waiting, resourcesList)) {
                         break
                     }
                 }
@@ -424,8 +434,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         return resources.joinToString(" ").trim()
     }
 
-    private fun deleteAllResources(resourcesList1: Array<String>, resourcesList2: Array<String>) {
-        deleteResources(resourcesList1)
+    private fun deleteAllResources(resourcesList: Array<String>) {
+        deleteResources(resourcesList)
 
         // delete ingressclass
         val kubectlHelper = getKubectlHelper()
@@ -437,11 +447,10 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
                 project.logger.lifecycle("Deleted resources ingressclass:\n $deleteResult")
             }
         }
-        deleteResources(resourcesList2)
     }
 
     private suspend fun waitDeleteAllResources(
-        deleteResourcesJob: Job, iteration: Int, waiting: Duration, resourcesList1: Array<String>, resourcesList2: Array<String>) : Boolean {
+        deleteResourcesJob: Job, iteration: Int, waiting: Duration, resourcesList: Array<String>) : Boolean {
         val repeat = 10
         for (i in 1..repeat) {
             project.logger.lifecycle("Waiting cleanup $i")
@@ -452,11 +461,10 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
             }
         }
 
-        val existingResourcesFromList1 = getResources(resourcesList1)
-        val existingResourcesFromList2 = getResources(resourcesList2)
-        val hasResources = existingResourcesFromList1.isNotBlank() || existingResourcesFromList2.isNotBlank()
+        val existingResourcesFromList = getResources(resourcesList)
+        val hasResources = existingResourcesFromList.isNotBlank()
         return if (hasResources) {
-            project.logger.lifecycle("Has more resources, cancelling in iteration $iteration: \n $existingResourcesFromList1 $existingResourcesFromList2")
+            project.logger.lifecycle("Has more resources, cancelling in iteration $iteration: \n $existingResourcesFromList")
             deleteResourcesJob.cancel()
             false
         } else {

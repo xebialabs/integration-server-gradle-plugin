@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   oracle-19c:
-    image: xl-docker.xebialabs.com/oracle/db-prebuilt:19.3.0-se2-v2
+    image: xebialabsunsupported/oracle:19.3.0-se2-xld-prebuilt
     ports:
       - "{{DB_PORT}}:1521"
       - "5500:5500"

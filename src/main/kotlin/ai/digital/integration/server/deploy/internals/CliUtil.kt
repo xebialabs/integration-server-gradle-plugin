@@ -127,6 +127,7 @@ class CliUtil {
             auxiliaryServer: Boolean = false
         ) {
             val cli = getCli(project)
+            val clusterEnabled = DeployServerUtil.isClusterEnabled(project)
 
             val extraParamsAsList = extraParams
                 .filterValues { it != null }
@@ -135,14 +136,14 @@ class CliUtil {
 
             val params = (arrayListOf(
                 "-context",
-                EntryPointUrlUtil(project, ProductName.DEPLOY).getContextRoot(auxiliaryServer),
+                EntryPointUrlUtil(project, ProductName.DEPLOY, clusterEnabled).getContextRoot(auxiliaryServer),
                 "-expose-proxies",
                 "-password",
                 "admin",
                 "-port",
-                deployPort?.toString() ?: EntryPointUrlUtil(project, ProductName.DEPLOY).getHttpPort(auxiliaryServer),
+                deployPort?.toString() ?: EntryPointUrlUtil(project, ProductName.DEPLOY, clusterEnabled).getHttpPort(auxiliaryServer),
                 "-host",
-                EntryPointUrlUtil(project, ProductName.DEPLOY).getHttpHost(auxiliaryServer),
+                EntryPointUrlUtil(project, ProductName.DEPLOY, clusterEnabled).getHttpHost(auxiliaryServer),
                 "-socketTimeout",
                 cli.socketTimeout.toString(),
                 "-source",

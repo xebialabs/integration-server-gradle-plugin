@@ -14,7 +14,8 @@ ImageTag: {{IMAGE_TAG}}
 OsType: darwin
 ServerType: daiRelease
 UpgradeType: operatorToOperator
-UseCustomNamespace: true
+UseCustomNamespace: {{USE_CUSTOM_NAMESPACE}}
+IsCrdReused: {{IS_CRD_REUSED}}
 UseKubeconfig: true
 InstallXLD: false
 InstallXLR: false
