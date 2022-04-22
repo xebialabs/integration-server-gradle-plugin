@@ -4,6 +4,6 @@ xl:
       db-driver-classname: "oracle.jdbc.OracleDriver"
       db-password: "xldrepo"
       db-url: "jdbc:oracle:thin:@localhost:{{DB_PORT}}:XE"
-      db-username: xldrepo
+      db-username: system
       max-pool-size: 10
     artifacts.root: "build/artifacts"
