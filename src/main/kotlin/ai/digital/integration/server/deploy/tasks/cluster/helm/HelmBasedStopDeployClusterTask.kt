@@ -46,7 +46,7 @@ open class HelmBasedStopDeployClusterTask : DefaultTask() {
                         OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME*/
                     else -> {
                         throw IllegalArgumentException(
-                            "Provided operator provider name `$providerName` is not supported. Choose one of ${
+                            "Provided helm provider name `$providerName` is not supported. Choose one of ${
                                 OperatorHelmProviderName.values().joinToString()
                             }"
                         )

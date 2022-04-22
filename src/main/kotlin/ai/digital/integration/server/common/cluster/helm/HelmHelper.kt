@@ -47,7 +47,7 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
                 OperatorHelmProviderName.ON_PREMISE.providerName -> OnPremHelmHelper(project, productName)
                 OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName -> VmwareOpenshiftHelmHelper(project, productName)
                 else -> {
-                    throw IllegalArgumentException("Provided operator provider name `$providerName` is not supported. Choose one of ${
+                    throw IllegalArgumentException("Provided helm provider name `$providerName` is not supported. Choose one of ${
                         OperatorHelmProviderName.values().joinToString()
                     }")
                 }
@@ -149,8 +149,8 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
             }
             ProductName.RELEASE -> {
                 pairs.putAll(mutableMapOf<String, Any>(
-                        ".replicaCount" to getMasterCount(),
-                        ".Persistence.Size" to "1Gi"
+                        "replicaCount" to getMasterCount(),
+                        "Persistence.Size" to "1Gi"
                 ))
             }
         }
