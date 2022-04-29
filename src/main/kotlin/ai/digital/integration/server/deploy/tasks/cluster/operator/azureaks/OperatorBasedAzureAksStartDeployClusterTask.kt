@@ -20,7 +20,7 @@ open class OperatorBasedAzureAksStartDeployClusterTask : DeployOperatorBasedStar
 
     @TaskAction
     fun launch() {
-        AzureAksHelper(project, ProductName.DEPLOY).launchCluster()
+        AzureAksOperatorHelper(project, ProductName.DEPLOY).launchCluster()
         AzureAksOperatorHelper(project, ProductName.DEPLOY).updateOperator()
     }
 }

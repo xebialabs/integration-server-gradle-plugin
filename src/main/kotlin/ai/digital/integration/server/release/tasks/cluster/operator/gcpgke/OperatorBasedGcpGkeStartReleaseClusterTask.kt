@@ -20,7 +20,7 @@ open class OperatorBasedGcpGkeStartReleaseClusterTask : ReleaseOperatorBasedStar
 
     @TaskAction
     fun launch() {
-        GcpGkeHelper(project, ProductName.RELEASE).launchCluster()
+        GcpGkeOperatorHelper(project, ProductName.RELEASE).launchCluster()
         GcpGkeOperatorHelper(project, ProductName.RELEASE).updateOperator()
     }
 }

@@ -205,70 +205,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         loggingJob?.cancel()
     }
 
-    fun waitForDeployment() {
-        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
-        val resources = if (hasIngress()) {
-            when (IngressType.valueOf(getProfile().ingressType.get())) {
-                IngressType.NGINX ->
-                    arrayOf(
-                        "deployment.apps/dai-${getPrefixName()}-${namespaceAsPrefix}nginx-ingress-controller",
-                        "deployment.apps/dai-${getPrefixName()}-${namespaceAsPrefix}nginx-ingress-controller-default-backend"
-                    )
-                IngressType.HAPROXY ->
-                    arrayOf("deployment.apps/dai-${getPrefixName()}-${namespaceAsPrefix}haproxy-ingress")
-            }
-        } else
-            arrayOf()
-
-        (resources + "deployment.apps/${getPrefixName()}-operator-controller-manager").forEach { resource ->
-            if (!getKubectlHelper().wait(resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
-                throw RuntimeException("Resource $resource  is not available")
-            }
-        }
-    }
-
-    fun waitForMasterPods() {
-        val resources = List(getMasterCount()) { position -> getMasterPodName(position) }
-
-        resources.forEach { resource ->
-            if (!getKubectlHelper().wait(resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
-                throw RuntimeException("Resource $resource is not ready")
-            }
-        }
-    }
-
-    fun waitForWorkerPods() {
-        val resources = List(getDeployWorkerCount()) { position -> getWorkerPodName(position) }
-        resources.forEach { resource ->
-            if (!getKubectlHelper().wait(resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
-                throw RuntimeException("Resource $resource is not ready")
-            }
-        }
-    }
-
     fun createClusterMetadata() {
-        val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, operatorMetadataPath)
-        path.parent.toFile().mkdirs()
-        val props = Properties()
-        props["cluster.port"] = getPort()
-        props["cluster.context-root"] = getContextRoot()
-        props["cluster.host"] = getHost()
-        props["cluster.fqdn"] = getFqdn()
-        PropertiesUtil.writePropertiesFile(path.toFile(), props)
-    }
-
-    fun waitForBoot() {
-        val contextRoot = when (getContextRoot() == "/") {
-            true -> ""
-            false -> getContextRoot()
-        }
-
-        val url = when (productName) {
-            ProductName.DEPLOY -> "http://${getFqdn()}${contextRoot}/deployit/metadata/type"
-            ProductName.RELEASE -> "http://${getFqdn()}${contextRoot}/api/extension/metadata"
-        }
-        val server = ServerUtil(project, productName).getServer()
-        WaitForBootUtil.byPort(project, getName(), url, null, server.pingRetrySleepTime, server.pingTotalTries)
+        clusterMetadata(operatorMetadataPath, getContextRoot())
     }
 
     fun undeployCluster() {
@@ -393,57 +331,6 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
     abstract fun updateCustomOperatorCrValues(crValuesFile: File)
 
-    private fun getDbConnectionCount(): String {
-        val defaultMaxDbConnections = when (productName) {
-            ProductName.DEPLOY ->
-                ServerConstants.DEPLOY_DB_CONNECTION_NUMBER * (getMasterCount() + getDeployWorkerCount())
-            ProductName.RELEASE ->
-                ServerConstants.RELEASE_DB_CONNECTION_NUMBER * getMasterCount()
-        }
-        return getProvider().maxDbConnections.getOrElse(defaultMaxDbConnections).toString()
-    }
-
-    private fun getServerImageRepository(): String {
-        return getServer().dockerImage!!
-    }
-
-    private fun getDeployWorkerImageRepository(): String {
-        return getDeployWorker().dockerImage!!
-    }
-
-    private fun getServerVersion(): String {
-        return getServer().version!!
-    }
-
-    private fun getServer(): Server {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getServer(project)
-            ProductName.RELEASE -> ReleaseServerUtil.getServer(project)
-        }
-    }
-
-    private fun getDeployWorker(): Worker {
-        return WorkerUtil.getWorkers(project)[0]
-    }
-
-    private fun getLicense(): String {
-        val licenseFileName = when (productName) {
-            ProductName.DEPLOY -> "deployit-license.lic"
-            ProductName.RELEASE -> "xl-release-license.lic"
-        }
-        val licenseFile = File(getConfigDir(), licenseFileName)
-        val content = Files.readString(licenseFile.toPath())
-        return Base64.getEncoder().encodeToString(content.toByteArray())
-    }
-
-    open fun getDeployWorkerCount(): Int {
-        return WorkerUtil.getNumberOfWorkers(project)
-    }
-
-    open fun getMqStorageClass(): String {
-        return getStorageClass()
-    }
-
     override fun getFqdn(): String = getHost()
 
     fun getInitialCrValuesFile(): File {
@@ -459,16 +346,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     open fun getContextRoot(): String {
         val file = getInitialCrValuesFile()
         val pathKey = getProviderCrContextPath()
-        val pathValue = YamlFileUtil.readFileKey(file, pathKey) as String
-        val expectedPathValue = when (productName) {
-            ProductName.DEPLOY -> "/xl-deploy"
-            ProductName.RELEASE -> "/xl-release"
-        }
-        return if (pathValue.startsWith(expectedPathValue)) {
-            expectedPathValue
-        } else {
-            "/"
-        }
+        return getContextRootPath(file, pathKey)
     }
 
     open fun getIngressClass(): String {
@@ -486,7 +364,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         return getProvider().host.getOrElse("${getProvider().name.get()}-${productName.shortName}-${getNamespace() ?: "default"}")
     }
 
-    fun getNamespace(): String? = getProfile().namespace.orNull
+    open fun getNamespace(): String? = getProfile().namespace.orNull
 
     fun getDeploySuffix(): String = getProfile().deploySuffix.map { "-$it" }.getOrElse("")
 
@@ -523,44 +401,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
     override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace())
 
-    open fun hasIngress(): Boolean = true
-
-    open fun getMasterCount(): Int {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getServers(project).size
-            ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).servers.size
-        }
-    }
-
-    open fun getCrName(): String {
-        val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
-        return "dai-${getPrefixName()}$operatorNamespace"
-    }
-
-    open fun getWorkerPodName(position: Int) = "pod/${getCrName()}-digitalai-${getName()}-worker-$position"
-
-    open fun getMasterPodName(position: Int) =
-        "pod/${getCrName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
-
-    open fun getPostgresPodName(position: Int) = "pod/${getCrName()}-postgresql-$position"
-
-    open fun getRabbitMqPodName(position: Int) = "pod/${getCrName()}-rabbitmq-$position"
-
-    open fun getMasterPodNameSuffix(position: Int): String {
-        return when (productName) {
-            ProductName.DEPLOY -> "master-$position"
-            ProductName.RELEASE -> "$position"
-        }
-    }
-
-    private fun getConfigDir(): File {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getConfDir(project)
-            ProductName.RELEASE -> ReleaseServerUtil.getConfDir(project)
-        }
-    }
-
-    fun cleanUpCluster(waiting: Duration) {
+    fun operatorCleanUpCluster(waiting: Duration) {
         if (getProfile().doCleanup.get()) {
 
             val resourcesList = arrayOf(
@@ -600,6 +441,12 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         } else {
             project.logger.lifecycle("Skip up cluster resources in namespace ${getKubectlHelper().namespace}")
         }
+    }
+
+    fun cleanUpCluster(waiting: Duration) {
+        val helmHelper = HelmHelper.getHelmHelper(project, productName)
+        helmHelper.helmCleanUpCluster()
+        operatorCleanUpCluster(waiting)
     }
 
     private fun getResources(resourcesList: Array<String>): String {

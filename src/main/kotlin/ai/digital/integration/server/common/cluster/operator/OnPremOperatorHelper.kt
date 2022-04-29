@@ -10,8 +10,14 @@ import java.io.File
 
 open class OnPremOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
+    private val onPremHelper : OnPremHelper = OnPremHelper(project, productName, getProfile())
+
+    fun launchCluster(){
+        onPremHelper.launchCluster()
+    }
+
     fun updateOperator() {
-        OnPremHelper(project, productName).updateEtcHosts(getProvider().name.get() , getFqdn())
+        onPremHelper.updateEtcHosts(getProvider().name.get() , getFqdn())
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo()
         updateInfrastructure(kubeContextInfo)
@@ -25,17 +31,18 @@ open class OnPremOperatorHelper(project: Project, productName: ProductName) : Op
 
     fun installCluster() {
         applyYamlFiles()
-        waitForDeployment()
-        waitForMasterPods()
-        waitForWorkerPods()
+        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), namespaceAsPrefix)
+        waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
+        waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
 
         createClusterMetadata()
-        waitForBoot()
+        waitForBoot(getContextRoot(), getFqdn())
     }
 
     fun shutdownCluster() {
         undeployCluster()
-        OnPremHelper(project, productName).destroyClusterOnShutdown()
+        onPremHelper.destroyClusterOnShutdown()
     }
 
     override fun getProviderHomePath(): String {

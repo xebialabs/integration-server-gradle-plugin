@@ -20,7 +20,7 @@ open class OperatorBasedAwsEksStartReleaseClusterTask : ReleaseOperatorBasedStar
 
     @TaskAction
     fun launch() {
-        AwsEksHelper(project, ProductName.RELEASE).launchCluster()
+        AwsEksOperatorHelper(project, ProductName.RELEASE).launchCluster()
         AwsEksOperatorHelper(project, ProductName.RELEASE).updateOperator()
     }
 }

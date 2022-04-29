@@ -20,12 +20,24 @@ class ReleaseClusterUtil {
             return ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.get()
         }
 
+        fun getHelmProvider(project: Project): String {
+            return ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.get()
+        }
+
         fun getOperatorProviderName(project: Project): OperatorHelmProviderName {
             return OperatorHelmProviderName.valueOfProviderName(getOperatorProvider(project))
         }
 
+        fun getHelmProviderName(project: Project): OperatorHelmProviderName {
+            return OperatorHelmProviderName.valueOfProviderName(getHelmProvider(project))
+        }
+
         fun isOperatorProvider(project: Project): Boolean {
             return ReleaseExtensionUtil.getExtension(project).cluster.get().profile == ClusterProfileName.OPERATOR.profileName
+        }
+
+        fun isHelmProvider(project: Project): Boolean {
+            return ReleaseExtensionUtil.getExtension(project).cluster.get().profile == ClusterProfileName.HELM.profileName
         }
     }
 }

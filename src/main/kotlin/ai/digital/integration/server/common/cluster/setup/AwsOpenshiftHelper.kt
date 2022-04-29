@@ -1,22 +1,32 @@
 package ai.digital.integration.server.common.cluster.setup
 
 import ai.digital.integration.server.common.cluster.Helper
-import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.profiles.HelmProfile
+import ai.digital.integration.server.common.domain.profiles.OperatorProfile
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.domain.providers.AwsOpenshiftProvider
 import org.gradle.api.Project
 
-open class AwsOpenshiftHelper(project: Project, productName: ProductName) : Helper(project, productName) {
+open class AwsOpenshiftHelper(project: Project, productName: ProductName, val profile: Profile) : Helper(project, productName) {
 
     override fun getProvider(): AwsOpenshiftProvider {
-        val profileName = getProfileName()
-        if (profileName == ClusterProfileName.OPERATOR.profileName) {
-            return OperatorHelper.getOperatorHelper(project, productName).getProfile().awsOpenshift
-        } else {
-            throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+        return when (val profileName = getProfileName()) {
+            ClusterProfileName.OPERATOR.profileName -> {
+                val operatorProfile = profile as OperatorProfile
+                operatorProfile.awsOpenshift
+            }
+            ClusterProfileName.HELM.profileName -> {
+                val helmProfile = profile as HelmProfile
+                helmProfile.awsOpenshift
+            }
+            else -> {
+                throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+            }
         }
     }
+
     fun launchCluster() {
         createOcContext()
         ocLogin()

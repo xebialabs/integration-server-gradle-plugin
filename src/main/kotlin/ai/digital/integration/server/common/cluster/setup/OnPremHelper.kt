@@ -1,22 +1,31 @@
 package ai.digital.integration.server.common.cluster.setup
 
 import ai.digital.integration.server.common.cluster.Helper
-import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.profiles.HelmProfile
+import ai.digital.integration.server.common.domain.profiles.OperatorProfile
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.domain.providers.OnPremiseProvider
 import ai.digital.integration.server.common.util.ProcessUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 
-open class OnPremHelper(project: Project, productName: ProductName) : Helper(project, productName) {
+open class OnPremHelper(project: Project, productName: ProductName, val profile: Profile) : Helper(project, productName) {
 
     override fun getProvider(): OnPremiseProvider {
-        val profileName = getProfileName()
-        if (profileName == ClusterProfileName.OPERATOR.profileName) {
-            return OperatorHelper.getOperatorHelper(project, productName).getProfile().onPremise
-        } else {
-            throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+        return when (val profileName = getProfileName()) {
+            ClusterProfileName.OPERATOR.profileName -> {
+                val operatorProfile = profile as OperatorProfile
+                operatorProfile.onPremise
+            }
+            ClusterProfileName.HELM.profileName -> {
+                val helmProfile = profile as HelmProfile
+                helmProfile.onPremise
+            }
+            else -> {
+                throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+            }
         }
     }
 
@@ -38,7 +47,7 @@ open class OnPremHelper(project: Project, productName: ProductName) : Helper(pro
             skipExisting
         )
         updateContext(name)
-        updateEtcHosts(name)
+        //updateEtcHosts(name)
     }
 
     private fun validateMinikubeCli() {

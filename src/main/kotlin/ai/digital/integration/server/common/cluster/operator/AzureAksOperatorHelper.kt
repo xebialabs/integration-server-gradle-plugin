@@ -13,6 +13,12 @@ import java.io.File
 
 open class AzureAksOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
+    private val azureAksHelper: AzureAksHelper = AzureAksHelper(project, productName, getProfile())
+
+    fun launchCluster(){
+        azureAksHelper.launchCluster()
+    }
+
     fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val kubeContextInfo = getCurrentContextInfo()
@@ -28,12 +34,13 @@ open class AzureAksOperatorHelper(project: Project, productName: ProductName) : 
     fun installCluster() {
         applyYamlFiles()
         turnOnLogging()
-        waitForDeployment()
-        waitForMasterPods()
-        waitForWorkerPods()
+        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), namespaceAsPrefix)
+        waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
+        waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
 
         createClusterMetadata()
-        waitForBoot()
+        waitForBoot(getContextRoot(), getFqdn())
         turnOffLogging()
     }
 
@@ -41,15 +48,15 @@ open class AzureAksOperatorHelper(project: Project, productName: ProductName) : 
         val azureAksProvider: AzureAksProvider = getProvider()
         val name = azureAksProvider.name.get()
 
-        val groupName = AzureAksHelper(project, productName).resourceGroupName(name)
+        val groupName = azureAksHelper.resourceGroupName(name)
         val location = azureAksProvider.location.get()
 
-        val existsResourceGroup = AzureAksHelper(project, productName).existsResourceGroup(groupName, location)
+        val existsResourceGroup = azureAksHelper.existsResourceGroup(groupName, location)
         if (existsResourceGroup) {
             undeployCluster()
         }
 
-        AzureAksHelper(project, productName).destroyClusterOnShutdown(existsResourceGroup, name, groupName, location)
+        azureAksHelper.destroyClusterOnShutdown(existsResourceGroup, name, groupName, location)
     }
 
     private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
@@ -74,11 +81,11 @@ open class AzureAksOperatorHelper(project: Project, productName: ProductName) : 
     }
 
     override fun getStorageClass(): String {
-        return AzureAksHelper(project, productName).getStorageClass()
+        return azureAksHelper.getStorageClass()
     }
 
     override fun getDbStorageClass(): String {
-        return AzureAksHelper(project, productName).getDbStorageClass()
+        return azureAksHelper.getDbStorageClass()
     }
 
     override fun getFqdn(): String {
