@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.tasks.cli
 
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
+import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.util.XlCliUtil
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.Companion.XL_CLI_DIST
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
@@ -22,7 +23,7 @@ open class DownloadXlCliDistTask : DefaultTask() {
         if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent || ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
 
             val operatorHelper = OperatorHelper.getOperatorHelper(project)
-            val profile = operatorHelper.getProfile()
+            val profile = operatorHelper.getProfile() as OperatorProfile
 
             val taskName = "xlCliExec"
             if (profile.xlCliPath.isPresent) {

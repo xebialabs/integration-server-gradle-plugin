@@ -27,7 +27,7 @@ open class GcpGkeHelmHelper(project: Project, productName: ProductName) : HelmHe
         waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), skipOperator = true)
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
-        val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
+        val ip = getKubectlHelper().getServiceExternalIp("service/${getCrName()}-nginx-ingress-controller")
         gcpGkeHelper.applyDnsOpenApi(ip, getFqdn(), getHost())
         createClusterMetadata()
         waitForBoot(getContextRoot(), getFqdn())

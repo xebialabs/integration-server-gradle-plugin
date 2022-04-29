@@ -41,8 +41,7 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
 
-        val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
-        val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}$operatorNamespace-nginx-ingress-controller")
+        val ip = getKubectlHelper().getServiceExternalIp("service/${getCrName()}-nginx-ingress-controller")
         val nameSpace = getNamespace() ?: "default"
         gcpGkeHelper.applyDnsOpenApi(ip, getFqdn(), getHost(), nameSpace)
 

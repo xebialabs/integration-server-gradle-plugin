@@ -18,6 +18,18 @@ abstract class OperatorHelmProfile (name: String, project: Project) : Profile {
     @Input
     val activeProviderName = project.objects.property<String>().value(OperatorHelmProviderName.ON_PREMISE.providerName)
 
+    @Input
+    val namespace = project.objects.property<String>()
+
+    @Input
+    val ingressType = project.objects.property<String>().value(IngressType.NGINX.name)
+
+    @Input
+    val doCleanup = project.objects.property<Boolean>().value(true)
+
+    @Input
+    val deploySuffix = project.objects.property<String>()
+
     val awsOpenshift: AwsOpenshiftProvider =
         DefaultProviderContainer(project.container(Provider::class) {
             project.objects.newInstance(AwsOpenshiftProvider::class, project)

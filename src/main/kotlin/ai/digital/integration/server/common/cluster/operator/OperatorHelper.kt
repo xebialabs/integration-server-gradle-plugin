@@ -1,23 +1,17 @@
 package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.cluster.Helper
+import ai.digital.integration.server.common.cluster.helm.HelmHelper
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.common.constant.ServerConstants
 import ai.digital.integration.server.common.domain.InfrastructureInfo
-import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.IngressType
-import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.*
-import ai.digital.integration.server.deploy.domain.Worker
 import ai.digital.integration.server.deploy.internals.CliUtil
-import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
-import ai.digital.integration.server.deploy.internals.WorkerUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
-import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import ai.digital.integration.server.release.util.ReleaseServerUtil
 import kotlinx.coroutines.*
@@ -25,11 +19,9 @@ import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import java.io.File
 import java.io.IOException
-import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.*
 
 @Suppress("UnstableApiUsage")
 abstract class OperatorHelper(project: Project, productName: ProductName) : Helper(project, productName){
@@ -94,13 +86,6 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
     fun getOperatorHomeDir(): String =
         project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
-
-    fun getProfile(): OperatorProfile {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
-            ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator()
-        }
-    }
 
     fun updateOperatorApplications() {
         project.logger.lifecycle("Updating operator's applications")
@@ -363,8 +348,6 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     override fun getHost(): String {
         return getProvider().host.getOrElse("${getProvider().name.get()}-${productName.shortName}-${getNamespace() ?: "default"}")
     }
-
-    open fun getNamespace(): String? = getProfile().namespace.orNull
 
     fun getDeploySuffix(): String = getProfile().deploySuffix.map { "-$it" }.getOrElse("")
 

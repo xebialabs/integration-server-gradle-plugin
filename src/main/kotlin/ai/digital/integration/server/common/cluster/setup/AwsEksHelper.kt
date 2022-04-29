@@ -364,7 +364,7 @@ open class AwsEksHelper(project: Project, productName: ProductName, val profile:
         return ProcessUtil.executeCommand(
             project,
             "kubectl get service" +
-                    " dai-${getPrefixName()}${namespace?.let { "-$it" } ?: ""}-nginx-ingress-controller " +
+                    " ${getCrName()}-nginx-ingress-controller " +
                     "-o=jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\" -n ${namespace ?: "default"}",
             logOutput = false,
             throwErrorOnFailure = false

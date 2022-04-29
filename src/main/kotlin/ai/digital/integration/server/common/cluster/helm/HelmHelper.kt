@@ -4,18 +4,13 @@ import ai.digital.integration.server.common.cluster.Helper
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.common.domain.profiles.HelmProfile
 import ai.digital.integration.server.common.domain.profiles.IngressType
 import ai.digital.integration.server.common.util.*
-import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
-import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import ai.digital.integration.server.release.util.ReleaseServerUtil
-import kotlinx.coroutines.*
 import org.gradle.api.Project
 import java.io.File
-import java.util.*
 
 @Suppress("UnstableApiUsage")
 abstract class HelmHelper(project: Project, productName: ProductName) : Helper(project, productName) {
@@ -64,14 +59,6 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
 
     fun getHelmHomeDir(): String =
             project.buildDir.toPath().resolve(HELM_FOLDER_NAME).toAbsolutePath().toString()
-
-
-    fun getProfile(): HelmProfile {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).clusterProfiles.helm()
-            ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm()
-        }
-    }
 
     fun copyValuesYamlFile() {
         when (IngressType.valueOf(getProfile().ingressType.get())) {
