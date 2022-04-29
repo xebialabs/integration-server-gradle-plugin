@@ -28,7 +28,9 @@ class YamlFileUtil {
 
         // Creates different key chain, depends on what is the first key, contains a dot or not for a first key.
         private fun calcKeyChain(objectMap: MutableMap<String, Any>, tokens: List<String>): Array<String> {
-            return if (objectMap[tokens[0] + "." + tokens[1]] != null) {
+            return if (tokens.size == 1) {
+                emptyArray()
+            } else if (objectMap[tokens[0] + "." + tokens[1]] != null) {
                 val keyChain = arrayOf(tokens[0] + "." + tokens[1])
                 keyChain.plus(tokens.drop(2).dropLast(1))
             } else {

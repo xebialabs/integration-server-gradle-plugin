@@ -1,21 +1,18 @@
 package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.cluster.Helper
+import ai.digital.integration.server.common.cluster.helm.HelmHelper
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.common.constant.ServerConstants
 import ai.digital.integration.server.common.domain.InfrastructureInfo
-import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.IngressType
 import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.*
-import ai.digital.integration.server.deploy.domain.Worker
 import ai.digital.integration.server.deploy.internals.CliUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
-import ai.digital.integration.server.deploy.internals.WorkerUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
@@ -25,7 +22,6 @@ import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import java.io.File
 import java.io.IOException
-import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.Duration
 import java.time.LocalDateTime
@@ -187,70 +183,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         loggingJob?.cancel()
     }
 
-    fun waitForDeployment() {
-        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
-        val resources = if (hasIngress()) {
-            when (IngressType.valueOf(getProfile().ingressType.get())) {
-                IngressType.NGINX ->
-                    arrayOf(
-                        "deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-nginx-ingress-controller",
-                        "deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-nginx-ingress-controller-default-backend"
-                    )
-                IngressType.HAPROXY ->
-                    arrayOf("deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-haproxy-ingress")
-            }
-        } else
-            arrayOf()
-
-        (resources + "deployment.apps/${getPrefixName()}-operator-controller-manager").forEach { resource ->
-            if (!getKubectlHelper().wait(resource, "Available", getProfile().deploymentTimeoutSeconds.get())) {
-                throw RuntimeException("Resource $resource  is not available")
-            }
-        }
-    }
-
-    fun waitForMasterPods() {
-        val resources = List(getMasterCount()) { position -> getMasterPodName(position) }
-
-        resources.forEach { resource ->
-            if (!getKubectlHelper().wait(resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
-                throw RuntimeException("Resource $resource is not ready")
-            }
-        }
-    }
-
-    fun waitForWorkerPods() {
-        val resources = List(getDeployWorkerCount()) { position -> getWorkerPodName(position) }
-        resources.forEach { resource ->
-            if (!getKubectlHelper().wait(resource, "Ready", getProfile().deploymentTimeoutSeconds.get())) {
-                throw RuntimeException("Resource $resource is not ready")
-            }
-        }
-    }
-
     fun createClusterMetadata() {
-        val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, operatorMetadataPath)
-        path.parent.toFile().mkdirs()
-        val props = Properties()
-        props["cluster.port"] = getPort()
-        props["cluster.context-root"] = getContextRoot()
-        props["cluster.host"] = getHost()
-        props["cluster.fqdn"] = getFqdn()
-        PropertiesUtil.writePropertiesFile(path.toFile(), props)
-    }
-
-    fun waitForBoot() {
-        val contextRoot = when (getContextRoot() == "/") {
-            true -> ""
-            false -> getContextRoot()
-        }
-
-        val url = when (productName) {
-            ProductName.DEPLOY -> "http://${getFqdn()}${contextRoot}/deployit/metadata/type"
-            ProductName.RELEASE -> "http://${getFqdn()}${contextRoot}/api/extension/metadata"
-        }
-        val server = ServerUtil(project, productName).getServer()
-        WaitForBootUtil.byPort(project, getName(), url, null, server.pingRetrySleepTime, server.pingTotalTries)
+        clusterMetadata(operatorMetadataPath, getContextRoot())
     }
 
     fun undeployCluster() {
@@ -375,57 +309,6 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
     abstract fun updateCustomOperatorCrValues(crValuesFile: File)
 
-    private fun getDbConnectionCount(): String {
-        val defaultMaxDbConnections = when (productName) {
-            ProductName.DEPLOY ->
-                ServerConstants.DEPLOY_DB_CONNECTION_NUMBER * (getMasterCount() + getDeployWorkerCount())
-            ProductName.RELEASE ->
-                ServerConstants.RELEASE_DB_CONNECTION_NUMBER * getMasterCount()
-        }
-        return getProvider().maxDbConnections.getOrElse(defaultMaxDbConnections).toString()
-    }
-
-    private fun getServerImageRepository(): String {
-        return getServer().dockerImage!!
-    }
-
-    private fun getDeployWorkerImageRepository(): String {
-        return getDeployWorker().dockerImage!!
-    }
-
-    private fun getServerVersion(): String {
-        return getServer().version!!
-    }
-
-    private fun getServer(): Server {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getServer(project)
-            ProductName.RELEASE -> ReleaseServerUtil.getServer(project)
-        }
-    }
-
-    private fun getDeployWorker(): Worker {
-        return WorkerUtil.getWorkers(project)[0]
-    }
-
-    private fun getLicense(): String {
-        val licenseFileName = when (productName) {
-            ProductName.DEPLOY -> "deployit-license.lic"
-            ProductName.RELEASE -> "xl-release-license.lic"
-        }
-        val licenseFile = File(getConfigDir(), licenseFileName)
-        val content = Files.readString(licenseFile.toPath())
-        return Base64.getEncoder().encodeToString(content.toByteArray())
-    }
-
-    open fun getDeployWorkerCount(): Int {
-        return WorkerUtil.getNumberOfWorkers(project)
-    }
-
-    open fun getMqStorageClass(): String {
-        return getStorageClass()
-    }
-
     override fun getFqdn(): String = getHost()
 
     fun getInitialCrValuesFile(): File {
@@ -441,16 +324,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     open fun getContextRoot(): String {
         val file = getReferenceCrValuesFile()
         val pathKey = getProviderCrContextPath()
-        val pathValue = YamlFileUtil.readFileKey(file, pathKey) as String
-        val expectedPathValue = when (productName) {
-            ProductName.DEPLOY -> "/xl-deploy"
-            ProductName.RELEASE -> "/xl-release"
-        }
-        return if (pathValue.startsWith(expectedPathValue)) {
-            expectedPathValue
-        } else {
-            "/"
-        }
+        return getContextRootPath(file, pathKey)
     }
 
     open fun getCurrentContextInfo(): InfrastructureInfo {
@@ -461,7 +335,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         return getProvider().host.getOrElse("${getProvider().name.get()}-${productName.shortName}-${getNamespace() ?: "default"}")
     }
 
-    fun getNamespace(): String? = getProfile().namespace.orNull
+    open fun getNamespace(): String? = getProfile().namespace.orNull
 
     override fun getPort(): String {
         return "80"
@@ -496,41 +370,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
     override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace())
 
-    open fun hasIngress(): Boolean = true
-
-    open fun getMasterCount(): Int {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getServers(project).size
-            ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).servers.size
-        }
-    }
-
-    open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
-
-    open fun getMasterPodName(position: Int) =
-        "pod/dai-${getPrefixName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
-
-    open fun getPostgresPodName(position: Int) = "pod/dai-${getPrefixName()}-postgresql-$position"
-
-    open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
-
-    open fun getMasterPodNameSuffix(position: Int): String {
-        return when (productName) {
-            ProductName.DEPLOY -> "master-$position"
-            ProductName.RELEASE -> "$position"
-        }
-    }
-
-    private fun getConfigDir(): File {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployServerUtil.getConfDir(project)
-            ProductName.RELEASE -> ReleaseServerUtil.getConfDir(project)
-        }
-    }
-
-    fun cleanUpCluster(waiting: Duration) {
+    fun operatorCleanUpCluster(waiting: Duration) {
         if (getProfile().doCleanup.get()) {
-
             val resourcesList = arrayOf(
                 "crd",
                 "all",
@@ -568,6 +409,11 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         } else {
             project.logger.lifecycle("Skip up cluster resources in namespace ${getKubectlHelper().namespace}")
         }
+    }
+    fun cleanUpCluster(waiting: Duration) {
+        val helmHelper = HelmHelper.getHelmHelper(project, productName)
+        helmHelper.helmCleanUpCluster()
+        operatorCleanUpCluster(waiting)
     }
 
     private fun getResources(resourcesList: Array<String>): String {

@@ -13,6 +13,12 @@ import java.io.File
 
 open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
+    private val gcpGkeHelper: GcpGkeHelper = GcpGkeHelper(project, productName, getProfile())
+
+    fun launchCluster(){
+        gcpGkeHelper.launchCluster()
+    }
+
     fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         val gcpGkeProvider: GcpGkeProvider = getProvider()
@@ -30,14 +36,15 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
 
     fun installCluster() {
         applyYamlFiles()
-        waitForDeployment()
-        waitForMasterPods()
-        waitForWorkerPods()
+        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), namespaceAsPrefix)
+        waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
+        waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
         val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
         val nameSpace = getNamespace() ?: "default"
-        GcpGkeHelper(project, productName).applyDnsOpenApi(ip, getFqdn(), getHost(), nameSpace)
+        gcpGkeHelper.applyDnsOpenApi(ip, getFqdn(), getHost(), nameSpace)
         createClusterMetadata()
-        waitForBoot()
+        waitForBoot(getContextRoot(), getFqdn())
     }
 
     fun shutdownCluster() {
@@ -47,11 +54,11 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
         val regionZone = gcpGkeProvider.regionZone.get()
         val accountName = gcpGkeProvider.accountName.get()
 
-        val existsCluster = GcpGkeHelper(project, productName).existsCluster(accountName, projectName, name, regionZone)
+        val existsCluster = gcpGkeHelper.existsCluster(accountName, projectName, name, regionZone)
         if (existsCluster) {
             undeployCluster()
         }
-        GcpGkeHelper(project, productName).destroyClusterOnShutdown(existsCluster, accountName, projectName, name, regionZone, getFqdn())
+        gcpGkeHelper.destroyClusterOnShutdown(existsCluster, accountName, projectName, name, regionZone, getFqdn())
     }
 
     override fun getProviderHomePath(): String {

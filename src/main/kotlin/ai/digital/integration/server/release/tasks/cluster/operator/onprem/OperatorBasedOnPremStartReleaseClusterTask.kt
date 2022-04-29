@@ -20,7 +20,7 @@ open class OperatorBasedOnPremStartReleaseClusterTask : ReleaseOperatorBasedStar
 
     @TaskAction
     fun launch() {
-        OnPremHelper(project, ProductName.RELEASE).launchCluster()
+        OnPremOperatorHelper(project, ProductName.RELEASE).launchCluster()
         OnPremOperatorHelper(project, ProductName.RELEASE).updateOperator()
     }
 }

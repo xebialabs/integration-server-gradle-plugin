@@ -9,6 +9,12 @@ import java.io.File
 
 open class AwsEksOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
+    private val awsEksHelper : AwsEksHelper = AwsEksHelper(project, productName, getProfile())
+
+    fun launchCluster(){
+        awsEksHelper.launchCluster()
+    }
+
     fun updateOperator() {
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         updateInfrastructure()
@@ -22,18 +28,19 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
 
     fun installCluster() {
         applyYamlFiles()
-        waitForDeployment()
-        waitForMasterPods()
-        waitForWorkerPods()
+        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), namespaceAsPrefix)
+        waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
+        waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
 
         createClusterMetadata()
-        AwsEksHelper(project, productName).updateRoute53(getFqdn())
-        waitForBoot()
+        awsEksHelper.updateRoute53(getFqdn())
+        waitForBoot(getContextRoot(), getFqdn())
     }
 
     fun shutdownCluster() {
         undeployCluster()
-        AwsEksHelper(project,productName).destroyClusterOnShutdown()
+        awsEksHelper.destroyClusterOnShutdown()
     }
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
@@ -53,7 +60,7 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getStorageClass(): String {
-        return AwsEksHelper(project,productName).getStorageClass()
+        return awsEksHelper.getStorageClass()
     }
 
     private fun updateInfrastructure() {

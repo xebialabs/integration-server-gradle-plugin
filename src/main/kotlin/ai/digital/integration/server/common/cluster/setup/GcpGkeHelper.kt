@@ -1,9 +1,11 @@
 package ai.digital.integration.server.common.cluster.setup
 
 import ai.digital.integration.server.common.cluster.Helper
-import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.profiles.HelmProfile
+import ai.digital.integration.server.common.domain.profiles.OperatorProfile
+import ai.digital.integration.server.common.domain.profiles.Profile
 
 import ai.digital.integration.server.common.domain.providers.GcpGkeProvider
 import ai.digital.integration.server.common.util.ProcessUtil
@@ -11,14 +13,21 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import java.io.File
 
-open class GcpGkeHelper(project: Project, productName: ProductName) : Helper(project, productName) {
+open class GcpGkeHelper(project: Project, productName: ProductName, val profile: Profile) : Helper(project, productName) {
 
     override fun getProvider(): GcpGkeProvider {
-        val profileName = getProfileName()
-        if (profileName == ClusterProfileName.OPERATOR.profileName) {
-            return OperatorHelper.getOperatorHelper(project, productName).getProfile().gcpGke
-        } else {
-            throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+        return when (val profileName = getProfileName()) {
+            ClusterProfileName.OPERATOR.profileName -> {
+                val operatorProfile = profile as OperatorProfile
+                operatorProfile.gcpGke
+            }
+            ClusterProfileName.HELM.profileName -> {
+                val helmProfile = profile as HelmProfile
+                helmProfile.gcpGke
+            }
+            else -> {
+                throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+            }
         }
     }
 
@@ -239,6 +248,8 @@ open class GcpGkeHelper(project: Project, productName: ProductName) : Helper(pro
     }
 
     override fun getFqdn(): String {
-        return "${productName.shortName}-${getHost()}.endpoints.${getProvider().projectName.get()}.cloud.goog"
+        return "${productName.shortName}-${getHost()}-default.endpoints.${getProvider().projectName.get()}.cloud.goog"
     }
+
+
 }

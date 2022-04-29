@@ -1,22 +1,31 @@
 package ai.digital.integration.server.common.cluster.setup
 
 import ai.digital.integration.server.common.cluster.Helper
-import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.profiles.HelmProfile
+import ai.digital.integration.server.common.domain.profiles.OperatorProfile
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.domain.providers.AzureAksProvider
 import ai.digital.integration.server.common.util.ProcessUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 
-open class AzureAksHelper(project: Project, productName: ProductName) : Helper(project, productName) {
+open class AzureAksHelper(project: Project, productName: ProductName, val profile: Profile) : Helper(project, productName) {
 
     override fun getProvider(): AzureAksProvider {
-        val profileName = getProfileName()
-        if (profileName == ClusterProfileName.OPERATOR.profileName) {
-            return OperatorHelper.getOperatorHelper(project, productName).getProfile().azureAks
-        } else {
-            throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+        return when (val profileName = getProfileName()) {
+            ClusterProfileName.OPERATOR.profileName -> {
+                val operatorProfile = profile as OperatorProfile
+                operatorProfile.azureAks
+            }
+            ClusterProfileName.HELM.profileName -> {
+                val helmProfile = profile as HelmProfile
+                helmProfile.azureAks
+            }
+            else -> {
+                throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+            }
         }
     }
 

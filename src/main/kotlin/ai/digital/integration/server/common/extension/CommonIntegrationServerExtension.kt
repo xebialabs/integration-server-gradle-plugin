@@ -21,6 +21,8 @@ abstract class CommonIntegrationServerExtension(val project: Project) {
                     project.objects.newInstance(OperatorProfile::class, name, project)
                 ClusterProfileName.TERRAFORM.profileName ->
                     project.objects.newInstance(TerraformProfile::class, name, project)
+                ClusterProfileName.HELM.profileName ->
+                    project.objects.newInstance(HelmProfile::class, name, project)
                 else ->
                     throw IllegalArgumentException("Profile name `$name` is not supported. Choose one of ${
                         ClusterProfileName.values().joinToString { profileEnum -> profileEnum.profileName }
