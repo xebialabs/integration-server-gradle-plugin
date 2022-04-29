@@ -95,8 +95,6 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     fun getOperatorHomeDir(): String =
         project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
-
-
     fun getProfile(): OperatorProfile {
         return when (productName) {
             ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
@@ -108,9 +106,10 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         project.logger.lifecycle("Updating operator's applications")
 
         val operatorNamespaceVersion = getOperatorNamespaceVersion()
+        val deploySuffix = getDeploySuffix()
 
         val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
-        val pairs = mutableMapOf<String, Any>("spec[0].children[0].name" to operatorNamespaceVersion)
+        val pairs = mutableMapOf<String, Any>("spec[0].children[0].name" to "$operatorNamespaceVersion$deploySuffix")
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -118,11 +117,28 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         project.logger.lifecycle("Updating operator's environment")
 
         val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
+        val operatorNamespaceOrDefault = getNamespace() ?: "default"
+        val deploySuffix = getDeploySuffix()
 
         val file = File(getProviderHomeDir(), OPERATOR_ENVIRONMENT_REL_PATH)
         val pairs =
             mutableMapOf<String, Any>(
-                "spec[0].children[0].name" to "${getPrefixName()}$operatorNamespace"
+                "spec[0].children[0].name" to "${getPrefixName()}$operatorNamespace$deploySuffix",
+                "spec[0].children[0].members" to arrayOf("~Infrastructure/k8s-infra/${getPrefixName()}$operatorNamespace$deploySuffix/$operatorNamespaceOrDefault")
+            )
+        YamlFileUtil.overlayFile(file, pairs)
+    }
+
+    open fun updateInfrastructure() {
+        project.logger.lifecycle("Updating operator's infrastructure")
+
+        val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
+        val deploySuffix = getDeploySuffix()
+
+        val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
+        val pairs =
+            mutableMapOf<String, Any>(
+                "spec[0].children[0].name" to "${getPrefixName()}$operatorNamespace$deploySuffix"
             )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -132,12 +148,13 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
         val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
         val operatorNamespaceVersion = getOperatorNamespaceVersion()
+        val deploySuffix = getDeploySuffix()
 
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
         val pairs =
             mutableMapOf<String, Any>(
-                "spec.package" to "Applications/${getPrefixName()}-operator-app/$operatorNamespaceVersion",
-                "spec.environment" to "Environments/kubernetes-envs/${getPrefixName()}$operatorNamespace"
+                "spec.package" to "Applications/${getPrefixName()}-operator-app/$operatorNamespaceVersion$deploySuffix",
+                "spec.environment" to "Environments/kubernetes-envs/${getPrefixName()}$operatorNamespace$deploySuffix"
             )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -147,12 +164,13 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
         val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
         val operatorNamespaceVersion = getOperatorNamespaceVersion()
+        val deploySuffix = getDeploySuffix()
 
         val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
         val pairs =
             mutableMapOf<String, Any>(
-                "spec.package" to "Applications/${getPrefixName()}-cr/$operatorNamespaceVersion",
-                "spec.environment" to "Environments/kubernetes-envs/${getPrefixName()}$operatorNamespace"
+                "spec.package" to "Applications/${getPrefixName()}-cr/$operatorNamespaceVersion$deploySuffix",
+                "spec.environment" to "Environments/kubernetes-envs/${getPrefixName()}$operatorNamespace$deploySuffix"
             )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -193,11 +211,11 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
             when (IngressType.valueOf(getProfile().ingressType.get())) {
                 IngressType.NGINX ->
                     arrayOf(
-                        "deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-nginx-ingress-controller",
-                        "deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-nginx-ingress-controller-default-backend"
+                        "deployment.apps/dai-${getPrefixName()}-${namespaceAsPrefix}nginx-ingress-controller",
+                        "deployment.apps/dai-${getPrefixName()}-${namespaceAsPrefix}nginx-ingress-controller-default-backend"
                     )
                 IngressType.HAPROXY ->
-                    arrayOf("deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-haproxy-ingress")
+                    arrayOf("deployment.apps/dai-${getPrefixName()}-${namespaceAsPrefix}haproxy-ingress")
             }
         } else
             arrayOf()
@@ -339,8 +357,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
                     "spec.nginx-ingress-controller.install" to false,
                     "spec.ingress.path" to getContextRoot(),
                     "spec.ingress.annotations" to mapOf(
-                        "kubernetes.io/ingress.class" to "haproxy",
-                        "ingress.kubernetes.io/ssl-redirect" to false,
+                        "kubernetes.io/ingress.class" to getIngressClass(),
+                        "ingress.kubernetes.io/ssl-redirect" to "false",
                         "ingress.kubernetes.io/rewrite-target" to getContextRoot(),
                         "ingress.kubernetes.io/affinity" to "cookie",
                         "ingress.kubernetes.io/session-cookie-name" to "JSESSIONID",
@@ -439,7 +457,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     open fun getProviderCrContextPath(): String = "spec.ingress.path"
 
     open fun getContextRoot(): String {
-        val file = getReferenceCrValuesFile()
+        val file = getInitialCrValuesFile()
         val pathKey = getProviderCrContextPath()
         val pathValue = YamlFileUtil.readFileKey(file, pathKey) as String
         val expectedPathValue = when (productName) {
@@ -453,6 +471,13 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         }
     }
 
+    open fun getIngressClass(): String {
+        val file = getInitialCrValuesFile()
+        val pathKey = "spec.ingress.annotations"
+        val annotations = YamlFileUtil.readFileKey(file, pathKey) as  MutableMap<String, Any>
+        return annotations["kubernetes.io/ingress.class"] as String
+    }
+
     open fun getCurrentContextInfo(): InfrastructureInfo {
         return InfrastructureInfo(null, null, null, null, null, null)
     }
@@ -462,6 +487,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     }
 
     fun getNamespace(): String? = getProfile().namespace.orNull
+
+    fun getDeploySuffix(): String = getProfile().deploySuffix.map { "-$it" }.getOrElse("")
 
     override fun getPort(): String {
         return "80"
@@ -505,14 +532,19 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         }
     }
 
-    open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
+    open fun getCrName(): String {
+        val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
+        return "dai-${getPrefixName()}$operatorNamespace"
+    }
+
+    open fun getWorkerPodName(position: Int) = "pod/${getCrName()}-digitalai-${getName()}-worker-$position"
 
     open fun getMasterPodName(position: Int) =
-        "pod/dai-${getPrefixName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
+        "pod/${getCrName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
 
-    open fun getPostgresPodName(position: Int) = "pod/dai-${getPrefixName()}-postgresql-$position"
+    open fun getPostgresPodName(position: Int) = "pod/${getCrName()}-postgresql-$position"
 
-    open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
+    open fun getRabbitMqPodName(position: Int) = "pod/${getCrName()}-rabbitmq-$position"
 
     open fun getMasterPodNameSuffix(position: Int): String {
         return when (productName) {

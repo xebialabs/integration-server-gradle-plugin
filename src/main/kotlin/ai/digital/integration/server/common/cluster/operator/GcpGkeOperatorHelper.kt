@@ -33,9 +33,12 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
         waitForDeployment()
         waitForMasterPods()
         waitForWorkerPods()
-        val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}-nginx-ingress-controller")
+
+        val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
+        val ip = getKubectlHelper().getServiceExternalIp("service/dai-${getPrefixName()}$operatorNamespace-nginx-ingress-controller")
         val nameSpace = getNamespace() ?: "default"
         GcpGkeHelper(project, productName).applyDnsOpenApi(ip, getFqdn(), getHost(), nameSpace)
+
         createClusterMetadata()
         waitForBoot()
     }
@@ -63,7 +66,7 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getFqdn(): String {
-        return "${productName.shortName}-${getHost()}-${getNamespace() ?: "default"}.endpoints.${getProvider().projectName.get()}.cloud.goog"
+        return "${productName.shortName}-${getHost()}.endpoints.${getProvider().projectName.get()}.cloud.goog"
     }
 
     private fun getCurrentContextInfo(accountName: String, projectName: String): Pair<InfrastructureInfo, String> {
@@ -93,12 +96,15 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     private fun updateInfrastructure(kubeContextInfo: Pair<InfrastructureInfo, String>) {
+        super.updateInfrastructure()
+
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
                 "spec[0].children[0].apiServerURL" to kubeContextInfo.first.apiServerURL!!,
                 "spec[0].children[0].caCert" to kubeContextInfo.first.caCert!!,
                 "spec[0].children[0].token" to kubeContextInfo.second
         )
+
         YamlFileUtil.overlayFile(file, pairs)
     }
 

@@ -172,8 +172,12 @@ open class KubeCtlHelper(val project: Project, val namespace: String?, isOpenShi
     }
 
     fun getResourceNames(resource: String, productName: ProductName): String {
+        return getResourceNames(resource, productName.shortName)
+    }
+
+    fun getResourceNames(resource: String, filter: String): String {
         return ProcessUtil.executeCommand(project,
-            namespaceWrapper("$command get $resource -o name") + " | grep ${productName.shortName} | tr \"\\n\" \" \" | sed -e 's/,\$//'",
+            namespaceWrapper("$command get $resource -o name") + " | grep $filter | tr \"\\n\" \" \" | sed -e 's/,\$//'",
             logOutput = false, throwErrorOnFailure = false)
     }
 

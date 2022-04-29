@@ -53,6 +53,8 @@ open class AzureAksOperatorHelper(project: Project, productName: ProductName) : 
     }
 
     private fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+        super.updateInfrastructure()
+
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
                 "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,
@@ -82,7 +84,7 @@ open class AzureAksOperatorHelper(project: Project, productName: ProductName) : 
     override fun getFqdn(): String {
         val azureAksProvider: AzureAksProvider = getProvider()
         val location = azureAksProvider.location.get()
-        return "${getHost()}.${location}.cloudapp.azure.com"    
+        return "${getHost()}.${location}.cloudapp.azure.com"
     }
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {

@@ -26,5 +26,7 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
     @Input
     val doCleanup = project.objects.property<Boolean>().value(true)
 
+    @Input
+    val deploySuffix = project.objects.property<String>()
 
 }

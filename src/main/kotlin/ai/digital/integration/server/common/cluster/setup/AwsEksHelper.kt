@@ -316,16 +316,18 @@ open class AwsEksHelper(project: Project, productName: ProductName) : Helper(pro
         )
     }
 
-    fun updateRoute53(fqdn: String = getFqdn()) {
-        val templateFile = updateRoute53Json(fqdn)
+    fun updateRoute53(namespace: String?, fqdn: String = getFqdn()) {
+        val templateFile = updateRoute53Json(namespace, fqdn)
         val changeInfo = updateRoute53RecordSet(templateFile)
         verifyRoute53Status(changeInfo)
     }
 
-    private fun updateRoute53Json(fqdn: String): File {
+    private fun updateRoute53Json(namespace: String?, fqdn: String): File {
         val awsRoute53TemplateFile = getTemplate("operator/aws-eks/aws-route53-record-update.json")
-        val hostName = getHostName()
+        val hostName = getHostName(namespace)
+        project.logger.lifecycle("Using hostname: $hostName")
         val hostZoneId = getHostZoneId(hostName)
+        project.logger.lifecycle("Using hostZoneId: $hostZoneId")
 
         val awsRoute53Template = awsRoute53TemplateFile.readText(Charsets.UTF_8)
             .replace("{{FQDN}}", fqdn)
@@ -349,12 +351,12 @@ open class AwsEksHelper(project: Project, productName: ProductName) : Helper(pro
         )
     }
 
-    private fun getHostName(): String {
+    private fun getHostName(namespace: String?): String {
         return ProcessUtil.executeCommand(
             project,
             "kubectl get service" +
-                    " dai-${getPrefixName()}-nginx-ingress-controller " +
-                    "-o=jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\"",
+                    " dai-${getPrefixName()}${namespace?.let { "-$it" } ?: ""}-nginx-ingress-controller " +
+                    "-o=jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\" -n ${namespace ?: "default"}",
             logOutput = false,
             throwErrorOnFailure = false
         )
@@ -462,7 +464,6 @@ open class AwsEksHelper(project: Project, productName: ProductName) : Helper(pro
 
     fun destroyClusterOnShutdown() {
         val awsEksProvider: AwsEksProvider = getProvider()
-        project.logger.lifecycle("$$$$$$$$$$$$$$$$$$$$$$$$$$$$44 destroyClusterOnShutdown $$$$$$$$$$$$$$$$$$$$$$$$")
         if (awsEksProvider.destroyClusterOnShutdown.get()) {
             project.logger.lifecycle("Delete iamserviceaccount for CSI driver.")
             deleteIAMRoleForCSIDriver(getProvider())

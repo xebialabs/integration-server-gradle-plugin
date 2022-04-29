@@ -27,7 +27,7 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
         waitForWorkerPods()
 
         createClusterMetadata()
-        AwsEksHelper(project, productName).updateRoute53(getFqdn())
+        AwsEksHelper(project, productName).updateRoute53(getNamespace(), getFqdn())
         waitForBoot()
     }
 
@@ -56,7 +56,9 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
         return AwsEksHelper(project,productName).getStorageClass()
     }
 
-    private fun updateInfrastructure() {
+    override fun updateInfrastructure() {
+        super.updateInfrastructure()
+
         val infraInfo = getCurrentContextInfo()
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val awsEksProvider: AwsEksProvider = getProvider()
