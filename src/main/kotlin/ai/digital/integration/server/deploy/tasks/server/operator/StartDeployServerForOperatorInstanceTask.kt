@@ -33,7 +33,13 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
     }
 
     private fun start(server: Server) {
-        DeployServerUtil.runDockerBasedInstance(project, server)
+        val currentPort = DeployServerUtil.getDockerContainerPort(project, server, 4516)
+        if (currentPort != null && currentPort == server.httpPort) {
+            project.logger.lifecycle("Deploy Server ${server.name} ${server.version} on port " + server.httpPort.toString() + " is already running. Not starting it!")
+        } else {
+            project.logger.lifecycle("Deploy Server ${server.name} ${server.version} on port " + server.httpPort.toString() + " is not running. Starting it!")
+            DeployServerUtil.runDockerBasedInstance(project, server)
+        }
     }
 
     private fun allowToWriteMountedHostFolders() {
@@ -44,7 +50,7 @@ open class StartDeployServerForOperatorInstanceTask : DefaultTask() {
     fun launch() {
         // we only need one server for deployment on the operators
         val server = clusterUtil.getOperatorServer()
-        project.logger.lifecycle("About to launch Deploy Server ${server.name} on port " + server.httpPort.toString() + ".")
+        project.logger.lifecycle("About to launch Deploy Server ${server.name} ${server.version} on port " + server.httpPort.toString() + ".")
 
         allowToWriteMountedHostFolders()
         start(server)

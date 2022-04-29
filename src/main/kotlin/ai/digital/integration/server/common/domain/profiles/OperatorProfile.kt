@@ -17,14 +17,4 @@ open class OperatorProfile @Inject constructor(@Input var name: String, project:
     @Input
     val xlCliPath = project.objects.property<String>()
 
-    @Input
-    val namespace = project.objects.property<String>()
-
-    @Input
-    val ingressType = project.objects.property<String>().value(IngressType.NGINX.name)
-
-    @Input
-    val doCleanup = project.objects.property<Boolean>().value(true)
-
-
 }

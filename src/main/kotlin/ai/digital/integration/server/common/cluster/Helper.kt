@@ -1,12 +1,15 @@
 package ai.digital.integration.server.common.cluster
 
+import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.constant.ServerConstants
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.IngressType
+import ai.digital.integration.server.common.domain.profiles.OperatorHelmProfile
 import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.domain.Worker
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
@@ -62,14 +65,21 @@ abstract class Helper(val project: Project, val productName: ProductName) {
 
     open fun hasIngress(): Boolean = true
 
-    open fun getWorkerPodName(position: Int) = "pod/dai-${getPrefixName()}-digitalai-${getName()}-worker-$position"
+    open fun getWorkerPodName(position: Int) = "pod/${getCrName()}-digitalai-${getName()}-worker-$position"
 
     open fun getMasterPodName(position: Int) =
-            "pod/dai-${getPrefixName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
+        "pod/${getCrName()}-digitalai-${getName()}-${getMasterPodNameSuffix(position)}"
 
-    open fun getPostgresPodName(position: Int) = "pod/dai-${getPrefixName()}-postgresql-$position"
+    open fun getPostgresPodName(position: Int) = "pod/${getCrName()}-postgresql-$position"
 
-    open fun getRabbitMqPodName(position: Int) = "pod/dai-${getPrefixName()}-rabbitmq-$position"
+    open fun getRabbitMqPodName(position: Int) = "pod/${getCrName()}-rabbitmq-$position"
+
+    open fun getNamespace(): String? = getProfile().namespace.orNull
+
+    open fun getCrName(): String {
+        val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
+        return "dai-${getPrefixName()}$operatorNamespace"
+    }
 
     open fun getMasterPodNameSuffix(position: Int): String {
         return when (productName) {
@@ -95,6 +105,26 @@ abstract class Helper(val project: Project, val productName: ProductName) {
         return when (productName) {
             ProductName.DEPLOY -> DeployClusterUtil.getProfile(project)
             ProductName.RELEASE -> ReleaseClusterUtil.getProfile(project)
+        }
+    }
+
+    fun getProfile(): OperatorHelmProfile {
+        when (val profileName = getProfileName()) {
+            ClusterProfileName.OPERATOR.profileName -> {
+                return when (productName) {
+                    ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
+                    ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator()
+                }
+            }
+            ClusterProfileName.HELM.profileName -> {
+                return when (productName) {
+                    ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).clusterProfiles.helm()
+                    ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm()
+                }
+            }
+            else -> {
+                throw IllegalArgumentException("Provided profile name `$profileName` is not supported")
+            }
         }
     }
 
@@ -199,11 +229,11 @@ abstract class Helper(val project: Project, val productName: ProductName) {
             when (IngressType.valueOf(ingressType)) {
                 IngressType.NGINX ->
                     arrayOf(
-                            "deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-nginx-ingress-controller",
-                            "deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-nginx-ingress-controller-default-backend"
+                            "deployment.apps/${getCrName()}-nginx-ingress-controller",
+                            "deployment.apps/${getCrName()}-nginx-ingress-controller-default-backend"
                     )
                 IngressType.HAPROXY ->
-                    arrayOf("deployment.apps/${namespaceAsPrefix}dai-${getPrefixName()}-haproxy-ingress")
+                    arrayOf("deployment.apps/${getCrName()}-haproxy-ingress")
             }
         } else
             arrayOf()

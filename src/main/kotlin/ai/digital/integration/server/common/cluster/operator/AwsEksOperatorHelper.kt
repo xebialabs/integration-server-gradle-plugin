@@ -63,7 +63,9 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
         return awsEksHelper.getStorageClass()
     }
 
-    private fun updateInfrastructure() {
+    override fun updateInfrastructure() {
+        super.updateInfrastructure()
+
         val infraInfo = getCurrentContextInfo()
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val awsEksProvider: AwsEksProvider = getProvider()

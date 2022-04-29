@@ -7,14 +7,11 @@ import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.profiles.IngressType
-import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.internals.CliUtil
-import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
-import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import ai.digital.integration.server.release.util.ReleaseServerUtil
 import kotlinx.coroutines.*
@@ -25,7 +22,6 @@ import java.io.IOException
 import java.nio.file.Paths
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.*
 
 @Suppress("UnstableApiUsage")
 abstract class OperatorHelper(project: Project, productName: ProductName) : Helper(project, productName){
@@ -91,22 +87,14 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     fun getOperatorHomeDir(): String =
         project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
 
-
-
-    fun getProfile(): OperatorProfile {
-        return when (productName) {
-            ProductName.DEPLOY -> DeployExtensionUtil.getExtension(project).clusterProfiles.operator()
-            ProductName.RELEASE -> ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator()
-        }
-    }
-
     fun updateOperatorApplications() {
         project.logger.lifecycle("Updating operator's applications")
 
         val operatorNamespaceVersion = getOperatorNamespaceVersion()
+        val deploySuffix = getDeploySuffix()
 
         val file = File(getProviderHomeDir(), OPERATOR_APPS_REL_PATH)
-        val pairs = mutableMapOf<String, Any>("spec[0].children[0].name" to operatorNamespaceVersion)
+        val pairs = mutableMapOf<String, Any>("spec[0].children[0].name" to "$operatorNamespaceVersion$deploySuffix")
         YamlFileUtil.overlayFile(file, pairs)
     }
 
@@ -114,11 +102,28 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         project.logger.lifecycle("Updating operator's environment")
 
         val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
+        val operatorNamespaceOrDefault = getNamespace() ?: "default"
+        val deploySuffix = getDeploySuffix()
 
         val file = File(getProviderHomeDir(), OPERATOR_ENVIRONMENT_REL_PATH)
         val pairs =
             mutableMapOf<String, Any>(
-                "spec[0].children[0].name" to "${getPrefixName()}$operatorNamespace"
+                "spec[0].children[0].name" to "${getPrefixName()}$operatorNamespace$deploySuffix",
+                "spec[0].children[0].members" to arrayOf("~Infrastructure/k8s-infra/${getPrefixName()}$operatorNamespace$deploySuffix/$operatorNamespaceOrDefault")
+            )
+        YamlFileUtil.overlayFile(file, pairs)
+    }
+
+    open fun updateInfrastructure() {
+        project.logger.lifecycle("Updating operator's infrastructure")
+
+        val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
+        val deploySuffix = getDeploySuffix()
+
+        val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
+        val pairs =
+            mutableMapOf<String, Any>(
+                "spec[0].children[0].name" to "${getPrefixName()}$operatorNamespace$deploySuffix"
             )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -128,12 +133,13 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
         val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
         val operatorNamespaceVersion = getOperatorNamespaceVersion()
+        val deploySuffix = getDeploySuffix()
 
         val file = File(getProviderHomeDir(), OPERATOR_PACKAGE_REL_PATH)
         val pairs =
             mutableMapOf<String, Any>(
-                "spec.package" to "Applications/${getPrefixName()}-operator-app/$operatorNamespaceVersion",
-                "spec.environment" to "Environments/kubernetes-envs/${getPrefixName()}$operatorNamespace"
+                "spec.package" to "Applications/${getPrefixName()}-operator-app/$operatorNamespaceVersion$deploySuffix",
+                "spec.environment" to "Environments/kubernetes-envs/${getPrefixName()}$operatorNamespace$deploySuffix"
             )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -143,12 +149,13 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
         val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
         val operatorNamespaceVersion = getOperatorNamespaceVersion()
+        val deploySuffix = getDeploySuffix()
 
         val file = File(getProviderHomeDir(), OPERATOR_CR_PACKAGE_REL_PATH)
         val pairs =
             mutableMapOf<String, Any>(
-                "spec.package" to "Applications/${getPrefixName()}-cr/$operatorNamespaceVersion",
-                "spec.environment" to "Environments/kubernetes-envs/${getPrefixName()}$operatorNamespace"
+                "spec.package" to "Applications/${getPrefixName()}-cr/$operatorNamespaceVersion$deploySuffix",
+                "spec.environment" to "Environments/kubernetes-envs/${getPrefixName()}$operatorNamespace$deploySuffix"
             )
         YamlFileUtil.overlayFile(file, pairs)
     }
@@ -273,8 +280,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
                     "spec.nginx-ingress-controller.install" to false,
                     "spec.ingress.path" to getContextRoot(),
                     "spec.ingress.annotations" to mapOf(
-                        "kubernetes.io/ingress.class" to "haproxy",
-                        "ingress.kubernetes.io/ssl-redirect" to false,
+                        "kubernetes.io/ingress.class" to getIngressClass(),
+                        "ingress.kubernetes.io/ssl-redirect" to "false",
                         "ingress.kubernetes.io/rewrite-target" to getContextRoot(),
                         "ingress.kubernetes.io/affinity" to "cookie",
                         "ingress.kubernetes.io/session-cookie-name" to "JSESSIONID",
@@ -322,9 +329,16 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     open fun getProviderCrContextPath(): String = "spec.ingress.path"
 
     open fun getContextRoot(): String {
-        val file = getReferenceCrValuesFile()
+        val file = getInitialCrValuesFile()
         val pathKey = getProviderCrContextPath()
         return getContextRootPath(file, pathKey)
+    }
+
+    open fun getIngressClass(): String {
+        val file = getInitialCrValuesFile()
+        val pathKey = "spec.ingress.annotations"
+        val annotations = YamlFileUtil.readFileKey(file, pathKey) as  MutableMap<String, Any>
+        return annotations["kubernetes.io/ingress.class"] as String
     }
 
     open fun getCurrentContextInfo(): InfrastructureInfo {
@@ -335,7 +349,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         return getProvider().host.getOrElse("${getProvider().name.get()}-${productName.shortName}-${getNamespace() ?: "default"}")
     }
 
-    open fun getNamespace(): String? = getProfile().namespace.orNull
+    fun getDeploySuffix(): String = getProfile().deploySuffix.map { "-$it" }.getOrElse("")
 
     override fun getPort(): String {
         return "80"
@@ -372,6 +386,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
 
     fun operatorCleanUpCluster(waiting: Duration) {
         if (getProfile().doCleanup.get()) {
+
             val resourcesList = arrayOf(
                 "crd",
                 "all",
@@ -410,6 +425,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
             project.logger.lifecycle("Skip up cluster resources in namespace ${getKubectlHelper().namespace}")
         }
     }
+
     fun cleanUpCluster(waiting: Duration) {
         val helmHelper = HelmHelper.getHelmHelper(project, productName)
         helmHelper.helmCleanUpCluster()

@@ -83,6 +83,7 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
 
     private fun updateInfrastructure(apiServerURL: String, token: String) {
         project.logger.lifecycle("Updating operator's infrastructure")
+        super.updateInfrastructure()
 
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>("spec[0].children[0].serverUrl" to apiServerURL,
@@ -100,15 +101,20 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
 
     override fun hasIngress(): Boolean = false
 
+    override fun getCrName(): String {
+        val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
+        return "dai-ocp-${getPrefixName()}$operatorNamespace"
+    }
+
     override fun getWorkerPodName(position: Int) =
-        "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-worker-$position"
+        "pod/${getCrName()}-digitalai-${getName()}-ocp-worker-$position"
 
     override fun getMasterPodName(position: Int) =
-        "pod/dai-ocp-${getPrefixName()}-digitalai-${getName()}-ocp-${getMasterPodNameSuffix(position)}"
+        "pod/${getCrName()}-digitalai-${getName()}-ocp-${getMasterPodNameSuffix(position)}"
 
-    override fun getPostgresPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-postgresql-$position"
+    override fun getPostgresPodName(position: Int) = "pod/${getCrName()}-postgresql-$position"
 
-    override fun getRabbitMqPodName(position: Int) = "pod/dai-ocp-${getPrefixName()}-rabbitmq-$position"
+    override fun getRabbitMqPodName(position: Int) = "pod/${getCrName()}-rabbitmq-$position"
 
     override fun getProviderCrContextPath(): String = "spec.route.path"
 

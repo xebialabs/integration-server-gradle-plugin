@@ -53,8 +53,9 @@ open class OnPremOperatorHelper(project: Project, productName: ProductName) : Op
         return getProfile().onPremise
     }
 
-
     fun updateInfrastructure(infraInfo: InfrastructureInfo) {
+        super.updateInfrastructure()
+
         val file = File(getProviderHomeDir(), OPERATOR_INFRASTRUCTURE_PATH)
         val pairs = mutableMapOf<String, Any>(
             "spec[0].children[0].apiServerURL" to infraInfo.apiServerURL!!,
@@ -71,12 +72,12 @@ open class OnPremOperatorHelper(project: Project, productName: ProductName) : Op
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
-            "spec.ingress.hosts" to listOf(getFqdn()),
-            "spec.nginx-ingress-controller.defaultBackend.podSecurityContext" to mapOf("fsGroup" to 1001),
-            "spec.nginx-ingress-controller.podSecurityContext" to mapOf("fsGroup" to 1001)
+            "spec.ingress.hosts" to listOf(getFqdn())
         )
         YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     override fun getCurrentContextInfo() = getKubectlHelper().getCurrentContextInfo()
+
+    override fun hasIngress(): Boolean = false
 }
