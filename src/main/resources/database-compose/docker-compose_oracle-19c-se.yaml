@@ -2,7 +2,8 @@ version: "3.4"
 
 services:
   oracle-19c:
-    image: xl-docker.xebialabs.com/oracle/db-prebuilt:19.3.0-se2-v2
+    image: gvenzl/oracle-xe:21.3.0-slim
+    environment:
+      - ORACLE_PASSWORD=xldrepo
     ports:
       - "{{DB_PORT}}:1521"
-      - "5500:5500"

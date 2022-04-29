@@ -291,7 +291,7 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
     }
 
     private fun waitForBoot() {
-        val url = EntryPointUrlUtil(project, ProductName.DEPLOY).composeUrl("/deployit/metadata/type")
+        val url = EntryPointUrlUtil(project, ProductName.DEPLOY, true).composeUrl("/deployit/metadata/type")
         val server = DeployServerUtil.getServer(project)
         WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
