@@ -16,7 +16,7 @@ abstract class OperatorHelmProfile (name: String, project: Project) : Profile {
     val deploymentTimeoutSeconds = project.objects.property<Int>().value(900)
 
     @Input
-    val activeProviderName = project.objects.property<String>().value(OperatorHelmProviderName.ON_PREMISE.providerName)
+    val activeProviderName = project.objects.property<String>()
 
     @Input
     val namespace = project.objects.property<String>()

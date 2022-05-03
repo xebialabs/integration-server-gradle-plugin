@@ -29,32 +29,34 @@ open class HelmBasedStopDeployClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        if (DeployExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
-            this.dependsOn(
-                when (val providerName = DeployClusterUtil.getHelmProvider(project)) {
-                    OperatorHelmProviderName.AWS_EKS.providerName ->
-                        HelmBasedAwsEksStopDeployClusterTask.NAME
-                    OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                        HelmBasedAwsOpenShiftStopDeployClusterTask.NAME
-                    OperatorHelmProviderName.AZURE_AKS.providerName ->
-                        HelmBasedAzureAksStopDeployClusterTask.NAME
-                    OperatorHelmProviderName.GCP_GKE.providerName ->
-                        HelmBasedGcpGkeStopDeployClusterTask.NAME
-                    OperatorHelmProviderName.ON_PREMISE.providerName ->
-                        HelmBasedOnPremStopDeployClusterTask.NAME
-                    /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
+        project.afterEvaluate {
+            if (DeployExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
+                dependsOn(
+                    when (val providerName = DeployClusterUtil.getHelmProvider(project)) {
+                        OperatorHelmProviderName.AWS_EKS.providerName ->
+                            HelmBasedAwsEksStopDeployClusterTask.NAME
+                        OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
+                            HelmBasedAwsOpenShiftStopDeployClusterTask.NAME
+                        OperatorHelmProviderName.AZURE_AKS.providerName ->
+                            HelmBasedAzureAksStopDeployClusterTask.NAME
+                        OperatorHelmProviderName.GCP_GKE.providerName ->
+                            HelmBasedGcpGkeStopDeployClusterTask.NAME
+                        OperatorHelmProviderName.ON_PREMISE.providerName ->
+                            HelmBasedOnPremStopDeployClusterTask.NAME
+                        /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
                         OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME*/
-                    else -> {
-                        throw IllegalArgumentException(
-                            "Provided helm provider name `$providerName` is not supported. Choose one of ${
-                                OperatorHelmProviderName.values().joinToString()
-                            }"
-                        )
+                        else -> {
+                            throw IllegalArgumentException(
+                                "Provided helm provider name `$providerName` is not supported. Choose one of ${
+                                    OperatorHelmProviderName.values().joinToString()
+                                }"
+                            )
+                        }
                     }
-                }
-            )
-        } else {
-            project.logger.warn("Active provider name is not set - OperatorBasedStopDeployClusterTask")
+                )
+            } else {
+                project.logger.warn("Active provider name is not set - OperatorBasedStopDeployClusterTask")
+            }
         }
         this.finalizedBy(
                // StopDeployServerForOperatorInstanceTask.NAME,

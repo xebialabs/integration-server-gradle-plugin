@@ -23,33 +23,35 @@ open class OperatorBasedStartDeployClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
-            this.dependsOn(
-                DownloadAndExtractCliDistTask.NAME,
-                when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
-                    OperatorHelmProviderName.AWS_EKS.providerName ->
-                        OperatorBasedAwsEksStartDeployClusterTask.NAME
-                    OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                        OperatorBasedAwsOpenShiftStartDeployClusterTask.NAME
-                    OperatorHelmProviderName.AZURE_AKS.providerName ->
-                        OperatorBasedAzureAksStartDeployClusterTask.NAME
-                    OperatorHelmProviderName.GCP_GKE.providerName ->
-                        OperatorBasedGcpGkeStartDeployClusterTask.NAME
-                    OperatorHelmProviderName.ON_PREMISE.providerName ->
-                        OperatorBasedOnPremStartDeployClusterTask.NAME
-                    OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
-                        OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME
-                    else -> {
-                        throw IllegalArgumentException(
-                            "Provided operator provider name `$providerName` is not supported. Choose one of ${
-                                OperatorHelmProviderName.values().joinToString()
-                            }"
-                        )
+        project.afterEvaluate {
+            if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
+                dependsOn(
+                    DownloadAndExtractCliDistTask.NAME,
+                    when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
+                        OperatorHelmProviderName.AWS_EKS.providerName ->
+                            OperatorBasedAwsEksStartDeployClusterTask.NAME
+                        OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
+                            OperatorBasedAwsOpenShiftStartDeployClusterTask.NAME
+                        OperatorHelmProviderName.AZURE_AKS.providerName ->
+                            OperatorBasedAzureAksStartDeployClusterTask.NAME
+                        OperatorHelmProviderName.GCP_GKE.providerName ->
+                            OperatorBasedGcpGkeStartDeployClusterTask.NAME
+                        OperatorHelmProviderName.ON_PREMISE.providerName ->
+                            OperatorBasedOnPremStartDeployClusterTask.NAME
+                        OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
+                            OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME
+                        else -> {
+                            throw IllegalArgumentException(
+                                "Provided operator provider name `$providerName` is not supported. Choose one of ${
+                                    OperatorHelmProviderName.values().joinToString()
+                                }"
+                            )
+                        }
                     }
-                }
-            )
-        } else {
-            project.logger.warn("Active provider name is not set - OperatorBasedStartDeployClusterTask")
+                )
+            } else {
+                project.logger.warn("Active provider name is not set - OperatorBasedStartDeployClusterTask")
+            }
         }
     }
 

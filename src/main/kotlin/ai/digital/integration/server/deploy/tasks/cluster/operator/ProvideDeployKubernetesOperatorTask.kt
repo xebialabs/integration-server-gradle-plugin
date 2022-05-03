@@ -18,23 +18,25 @@ open class ProvideDeployKubernetesOperatorTask : DefaultTask() {
     }
 
     init {
-        if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
-            val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.DEPLOY)
-            if (operatorHelper.getProvider().operatorPackageVersion.isPresent) {
-                project.buildscript.dependencies.add(
-                    DeployConfigurationsUtil.OPERATOR_DIST,
-                    "ai.digital.deploy.operator:${operatorHelper.getProviderHomePath()}:${operatorHelper.getProvider().operatorPackageVersion.get()}@zip"
-                )
+        project.afterEvaluate {
+            if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
+                val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.DEPLOY)
+                if (operatorHelper.getProvider().operatorPackageVersion.isPresent) {
+                    project.buildscript.dependencies.add(
+                        DeployConfigurationsUtil.OPERATOR_DIST,
+                        "ai.digital.deploy.operator:${operatorHelper.getProviderHomePath()}:${operatorHelper.getProvider().operatorPackageVersion.get()}@zip"
+                    )
 
-                val taskName = "downloadAndExtractOperator${operatorHelper.getProviderHomePath()}"
-                val task = project.tasks.register(taskName, Copy::class.java) {
-                    from(project.zipTree(project.buildscript.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
-                    into(operatorHelper.getProviderHomeDir())
+                    val taskName = "downloadAndExtractOperator${operatorHelper.getProviderHomePath()}"
+                    val task = project.tasks.register(taskName, Copy::class.java) {
+                        from(project.zipTree(project.buildscript.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
+                        into(operatorHelper.getProviderHomeDir())
+                    }
+                    dependsOn(task)
                 }
-                this.dependsOn(task)
+            } else {
+                project.logger.warn("Active provider name is not set - ProvideDeployKubernetesOperatorTask")
             }
-        } else {
-            project.logger.warn("Active provider name is not set - ProvideDeployKubernetesOperatorTask")
         }
     }
 
