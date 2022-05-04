@@ -427,8 +427,6 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     }
 
     fun cleanUpCluster(waiting: Duration) {
-        val helmHelper = HelmHelper.getHelmHelper(project, productName)
-        helmHelper.helmCleanUpCluster()
         operatorCleanUpCluster(waiting)
     }
 

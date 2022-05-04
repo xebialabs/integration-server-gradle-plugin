@@ -22,7 +22,7 @@ open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHe
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
         createClusterMetadata()
-        awsEksHelper.updateRoute53(getFqdn())
+        awsEksHelper.updateRoute53("default", getFqdn())
         waitForBoot(getContextRoot(), getFqdn())
     }
 

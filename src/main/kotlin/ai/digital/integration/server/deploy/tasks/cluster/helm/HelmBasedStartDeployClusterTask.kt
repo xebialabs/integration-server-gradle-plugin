@@ -17,7 +17,9 @@ import ai.digital.integration.server.deploy.tasks.cluster.operator.gcpgke.Operat
 import ai.digital.integration.server.deploy.tasks.cluster.operator.onprem.OperatorBasedOnPremStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift.OperatorBasedVmWareOpenShiftStartDeployClusterTask
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.closureOf
 
 open class HelmBasedStartDeployClusterTask : DefaultTask() {
 
@@ -28,33 +30,35 @@ open class HelmBasedStartDeployClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
-            this.dependsOn(
-                DownloadAndExtractCliDistTask.NAME,
-                when (val providerName = DeployClusterUtil.getHelmProvider(project)) {
-                    OperatorHelmProviderName.AWS_EKS.providerName ->
-                        HelmBasedAwsEksStartDeployClusterTask.NAME
-                    OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                        HelmBasedAwsOpenShiftStartDeployClusterTask.NAME
-                    OperatorHelmProviderName.AZURE_AKS.providerName ->
-                        HelmBasedAzureAksStartDeployClusterTask.NAME
-                    OperatorHelmProviderName.GCP_GKE.providerName ->
-                        HelmBasedGcpGkeStartDeployClusterTask.NAME
-                    OperatorHelmProviderName.ON_PREMISE.providerName ->
-                        HelmBasedOnPremStartDeployClusterTask.NAME
-                    /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
+        project.afterEvaluate {
+            if (DeployExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
+                dependsOn(
+                    DownloadAndExtractCliDistTask.NAME,
+                    when (val providerName = DeployClusterUtil.getHelmProvider(project)) {
+                        OperatorHelmProviderName.AWS_EKS.providerName ->
+                            HelmBasedAwsEksStartDeployClusterTask.NAME
+                        OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
+                            HelmBasedAwsOpenShiftStartDeployClusterTask.NAME
+                        OperatorHelmProviderName.AZURE_AKS.providerName ->
+                            HelmBasedAzureAksStartDeployClusterTask.NAME
+                        OperatorHelmProviderName.GCP_GKE.providerName ->
+                            HelmBasedGcpGkeStartDeployClusterTask.NAME
+                        OperatorHelmProviderName.ON_PREMISE.providerName ->
+                            HelmBasedOnPremStartDeployClusterTask.NAME
+                        /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
                         OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME*/
-                    else -> {
-                        throw IllegalArgumentException(
-                            "Provided helm provider name `$providerName` is not supported. Choose one of ${
-                                OperatorHelmProviderName.values().joinToString()
-                            }"
-                        )
+                        else -> {
+                            throw IllegalArgumentException(
+                                "Provided helm provider name `$providerName` is not supported. Choose one of ${
+                                    OperatorHelmProviderName.values().joinToString()
+                                }"
+                            )
+                        }
                     }
-                }
-            )
-        } else {
-            project.logger.warn("Active provider name is not set - HelmBasedStartDeployClusterTask")
+                )
+            } else {
+                project.logger.warn("Active provider name is not set - HelmBasedStartDeployClusterTask")
+            }
         }
     }
 
