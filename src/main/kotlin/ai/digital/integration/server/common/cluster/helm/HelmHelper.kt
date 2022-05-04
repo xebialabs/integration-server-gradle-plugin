@@ -151,8 +151,6 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
 
     fun installCluster() {
         helmCleanUpCluster()
-        val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
-        operatorHelper.operatorCleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         ProcessUtil.executeCommand("helm install ${getHelmReleaseName()} \"${getHelmHomeDir()}\"")
     }
 
