@@ -22,28 +22,34 @@ open class HelmBasedStartReleaseClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
-            this.dependsOn(when (val providerName = ReleaseClusterUtil.getHelmProvider(project)) {
-                OperatorHelmProviderName.AWS_EKS.providerName ->
-                    HelmBasedAwsEksStartReleaseClusterTask.NAME
-                OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                    HelmBasedAwsOpenShiftStartReleaseClusterTask.NAME
-                OperatorHelmProviderName.AZURE_AKS.providerName ->
-                    HelmBasedAzureAksStartReleaseClusterTask.NAME
-                OperatorHelmProviderName.GCP_GKE.providerName ->
-                    HelmBasedGcpGkeStartReleaseClusterTask.NAME
-                OperatorHelmProviderName.ON_PREMISE.providerName ->
-                    HelmBasedOnPremStartReleaseClusterTask.NAME
-                /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
+        project.afterEvaluate {
+            if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
+                dependsOn(
+                    when (val providerName = ReleaseClusterUtil.getHelmProvider(project)) {
+                        OperatorHelmProviderName.AWS_EKS.providerName ->
+                            HelmBasedAwsEksStartReleaseClusterTask.NAME
+                        OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
+                            HelmBasedAwsOpenShiftStartReleaseClusterTask.NAME
+                        OperatorHelmProviderName.AZURE_AKS.providerName ->
+                            HelmBasedAzureAksStartReleaseClusterTask.NAME
+                        OperatorHelmProviderName.GCP_GKE.providerName ->
+                            HelmBasedGcpGkeStartReleaseClusterTask.NAME
+                        OperatorHelmProviderName.ON_PREMISE.providerName ->
+                            HelmBasedOnPremStartReleaseClusterTask.NAME
+                        /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
                     OperatorBasedVmWareOpenShiftStartReleaseClusterTask.NAME*/
-                else -> {
-                    throw IllegalArgumentException("Provided helm provider name `$providerName` is not supported. Choose one of ${
-                        OperatorHelmProviderName.values().joinToString()
-                    }")
-                }
-            })
-        } else {
-            project.logger.warn("Active provider name is not set - OperatorBasedStartReleaseClusterTask")
+                        else -> {
+                            throw IllegalArgumentException(
+                                "Provided helm provider name `$providerName` is not supported. Choose one of ${
+                                    OperatorHelmProviderName.values().joinToString()
+                                }"
+                            )
+                        }
+                    }
+                )
+            } else {
+                project.logger.warn("Active provider name is not set - OperatorBasedStartReleaseClusterTask")
+            }
         }
     }
 

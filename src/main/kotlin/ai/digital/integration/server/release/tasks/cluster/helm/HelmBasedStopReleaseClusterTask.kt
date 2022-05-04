@@ -24,9 +24,10 @@ open class HelmBasedStopReleaseClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
-            this.dependsOn(
-                DownloadAndExtractCliDistTask.NAME,
+        project.afterEvaluate {
+            if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
+                dependsOn(
+                    DownloadAndExtractCliDistTask.NAME,
                     when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
                         OperatorHelmProviderName.AWS_EKS.providerName ->
                             HelmBasedAwsEksStopReleaseClusterTask.NAME
@@ -41,17 +42,21 @@ open class HelmBasedStopReleaseClusterTask : DefaultTask() {
                         /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
                         OperatorBasedVmWareOpenShiftStopReleaseClusterTask.NAME*/
                         else -> {
-                            throw IllegalArgumentException("Provided helm provider name `$providerName` is not supported. Choose one of ${
-                                OperatorHelmProviderName.values().joinToString()
-                            }")
+                            throw IllegalArgumentException(
+                                "Provided helm provider name `$providerName` is not supported. Choose one of ${
+                                    OperatorHelmProviderName.values().joinToString()
+                                }"
+                            )
                         }
-                    })
-        } else {
-            project.logger.warn("Active helm name is not set - HelmBasedStopReleaseClusterTask")
+                    }
+                )
+            } else {
+                project.logger.warn("Active helm name is not set - HelmBasedStopReleaseClusterTask")
+            }
         }
         this.finalizedBy(
-                StopDeployServerForOperatorInstanceTask.NAME,
-                StopDeployServerForOperatorUpgradeTask.NAME
+            StopDeployServerForOperatorInstanceTask.NAME,
+            StopDeployServerForOperatorUpgradeTask.NAME
         )
     }
 
