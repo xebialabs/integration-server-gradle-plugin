@@ -94,9 +94,7 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
     }
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
-        val pairs: MutableMap<String, Any> =
-            mutableMapOf("spec.postgresql.postgresqlExtendedConf.listenAddresses" to "*")
-        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
+        // nothing to update
     }
 
     override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace(), true)
