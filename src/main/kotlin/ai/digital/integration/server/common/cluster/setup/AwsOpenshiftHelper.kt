@@ -29,7 +29,6 @@ open class AwsOpenshiftHelper(project: Project, productName: ProductName, val pr
 
     fun launchCluster() {
         createOcContext()
-        ocLogin()
     }
 
     fun getApiServerUrl() = getProvider().apiServerURL.get()

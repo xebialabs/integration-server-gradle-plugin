@@ -24,6 +24,7 @@ open class AwsOpenshiftHelmHelper(project: Project, productName: ProductName) : 
     fun helmInstallCluster() {
         installCluster()
 
+        awsOpenshiftHelper.ocLogin()
         waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), skipOperator = true)
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
