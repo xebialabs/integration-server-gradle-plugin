@@ -25,7 +25,7 @@ open class HelmBasedStopReleaseClusterTask : DefaultTask() {
         group = PluginConstant.PLUGIN_GROUP
 
         project.afterEvaluate {
-            if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
+            if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
                 dependsOn(
                     DownloadAndExtractCliDistTask.NAME,
                     when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
