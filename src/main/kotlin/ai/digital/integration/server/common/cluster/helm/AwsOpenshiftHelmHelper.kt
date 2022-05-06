@@ -4,7 +4,6 @@ import ai.digital.integration.server.common.cluster.setup.AwsOpenshiftHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.providers.AwsOpenshiftProvider
 import ai.digital.integration.server.common.util.KubeCtlHelper
-import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
 import java.io.File
 
@@ -24,6 +23,7 @@ open class AwsOpenshiftHelmHelper(project: Project, productName: ProductName) : 
     fun helmInstallCluster() {
         installCluster()
 
+        awsOpenshiftHelper.ocLogin()
         waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), skipOperator = true)
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
@@ -44,9 +44,7 @@ open class AwsOpenshiftHelmHelper(project: Project, productName: ProductName) : 
     }
 
     override fun updateCustomHelmValues(valuesFile: File) {
-        val pairs: MutableMap<String, Any> =
-                mutableMapOf("postgresql.postgresqlExtendedConf.listenAddresses" to "*")
-        YamlFileUtil.overlayFile(valuesFile, pairs, minimizeQuotes = false)
+        // nothing to update
     }
 
     override fun getStorageClass(): String {

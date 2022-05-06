@@ -20,6 +20,7 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
     }
 
     fun updateOperator() {
+        awsOpenshiftHelper.ocLogin()
         cleanUpCluster(getProvider().cleanUpWaitTimeout.get())
         updateInfrastructure(awsOpenshiftHelper.getApiServerUrl(), getOcApiServerToken())
         updateOperatorApplications()
@@ -35,6 +36,7 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
 
         turnOnLogging()
         val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
+        awsOpenshiftHelper.ocLogin()
         waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), namespaceAsPrefix)
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
@@ -92,9 +94,7 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
     }
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
-        val pairs: MutableMap<String, Any> =
-            mutableMapOf("spec.postgresql.postgresqlExtendedConf.listenAddresses" to "*")
-        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
+        // nothing to update
     }
 
     override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace(), true)
