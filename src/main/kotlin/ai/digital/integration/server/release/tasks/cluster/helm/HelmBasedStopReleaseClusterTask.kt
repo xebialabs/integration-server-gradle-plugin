@@ -28,7 +28,7 @@ open class HelmBasedStopReleaseClusterTask : DefaultTask() {
             if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
                 dependsOn(
                     DownloadAndExtractCliDistTask.NAME,
-                    when (val providerName = ReleaseClusterUtil.getHelmProviderName(project)) {
+                    when (val providerName = ReleaseClusterUtil.getHelmProvider(project)) {
                         OperatorHelmProviderName.AWS_EKS.providerName ->
                             HelmBasedAwsEksStopReleaseClusterTask.NAME
                         OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
