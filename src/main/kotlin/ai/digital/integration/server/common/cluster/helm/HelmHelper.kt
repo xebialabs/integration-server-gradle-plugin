@@ -64,13 +64,13 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
         when (IngressType.valueOf(getProfile().ingressType.get())) {
             IngressType.NGINX -> {
                 val fileNginxValues = File(getHelmHomeDir(), VALUES_NGINX_PATH)
-                project.logger.lifecycle("Copying $VALUES_NGINX_PATH file to values.yaml}")
+                project.logger.lifecycle("Copying $VALUES_NGINX_PATH file to values.yaml")
                 ProcessUtil.executeCommand(
                         "cp -f \"$fileNginxValues\" \"${getHelmValuesFile()}\"", logOutput = false)
             }
             IngressType.HAPROXY -> {
                 val fileHaproxyValues = File(getHelmHomeDir(), VALUES_HAPROXY_PATH)
-                project.logger.lifecycle("Copying $VALUES_HAPROXY_PATH file to values.yaml}")
+                project.logger.lifecycle("Copying $VALUES_HAPROXY_PATH file to values.yaml")
                 ProcessUtil.executeCommand(
                         "cp -f \"$fileHaproxyValues\" \"${getHelmValuesFile()}\"", logOutput = false)
             }
