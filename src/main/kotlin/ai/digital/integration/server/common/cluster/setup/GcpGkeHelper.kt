@@ -248,7 +248,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName, val profile:
     }
 
     override fun getFqdn(): String {
-        return "${productName.shortName}-${getHost()}-default.endpoints.${getProvider().projectName.get()}.cloud.goog"
+        return "${productName.shortName}-${getHost()}.endpoints.${getProvider().projectName.get()}.cloud.goog"
     }
 
 
