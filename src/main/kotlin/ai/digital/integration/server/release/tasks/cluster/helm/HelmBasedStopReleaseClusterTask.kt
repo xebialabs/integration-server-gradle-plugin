@@ -54,10 +54,6 @@ open class HelmBasedStopReleaseClusterTask : DefaultTask() {
                 project.logger.warn("Active helm name is not set - HelmBasedStopReleaseClusterTask")
             }
         }
-        this.finalizedBy(
-            StopDeployServerForOperatorInstanceTask.NAME,
-            StopDeployServerForOperatorUpgradeTask.NAME
-        )
     }
 
     @TaskAction
