@@ -28,7 +28,7 @@ open class HelmBasedStopReleaseClusterTask : DefaultTask() {
             if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
                 dependsOn(
                     DownloadAndExtractCliDistTask.NAME,
-                    when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
+                    when (val providerName = ReleaseClusterUtil.getHelmProvider(project)) {
                         OperatorHelmProviderName.AWS_EKS.providerName ->
                             HelmBasedAwsEksStopReleaseClusterTask.NAME
                         OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
@@ -54,10 +54,6 @@ open class HelmBasedStopReleaseClusterTask : DefaultTask() {
                 project.logger.warn("Active helm name is not set - HelmBasedStopReleaseClusterTask")
             }
         }
-        this.finalizedBy(
-            StopDeployServerForOperatorInstanceTask.NAME,
-            StopDeployServerForOperatorUpgradeTask.NAME
-        )
     }
 
     @TaskAction

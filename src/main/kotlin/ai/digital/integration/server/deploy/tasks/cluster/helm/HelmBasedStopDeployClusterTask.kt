@@ -58,10 +58,6 @@ open class HelmBasedStopDeployClusterTask : DefaultTask() {
                 project.logger.warn("Active provider name is not set - OperatorBasedStopDeployClusterTask")
             }
         }
-        this.finalizedBy(
-               // StopDeployServerForOperatorInstanceTask.NAME,
-                //StopDeployServerForOperatorUpgradeTask.NAME
-        )
     }
 
     @TaskAction
