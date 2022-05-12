@@ -2,6 +2,7 @@ package ai.digital.integration.server.common.cluster.operator
 
 import ai.digital.integration.server.common.cluster.setup.AwsEksHelper
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.domain.providers.AwsEksProvider
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
@@ -28,8 +29,7 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
 
     fun installCluster() {
         applyYamlFiles()
-        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
-        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), namespaceAsPrefix)
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get())
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
 
@@ -81,7 +81,7 @@ open class AwsEksOperatorHelper(project: Project, productName: ProductName) : Op
     }
 
     override fun getFqdn(): String {
-        return "${getProvider().stack.get()}-${getName()}-${getNamespace() ?: "default"}.digitalai-testing.com"
+        return "${getProvider().stack.get()}-${getName()}-${getNamespace() ?: Profile.DEFAULT_NAMESPACE_NAME}.digitalai-testing.com"
     }
 
     override fun getDbStorageClass(): String {

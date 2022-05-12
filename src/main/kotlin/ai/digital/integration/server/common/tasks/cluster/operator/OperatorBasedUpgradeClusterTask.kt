@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.K8sSetup
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.util.GitUtil
 import ai.digital.integration.server.common.util.XlCliUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
@@ -111,7 +112,7 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
         val operatorImage = operatorHelper.getOperatorImage() ?: getOperatorImage(operatorHelper)
         val crdName = operatorHelper.getKubectlHelper().getCrd("${productName.shortName}.digital.ai")
         val crName = operatorHelper.getKubectlHelper().getCr(crdName)
-        val namespace = operatorHelper.getProfile().namespace.getOrElse("default")
+        val namespace = operatorHelper.getProfile().namespace.getOrElse(Profile.DEFAULT_NAMESPACE_NAME)
         val k8sSetup = when (productName) {
             ProductName.DEPLOY -> {
                 XlCliUtil.XL_OP_MAPPING[DeployClusterUtil.getOperatorProviderName(project)]!!
@@ -146,9 +147,9 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
         val answersFileTemplateTmp = answersFile.readText(Charsets.UTF_8)
                 .replace("{{CRD_NAME}}", crdName)
                 .replace("{{CR_NAME}}", crName)
-                .replace("{{USE_CUSTOM_NAMESPACE}}", (namespace != "default").toString())
+                .replace("{{USE_CUSTOM_NAMESPACE}}", (namespace != Profile.DEFAULT_NAMESPACE_NAME).toString())
                 .replace("{{K8S_NAMESPACE}}", namespace)
-                .replace("{{IS_CRD_REUSED}}", (namespace != "default").toString())
+                .replace("{{IS_CRD_REUSED}}", (namespace != Profile.DEFAULT_NAMESPACE_NAME).toString())
                 .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
                 .replace("{{K8S_SETUP}}", k8sSetup)
                 .replace("{{OPERATOR_IMAGE}}", operatorImage)

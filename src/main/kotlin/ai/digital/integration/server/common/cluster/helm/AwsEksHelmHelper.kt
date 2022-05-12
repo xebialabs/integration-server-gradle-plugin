@@ -2,6 +2,7 @@ package ai.digital.integration.server.common.cluster.helm
 
 import ai.digital.integration.server.common.cluster.setup.AwsEksHelper
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.domain.providers.AwsEksProvider
 import ai.digital.integration.server.common.util.YamlFileUtil
 import org.gradle.api.Project
@@ -22,7 +23,7 @@ open class AwsEksHelmHelper(project: Project, productName: ProductName) : HelmHe
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
         createClusterMetadata()
-        awsEksHelper.updateRoute53("default", getFqdn())
+        awsEksHelper.updateRoute53(Profile.DEFAULT_NAMESPACE_NAME, getFqdn())
         waitForBoot(getContextRoot(), getFqdn())
     }
 

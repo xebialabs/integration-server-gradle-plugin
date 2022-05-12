@@ -31,8 +31,7 @@ open class OnPremOperatorHelper(project: Project, productName: ProductName) : Op
 
     fun installCluster() {
         applyYamlFiles()
-        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
-        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), namespaceAsPrefix)
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get())
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
 

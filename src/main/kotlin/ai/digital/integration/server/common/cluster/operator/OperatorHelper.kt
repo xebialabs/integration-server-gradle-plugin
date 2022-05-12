@@ -7,6 +7,7 @@ import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
 import ai.digital.integration.server.common.domain.profiles.IngressType
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.domain.providers.Provider
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.internals.CliUtil
@@ -102,7 +103,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
         project.logger.lifecycle("Updating operator's environment")
 
         val operatorNamespace = getNamespace()?.let { "-$it" } ?: ""
-        val operatorNamespaceOrDefault = getNamespace() ?: "default"
+        val operatorNamespaceOrDefault = getNamespace() ?: Profile.DEFAULT_NAMESPACE_NAME
         val deploySuffix = getDeploySuffix()
 
         val file = File(getProviderHomeDir(), OPERATOR_ENVIRONMENT_REL_PATH)
@@ -161,10 +162,10 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     }
 
     private fun getOperatorNamespaceVersion(): String {
-        val namespace = getNamespace()?.let { "-$it" } ?: ""
+        val namespaceAsSuffix = getNamespace()?.let { "-$it" } ?: ""
         return getProvider().operatorPackageVersion
-            .map { "$it$namespace" }
-            .getOrElse("${getServerVersion()}$namespace")
+            .map { "$it$namespaceAsSuffix" }
+            .getOrElse("${getServerVersion()}$namespaceAsSuffix")
     }
 
     fun turnOnLogging() {
@@ -337,7 +338,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     open fun getIngressClass(): String {
         val file = getInitialCrValuesFile()
         val pathKey = "spec.ingress.annotations"
-        val annotations = YamlFileUtil.readFileKey(file, pathKey) as  MutableMap<String, Any>
+        val annotations = YamlFileUtil.readFileKey(file, pathKey) as  MutableMap<*, *>
         return annotations["kubernetes.io/ingress.class"] as String
     }
 
@@ -346,7 +347,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     }
 
     override fun getHost(): String {
-        return getProvider().host.getOrElse("${getProvider().name.get()}-${productName.shortName}-${getNamespace() ?: "default"}")
+        return getProvider().host.getOrElse("${getProvider().name.get()}-${productName.shortName}-${getNamespace() ?: Profile.DEFAULT_NAMESPACE_NAME}")
     }
 
     fun getDeploySuffix(): String = getProfile().deploySuffix.map { "-$it" }.getOrElse("")

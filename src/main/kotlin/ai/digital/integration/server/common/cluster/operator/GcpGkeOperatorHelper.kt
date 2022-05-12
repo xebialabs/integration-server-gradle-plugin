@@ -3,6 +3,7 @@ package ai.digital.integration.server.common.cluster.operator
 import ai.digital.integration.server.common.cluster.setup.GcpGkeHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.domain.providers.GcpGkeProvider
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
@@ -36,13 +37,12 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
 
     fun installCluster() {
         applyYamlFiles()
-        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
-        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), namespaceAsPrefix)
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get())
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
 
         val ip = getKubectlHelper().getServiceExternalIp("service/${getCrName()}-nginx-ingress-controller")
-        val nameSpace = getNamespace() ?: "default"
+        val nameSpace = getNamespace() ?: Profile.DEFAULT_NAMESPACE_NAME
         gcpGkeHelper.applyDnsOpenApi(ip, getFqdn(), getHost(), nameSpace)
 
         createClusterMetadata()
