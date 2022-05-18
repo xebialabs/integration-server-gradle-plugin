@@ -270,7 +270,6 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
                 "spec.rabbitmq.persistence.size" to "1Gi",
                 "spec.rabbitmq.replicaCount" to getProvider().rabbitmqReplicaCount.get(),
                 "spec.rabbitmq.persistence.replicaCount" to 1,
-                "spec.route.hosts" to arrayOf(getHost()),
                 "spec.${getPrefixName()}License" to getLicense()
             )
 
@@ -300,7 +299,8 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
                     "spec.XldWorkerCount" to getDeployWorkerCount(),
                     "spec.WorkerImageRepository" to getDeployWorkerImageRepository(),
                     "spec.Persistence.XldMasterPvcSize" to "1Gi",
-                    "spec.Persistence.XldWorkerPvcSize" to "1Gi"
+                    "spec.Persistence.XldWorkerPvcSize" to "1Gi",
+                    "spec.centralConfiguration.image.repository" to getCentralConfigImageRepository()
                 ))
             }
             ProductName.RELEASE -> {

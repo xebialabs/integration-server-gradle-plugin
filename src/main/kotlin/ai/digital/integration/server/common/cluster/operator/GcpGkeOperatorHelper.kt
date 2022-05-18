@@ -116,7 +116,8 @@ open class GcpGkeOperatorHelper(project: Project, productName: ProductName) : Op
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
         val pairs: MutableMap<String, Any> = mutableMapOf(
-                "spec.ingress.hosts" to listOf(getFqdn())
+            "spec.route.hosts" to arrayOf(getHost()),
+            "spec.ingress.hosts" to listOf(getFqdn())
         )
         YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
