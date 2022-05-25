@@ -34,8 +34,7 @@ open class AzureAksOperatorHelper(project: Project, productName: ProductName) : 
     fun installCluster() {
         applyYamlFiles()
         turnOnLogging()
-        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
-        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), namespaceAsPrefix)
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get())
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
 

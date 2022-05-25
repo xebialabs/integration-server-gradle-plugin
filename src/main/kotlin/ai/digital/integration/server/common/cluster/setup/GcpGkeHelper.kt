@@ -158,7 +158,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName, val profile:
         }
     }
 
-    fun applyDnsOpenApi(ip: String, fqdn: String = getFqdn(), host: String = getHost(), nameSpace: String = "default") {
+    fun applyDnsOpenApi(ip: String, fqdn: String = getFqdn(), host: String = getHost(), nameSpace: String = Profile.DEFAULT_NAMESPACE_NAME) {
         val gcpGkeProvider: GcpGkeProvider = getProvider()
         val projectName = gcpGkeProvider.projectName.get()
         val name = gcpGkeProvider.name.get()

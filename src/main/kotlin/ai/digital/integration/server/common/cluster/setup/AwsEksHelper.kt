@@ -365,7 +365,7 @@ open class AwsEksHelper(project: Project, productName: ProductName, val profile:
             project,
             "kubectl get service" +
                     " ${getCrName()}-nginx-ingress-controller " +
-                    "-o=jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\" -n ${namespace ?: "default"}",
+                    "-o=jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\" -n ${namespace ?: Profile.DEFAULT_NAMESPACE_NAME}",
             logOutput = false,
             throwErrorOnFailure = false
         )

@@ -35,9 +35,8 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
         applyYamlFiles()
 
         turnOnLogging()
-        val namespaceAsPrefix = getNamespace()?.let { "$it-" } ?: ""
         awsOpenshiftHelper.ocLogin()
-        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get(), namespaceAsPrefix)
+        waitForDeployment(getProfile().ingressType.get(), getProfile().deploymentTimeoutSeconds.get())
         waitForMasterPods(getProfile().deploymentTimeoutSeconds.get())
         waitForWorkerPods(getProfile().deploymentTimeoutSeconds.get())
 

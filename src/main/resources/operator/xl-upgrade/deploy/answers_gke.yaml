@@ -22,6 +22,7 @@ InstallXLD: false
 IsGKE: true
 UseEmbeddedKeycloak: {{USE_KEYCLOAK}}
 KeycloakUrl: {{KEYCLOAK_URL}}
+EnableOidc: false
 UseOperatorZipDeploy: {{USE_OPERATOR_ZIP}}
 OperatorZipDeploy: {{OPERATOR_ZIP_DEPLOY}}
 PreserveCrValuesDeploy: |-

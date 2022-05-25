@@ -25,6 +25,7 @@ IsEKS: true
 UseAWSconfig: true
 UseEmbeddedKeycloak: {{USE_KEYCLOAK}}
 KeycloakUrl: {{KEYCLOAK_URL}}
+EnableOidc: false
 UseOperatorZipRelease: {{USE_OPERATOR_ZIP}}
 OperatorZipRelease: {{OPERATOR_ZIP_RELEASE}}
 PreserveCrValuesRelease: |-

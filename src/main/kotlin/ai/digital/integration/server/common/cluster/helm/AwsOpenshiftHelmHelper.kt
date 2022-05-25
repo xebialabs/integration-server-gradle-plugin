@@ -51,7 +51,7 @@ open class AwsOpenshiftHelmHelper(project: Project, productName: ProductName) : 
         return awsOpenshiftHelper.getStorageClass()
     }
 
-    override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, null, true)
+    override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace(), true)
 
     override fun hasIngress(): Boolean = false
 

@@ -26,7 +26,7 @@ abstract class Helper(val project: Project, val productName: ProductName) {
 
     abstract fun getProvider(): Provider
 
-    open fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, null)
+    open fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace())
 
     open fun getMasterCount(): Int {
         return when (productName) {
@@ -224,7 +224,7 @@ abstract class Helper(val project: Project, val productName: ProductName) {
         return ProcessUtil.executeCommand(command)
     }
 
-    fun waitForDeployment(ingressType : String, deploymentTimeoutSeconds: Int, namespaceAsPrefix: String = "", skipOperator: Boolean = false) {
+    fun waitForDeployment(ingressType : String, deploymentTimeoutSeconds: Int, skipOperator: Boolean = false) {
         val resources = if (hasIngress()) {
             when (IngressType.valueOf(ingressType)) {
                 IngressType.NGINX ->

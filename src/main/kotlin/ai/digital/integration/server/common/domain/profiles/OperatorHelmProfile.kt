@@ -1,6 +1,5 @@
 package ai.digital.integration.server.common.domain.profiles
 
-import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.common.domain.providers.*
 import org.gradle.api.Action
 import org.gradle.api.Project

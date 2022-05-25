@@ -2,6 +2,7 @@ package ai.digital.integration.server.common.util
 
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.apache.commons.codec.binary.Base64
 import org.gradle.api.Project
@@ -197,6 +198,7 @@ open class KubeCtlHelper(val project: Project, val namespace: String?, isOpenShi
     }
 
     private fun namespaceWrapper(kcCommand: String): String {
-        return namespace?.let { "$kcCommand --namespace $namespace" } ?: kcCommand
+        val namespaceOrDefault = namespace ?: Profile.DEFAULT_NAMESPACE_NAME
+        return "$kcCommand --namespace $namespaceOrDefault"
     }
 }
