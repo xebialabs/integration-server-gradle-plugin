@@ -13,7 +13,7 @@ import java.util.*
 @Suppress("UnstableApiUsage")
 open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
-    private val awsOpenshiftHelper : AwsOpenshiftHelper = AwsOpenshiftHelper(project, productName, getProfile())
+    val awsOpenshiftHelper : AwsOpenshiftHelper = AwsOpenshiftHelper(project, productName, getProfile())
 
     fun launchCluster(){
         awsOpenshiftHelper.launchCluster()

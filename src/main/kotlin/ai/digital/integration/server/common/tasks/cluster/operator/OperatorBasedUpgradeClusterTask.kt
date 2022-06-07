@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common.tasks.cluster.operator
 
+import ai.digital.integration.server.common.cluster.helm.AwsOpenshiftHelmHelper
 import ai.digital.integration.server.common.cluster.operator.*
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.K8sSetup
@@ -94,6 +95,7 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
         val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
 
         val operatorZip = operatorBranchToOperatorZip(operatorHelper)
+        launchCluster(operatorHelper)
         val answersFile = prepareAnswersFile(operatorHelper, operatorZip)
         opUsingAnswersFile(operatorHelper, answersFile)
 
@@ -175,8 +177,10 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                     .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
             }
             K8sSetup.Openshift.toString() -> {
+                val awsOpenshiftOperatorHelper = operatorHelper as AwsOpenshiftOperatorHelper
                 answersFileTemplateTmp
-                        .replace("{{K8S_TOKEN}}", (operatorHelper as AwsOpenshiftOperatorHelper).getOcApiServerToken())
+                        .replace("{{K8S_TOKEN}}", awsOpenshiftOperatorHelper.getOcApiServerToken())
+                        .replace("{{K8S_API_SERVER_URL}}", awsOpenshiftOperatorHelper.awsOpenshiftHelper.getApiServerUrl())
             }
             K8sSetup.AzureAKS.toString() -> {
                 answersFileTemplateTmp
@@ -211,6 +215,8 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
             GitUtil.checkout("xl-op-blueprints", getUpgradeDir(operatorHelper), branch).toFile()
         }
 
+        launchCluster(operatorHelper)
+
         project.logger.lifecycle("Applying prepared answers file ${answersFile.absolutePath}")
         XlCliUtil.xlOp(project,
                 answersFile,
@@ -223,6 +229,14 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
             File(operatorHelper.getProviderWorkDir())
         )
         operatorHelper.createClusterMetadata()
+    }
+
+    private fun launchCluster(operatorHelper: OperatorHelper) {
+        if (operatorHelper is AwsOpenshiftOperatorHelper) {
+            operatorHelper.launchCluster()
+        } else if (operatorHelper is AwsOpenshiftHelmHelper) {
+            operatorHelper.launchCluster()
+        }
     }
 
     private fun operatorBranchToOperatorZip(operatorHelper: OperatorHelper): Path? {

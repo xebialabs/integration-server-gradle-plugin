@@ -23,6 +23,7 @@ IsGKE: true
 UseEmbeddedKeycloak: {{USE_KEYCLOAK}}
 UseExistingOidcConf: false
 KeycloakUrl: {{KEYCLOAK_URL}}
+UseKeycloakWithEmbeddedDB: true
 EnableOidc: false
 UseOperatorZipDeploy: {{USE_OPERATOR_ZIP}}
 OperatorZipDeploy: {{OPERATOR_ZIP_DEPLOY}}

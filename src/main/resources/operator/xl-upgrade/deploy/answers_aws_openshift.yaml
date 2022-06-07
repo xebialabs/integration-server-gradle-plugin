@@ -1,9 +1,6 @@
 CrName: {{CR_NAME}}
 CrdName: {{CRD_NAME}}
 DeployImageVersionForUpgrader: {{DEPLOY_VERSION_FOR_UPGRADER}}
-K8sApiServerURL: {{K8S_API_SERVER_URL}}
-K8sAuthentication: Token
-K8sToken: {{K8S_TOKEN}}
 K8sSetup: {{K8S_SETUP}}
 Namespace: {{K8S_NAMESPACE}}
 OperatorImage: {{OPERATOR_IMAGE}}
@@ -15,11 +12,17 @@ ImageTag: {{IMAGE_TAG}}
 OsType: darwin
 ServerType: daiDeploy
 UpgradeType: operatorToOperator
+UseAWSSsoCredentials: false
+UseAWSconfig: false
+IsAwsCfgAvailable: false
 UseCustomNamespace: {{USE_CUSTOM_NAMESPACE}}
 IsCrdReused: {{IS_CRD_REUSED}}
 UseKubeconfig: true
 InstallXLD: false
+K8sApiServerURL: {{K8S_API_SERVER_URL}}
+K8sToken: {{K8S_TOKEN}}
 UseEmbeddedKeycloak: {{USE_KEYCLOAK}}
+UseKeycloakWithEmbeddedDB: true
 UseExistingOidcConf: false
 KeycloakUrl: {{KEYCLOAK_URL}}
 EnableOidc: false
