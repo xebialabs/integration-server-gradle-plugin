@@ -20,6 +20,7 @@ UseKubeconfig: true
 InstallXLD: false
 InstallXLR: false
 UseEmbeddedKeycloak: {{USE_KEYCLOAK}}
+UseExistingOidcConf: false
 KeycloakUrl: {{KEYCLOAK_URL}}
 EnableOidc: false
 UseOperatorZipRelease: {{USE_OPERATOR_ZIP}}

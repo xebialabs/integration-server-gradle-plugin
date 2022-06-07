@@ -105,13 +105,18 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
 
     private fun getUpgradeDir(operatorHelper: OperatorHelper): Path = Paths.get(operatorHelper.getProviderWorkDir(), runningTime)
 
+    private fun getCrdGroupName(k8sSetup: String): String =
+        if (k8sSetup == K8sSetup.Openshift.toString()) {
+            "${productName.shortName}ocp.digital.ai"
+        } else {
+            "${productName.shortName}.digital.ai"
+        }
+
     private fun prepareAnswersFile(operatorHelper: OperatorHelper, operatorZip: Path?): File {
 
         val clusterUtil = OperatorUtil(project)
         val server = clusterUtil.getOperatorServer()
         val operatorImage = operatorHelper.getOperatorImage() ?: getOperatorImage(operatorHelper)
-        val crdName = operatorHelper.getKubectlHelper().getCrd("${productName.shortName}.digital.ai")
-        val crName = operatorHelper.getKubectlHelper().getCr(crdName)
         val namespace = operatorHelper.getProfile().namespace.getOrElse(Profile.DEFAULT_NAMESPACE_NAME)
         val k8sSetup = when (productName) {
             ProductName.DEPLOY -> {
@@ -121,6 +126,8 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                 XlCliUtil.XL_OP_MAPPING[ReleaseClusterUtil.getOperatorProviderName(project)]!!
             }
         }
+        val crdName = operatorHelper.getKubectlHelper().getCrd(getCrdGroupName(k8sSetup))
+        val crName = operatorHelper.getKubectlHelper().getCr(crdName)
 
         val targetFileName = "$runningTime/answers.yaml"
         val answersFile = when (k8sSetup) {
@@ -150,7 +157,6 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                 .replace("{{USE_CUSTOM_NAMESPACE}}", (namespace != Profile.DEFAULT_NAMESPACE_NAME).toString())
                 .replace("{{K8S_NAMESPACE}}", namespace)
                 .replace("{{IS_CRD_REUSED}}", (namespace != Profile.DEFAULT_NAMESPACE_NAME).toString())
-                .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
                 .replace("{{K8S_SETUP}}", k8sSetup)
                 .replace("{{OPERATOR_IMAGE}}", operatorImage)
                 .replace("{{REPOSITORY_NAME}}", imageRepositoryName.get())
@@ -166,6 +172,7 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
             K8sSetup.GoogleGKE.toString() -> {
                 answersFileTemplateTmp
                         .replace("{{K8S_TOKEN}}", (operatorHelper as GcpGkeOperatorHelper).getAccessToken())
+                    .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
             }
             K8sSetup.Openshift.toString() -> {
                 answersFileTemplateTmp
@@ -175,6 +182,7 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                 answersFileTemplateTmp
                     .replace("{{K8S_CLIENT_CERT}}", kubeContextInfo.caCert!!)
                     .replace("{{K8S_CLIENT_KEY}}", kubeContextInfo.tlsPrivateKey!!)
+                    .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
             }
             K8sSetup.AwsEKS.toString() -> {
                 val awsEksHelper = operatorHelper as AwsEksOperatorHelper
@@ -183,11 +191,13 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                         .replace("{{CLUSTER_NAME}}", awsEksHelper.getProvider().clusterName.get())
                         .replace("{{AWS_ACCESS_KEY}}", awsEksHelper.getProvider().getAwsAccessKey())
                         .replace("{{AWS_ACCESS_SECRET}}", awsEksHelper.getProvider().getAwsSecretKey())
+                        .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
             }
             else -> {
                 answersFileTemplateTmp
                         .replace("{{K8S_CLIENT_CERT}}", kubeContextInfo.caCert!!)
                         .replace("{{K8S_CLIENT_KEY}}", kubeContextInfo.tlsPrivateKey!!)
+                        .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
             }
         }
 

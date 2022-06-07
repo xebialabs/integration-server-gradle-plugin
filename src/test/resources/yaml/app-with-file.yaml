@@ -9,4 +9,4 @@ spec:
         deployables:
           - name: manager-rolebinding
             type: openshift.ResourcesFile
-            file: !file "kubernetes/template/manager-rolebinding.yaml"
+            file: !file kubernetes/template/manager-rolebinding.yaml

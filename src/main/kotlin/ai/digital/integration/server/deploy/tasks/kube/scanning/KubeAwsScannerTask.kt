@@ -61,7 +61,7 @@ open class KubeAwsScannerTask : DefaultTask() {
             "spec.template.spec.containers[0].image" to ecrKubeBenchImage,
             "spec.template.spec.containers[0].command" to KubeScanningUtil.getCommand(project, existingCommand)
         )
-        YamlFileUtil.overlayFile(file, pairs, false)
+        YamlFileUtil.overlayFile(file, pairs, minimizeQuotes = false)
     }
 
     @TaskAction
