@@ -13,7 +13,7 @@ import java.util.*
 @Suppress("UnstableApiUsage")
 open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName) : OperatorHelper(project, productName) {
 
-    private val awsOpenshiftHelper : AwsOpenshiftHelper = AwsOpenshiftHelper(project, productName, getProfile())
+    val awsOpenshiftHelper : AwsOpenshiftHelper = AwsOpenshiftHelper(project, productName, getProfile())
 
     fun launchCluster(){
         awsOpenshiftHelper.launchCluster()
@@ -93,7 +93,11 @@ open class AwsOpenshiftOperatorHelper(project: Project, productName: ProductName
     }
 
     override fun updateCustomOperatorCrValues(crValuesFile: File) {
-        // nothing to update
+        val pairs: MutableMap<String, Any> = mutableMapOf(
+            "spec.route.hosts" to arrayOf(getHost()),
+            "spec.keycloak.route.host" to "keycloak-" + getHost() // TODO put here correct value
+        )
+        YamlFileUtil.overlayFile(crValuesFile, pairs, minimizeQuotes = false)
     }
 
     override fun getKubectlHelper(): KubeCtlHelper = KubeCtlHelper(project, getNamespace(), true)

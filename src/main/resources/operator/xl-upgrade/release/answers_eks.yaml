@@ -24,7 +24,9 @@ InstallXLR: false
 IsEKS: true
 UseAWSconfig: true
 UseEmbeddedKeycloak: {{USE_KEYCLOAK}}
+UseExistingOidcConf: false
 KeycloakUrl: {{KEYCLOAK_URL}}
+UseKeycloakWithEmbeddedDB: true
 EnableOidc: false
 UseOperatorZipRelease: {{USE_OPERATOR_ZIP}}
 OperatorZipRelease: {{OPERATOR_ZIP_RELEASE}}

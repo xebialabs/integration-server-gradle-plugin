@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
-import org.jetbrains.kotlin.gradle.targets.js.npm.min
-import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.InputStream
 import java.net.URL
+import java.util.concurrent.TimeUnit
 
 
 class YamlFileUtil {
@@ -40,7 +39,7 @@ class YamlFileUtil {
         }
 
         @Suppress("UNCHECKED_CAST")
-        fun getKeyParentAndLastToken(
+        private fun getKeyParentAndLastToken(
             objectMap: MutableMap<String, Any>,
             key: String
         ): Pair<MutableMap<String, Any>, String> {
@@ -122,6 +121,69 @@ class YamlFileUtil {
             mapper.writeValue(destinationFile, aggregatedValue)
         }
 
+        private fun mingleValuesWithYq(pairs: MutableMap<String, Any>, destinationFile: File) {
+            pairs
+                .map { entry ->
+                    val key = if (entry.key.startsWith("(")) {
+                        entry.key
+                    } else {
+                        "." + entry.key
+                    }
+                    Pair(key, entry.value)
+                }
+                .forEach { pair ->
+                    if (pair.second is Collection<*>) {
+                        val values = pair.second as Collection<*>
+                        val value = values.joinToString(",", "[", "]") { entry -> getYqSimpleValue(entry) }
+                        val process = ProcessBuilder(arrayListOf("yq", "-i", "${pair.first} = $value", destinationFile.absolutePath))
+                            .inheritIO()
+                            .start()
+                        checkProcess(process)
+                    } else if (pair.second is Array<*>) {
+                        val values = pair.second as Array<*>
+                        val value = values.joinToString(",", "[", "]") { entry -> getYqSimpleValue(entry) }
+                        val process = ProcessBuilder(arrayListOf("yq", "-i", "${pair.first} = $value", destinationFile.absolutePath))
+                            .inheritIO()
+                            .start()
+                        checkProcess(process)
+                    } else if (pair.second is Map<*, *>) {
+                        val map = pair.second as Map<*, *>
+                        map.forEach{entry ->
+                            val value = getYqSimpleValue(entry.value)
+                            val process = ProcessBuilder(arrayListOf("yq", "-i", "${pair.first}.\"${entry.key}\" = $value", destinationFile.absolutePath))
+                                .inheritIO()
+                                .start()
+                            checkProcess(process)
+                        }
+                    } else {
+                        val value = getYqSimpleValue(pair.second)
+                        val process = ProcessBuilder(arrayListOf("yq", "-i", "${pair.first} = $value", destinationFile.absolutePath))
+                            .inheritIO()
+                            .start()
+                        checkProcess(process)
+                    }
+                }
+        }
+
+        private fun checkProcess(process: Process) {
+            val result = process.waitFor(60, TimeUnit.SECONDS)
+            if (!result || process.exitValue() != 0) {
+                throw IllegalArgumentException("Failed to run yq with ${process.exitValue()}")
+            }
+        }
+
+        private fun getYqSimpleValue(simpleValue: Any?): String {
+            return if (simpleValue is Number || simpleValue is Boolean) {
+                simpleValue.toString()
+            } else if (simpleValue == null) {
+                "null"
+            } else if (simpleValue is String) {
+                "\"${simpleValue}\""
+            } else {
+                throw IllegalArgumentException("not supported value $simpleValue")
+            }
+        }
+
         /**
          * Creates the file if it doesn't exist
          * If new pair - creates it, if it was existed - overrides it.
@@ -130,42 +192,23 @@ class YamlFileUtil {
          * @param pairs
          * @param destinationFile
          */
-        fun overlayFile(sourceFle: File, pairs: MutableMap<String, Any>, destinationFile: File, minimizeQuotes: Boolean = true) {
-            if (!sourceFle.exists()) {
-                sourceFle.createNewFile()
+        fun overlayFileDeprecated(sourceFile: File, pairs: MutableMap<String, Any>, destinationFile: File = sourceFile, minimizeQuotes: Boolean = true) {
+            if (!sourceFile.exists()) {
+                sourceFile.createNewFile()
                 mingleValues(pairs, destinationFile, minimizeQuotes)
             } else {
-                mingleValues(sourceFle.toURI().toURL(), pairs, destinationFile, minimizeQuotes)
+                mingleValues(sourceFile.toURI().toURL(), pairs, destinationFile, minimizeQuotes)
             }
         }
 
-        /**
-         * Creates the file if it doesn't exist
-         * If new pair - creates it, if it was existed - overrides it.
-         *
-         * @param sourceAndDestinationFle
-         * @param pairs
-         */
-        fun overlayFile(sourceAndDestinationFile: File, pairs: MutableMap<String, Any>, minimizeQuotes: Boolean = true) {
-            if (!sourceAndDestinationFile.exists()) {
-                sourceAndDestinationFile.createNewFile()
-                mingleValues(pairs, sourceAndDestinationFile, minimizeQuotes)
-            } else {
-                mingleValues(sourceAndDestinationFile.toURI().toURL(), pairs, sourceAndDestinationFile, minimizeQuotes)
+        fun overlayFile(sourceFile: File, pairs: MutableMap<String, Any>, destinationFile: File = sourceFile, minimizeQuotes: Boolean = true) {
+            if (!sourceFile.exists()) {
+                sourceFile.createNewFile()
             }
-        }
-
-        /**
-         * Expects the resource exists.
-         *
-         * If new pair - creates it, if it was existed - overrides it.
-         *
-         * @param resource
-         * @param pairs
-         * @param destinationFile
-         */
-        fun overlayResource(resource: URL, pairs: MutableMap<String, Any>, destinationFile: File, minimizeQuotes: Boolean = true) {
-            return mingleValues(resource, pairs, destinationFile, minimizeQuotes)
+            if (sourceFile != destinationFile) {
+                sourceFile.copyTo(destinationFile, overwrite = true)
+            }
+            mingleValuesWithYq(pairs, destinationFile)
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -177,13 +220,6 @@ class YamlFileUtil {
         fun readTree(resource: InputStream, minimizeQuotes: Boolean = true): TreeNode {
             val mapper = createMapper(minimizeQuotes)
             return mapper.readTree(resource)
-        }
-
-        fun readValues(resource: InputStream, minimizeQuotes: Boolean = true) {
-            val mapper = createMapper(minimizeQuotes)
-            val yaml = Yaml()
-            val values = yaml.loadAll(resource).toMutableList()
-            mapper.writeValue(File("/tmp/multi.yaml"), values)
         }
 
         fun writeFileValue(sourceFle: File, value: Any, minimizeQuotes: Boolean = true) {

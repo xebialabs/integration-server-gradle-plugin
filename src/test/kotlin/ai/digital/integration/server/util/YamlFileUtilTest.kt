@@ -12,24 +12,6 @@ import java.util.*
 class YamlFileUtilTest {
 
     @Test
-    fun resourceOverrideTest() {
-        val deployServerStream = {}::class.java.classLoader.getResource("centralConfiguration/deploy-server.yaml")
-        deployServerStream?.let { stream ->
-            val deployServerYaml = File(URLDecoder.decode(stream.file, StandardCharsets.UTF_8))
-
-            val destinationFile = File.createTempFile("deploy-server", "updated")
-            destinationFile.deleteOnExit()
-
-            YamlFileUtil.overlayResource(deployServerYaml.toURI().toURL(),
-                mutableMapOf("deploy.server.downloads.export-root" to "exports"),
-                destinationFile)
-
-            assertEquals("exports", YamlFileUtil.readFileKey(destinationFile, "deploy.server.downloads.export-root"))
-        }
-
-    }
-
-    @Test
     fun fileOverrideTest() {
         val initialContent = """
             deploy.server:
@@ -46,7 +28,7 @@ class YamlFileUtilTest {
         destinationFile.deleteOnExit()
 
         YamlFileUtil.overlayFile(initialFile,
-            mutableMapOf("deploy.server.downloads.export-root" to "/tmp"), destinationFile)
+            mutableMapOf("\"deploy.server\".downloads.export-root" to "/tmp"), destinationFile)
 
         assertEquals("/tmp", YamlFileUtil.readFileKey(destinationFile, "deploy.server.downloads.export-root"))
         assertEquals(false, YamlFileUtil.readFileKey(destinationFile, "deploy.server.ssl.enabled"))
