@@ -398,6 +398,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
                 "clusterRoleBinding",
                 "ing",
                 "ingressclass",
+                "serviceaccount",
                 "pvc",
                 "configmap",
                 "secret",
