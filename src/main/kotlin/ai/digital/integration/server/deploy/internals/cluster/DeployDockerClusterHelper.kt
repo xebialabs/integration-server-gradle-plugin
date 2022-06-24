@@ -91,6 +91,7 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
         val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, clusterMetadataPath)
         val props = Properties()
         props["cluster.port"] = getClusterPublicPort()
+        props["cluster.host"] = getLbIp()
         PropertiesUtil.writePropertiesFile(path.toFile(), props)
     }
 
