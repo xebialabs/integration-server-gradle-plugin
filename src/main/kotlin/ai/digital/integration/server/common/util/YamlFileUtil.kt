@@ -192,7 +192,7 @@ class YamlFileUtil {
          * @param pairs
          * @param destinationFile
          */
-        fun overlayFileDeprecated(sourceFile: File, pairs: MutableMap<String, Any>, destinationFile: File = sourceFile, minimizeQuotes: Boolean = true) {
+        fun overlayFileWithJackson(sourceFile: File, pairs: MutableMap<String, Any>, destinationFile: File = sourceFile, minimizeQuotes: Boolean = true) {
             if (!sourceFile.exists()) {
                 sourceFile.createNewFile()
                 mingleValues(pairs, destinationFile, minimizeQuotes)

@@ -27,7 +27,7 @@ open class ServerYamlPatchTask : DefaultTask() {
 
                     server.yamlPatches.forEach { yamlPatch ->
                         val file = File("${DeployServerUtil.getServerWorkingDir(project, server)}/${yamlPatch.key}")
-                        YamlFileUtil.overlayFile(file, yamlPatch.value.toMutableMap())
+                        YamlFileUtil.overlayFileWithJackson(file, yamlPatch.value.toMutableMap())
                     }
                 }
     }
