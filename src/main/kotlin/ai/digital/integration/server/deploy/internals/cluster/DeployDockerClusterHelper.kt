@@ -289,6 +289,8 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
             "down"
         )
         DockerComposeUtil.execute(project, args)
+        deleteMountedServerFolders()
+        deleteMountedWorkerFolders()
     }
 
     private fun waitForBoot() {
@@ -317,6 +319,25 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
         }
     }
 
+
+    private fun deleteMountedServerFolders() {
+        serverMountedVolumes.forEach { folderName ->
+            val folderPath = "${IntegrationServerUtil.getDist(project)}/xl-deploy-server/${folderName}"
+            val folder = File(folderPath)
+            folder.deleteRecursively()
+            project.logger.lifecycle("Folder $folderPath has been deleted.")
+        }
+    }
+
+
+    private fun deleteMountedWorkerFolders() {
+        workerMountedVolumes.forEach { folderName ->
+            val folderPath = "${IntegrationServerUtil.getDist(project)}/xl-deploy-worker/${folderName}"
+            val folder = File(folderPath)
+            folder.deleteRecursively()
+            project.logger.lifecycle("Folder $folderPath has been deleted.")
+        }
+    }
     private fun giveAllPermissionsForMountedVolume(folderPath: String) {
         ProcessUtil.chMod(
             project,
