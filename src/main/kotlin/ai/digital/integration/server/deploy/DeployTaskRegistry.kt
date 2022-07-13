@@ -281,7 +281,6 @@ open class DeployTaskRegistry {
 
             //Tests
             project.tasks.create(IntegrationTestsTask.NAME, IntegrationTestsTask::class.java)
-
         }
     }
 }

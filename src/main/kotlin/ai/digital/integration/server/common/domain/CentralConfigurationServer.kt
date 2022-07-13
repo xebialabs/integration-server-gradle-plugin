@@ -10,7 +10,6 @@ open class CentralConfigurationServer(objectFactory: ObjectFactory,
                                       name: String = "central-config-server") : Container(name) {
     var httpPort: Int? = HTTPUtil.findFreePort()
     var enabled: Boolean = false
-    var dockerImage: String? = null
     var pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME
     var pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES
 }
