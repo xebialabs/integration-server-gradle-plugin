@@ -47,7 +47,6 @@ open class StartDeployServerInstanceTask : DefaultTask() {
             DownloadAndExtractServerDistTask.NAME,
             PrepareDatabaseTask.NAME,
             PrepareServerTask.NAME,
-            PrepareCentralConfigurationServerTask.NAME,
             SetServerLogbackLevelsTask.NAME,
             StartMqTask.NAME,
             ServerYamlPatchTask.NAME
