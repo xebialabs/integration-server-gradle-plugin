@@ -22,6 +22,8 @@ class TaskRegistry {
             //Central configuration service
             project.tasks.create(DownloadAndExtractCentralConfigurationServerDistTask.NAME, DownloadAndExtractCentralConfigurationServerDistTask::class.java)
             project.tasks.create(PrepareCentralConfigurationServerTask.NAME, PrepareCentralConfigurationServerTask::class.java)
+            project.tasks.create(CentralConfigurationServerOverlaysTask.NAME, CentralConfigurationServerOverlaysTask::class.java)
+            project.tasks.create(CentralConfigurationServerYamlPatchTask.NAME, CentralConfigurationServerYamlPatchTask::class.java)
             project.tasks.create(StartCentralConfigurationServerTask.NAME, StartCentralConfigurationServerTask::class.java)
             project.tasks.create(ShutdownCentralConfigurationServerTask.NAME, ShutdownCentralConfigurationServerTask::class.java)
         }

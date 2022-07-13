@@ -12,4 +12,5 @@ open class CentralConfigurationServer(objectFactory: ObjectFactory,
     var enable: Boolean = false
     var pingRetrySleepTime: Int = ServerConstants.DEFAULT_PING_RETRY_SLEEP_TIME
     var pingTotalTries: Int = ServerConstants.DEFAULT_PING_TOTAL_TRIES
+    var yamlPatches: Map<String, Map<String, Any>> = mutableMapOf()
 }

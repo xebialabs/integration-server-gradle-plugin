@@ -18,6 +18,8 @@ open class StartCentralConfigurationServerTask : DefaultTask() {
 
         this.dependsOn(DownloadAndExtractCentralConfigurationServerDistTask.NAME)
         this.dependsOn(PrepareCentralConfigurationServerTask.NAME)
+        this.dependsOn(CentralConfigurationServerOverlaysTask.NAME)
+        this.dependsOn(CentralConfigurationServerYamlPatchTask.NAME)
 
         this.onlyIf {
             CentralConfigurationServerUtil.hasCentralConfigurationServer(project)

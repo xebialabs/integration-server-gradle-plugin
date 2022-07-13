@@ -21,6 +21,10 @@ open class ShutdownCentralConfigurationServerTask : DefaultTask() {
     init {
         this.group = PluginConstant.PLUGIN_GROUP
 
+        this.onlyIf {
+            CentralConfigurationServerUtil.hasCentralConfigurationServer(project)
+        }
+
         project.afterEvaluate {
         }
     }

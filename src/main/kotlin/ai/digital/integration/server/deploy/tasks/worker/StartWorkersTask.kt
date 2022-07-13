@@ -34,6 +34,10 @@ open class StartWorkersTask : DefaultTask() {
         this.dependsOn(WorkerOverlaysTask.NAME)
         this.dependsOn(ServerYamlPatchTask.NAME)
 
+        if (CentralConfigurationServerUtil.hasCentralConfigurationServer(project)) {
+            this.dependsOn(PrepareWorkersTask.NAME)
+        }
+
         this.onlyIf {
             WorkerUtil.hasWorkers(project)
         }

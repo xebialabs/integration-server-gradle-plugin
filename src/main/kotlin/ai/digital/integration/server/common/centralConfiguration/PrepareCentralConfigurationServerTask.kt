@@ -16,7 +16,10 @@ open class PrepareCentralConfigurationServerTask : DefaultTask() {
 
     init {
         this.group = PluginConstant.PLUGIN_GROUP
-        this.dependsOn(ServerYamlPatchTask.NAME)
+
+        if (DeployServerUtil.isDeployServerDefined(project)) {
+            this.dependsOn(ServerYamlPatchTask.NAME)
+        }
 
         this.onlyIf {
             CentralConfigurationServerUtil.hasCentralConfigurationServer(project)

@@ -278,6 +278,7 @@ open class DeployTaskRegistry {
             project.tasks.create(ShutdownWorkersTask.NAME, ShutdownWorkersTask::class.java)
             project.tasks.create(StartWorkersTask.NAME, StartWorkersTask::class.java)
             project.tasks.create(WorkerOverlaysTask.NAME, WorkerOverlaysTask::class.java)
+            project.tasks.create(PrepareWorkersTask.NAME, PrepareWorkersTask::class.java)
 
             //Tests
             project.tasks.create(IntegrationTestsTask.NAME, IntegrationTestsTask::class.java)
