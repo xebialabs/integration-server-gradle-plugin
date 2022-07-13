@@ -13,7 +13,7 @@ class CentralConfigurationServerUtil {
     companion object {
 
         fun hasCentralConfigurationServer(project: Project): Boolean {
-            return DeployExtensionUtil.getExtension(project).centralConfigurationServer.isPresent
+            return DeployExtensionUtil.getExtension(project).centralConfigurationServer.get().enable
         }
 
         fun getCentralConfigurationServer(project: Project): CentralConfigurationServer {
