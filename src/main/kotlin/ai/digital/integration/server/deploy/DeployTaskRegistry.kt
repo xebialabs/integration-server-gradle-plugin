@@ -19,6 +19,25 @@ import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.HelmBasedInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.HelmBasedStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.HelmBasedStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.ProvideDeployKubernetesHelmChartTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.awseks.HelmBasedAwsEksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.azureaks.HelmBasedAzureAksStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeStopDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremInstallDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStartDeployClusterTask
+import ai.digital.integration.server.deploy.tasks.cluster.helm.onprem.HelmBasedOnPremStopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.*
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksInstallDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartDeployClusterTask
@@ -130,6 +149,54 @@ open class DeployTaskRegistry {
             project.tasks.create(PrepareOperatorServerTask.NAME,
                 PrepareOperatorServerTask::class.java)
             project.tasks.create(OperatorBasedUpgradeDeployClusterTask.NAME, OperatorBasedUpgradeDeployClusterTask::class.java)
+
+            // Cluster Helm
+
+            project.tasks.create(HelmBasedStartDeployClusterTask.NAME,
+                    HelmBasedStartDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedInstallDeployClusterTask.NAME,
+                    HelmBasedInstallDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedStopDeployClusterTask.NAME,
+                    HelmBasedStopDeployClusterTask::class.java)
+
+            project.tasks.create(ProvideDeployKubernetesHelmChartTask.NAME,
+                    ProvideDeployKubernetesHelmChartTask::class.java)
+
+            project.tasks.create(HelmBasedAzureAksStartDeployClusterTask.NAME,
+                    HelmBasedAzureAksStartDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedAzureAksInstallDeployClusterTask.NAME,
+                    HelmBasedAzureAksInstallDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedAzureAksStopDeployClusterTask.NAME,
+                    HelmBasedAzureAksStopDeployClusterTask::class.java)
+
+            project.tasks.create(HelmBasedAwsEksStartDeployClusterTask.NAME,
+                    HelmBasedAwsEksStartDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedAwsEksInstallDeployClusterTask.NAME,
+                    HelmBasedAwsEksInstallDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedAwsEksStopDeployClusterTask.NAME,
+                    HelmBasedAwsEksStopDeployClusterTask::class.java)
+
+            project.tasks.create(HelmBasedGcpGkeStartDeployClusterTask.NAME,
+                    HelmBasedGcpGkeStartDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedGcpGkeInstallDeployClusterTask.NAME,
+                    HelmBasedGcpGkeInstallDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedGcpGkeStopDeployClusterTask.NAME,
+                    HelmBasedGcpGkeStopDeployClusterTask::class.java)
+
+            project.tasks.create(HelmBasedAwsOpenShiftStartDeployClusterTask.NAME,
+                    HelmBasedAwsOpenShiftStartDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedAwsOpenShiftInstallDeployClusterTask.NAME,
+                    HelmBasedAwsOpenShiftInstallDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedAwsOpenShiftStopDeployClusterTask.NAME,
+                    HelmBasedAwsOpenShiftStopDeployClusterTask::class.java)
+
+            project.tasks.create(HelmBasedOnPremStartDeployClusterTask.NAME,
+                    HelmBasedOnPremStartDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedOnPremInstallDeployClusterTask.NAME,
+                    HelmBasedOnPremInstallDeployClusterTask::class.java)
+            project.tasks.create(HelmBasedOnPremStopDeployClusterTask.NAME,
+                    HelmBasedOnPremStopDeployClusterTask::class.java)
+
 
             // Cluster Terraform
             project.tasks.create(TerraformBasedAwsEksStartDeployClusterTask.NAME,

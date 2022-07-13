@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.util.GitUtil
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil
+import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskAction
@@ -16,19 +17,25 @@ open class ProvideReleaseKubernetesOperatorTask : DefaultTask() {
     }
 
     init {
-        val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.RELEASE)
-        if (operatorHelper.getProvider().operatorPackageVersion.isPresent) {
-            project.buildscript.dependencies.add(
-                DeployConfigurationsUtil.OPERATOR_DIST,
-                "ai.digital.release.operator:${operatorHelper.getProviderHomePath()}:${operatorHelper.getProvider().operatorPackageVersion.get()}@zip"
-            )
+        project.afterEvaluate {
+            if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
+                val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.RELEASE)
+                if (operatorHelper.getProvider().operatorPackageVersion.isPresent) {
+                    project.buildscript.dependencies.add(
+                        DeployConfigurationsUtil.OPERATOR_DIST,
+                        "ai.digital.release.operator:${operatorHelper.getProviderHomePath()}:${operatorHelper.getProvider().operatorPackageVersion.get()}@zip"
+                    )
 
-            val taskName = "downloadAndExtractOperator${operatorHelper.getProviderHomePath()}"
-            val task = project.tasks.register(taskName, Copy::class.java) {
-                from(project.zipTree(project.buildscript.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
-                into(operatorHelper.getProviderHomeDir())
+                    val taskName = "downloadAndExtractOperator${operatorHelper.getProviderHomePath()}"
+                    val task = project.tasks.register(taskName, Copy::class.java) {
+                        from(project.zipTree(project.buildscript.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
+                        into(operatorHelper.getProviderHomeDir())
+                    }
+                    dependsOn(task)
+                }
+            } else {
+                project.logger.warn("Active provider name is not set - ProvideReleaseKubernetesOperatorTask")
             }
-            this.dependsOn(task)
         }
     }
 

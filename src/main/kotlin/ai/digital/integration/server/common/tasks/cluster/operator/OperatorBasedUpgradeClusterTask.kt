@@ -1,16 +1,20 @@
 package ai.digital.integration.server.common.tasks.cluster.operator
 
+import ai.digital.integration.server.common.cluster.helm.AwsOpenshiftHelmHelper
 import ai.digital.integration.server.common.cluster.operator.*
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.K8sSetup
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.util.GitUtil
 import ai.digital.integration.server.common.util.XlCliUtil
 import ai.digital.integration.server.common.util.YamlFileUtil
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cli.DownloadXlCliDistTask
+import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import ai.digital.integration.server.release.tasks.cluster.ReleaseClusterUtil
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.StringUtils
@@ -63,20 +67,24 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
 
             val dependencies = mutableListOf<Any>(DownloadXlCliDistTask.NAME)
 
-            val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
-            if (useOperatorZip.get() && operatorHelper.getProvider().operatorPackageVersion.isPresent) {
-                project.buildscript.dependencies.add(
-                    DeployConfigurationsUtil.OPERATOR_DIST,
-                    "ai.digital.${operatorHelper.productName.displayName}.operator:${operatorHelper.getProviderHomePath()}:${operatorHelper.getProvider().operatorPackageVersion.get()}@zip"
-                )
+            if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent || ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
+                val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
+                if (useOperatorZip.get() && operatorHelper.getProvider().operatorPackageVersion.isPresent) {
+                    project.buildscript.dependencies.add(
+                        DeployConfigurationsUtil.OPERATOR_DIST,
+                        "ai.digital.${operatorHelper.productName.displayName}.operator:${operatorHelper.getProviderHomePath()}:${operatorHelper.getProvider().operatorPackageVersion.get()}@zip"
+                    )
 
-                val taskName = "downloadOperator${operatorHelper.getProviderHomePath()}"
-                val providerHomePath = operatorHelper.getProviderHomePath()
-                val task = project.tasks.register(taskName, Copy::class.java) {
-                    from(project.zipTree(project.buildscript.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
-                    into(getUpgradeDir(operatorHelper).toFile().resolve(providerHomePath))
+                    val taskName = "downloadOperator${operatorHelper.getProviderHomePath()}"
+                    val providerHomePath = operatorHelper.getProviderHomePath()
+                    val task = project.tasks.register(taskName, Copy::class.java) {
+                        from(project.zipTree(project.buildscript.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
+                        into(getUpgradeDir(operatorHelper).toFile().resolve(providerHomePath))
+                    }
+                    dependencies.add(task)
                 }
-                dependencies.add(task)
+            } else {
+                project.logger.warn("Active provider name is not set - OperatorBasedUpgradeClusterTask")
             }
             upgradeTask.dependsOn(dependencies)
         }
@@ -87,24 +95,31 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
         val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
 
         val operatorZip = operatorBranchToOperatorZip(operatorHelper)
+        launchCluster(operatorHelper)
         val answersFile = prepareAnswersFile(operatorHelper, operatorZip)
         opUsingAnswersFile(operatorHelper, answersFile)
 
-        operatorHelper.waitForDeployment()
-        operatorHelper.waitForMasterPods()
-        operatorHelper.waitForWorkerPods()
-        operatorHelper.waitForBoot()
+        operatorHelper.waitForDeployment(operatorHelper.getProfile().ingressType.get(), operatorHelper.getProfile().deploymentTimeoutSeconds.get())
+        operatorHelper.waitForMasterPods(operatorHelper.getProfile().deploymentTimeoutSeconds.get())
+        operatorHelper.waitForWorkerPods(operatorHelper.getProfile().deploymentTimeoutSeconds.get())
+        operatorHelper.waitForBoot(operatorHelper.getContextRoot(), operatorHelper.getFqdn())
     }
 
     private fun getUpgradeDir(operatorHelper: OperatorHelper): Path = Paths.get(operatorHelper.getProviderWorkDir(), runningTime)
+
+    private fun getCrdGroupName(k8sSetup: String): String =
+        if (k8sSetup == K8sSetup.Openshift.toString()) {
+            "${productName.shortName}ocp.digital.ai"
+        } else {
+            "${productName.shortName}.digital.ai"
+        }
 
     private fun prepareAnswersFile(operatorHelper: OperatorHelper, operatorZip: Path?): File {
 
         val clusterUtil = OperatorUtil(project)
         val server = clusterUtil.getOperatorServer()
         val operatorImage = operatorHelper.getOperatorImage() ?: getOperatorImage(operatorHelper)
-        val crdName = operatorHelper.getKubectlHelper().getCrd("${productName.shortName}.digital.ai")
-        val crName = operatorHelper.getKubectlHelper().getCr(crdName)
+        val namespace = operatorHelper.getProfile().namespace.getOrElse(Profile.DEFAULT_NAMESPACE_NAME)
         val k8sSetup = when (productName) {
             ProductName.DEPLOY -> {
                 XlCliUtil.XL_OP_MAPPING[DeployClusterUtil.getOperatorProviderName(project)]!!
@@ -113,6 +128,8 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                 XlCliUtil.XL_OP_MAPPING[ReleaseClusterUtil.getOperatorProviderName(project)]!!
             }
         }
+        val crdName = operatorHelper.getKubectlHelper().getCrd(getCrdGroupName(k8sSetup))
+        val crName = operatorHelper.getKubectlHelper().getCr(crdName)
 
         val targetFileName = "$runningTime/answers.yaml"
         val answersFile = when (k8sSetup) {
@@ -139,7 +156,9 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
         val answersFileTemplateTmp = answersFile.readText(Charsets.UTF_8)
                 .replace("{{CRD_NAME}}", crdName)
                 .replace("{{CR_NAME}}", crName)
-                .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
+                .replace("{{USE_CUSTOM_NAMESPACE}}", (namespace != Profile.DEFAULT_NAMESPACE_NAME).toString())
+                .replace("{{K8S_NAMESPACE}}", namespace)
+                .replace("{{IS_CRD_REUSED}}", (namespace != Profile.DEFAULT_NAMESPACE_NAME).toString())
                 .replace("{{K8S_SETUP}}", k8sSetup)
                 .replace("{{OPERATOR_IMAGE}}", operatorImage)
                 .replace("{{REPOSITORY_NAME}}", imageRepositoryName.get())
@@ -154,29 +173,35 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
         val answersFileTemplate = when (k8sSetup) {
             K8sSetup.GoogleGKE.toString() -> {
                 answersFileTemplateTmp
-                        .replace("{{K8S_TOKEN}}", (operatorHelper as GcpGkeHelper).getAccessToken())
+                        .replace("{{K8S_TOKEN}}", (operatorHelper as GcpGkeOperatorHelper).getAccessToken())
+                    .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
             }
             K8sSetup.Openshift.toString() -> {
+                val awsOpenshiftOperatorHelper = operatorHelper as AwsOpenshiftOperatorHelper
                 answersFileTemplateTmp
-                        .replace("{{K8S_TOKEN}}", (operatorHelper as AwsOpenshiftHelper).getOcApiServerToken())
+                        .replace("{{K8S_TOKEN}}", awsOpenshiftOperatorHelper.getOcApiServerToken())
+                        .replace("{{K8S_API_SERVER_URL}}", awsOpenshiftOperatorHelper.awsOpenshiftHelper.getApiServerUrl())
             }
             K8sSetup.AzureAKS.toString() -> {
                 answersFileTemplateTmp
                     .replace("{{K8S_CLIENT_CERT}}", kubeContextInfo.caCert!!)
                     .replace("{{K8S_CLIENT_KEY}}", kubeContextInfo.tlsPrivateKey!!)
+                    .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
             }
             K8sSetup.AwsEKS.toString() -> {
-                val awsEksHelper = operatorHelper as AwsEksHelper
+                val awsEksHelper = operatorHelper as AwsEksOperatorHelper
                 answersFileTemplateTmp
                         .replace("{{K8S_CLIENT_CERT}}", kubeContextInfo.caCert!!)
                         .replace("{{CLUSTER_NAME}}", awsEksHelper.getProvider().clusterName.get())
                         .replace("{{AWS_ACCESS_KEY}}", awsEksHelper.getProvider().getAwsAccessKey())
                         .replace("{{AWS_ACCESS_SECRET}}", awsEksHelper.getProvider().getAwsSecretKey())
+                        .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
             }
             else -> {
                 answersFileTemplateTmp
                         .replace("{{K8S_CLIENT_CERT}}", kubeContextInfo.caCert!!)
                         .replace("{{K8S_CLIENT_KEY}}", kubeContextInfo.tlsPrivateKey!!)
+                        .replace("{{K8S_API_SERVER_URL}}", kubeContextInfo.apiServerURL!!)
             }
         }
 
@@ -190,6 +215,8 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
             GitUtil.checkout("xl-op-blueprints", getUpgradeDir(operatorHelper), branch).toFile()
         }
 
+        launchCluster(operatorHelper)
+
         project.logger.lifecycle("Applying prepared answers file ${answersFile.absolutePath}")
         XlCliUtil.xlOp(project,
                 answersFile,
@@ -202,6 +229,14 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
             File(operatorHelper.getProviderWorkDir())
         )
         operatorHelper.createClusterMetadata()
+    }
+
+    private fun launchCluster(operatorHelper: OperatorHelper) {
+        if (operatorHelper is AwsOpenshiftOperatorHelper) {
+            operatorHelper.launchCluster()
+        } else if (operatorHelper is AwsOpenshiftHelmHelper) {
+            operatorHelper.launchCluster()
+        }
     }
 
     private fun operatorBranchToOperatorZip(operatorHelper: OperatorHelper): Path? {

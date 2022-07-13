@@ -1,7 +1,7 @@
 package ai.digital.integration.server.release.tasks.cluster
 
 import ai.digital.integration.server.common.constant.ClusterProfileName
-import ai.digital.integration.server.common.constant.OperatorProviderName
+import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import org.gradle.api.Project
 
@@ -20,12 +20,24 @@ class ReleaseClusterUtil {
             return ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.get()
         }
 
-        fun getOperatorProviderName(project: Project): OperatorProviderName {
-            return OperatorProviderName.valueOfProviderName(getOperatorProvider(project))
+        fun getHelmProvider(project: Project): String {
+            return ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.get()
+        }
+
+        fun getOperatorProviderName(project: Project): OperatorHelmProviderName {
+            return OperatorHelmProviderName.valueOfProviderName(getOperatorProvider(project))
+        }
+
+        fun getHelmProviderName(project: Project): OperatorHelmProviderName {
+            return OperatorHelmProviderName.valueOfProviderName(getHelmProvider(project))
         }
 
         fun isOperatorProvider(project: Project): Boolean {
             return ReleaseExtensionUtil.getExtension(project).cluster.get().profile == ClusterProfileName.OPERATOR.profileName
+        }
+
+        fun isHelmProvider(project: Project): Boolean {
+            return ReleaseExtensionUtil.getExtension(project).cluster.get().profile == ClusterProfileName.HELM.profileName
         }
     }
 }

@@ -36,6 +36,19 @@ internal class DefaultProfileContainer(delegate: NamedDomainObjectContainer<Prof
             }) as OperatorProfile
     }
 
+    override fun helm(): HelmProfile = helm {}
+
+    override fun helm(closure: Closure<*>): HelmProfile {
+        return helm(ConfigureUtil.configureUsing(closure))
+    }
+
+    override fun helm(action: Action<in Profile>): HelmProfile {
+        return (findByName("helm")
+                ?: create("helm") {
+                    action.execute(this)
+                }) as HelmProfile
+    }
+
     override fun terraform(): TerraformProfile = terraform {}
 
     override fun terraform(closure: Closure<*>): TerraformProfile {

@@ -88,6 +88,7 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
         val path = IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, clusterMetadataPath)
         val props = Properties()
         props["cluster.port"] = getClusterPublicPort()
+        props["cluster.host"] = getLbIp()
         PropertiesUtil.writePropertiesFile(path.toFile(), props)
     }
 
@@ -285,10 +286,12 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
             "down"
         )
         DockerComposeUtil.execute(project, args)
+        deleteMountedServerFolders()
+        deleteMountedWorkerFolders()
     }
 
     private fun waitForBoot() {
-        val url = EntryPointUrlUtil(project, ProductName.DEPLOY).composeUrl("/deployit/metadata/type")
+        val url = EntryPointUrlUtil(project, ProductName.DEPLOY, true).composeUrl("/deployit/metadata/type")
         val server = DeployServerUtil.getServer(project)
         WaitForBootUtil.byPort(project, "Deploy", url, null, server.pingRetrySleepTime, server.pingTotalTries)
     }
@@ -313,6 +316,25 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
         }
     }
 
+
+    private fun deleteMountedServerFolders() {
+        serverMountedVolumes.forEach { folderName ->
+            val folderPath = "${IntegrationServerUtil.getDist(project)}/xl-deploy-server/${folderName}"
+            val folder = File(folderPath)
+            folder.deleteRecursively()
+            project.logger.lifecycle("Folder $folderPath has been deleted.")
+        }
+    }
+
+
+    private fun deleteMountedWorkerFolders() {
+        workerMountedVolumes.forEach { folderName ->
+            val folderPath = "${IntegrationServerUtil.getDist(project)}/xl-deploy-worker/${folderName}"
+            val folder = File(folderPath)
+            folder.deleteRecursively()
+            project.logger.lifecycle("Folder $folderPath has been deleted.")
+        }
+    }
     private fun giveAllPermissionsForMountedVolume(folderPath: String) {
         ProcessUtil.chMod(
             project,

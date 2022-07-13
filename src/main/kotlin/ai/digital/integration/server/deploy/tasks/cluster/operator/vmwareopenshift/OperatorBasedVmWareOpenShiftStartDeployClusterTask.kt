@@ -1,7 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.cluster.operator.vmwareopenshift
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.common.cluster.operator.VmwareOpenshiftHelper
+import ai.digital.integration.server.common.cluster.operator.VmwareOpenshiftOperatorHelper
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.tasks.cluster.operator.DeployOperatorBasedStartTask
 import org.gradle.api.tasks.TaskAction
@@ -19,6 +19,6 @@ open class OperatorBasedVmWareOpenShiftStartDeployClusterTask : DeployOperatorBa
 
     @TaskAction
     fun launch() {
-        VmwareOpenshiftHelper(project, ProductName.DEPLOY).launchCluster()
+        VmwareOpenshiftOperatorHelper(project, ProductName.DEPLOY).launchCluster()
     }
 }

@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.util
 
-import ai.digital.integration.server.common.constant.OperatorProviderName
+import ai.digital.integration.server.common.constant.OperatorHelmProviderName
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 import java.io.File
@@ -22,11 +22,11 @@ class XlCliUtil {
         fun localDir(project: Project) = project.buildDir.resolve("xl-cli")
 
         val XL_OP_MAPPING = mapOf(
-                Pair(OperatorProviderName.AWS_EKS, "AwsEKS"),
-                Pair(OperatorProviderName.AZURE_AKS, "AzureAKS"),
-                Pair(OperatorProviderName.GCP_GKE, "GoogleGKE"),
-                Pair(OperatorProviderName.AWS_OPENSHIFT, "Openshift"),
-                Pair(OperatorProviderName.ON_PREMISE, "PlainK8SCluster")
+                Pair(OperatorHelmProviderName.AWS_EKS, "AwsEKS"),
+                Pair(OperatorHelmProviderName.AZURE_AKS, "AzureAKS"),
+                Pair(OperatorHelmProviderName.GCP_GKE, "GoogleGKE"),
+                Pair(OperatorHelmProviderName.AWS_OPENSHIFT, "Openshift"),
+                Pair(OperatorHelmProviderName.ON_PREMISE, "PlainK8SCluster")
         )
 
         private fun copyFromLocal(project: Project, location: File) {
@@ -41,7 +41,7 @@ class XlCliUtil {
             ProcessUtil.executeCommand(project, "./xl apply --verbose -f \"${file.name}\" --xl-deploy-url http://localhost:${deployServerForOperatorPort}/ --xl-deploy-username admin --xl-deploy-password admin", workDir)
         }
 
-        fun xlOp(project: Project, answersFile: File, workDir: File, blueprintPath: File?) {
+        fun xlOp(project: Project, answersFile: File, workDir: File, blueprintPath: File?, command: String = "--upgrade") {
             copyFromLocal(project, workDir)
             // hard coded container name "dai-deploy" is reserved for "xl op"
             DockerUtil.execute(project, arrayListOf("stop", "dai-deploy"), logOutput = false, throwErrorOnFailure = false)
@@ -53,7 +53,7 @@ class XlCliUtil {
                 ""
             }
             // dai-deploy is running on 4516, it is no possible to change that (for now)
-            ProcessUtil.executeCommand(project, "./xl op --verbose --skip-prompts --no-cleanup --upgrade --advanced-setup " +
+            ProcessUtil.executeCommand(project, "./xl op --verbose --skip-prompts --no-cleanup $command --advanced-setup " +
                     "--answers \"${answersFile.absolutePath}\" " +
                     "--xl-deploy-url http://localhost:4516/ --xl-deploy-username admin --xl-deploy-password admin $blueprintPathOption",
                     workDir = workDir)

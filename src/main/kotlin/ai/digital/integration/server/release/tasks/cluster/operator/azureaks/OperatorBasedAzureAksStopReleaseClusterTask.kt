@@ -1,6 +1,6 @@
 package ai.digital.integration.server.release.tasks.cluster.operator.azureaks
 
-import ai.digital.integration.server.common.cluster.operator.AzureAksHelper
+import ai.digital.integration.server.common.cluster.operator.AzureAksOperatorHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
 import org.gradle.api.DefaultTask
@@ -18,6 +18,6 @@ open class OperatorBasedAzureAksStopReleaseClusterTask : DefaultTask() {
 
     @TaskAction
     fun launch() {
-        AzureAksHelper(project, ProductName.RELEASE).shutdownCluster()
+        AzureAksOperatorHelper(project, ProductName.RELEASE).shutdownCluster()
     }
 }

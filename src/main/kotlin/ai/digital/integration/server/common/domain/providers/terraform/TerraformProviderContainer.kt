@@ -1,7 +1,7 @@
 package ai.digital.integration.server.common.domain.providers.terraform
 
 import ai.digital.integration.server.common.domain.profiles.Profile
-import ai.digital.integration.server.common.domain.providers.operator.AwsEksProvider
+import ai.digital.integration.server.common.domain.providers.AwsEksProvider
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer

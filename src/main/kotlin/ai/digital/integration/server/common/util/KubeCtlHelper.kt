@@ -2,23 +2,24 @@ package ai.digital.integration.server.common.util
 
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.InfrastructureInfo
+import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.apache.commons.codec.binary.Base64
 import org.gradle.api.Project
 import java.io.File
 import java.nio.charset.StandardCharsets
 
-open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
+open class KubeCtlHelper(val project: Project, val namespace: String?, isOpenShift: Boolean = false) {
 
     val command = if (isOpenShift) "oc" else "kubectl"
 
     fun applyFile(file: File) {
         ProcessUtil.executeCommand(project,
-                "$command apply -f \"${file.absolutePath}\"")
+            namespaceWrapper("$command apply -f \"${file.absolutePath}\""))
     }
 
     fun deleteFile(file: File) {
-        ProcessUtil.executeCommand(project, "$command delete -f \"${file.absolutePath}\"")
+        ProcessUtil.executeCommand(project, namespaceWrapper("$command delete -f \"${file.absolutePath}\""))
     }
 
     fun wait(resource: String, condition: String, timeoutSeconds: Int): Boolean {
@@ -26,7 +27,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         val expectedEndTime = System.currentTimeMillis() + timeoutSeconds * 1000
         while (expectedEndTime > System.currentTimeMillis()) {
             val result = ProcessUtil.executeCommand(project,
-                    "$command wait --for condition=$condition --timeout=${timeoutSeconds}s $resource",
+                namespaceWrapper("$command wait --for condition=$condition --timeout=${timeoutSeconds}s $resource"),
                     throwErrorOnFailure = false)
             if (result.contains("condition met")) {
                 return true
@@ -40,7 +41,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
         val name = if (podName.startsWith("pod/")) podName.substring(4) else podName
         try {
             val logContent = ProcessUtil.executeCommand(project,
-                    command = "$command logs $name",
+                    command = namespaceWrapper("$command logs $name"),
                     logOutput = false)
             val logDir = DeployServerUtil.getLogDir(project)
             File(logDir, "$name.log").writeText(logContent, StandardCharsets.UTF_8)
@@ -51,12 +52,12 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     fun setDefaultStorageClass(newDefaultStorageClass: String) {
         ProcessUtil.executeCommand(project,
-                "$command get sc -o name" +
+            namespaceWrapper("$command get sc -o name") +
                         "|sed -e 's/.*\\///g' " +
                         "|xargs -I {} " +
-                        "$command patch storageclass {} -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"false\"}}}'")
+                    namespaceWrapper("$command patch storageclass {} -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"false\"}}}'"))
         ProcessUtil.executeCommand(project,
-                "$command patch storageclass $newDefaultStorageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'")
+            namespaceWrapper("$command patch storageclass $newDefaultStorageClass -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'"))
     }
 
     fun hasStorageClass(storageClass: String): Boolean {
@@ -103,7 +104,7 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     fun deleteAllPVCs() {
         ProcessUtil.executeCommand(project,
-                "$command delete pvc --all --grace-period=1", throwErrorOnFailure = false)
+            namespaceWrapper("$command delete pvc --all --grace-period=1"), throwErrorOnFailure = false)
     }
 
     fun getIngresHost(ingressName: String): String {
@@ -116,11 +117,11 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     fun getCurrentContext(): String {
         return ProcessUtil.executeCommand(project,
-                "$command config current-context", logOutput = false)
+            "$command config current-context", logOutput = false)
     }
 
     private fun configView(jsonPath: String) = ProcessUtil.executeCommand(project,
-            "$command config view -o jsonpath='$jsonPath' --raw", logOutput = false)
+        "$command config view -o jsonpath='$jsonPath' --raw", logOutput = false)
 
     fun getContextCluster(contextName: String) =
             configView("{.contexts[?(@.name == \"$contextName\")].context.cluster}")
@@ -155,12 +156,12 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
 
     private fun getNameAndGrep(params: String, grepFor: String): String {
         return ProcessUtil.executeCommand(project,
-                "$command get $params -o name | grep $grepFor", throwErrorOnFailure = false, logOutput = false)
+            namespaceWrapper("$command get $params -o name | grep $grepFor"), throwErrorOnFailure = false, logOutput = false)
     }
 
     private fun getWithPath(subCommand: String, jsonpath: String): String {
         return ProcessUtil.executeCommand(project,
-                "$command $subCommand -o 'jsonpath=$jsonpath'")
+            namespaceWrapper("$command $subCommand -o 'jsonpath=$jsonpath'"))
     }
 
     fun getCrd(groupName: String): String {
@@ -172,23 +173,32 @@ open class KubeCtlHelper(val project: Project, isOpenShift: Boolean = false) {
     }
 
     fun getResourceNames(resource: String, productName: ProductName): String {
+        return getResourceNames(resource, productName.shortName)
+    }
+
+    fun getResourceNames(resource: String, filter: String): String {
         return ProcessUtil.executeCommand(project,
-            "$command get $resource -o name | grep ${productName.shortName} | tr \"\\n\" \" \" | sed -e 's/,\$//'",
+            namespaceWrapper("$command get $resource -o name") + " | grep $filter | tr \"\\n\" \" \" | sed -e 's/,\$//'",
             logOutput = false, throwErrorOnFailure = false)
     }
 
     fun getResourceNames(resource: String): String {
         return ProcessUtil.executeCommand(project,
-            "$command get $resource -o name", logOutput = false, throwErrorOnFailure = false)
+            namespaceWrapper("$command get $resource -o name"), logOutput = false, throwErrorOnFailure = false)
     }
 
     fun deleteNames(names: String): String {
         return ProcessUtil.executeCommand(project,
-            "$command delete $names", logOutput = false, throwErrorOnFailure = false)
+            namespaceWrapper("$command delete $names"), logOutput = false, throwErrorOnFailure = false)
     }
 
     fun clearCrFinalizers(names: String): String {
         return ProcessUtil.executeCommand(project,
-            "$command patch $names -p '{\"metadata\":{\"finalizers\":[]}}' --type=merge", logOutput = false, throwErrorOnFailure = false)
+            namespaceWrapper("$command patch $names -p '{\"metadata\":{\"finalizers\":[]}}' --type=merge"), logOutput = false, throwErrorOnFailure = false)
+    }
+
+    private fun namespaceWrapper(kcCommand: String): String {
+        val namespaceOrDefault = namespace ?: Profile.DEFAULT_NAMESPACE_NAME
+        return "$kcCommand --namespace $namespaceOrDefault"
     }
 }

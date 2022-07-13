@@ -3,6 +3,7 @@ package ai.digital.integration.server.release.tasks.cluster
 import ai.digital.integration.server.common.constant.ClusterProfileName
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
+import ai.digital.integration.server.release.tasks.cluster.helm.HelmBasedInstallReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.OperatorBasedInstallReleaseClusterTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -22,6 +23,8 @@ open class StartReleaseClusterTask : DefaultTask() {
                     throw IllegalArgumentException("Docker compose based cluster setup is not supported yet in Release.")
                 ClusterProfileName.OPERATOR.profileName ->
                     OperatorBasedInstallReleaseClusterTask.NAME
+                ClusterProfileName.HELM.profileName ->
+                    HelmBasedInstallReleaseClusterTask.NAME
                 ClusterProfileName.TERRAFORM.profileName -> {
                     throw IllegalArgumentException("Terraform based cluster setup is not supported yet in Release.")
                 }

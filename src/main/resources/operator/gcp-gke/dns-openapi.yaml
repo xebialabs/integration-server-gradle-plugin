@@ -1,9 +1,9 @@
 swagger: "2.0"
-host: "{{PRODUCT_NAME}}-{{NAME}}.endpoints.{{PROJECT_ID}}.cloud.goog"
+host: "{{PRODUCT_NAME}}-{{HOST}}.endpoints.{{PROJECT_ID}}.cloud.goog"
 x-google-endpoints:
-- name: "{{PRODUCT_NAME}}-{{NAME}}.endpoints.{{PROJECT_ID}}.cloud.goog"
+- name: "{{PRODUCT_NAME}}-{{HOST}}.endpoints.{{PROJECT_ID}}.cloud.goog"
   target: "{{IP}}"
 info:
-  title: "{{NAME}} for {{PRODUCT_NAME}} in {{PROJECT_ID}}"
+  title: "{{HOST}} for {{PRODUCT_NAME}} in {{PROJECT_ID}}"
   version: 1.0.0
 paths: {}

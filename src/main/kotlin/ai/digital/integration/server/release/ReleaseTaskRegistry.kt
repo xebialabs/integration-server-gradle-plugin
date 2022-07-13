@@ -12,6 +12,25 @@ import ai.digital.integration.server.release.tasks.DockerBasedStopReleaseTask
 import ai.digital.integration.server.release.tasks.StopReleaseIntegrationServerTask
 import ai.digital.integration.server.release.tasks.cluster.StartReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.StopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.HelmBasedInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.HelmBasedStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.HelmBasedStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.ProvideReleaseKubernetesHelmChartTask
+import ai.digital.integration.server.release.tasks.cluster.helm.awseks.HelmBasedAwsEksInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.awseks.HelmBasedAwsEksStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.awseks.HelmBasedAwsEksStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.awsopenshift.HelmBasedAwsOpenShiftStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.azureaks.HelmBasedAzureAksInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.azureaks.HelmBasedAzureAksStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.azureaks.HelmBasedAzureAksStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.gcpgke.HelmBasedGcpGkeStopReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.onprem.HelmBasedOnPremInstallReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.onprem.HelmBasedOnPremStartReleaseClusterTask
+import ai.digital.integration.server.release.tasks.cluster.helm.onprem.HelmBasedOnPremStopReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.*
 import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksInstallReleaseClusterTask
 import ai.digital.integration.server.release.tasks.cluster.operator.awseks.OperatorBasedAwsEksStartReleaseClusterTask
@@ -50,6 +69,53 @@ open class ReleaseTaskRegistry {
 
             project.tasks.create(StartReleaseServerInstanceTask.NAME, StartReleaseServerInstanceTask::class.java)
             project.tasks.create(DockerBasedStopReleaseTask.NAME, DockerBasedStopReleaseTask::class.java)
+
+            // Cluster Helm
+            project.tasks.create(HelmBasedAwsEksStartReleaseClusterTask.NAME,
+                    HelmBasedAwsEksStartReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedAwsEksInstallReleaseClusterTask.NAME,
+                    HelmBasedAwsEksInstallReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedAwsEksStopReleaseClusterTask.NAME,
+                    HelmBasedAwsEksStopReleaseClusterTask::class.java)
+
+            project.tasks.create(HelmBasedAwsOpenShiftStartReleaseClusterTask.NAME,
+                    HelmBasedAwsOpenShiftStartReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedAwsOpenShiftInstallReleaseClusterTask.NAME,
+                    HelmBasedAwsOpenShiftInstallReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedAwsOpenShiftStopReleaseClusterTask.NAME,
+                    HelmBasedAwsOpenShiftStopReleaseClusterTask::class.java)
+
+            project.tasks.create(HelmBasedAzureAksStartReleaseClusterTask.NAME,
+                    HelmBasedAzureAksStartReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedAzureAksInstallReleaseClusterTask.NAME,
+                    HelmBasedAzureAksInstallReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedAzureAksStopReleaseClusterTask.NAME,
+                    HelmBasedAzureAksStopReleaseClusterTask::class.java)
+
+            project.tasks.create(HelmBasedGcpGkeStartReleaseClusterTask.NAME,
+                    HelmBasedGcpGkeStartReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedGcpGkeInstallReleaseClusterTask.NAME,
+                    HelmBasedGcpGkeInstallReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedGcpGkeStopReleaseClusterTask.NAME,
+                    HelmBasedGcpGkeStopReleaseClusterTask::class.java)
+
+            project.tasks.create(HelmBasedOnPremStartReleaseClusterTask.NAME,
+                    HelmBasedOnPremStartReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedOnPremInstallReleaseClusterTask.NAME,
+                    HelmBasedOnPremInstallReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedOnPremStopReleaseClusterTask.NAME,
+                    HelmBasedOnPremStopReleaseClusterTask::class.java)
+
+            project.tasks.create(HelmBasedStartReleaseClusterTask.NAME,
+                    HelmBasedStartReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedInstallReleaseClusterTask.NAME,
+                    HelmBasedInstallReleaseClusterTask::class.java)
+            project.tasks.create(HelmBasedStopReleaseClusterTask.NAME,
+                    HelmBasedStopReleaseClusterTask::class.java)
+
+            project.tasks.create(ProvideReleaseKubernetesHelmChartTask.NAME,
+                    ProvideReleaseKubernetesHelmChartTask::class.java)
+
 
             // Cluster Operator
             project.tasks.create(OperatorBasedAwsEksStartReleaseClusterTask.NAME,

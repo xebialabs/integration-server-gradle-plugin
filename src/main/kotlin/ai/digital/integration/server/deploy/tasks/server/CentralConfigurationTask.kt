@@ -72,20 +72,20 @@ open class CentralConfigurationTask : DefaultTask() {
             }
         }
 
-        YamlFileUtil.overlayFile(
+        YamlFileUtil.overlayFileWithJackson(
             File("${serverDir}/centralConfiguration/deploy-server.yaml"),
             serverYaml
         )
 
         project.logger.lifecycle("Creating custom deploy-task.yaml")
-        YamlFileUtil.overlayFile(
+        YamlFileUtil.overlayFileWithJackson(
             File("${serverDir}/centralConfiguration/deploy-task.yaml"),
             taskConfig(project))
 
         if (SatelliteUtil.hasSatellites(project)) {
             project.logger.lifecycle("Creating custom deploy-satellite.yaml")
 
-            YamlFileUtil.overlayFile(
+            YamlFileUtil.overlayFileWithJackson(
                 File("${serverDir}/centralConfiguration/deploy-satellite.yaml"),
                 mutableMapOf(
                     "deploy.satellite.enabled" to true

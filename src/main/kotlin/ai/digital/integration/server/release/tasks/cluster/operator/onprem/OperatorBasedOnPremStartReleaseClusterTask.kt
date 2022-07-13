@@ -1,6 +1,7 @@
 package ai.digital.integration.server.release.tasks.cluster.operator.onprem
 
-import ai.digital.integration.server.common.cluster.operator.OnPremHelper
+import ai.digital.integration.server.common.cluster.operator.OnPremOperatorHelper
+import ai.digital.integration.server.common.cluster.setup.OnPremHelper
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.release.tasks.cluster.operator.ReleaseOperatorBasedStartTask
@@ -19,6 +20,7 @@ open class OperatorBasedOnPremStartReleaseClusterTask : ReleaseOperatorBasedStar
 
     @TaskAction
     fun launch() {
-        OnPremHelper(project, ProductName.RELEASE).launchCluster()
+        OnPremOperatorHelper(project, ProductName.RELEASE).launchCluster()
+        OnPremOperatorHelper(project, ProductName.RELEASE).updateOperator()
     }
 }

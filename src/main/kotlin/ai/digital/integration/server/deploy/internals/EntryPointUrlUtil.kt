@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.cluster.DockerClusterHelperCreator
+import ai.digital.integration.server.common.cluster.helm.HelmHelper
 import ai.digital.integration.server.common.cluster.operator.OperatorHelper
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.ProductName
@@ -37,6 +38,9 @@ class EntryPointUrlUtil(
         if (isOperatorProvider() && !auxiliaryServer) {
             val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
             return operatorHelper.getPort()
+        } else if (isHelmProvider() && !auxiliaryServer) {
+            val helmHelper = HelmHelper.getHelmHelper(project, productName)
+            return helmHelper.getPort()
         } else if (auxiliaryServer) {
             val server = OperatorUtil(project).getOperatorServer()
             return server.httpPort.toString()
@@ -50,6 +54,9 @@ class EntryPointUrlUtil(
         if (isOperatorProvider() && !auxiliaryServer) {
             val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
             return operatorHelper.getContextRoot()
+        } else if (isHelmProvider() && !auxiliaryServer) {
+            val helmHelper = HelmHelper.getHelmHelper(project, productName)
+            return helmHelper.getContextRoot()
         } else if (auxiliaryServer) {
             val server = OperatorUtil(project).getOperatorServer()
             return server.contextRoot
@@ -59,9 +66,12 @@ class EntryPointUrlUtil(
     }
 
     fun getHttpHost(auxiliaryServer: Boolean = false): String {
-        if (isOperatorProvider() && !auxiliaryServer) {
+        if (isOperatorProvider() && !auxiliaryServer && DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
             val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
             return operatorHelper.getFqdn()
+        } else if (isHelmProvider() && !auxiliaryServer && DeployExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
+            val helmHelper = HelmHelper.getHelmHelper(project, productName)
+            return helmHelper.getFqdn()
         }
 
         return "localhost"
@@ -97,6 +107,13 @@ class EntryPointUrlUtil(
         return when (productName) {
             ProductName.DEPLOY -> DeployClusterUtil.isOperatorProvider(project)
             ProductName.RELEASE -> ReleaseClusterUtil.isOperatorProvider(project)
+        }
+    }
+
+    private fun isHelmProvider(): Boolean {
+        return when (productName) {
+            ProductName.DEPLOY -> DeployClusterUtil.isHelmProvider(project)
+            ProductName.RELEASE -> ReleaseClusterUtil.isHelmProvider(project)
         }
     }
 

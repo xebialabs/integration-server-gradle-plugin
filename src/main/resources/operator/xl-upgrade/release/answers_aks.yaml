@@ -5,7 +5,7 @@ K8sApiServerURL: {{K8S_API_SERVER_URL}}
 K8sClientCert: {{K8S_CLIENT_CERT}}
 K8sClientKey: {{K8S_CLIENT_KEY}}
 K8sSetup: {{K8S_SETUP}}
-Namespace: default
+Namespace: {{K8S_NAMESPACE}}
 OperatorImage: {{OPERATOR_IMAGE}}
 OperatorImageReleaseGeneric: {{OPERATOR_IMAGE}}
 RepositoryName: {{REPOSITORY_NAME}}
@@ -14,12 +14,16 @@ ImageTag: {{IMAGE_TAG}}
 OsType: darwin
 ServerType: daiRelease
 UpgradeType: operatorToOperator
-UseCustomNamespace: true
+UseCustomNamespace: {{USE_CUSTOM_NAMESPACE}}
+IsCrdReused: {{IS_CRD_REUSED}}
 UseKubeconfig: true
 InstallXLD: false
 InstallXLR: false
 UseEmbeddedKeycloak: {{USE_KEYCLOAK}}
+UseExistingOidcConf: false
 KeycloakUrl: {{KEYCLOAK_URL}}
+UseKeycloakWithEmbeddedDB: true
+EnableOidc: false
 UseOperatorZipRelease: {{USE_OPERATOR_ZIP}}
 OperatorZipRelease: {{OPERATOR_ZIP_RELEASE}}
 PreserveCrValuesRelease: |-

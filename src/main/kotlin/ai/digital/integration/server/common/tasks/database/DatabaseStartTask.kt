@@ -9,6 +9,7 @@ import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -65,5 +66,10 @@ abstract class DatabaseStartTask : DockerComposeUp() {
     @TaskAction
     override fun run() {
         super.run()
+        val dbName = DbUtil.databaseName(project)
+        if(dbName.startsWith("oracle")) {
+            project.logger.lifecycle("Waiting for 1 minute to start oracle db")
+            TimeUnit.SECONDS.sleep(60)
+        }
     }
 }
