@@ -284,8 +284,6 @@ class DeployServerUtil {
                 .replace("{{DEPLOY_VERSION}}", server.version.toString())
                 .replace("{{DEPLOY_FORCE_UPGRADE}}", forceUpgrade.toString())
                 .replace("{{INTEGRATION_SERVER_ROOT_VOLUME}}", getOldDockerServerPath(project))
-                .replace("{{USE_EXTERNAL_CENTRAL_CONFIG}}", CentralConfigurationStandaloneUtil.isDockerBased(project).toString())
-                .replace("{{CENTRAL_CONFIG_URL}}", "http://cc:8888/centralConfiguration")
 
             serverTemplate.writeText(configuredTemplate)
 

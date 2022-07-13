@@ -5,7 +5,6 @@ import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.domain.profiles.DockerComposeProfile
 import ai.digital.integration.server.common.util.*
-import ai.digital.integration.server.deploy.domain.CentralConfigurationStandalone
 import ai.digital.integration.server.deploy.internals.*
 import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
 import net.jodah.failsafe.Failsafe
@@ -324,7 +323,6 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
 
     fun launchCluster() {
         createNetwork()
-        CentralConfigurationStandaloneUtil.runDockerBasedInstance(project, CentralConfigurationStandaloneUtil.getCC(project));
         runServers()
         inspectIps()
         runWorkers()

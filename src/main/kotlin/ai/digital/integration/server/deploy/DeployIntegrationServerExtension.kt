@@ -1,7 +1,6 @@
 package ai.digital.integration.server.deploy
 
 import ai.digital.integration.server.common.domain.*
-import ai.digital.integration.server.deploy.domain.CentralConfigurationStandalone
 import ai.digital.integration.server.common.extension.CommonIntegrationServerExtension
 import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.deploy.domain.Satellite
@@ -67,7 +66,7 @@ open class DeployIntegrationServerExtension(
 
     fun kubeScanner(action: Action<in KubeScanner>) = action.execute(kubeScanner.get())
 
-    val CentralConfigurationStandalone = project.objects.property<CentralConfigurationStandalone>().value(CentralConfigurationStandalone(project.objects))
+    val centralConfigurationServer = project.objects.property<CentralConfigurationServer>().value(CentralConfigurationServer(project.objects))
 
-    fun centralConfigServer(action: Action<in CentralConfigurationStandalone>) = action.execute(CentralConfigurationStandalone.get())
+    fun centralConfigurationServer(action: Action<in CentralConfigurationServer>) = action.execute(centralConfigurationServer.get())
 }

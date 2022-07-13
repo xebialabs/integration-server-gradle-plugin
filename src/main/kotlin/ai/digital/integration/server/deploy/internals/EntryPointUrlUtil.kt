@@ -106,11 +106,4 @@ class EntryPointUrlUtil(
             ProductName.RELEASE -> false
         }
     }
-
-    fun getCCUrl(): String {
-        val protocol = if (clusterEnabled) "http" else if (isTls()) "https" else "http"
-        val host = "localhost"
-        val port = CentralConfigurationStandaloneUtil.readServerKey(project, "http.port")
-        return "$protocol://$host:$port"
-    }
 }

@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common
 
+import ai.digital.integration.server.common.centralConfiguration.*
 import ai.digital.integration.server.common.tasks.ShutdownIntegrationServerTask
 import ai.digital.integration.server.common.tasks.StartIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
@@ -17,6 +18,12 @@ class TaskRegistry {
             project.tasks.create(StopDeployServerForOperatorUpgradeTask.NAME,
                     StopDeployServerForOperatorUpgradeTask::class.java)
             project.tasks.create(DownloadXlCliDistTask.NAME, DownloadXlCliDistTask::class.java)
+
+            //Central configuration service
+            project.tasks.create(DownloadAndExtractCentralConfigurationServerDistTask.NAME, DownloadAndExtractCentralConfigurationServerDistTask::class.java)
+            project.tasks.create(PrepareCentralConfigurationServerTask.NAME, PrepareCentralConfigurationServerTask::class.java)
+            project.tasks.create(StartCentralConfigurationServerTask.NAME, StartCentralConfigurationServerTask::class.java)
+            project.tasks.create(ShutdownCentralConfigurationServerTask.NAME, ShutdownCentralConfigurationServerTask::class.java)
         }
     }
 }

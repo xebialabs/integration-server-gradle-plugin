@@ -1,9 +1,6 @@
 package ai.digital.integration.server.deploy.internals
 
-import ai.digital.integration.server.common.domain.DevOpsAsCode
-import ai.digital.integration.server.common.domain.Infrastructure
-import ai.digital.integration.server.common.domain.Server
-import ai.digital.integration.server.common.domain.Test
+import ai.digital.integration.server.common.domain.*
 import ai.digital.integration.server.deploy.DeployIntegrationServerExtension
 import ai.digital.integration.server.deploy.domain.Satellite
 import ai.digital.integration.server.deploy.domain.Worker

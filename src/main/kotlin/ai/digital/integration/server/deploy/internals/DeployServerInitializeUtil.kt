@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.Server
+import ai.digital.integration.server.common.util.CentralConfigurationServerUtil
 import org.gradle.api.Project
 import java.io.File
 
@@ -42,10 +43,9 @@ class DeployServerInitializeUtil {
             file.appendText("server.port=8180\n")
             file.appendText("xl.spring.cloud.enabled=true\n")
 
-            if(CentralConfigurationStandaloneUtil.hasCC(project)) {
-                val cc = CentralConfigurationStandaloneUtil.getCC(project)
+            if(CentralConfigurationServerUtil.hasCentralConfigurationServer(project)) {
+                val cc = CentralConfigurationServerUtil.getCentralConfigurationServer(project)
                 file.appendText("xl.spring.cloud.uri=http://localhost:${cc.httpPort}/centralConfiguration/\n")
-                file.appendText("xl.spring.cloud.encrypt.key=MQle?8_pwB^>f<&\n")
                 file.appendText("xl.spring.cloud.external-config=true\n")
             }
         }

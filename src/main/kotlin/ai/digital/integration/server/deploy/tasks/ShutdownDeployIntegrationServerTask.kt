@@ -1,15 +1,19 @@
 package ai.digital.integration.server.deploy.tasks
 
+import ai.digital.integration.server.common.centralConfiguration.ShutdownCentralConfigurationServerTask
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStopTask
+import ai.digital.integration.server.common.util.CentralConfigurationServerUtil
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.InfrastructureUtil
-import ai.digital.integration.server.deploy.internals.*
+import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.internals.DeployShutdownUtil
+import ai.digital.integration.server.deploy.internals.SatelliteUtil
+import ai.digital.integration.server.deploy.internals.WorkerUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.satellite.ShutdownSatelliteTask
-import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopCCTask
 import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
 import ai.digital.integration.server.deploy.tasks.worker.ShutdownWorkersTask
 import org.gradle.api.DefaultTask
@@ -32,9 +36,6 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
                 if (DeployServerUtil.isDockerBased(project)) {
                     that.dependsOn(DockerBasedStopDeployTask.NAME)
                 }
-                if (CentralConfigurationStandaloneUtil.isDockerBased(project)) {
-                    that.dependsOn(DockerBasedStopCCTask.NAME)
-                }
                 if (WorkerUtil.hasWorkers(project)) {
                     that.dependsOn(ShutdownWorkersTask.NAME)
                 }
@@ -48,6 +49,9 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
                 }
                 if (InfrastructureUtil.hasInfrastructures(project)){
                     that.finalizedBy(InfrastructureStopTask.NAME)
+                }
+                if (CentralConfigurationServerUtil.hasCentralConfigurationServer(project)) {
+                    that.dependsOn(ShutdownCentralConfigurationServerTask.NAME)
                 }
             }
         }

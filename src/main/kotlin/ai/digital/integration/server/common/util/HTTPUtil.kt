@@ -24,14 +24,14 @@ open class HTTPUtil {
             return http
         }
 
-        private fun basicAuth(): String {
-            return "Basic " + Base64.getEncoder().encodeToString("admin:admin".toByteArray())
+        private fun basicAuth(username: String, password: String): String {
+            return "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
         }
 
-        fun doRequest(url: String): HttpRequest.Builder {
+        fun doRequest(url: String, username: String = "admin", password: String = "admin"): HttpRequest.Builder {
             return HttpRequest.newBuilder(URI(url))
                 .version(HttpClient.Version.HTTP_1_1)
-                .header("Authorization", basicAuth())
+                .header("Authorization", basicAuth(username, password))
                 .timeout(Duration.of(3, ChronoUnit.MINUTES))
         }
 

@@ -5,10 +5,6 @@ import ai.digital.integration.server.common.gitlab.GitlabStopTask
 import ai.digital.integration.server.common.mq.ShutdownMqTask
 import ai.digital.integration.server.common.mq.StartMqTask
 import ai.digital.integration.server.common.pluginManager.StartPluginManagerTask
-import ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone.CentralConfigOverlaysTask
-import ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone.DownloadAndExtractCCDistTask
-import ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone.PrepareCCTask
-import ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone.StartCCServerTask
 import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
@@ -49,7 +45,6 @@ import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGeneration
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
 import ai.digital.integration.server.deploy.tasks.server.*
-import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopCCTask
 import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
 import ai.digital.integration.server.deploy.tasks.server.operator.*
 import ai.digital.integration.server.deploy.tasks.tests.IntegrationTestsTask
@@ -58,7 +53,6 @@ import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfiguratio
 import ai.digital.integration.server.deploy.tasks.worker.*
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.kotlin.dsl.create
 
 open class DeployTaskRegistry {
 
@@ -220,13 +214,6 @@ open class DeployTaskRegistry {
 
             //Tests
             project.tasks.create(IntegrationTestsTask.NAME, IntegrationTestsTask::class.java)
-
-            //Central configuration standalone service
-            project.tasks.create(DownloadAndExtractCCDistTask.NAME, DownloadAndExtractCCDistTask::class.java)
-            project.tasks.create(PrepareCCTask.NAME, PrepareCCTask::class.java)
-            project.tasks.create(StartCCServerTask.NAME, StartCCServerTask::class.java)
-            project.tasks.create(CentralConfigOverlaysTask.NAME, CentralConfigOverlaysTask::class.java)
-            project.tasks.create(DockerBasedStopCCTask.NAME, DockerBasedStopCCTask::class.java)
 
         }
     }

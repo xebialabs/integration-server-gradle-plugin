@@ -11,8 +11,9 @@ import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.deploy.internals.*
-import ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone.PrepareCCTask
-import ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone.StartCCServerTask
+import ai.digital.integration.server.common.centralConfiguration.PrepareCentralConfigurationServerTask
+import ai.digital.integration.server.common.centralConfiguration.StartCentralConfigurationServerTask
+import ai.digital.integration.server.common.util.CentralConfigurationServerUtil
 import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
 import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
@@ -46,7 +47,7 @@ open class StartDeployServerInstanceTask : DefaultTask() {
             DownloadAndExtractServerDistTask.NAME,
             PrepareDatabaseTask.NAME,
             PrepareServerTask.NAME,
-            PrepareCCTask.NAME,
+            PrepareCentralConfigurationServerTask.NAME,
             SetServerLogbackLevelsTask.NAME,
             StartMqTask.NAME,
             ServerYamlPatchTask.NAME
@@ -66,8 +67,8 @@ open class StartDeployServerInstanceTask : DefaultTask() {
             if (InfrastructureUtil.hasInfrastructures(project)) {
                 dependencies.add(InfrastructureStartTask.NAME)
             }
-            if (CentralConfigurationStandaloneUtil.hasCC(project)) {
-                dependencies.add(StartCCServerTask.NAME)
+            if (CentralConfigurationServerUtil.hasCentralConfigurationServer(project)) {
+                dependencies.add(StartCentralConfigurationServerTask.NAME)
             }
 
             dependsOn(dependencies)

@@ -1,22 +1,22 @@
-package ai.digital.integration.server.deploy.tasks.centralConfigurationStandalone
+package ai.digital.integration.server.common.centralConfiguration
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.IntegrationServerUtil
-import ai.digital.integration.server.deploy.internals.CentralConfigurationStandaloneUtil
+import ai.digital.integration.server.common.util.CentralConfigurationServerUtil
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil
 import org.gradle.api.tasks.Copy
 
-open class DownloadAndExtractCCDistTask : Copy() {
+open class DownloadAndExtractCentralConfigurationServerDistTask : Copy() {
 
     init {
         this.group = PLUGIN_GROUP
 
         this.onlyIf {
-            CentralConfigurationStandaloneUtil.hasCC(project)
+            CentralConfigurationServerUtil.hasCentralConfigurationServer(project)
         }
 
-        val version = CentralConfigurationStandaloneUtil.getCC(project).version
-        project.logger.lifecycle("Downloading and extracting the Central Config Server ${version}.")
+        val version = CentralConfigurationServerUtil.getCentralConfigurationServer(project).version
+        project.logger.lifecycle("Downloading and extracting the central config server ${version}.")
         project.buildscript.dependencies.add(
                 DeployConfigurationsUtil.CENTRAL_CONFIG_DIST,
                 "ai.digital.config:central-configuration-server:${version}@zip"
@@ -30,6 +30,6 @@ open class DownloadAndExtractCCDistTask : Copy() {
     }
 
     companion object {
-        const val NAME = "downloadAndExtractCCServer"
+        const val NAME = "downloadAndExtractCentralConfigurationServer"
     }
 }
