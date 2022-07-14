@@ -1,8 +1,8 @@
-package ai.digital.integration.server.common.util
+package ai.digital.integration.server.deploy.internals
 
-import ai.digital.integration.server.common.domain.CentralConfigurationServer
-import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
-import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.common.util.PropertiesUtil
+import ai.digital.integration.server.common.util.PropertyUtil
+import ai.digital.integration.server.deploy.domain.CentralConfigurationServer
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Path

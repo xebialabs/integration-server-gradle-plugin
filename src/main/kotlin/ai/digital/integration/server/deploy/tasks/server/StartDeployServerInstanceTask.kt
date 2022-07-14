@@ -1,6 +1,6 @@
 package ai.digital.integration.server.deploy.tasks.server
 
-import ai.digital.integration.server.common.centralConfiguration.StartCentralConfigurationServerTask
+import ai.digital.integration.server.deploy.tasks.centralConfiguration.StartCentralConfigurationServerTask
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.mq.StartMqTask
@@ -8,7 +8,7 @@ import ai.digital.integration.server.common.tasks.database.DatabaseStartTask
 import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStartTask
-import ai.digital.integration.server.common.util.CentralConfigurationServerUtil
+import ai.digital.integration.server.deploy.internals.CentralConfigurationServerUtil
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.common.util.ProcessUtil

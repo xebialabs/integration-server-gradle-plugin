@@ -1,7 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.worker
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.common.util.CentralConfigurationServerUtil
+import ai.digital.integration.server.deploy.internals.CentralConfigurationServerUtil
 import ai.digital.integration.server.common.util.HTTPUtil
 import ai.digital.integration.server.deploy.domain.Worker
 import ai.digital.integration.server.deploy.internals.WorkerUtil

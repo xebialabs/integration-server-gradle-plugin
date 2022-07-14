@@ -1,9 +1,9 @@
-package ai.digital.integration.server.common.centralConfiguration
+package ai.digital.integration.server.deploy.tasks.centralConfiguration
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.common.domain.CentralConfigurationServer
+import ai.digital.integration.server.deploy.domain.CentralConfigurationServer
 import ai.digital.integration.server.common.domain.Server
-import ai.digital.integration.server.common.util.CentralConfigurationServerUtil
+import ai.digital.integration.server.deploy.internals.CentralConfigurationServerUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.tasks.server.ServerYamlPatchTask
 import org.apache.commons.io.FileUtils

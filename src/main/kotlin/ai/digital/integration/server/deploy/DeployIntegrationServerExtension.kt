@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy
 
 import ai.digital.integration.server.common.domain.*
 import ai.digital.integration.server.common.extension.CommonIntegrationServerExtension
+import ai.digital.integration.server.deploy.domain.CentralConfigurationServer
 import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.deploy.domain.Satellite
 import ai.digital.integration.server.deploy.domain.Worker

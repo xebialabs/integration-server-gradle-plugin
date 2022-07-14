@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy
 
+import ai.digital.integration.server.deploy.tasks.centralConfiguration.*
 import ai.digital.integration.server.common.gitlab.GitlabStartTask
 import ai.digital.integration.server.common.gitlab.GitlabStopTask
 import ai.digital.integration.server.common.mq.ShutdownMqTask
@@ -11,10 +12,13 @@ import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStartTask
 import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStopTask
-import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.ShutdownDeployIntegrationServerTask
+import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.anonymizer.ExportDatabaseTask
-import ai.digital.integration.server.deploy.tasks.cli.*
+import ai.digital.integration.server.deploy.tasks.cli.CliCleanDefaultExtTask
+import ai.digital.integration.server.deploy.tasks.cli.CliOverlaysTask
+import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
+import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
 import ai.digital.integration.server.deploy.tasks.cluster.StartDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
 import ai.digital.integration.server.deploy.tasks.cluster.dockercompose.DockerComposeBasedStartDeployClusterTask
@@ -65,7 +69,10 @@ import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.*
 import ai.digital.integration.server.deploy.tasks.server.*
 import ai.digital.integration.server.deploy.tasks.server.docker.DockerBasedStopDeployTask
-import ai.digital.integration.server.deploy.tasks.server.operator.*
+import ai.digital.integration.server.deploy.tasks.server.operator.OperatorCentralConfigurationTask
+import ai.digital.integration.server.deploy.tasks.server.operator.PrepareOperatorServerTask
+import ai.digital.integration.server.deploy.tasks.server.operator.StartDeployServerForOperatorInstanceTask
+import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
 import ai.digital.integration.server.deploy.tasks.tests.IntegrationTestsTask
 import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
@@ -279,6 +286,14 @@ open class DeployTaskRegistry {
             project.tasks.create(StartWorkersTask.NAME, StartWorkersTask::class.java)
             project.tasks.create(WorkerOverlaysTask.NAME, WorkerOverlaysTask::class.java)
             project.tasks.create(PrepareWorkersTask.NAME, PrepareWorkersTask::class.java)
+
+            //Central configuration service
+            project.tasks.create(DownloadAndExtractCentralConfigurationServerDistTask.NAME, DownloadAndExtractCentralConfigurationServerDistTask::class.java)
+            project.tasks.create(PrepareCentralConfigurationServerTask.NAME, PrepareCentralConfigurationServerTask::class.java)
+            project.tasks.create(CentralConfigurationServerOverlaysTask.NAME, CentralConfigurationServerOverlaysTask::class.java)
+            project.tasks.create(CentralConfigurationServerYamlPatchTask.NAME, CentralConfigurationServerYamlPatchTask::class.java)
+            project.tasks.create(StartCentralConfigurationServerTask.NAME, StartCentralConfigurationServerTask::class.java)
+            project.tasks.create(ShutdownCentralConfigurationServerTask.NAME, ShutdownCentralConfigurationServerTask::class.java)
 
             //Tests
             project.tasks.create(IntegrationTestsTask.NAME, IntegrationTestsTask::class.java)

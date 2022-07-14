@@ -1,8 +1,8 @@
-package ai.digital.integration.server.common.centralConfiguration
+package ai.digital.integration.server.deploy.tasks.centralConfiguration
 
 import ai.digital.integration.server.common.constant.PluginConstant
-import ai.digital.integration.server.common.domain.CentralConfigurationServer
-import ai.digital.integration.server.common.util.CentralConfigurationServerUtil
+import ai.digital.integration.server.deploy.domain.CentralConfigurationServer
+import ai.digital.integration.server.deploy.internals.CentralConfigurationServerUtil
 import ai.digital.integration.server.common.util.HTTPUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException

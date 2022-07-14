@@ -1,4 +1,4 @@
-package ai.digital.integration.server.common.domain
+package ai.digital.integration.server.deploy.domain
 
 import ai.digital.integration.server.common.constant.ServerConstants
 import ai.digital.integration.server.common.domain.api.Container

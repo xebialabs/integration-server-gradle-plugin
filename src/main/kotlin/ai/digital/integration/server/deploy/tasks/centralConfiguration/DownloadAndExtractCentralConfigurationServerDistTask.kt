@@ -1,8 +1,8 @@
-package ai.digital.integration.server.common.centralConfiguration
+package ai.digital.integration.server.deploy.tasks.centralConfiguration
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.IntegrationServerUtil
-import ai.digital.integration.server.common.util.CentralConfigurationServerUtil
+import ai.digital.integration.server.deploy.internals.CentralConfigurationServerUtil
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil
 import org.gradle.api.tasks.Copy
 

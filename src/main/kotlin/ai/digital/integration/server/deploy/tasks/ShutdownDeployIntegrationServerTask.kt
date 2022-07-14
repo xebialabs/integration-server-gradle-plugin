@@ -1,10 +1,10 @@
 package ai.digital.integration.server.deploy.tasks
 
-import ai.digital.integration.server.common.centralConfiguration.ShutdownCentralConfigurationServerTask
+import ai.digital.integration.server.deploy.tasks.centralConfiguration.ShutdownCentralConfigurationServerTask
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStopTask
-import ai.digital.integration.server.common.util.CentralConfigurationServerUtil
+import ai.digital.integration.server.deploy.internals.CentralConfigurationServerUtil
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil

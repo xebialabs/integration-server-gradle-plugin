@@ -1,7 +1,6 @@
 package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.domain.Server
-import ai.digital.integration.server.common.util.CentralConfigurationServerUtil
 import org.gradle.api.Project
 import java.io.File
 
