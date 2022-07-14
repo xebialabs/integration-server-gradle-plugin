@@ -44,7 +44,8 @@ class DeployServerInitializeUtil {
             file.appendText("xl.spring.cloud.enabled=true\n")
 
             if (CentralConfigurationServerUtil.hasCentralConfigurationServer(project)) {
-                file.appendText("xl.spring.cloud.uri=${CentralConfigurationServerUtil.getBaseUrl(project)}/centralConfiguration/\n")
+                val cc = CentralConfigurationServerUtil.getCentralConfigurationServer(project)
+                file.appendText("xl.spring.cloud.uri=http://localhost:${cc.httpPort}/centralConfiguration/\n")
                 file.appendText("xl.spring.cloud.external-config=true\n")
             }
         }
