@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy
 
 import ai.digital.integration.server.common.domain.*
 import ai.digital.integration.server.common.extension.CommonIntegrationServerExtension
+import ai.digital.integration.server.deploy.domain.CentralConfigurationServer
 import ai.digital.integration.server.deploy.domain.Cli
 import ai.digital.integration.server.deploy.domain.Satellite
 import ai.digital.integration.server.deploy.domain.Worker
@@ -9,8 +10,6 @@ import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.container
-import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
 
 
@@ -67,4 +66,8 @@ open class DeployIntegrationServerExtension(
     val kubeScanner = project.objects.property<KubeScanner>().value(KubeScanner(project.objects))
 
     fun kubeScanner(action: Action<in KubeScanner>) = action.execute(kubeScanner.get())
+
+    val centralConfigurationServer = project.objects.property<CentralConfigurationServer>().value(CentralConfigurationServer(project.objects))
+
+    fun centralConfigurationServer(action: Action<in CentralConfigurationServer>) = action.execute(centralConfigurationServer.get())
 }

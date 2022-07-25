@@ -58,3 +58,10 @@ by specifying `-x *taskName*`.
 |syncServerPluginsWithWorker|Copy all plugins from the xl-deploy to the worker runtime directory.|
 |yamlPatch|[Read about it here](./configuration.md#yaml-patches)|
 |workerOverlays|Overlays the files for the Worker.|
+|prepareWorkersTask|Creates the `deployit.conf` file for the workers. Note: this task only executes if there is a central configuration server enabled in the configuration.|
+|downloadAndExtractCentralConfigurationServer|Downloads the central configuration server distribution|
+|prepareCentralConfigurationServer|Creates the initial files & folders for the central configuration server before starting it|
+|centralConfigurationServerYamlPatch|Applies yaml patches to the central configuration server|
+|centralConfigurationServerOverlays|Applies the overlays on the central configuration server|
+|startCentralConfigurationServer|Starts the central configuration server|
+|shutdownCentralConfigurationServer|Shuts down the central configuration server|

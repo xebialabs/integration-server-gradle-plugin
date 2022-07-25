@@ -609,6 +609,50 @@ Docker based setup currently don't support workers.
 
 :::
 
+## Central Configuration Server section
+In order to maintain the configurations across different services, the central configuration server is used.
+This serves the configurations to services based on profiles.
+
+Read more about central configuration here:
+[https://docs.xebialabs.com/v.10.2/deploy/concept/central-configuration-overview/](https://docs.xebialabs.com/v.10.2/deploy/concept/central-configuration-overview/)
+
+```groovy
+deployIntegrationServer {
+    centralConfigurationServer {
+        enable = true
+        httpPort = 8888
+        overlays = [
+                centralConfiguration: [
+                        files("$rootDir/setups/external-cc-itest/deploy-client.yaml")
+                ]
+        ]
+        yamlPatches = [
+                'centralConfiguration/deploy-server.yaml': [
+                        'deploy.server.label': 'Deploy Hello World'
+                ],
+                "centralConfiguration/deploy-repository.yaml": [
+                        "xl.repository.artifacts.allow-move": true,
+                        "xl.repository.artifacts.type"      : "db"
+                ]
+        ]
+    }
+}
+```
+
+|Name|Type|Default Value|Description|
+| :---: | :---: | :---: | :---: |
+|enable|Optional|false|If you need the Central Configuration Server, this should be true.|
+|httpPort|Optional|Random port|The HTTP port for Central Configuration Server.|
+|overlays|Optional|[:]|[Read about this section below](#overlays)|
+|version|Optional|None|It can be specified in several ways. Or as a gradle property `centralConfigurationVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
+|yamlPatches|Optional|[:]|[Read about this section below](#yaml-patches)|
+
+:::caution
+
+Docker based setup currently don't support Central Configuration Server.
+
+:::
+
 ## Satellites section
 
 In comparison with workers, the goal for a satellite is to perform deployments on the different network with Deploy. When

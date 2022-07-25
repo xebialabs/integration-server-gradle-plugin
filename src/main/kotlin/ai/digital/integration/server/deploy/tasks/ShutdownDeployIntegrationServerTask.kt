@@ -1,13 +1,15 @@
 package ai.digital.integration.server.deploy.tasks
 
+import ai.digital.integration.server.deploy.tasks.centralConfiguration.ShutdownCentralConfigurationServerTask
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
 import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStopTask
+import ai.digital.integration.server.deploy.internals.CentralConfigurationServerUtil
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
-import ai.digital.integration.server.deploy.internals.SatelliteUtil
 import ai.digital.integration.server.deploy.internals.DeployShutdownUtil
+import ai.digital.integration.server.deploy.internals.SatelliteUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import ai.digital.integration.server.deploy.internals.cluster.DeployClusterUtil
 import ai.digital.integration.server.deploy.tasks.cluster.StopDeployClusterTask
@@ -47,6 +49,9 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
                 }
                 if (InfrastructureUtil.hasInfrastructures(project)){
                     that.finalizedBy(InfrastructureStopTask.NAME)
+                }
+                if (CentralConfigurationServerUtil.hasCentralConfigurationServer(project)) {
+                    that.dependsOn(ShutdownCentralConfigurationServerTask.NAME)
                 }
             }
         }
