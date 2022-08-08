@@ -8,7 +8,7 @@ class ServerInitializeUtil {
     private static void createFolders(Project project) {
         project.logger.lifecycle("Preparing server destination folders.")
 
-        ["centralConfiguration", "hotfix/plugins", "hotfix/lib", "plugins"].each { String folderName ->
+        ["centralConfiguration", "conf", "hotfix/plugins", "hotfix/lib", "plugins"].each { String folderName ->
             def folderPath = "${ServerUtil.getServerWorkingDir(project)}/${folderName}"
             def folder = new File(folderPath)
             folder.mkdirs()
