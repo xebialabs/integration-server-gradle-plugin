@@ -132,6 +132,9 @@ open class KubeCtlHelper(val project: Project, val namespace: String?, isOpenShi
     fun getClusterServer(clusterName: String) =
             configView("{.clusters[?(@.name == \"$clusterName\")].cluster.server}")
 
+    fun getServiceClusterIp(serviceName: String) =
+        getWithPath("get svc $serviceName", "{.spec.clusterIP}")
+
     private fun configView(jsonPath: String, fallbackJsonPath: String): String {
         val data = configView(jsonPath)
         return data.ifEmpty {

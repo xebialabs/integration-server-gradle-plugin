@@ -8,6 +8,7 @@ import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.profiles.Profile
 
 import ai.digital.integration.server.common.domain.providers.GcpGkeProvider
+import ai.digital.integration.server.common.util.KubeCtlHelper
 import ai.digital.integration.server.common.util.ProcessUtil
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
@@ -55,6 +56,7 @@ open class GcpGkeHelper(project: Project, productName: ProductName, val profile:
             skipExisting
         )
         connectToCluster(accountName, projectName, name, regionZone)
+        createCustomStorageClass(regionZone)
         useCustomStorageClass(getStorageClass())
     }
 
@@ -118,15 +120,15 @@ open class GcpGkeHelper(project: Project, productName: ProductName, val profile:
 
             val additions = clusterNodeVmSize.map { " --machine-type \"$it\"" }.getOrElse("") +
                     kubernetesVersion.map { " --cluster-version \"$it\"" }
-                        .getOrElse(" --cluster-version \"1.21.5-gke.1802\"")
+                        .getOrElse(" --cluster-version \"1.22.11-gke.400\"")
 
             ProcessUtil.executeCommand(
                 project,
                 "gcloud beta container --account \"$accountName\" --project \"$projectName\" clusters create \"$name\" --zone  \"$regionZone\" " +
-                        "--release-channel \"regular\" " +
+                        "--release-channel \"regular\" --disk-type \"pd-standard\" --disk-size \"50\" " +
                         "--num-nodes \"${clusterNodeCount.getOrElse(3)}\" --image-type \"COS_CONTAINERD\" --metadata disable-legacy-endpoints=true " +
                         "--logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --no-enable-master-authorized-networks " +
-                        "--addons HorizontalPodAutoscaling,HttpLoadBalancing,GcpFilestoreCsiDriver --enable-autoupgrade --enable-autorepair " +
+                        "--addons HorizontalPodAutoscaling,HttpLoadBalancing --enable-autoupgrade --enable-autorepair " +
                         "--enable-shielded-nodes $additions"
             )
         }
@@ -149,7 +151,50 @@ open class GcpGkeHelper(project: Project, productName: ProductName, val profile:
         )
     }
 
+    private fun createCustomStorageClass(regionZone: String) {
+        if (!getKubectlHelper().hasStorageClass("nfs-client")) {
+            project.logger.lifecycle("Create storage class: nfs-client")
+
+            val nfsDiskName = "gce-nfs-disk"
+            val exists = ProcessUtil.executeCommand(
+                project,
+                "gcloud compute disks list --filter $regionZone --zones us-central1-a | grep $nfsDiskName"
+            ).contains(nfsDiskName)
+
+            if (!exists) {
+                ProcessUtil.executeCommand(
+                    project,
+                    "gcloud compute disks create --size=200GB --zone=$regionZone $nfsDiskName"
+                )
+            }
+
+            val kubeCtlHelper = KubeCtlHelper(project, "default")
+            val nfsServerFile = getTemplate("operator/gcp-gke/nfs-server.yaml")
+            kubeCtlHelper.applyFile(nfsServerFile)
+
+            val nfsServerServiceFile = getTemplate("operator/gcp-gke/nfs-server-service.yaml")
+            kubeCtlHelper.applyFile(nfsServerServiceFile)
+
+            val nfsIp = kubeCtlHelper.getServiceClusterIp("nfs-server")
+
+            ProcessUtil.executeCommand(
+                project,
+                "helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/"
+            )
+            ProcessUtil.executeCommand(
+                project,
+                "helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=${nfsIp} --set nfs.path=/"
+            )
+        } else {
+            project.logger.lifecycle("Skipping creating of storage class: nfs-client")
+        }
+    }
+
     private fun useCustomStorageClass(storageClassName: String) {
+        if (storageClassName == "standard-rwx" || storageClassName == "premium-rwx") {
+            throw IllegalArgumentException("Storage class $storageClassName is forbidden because costs")
+        }
+
         if (!getKubectlHelper().hasStorageClass(storageClassName) && "standard" != storageClassName) {
             project.logger.lifecycle("Use storage class: {}", storageClassName)
             getKubectlHelper().setDefaultStorageClass(storageClassName)
@@ -250,6 +295,5 @@ open class GcpGkeHelper(project: Project, productName: ProductName, val profile:
     override fun getFqdn(): String {
         return "${productName.shortName}-${getHost()}.endpoints.${getProvider().projectName.get()}.cloud.goog"
     }
-
 
 }
