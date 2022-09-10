@@ -159,7 +159,7 @@ open class KubeCtlHelper(val project: Project, val namespace: String?, isOpenShi
 
     private fun getNameAndGrep(params: String, grepFor: String): String {
         return ProcessUtil.executeCommand(project,
-            namespaceWrapper("$command get $params -o name | grep $grepFor"), throwErrorOnFailure = false, logOutput = false)
+            namespaceWrapper("$command get $params -o name") + " | grep $grepFor", throwErrorOnFailure = false, logOutput = false)
     }
 
     private fun getWithPath(subCommand: String, jsonpath: String): String {
