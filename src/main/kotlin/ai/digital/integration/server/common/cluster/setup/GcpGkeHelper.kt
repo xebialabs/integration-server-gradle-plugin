@@ -152,7 +152,8 @@ open class GcpGkeHelper(project: Project, productName: ProductName, val profile:
     }
 
     private fun createCustomStorageClass(regionZone: String) {
-        if (!getKubectlHelper().hasStorageClass("nfs-client")) {
+        val kubeCtlHelper = KubeCtlHelper(project, "default")
+        if (!kubeCtlHelper.hasStorageClass("nfs-client")) {
             project.logger.lifecycle("Create storage class: nfs-client")
 
             val nfsDiskName = "gce-nfs-disk"
@@ -168,7 +169,6 @@ open class GcpGkeHelper(project: Project, productName: ProductName, val profile:
                 )
             }
 
-            val kubeCtlHelper = KubeCtlHelper(project, "default")
             val nfsServerFile = getTemplate("operator/gcp-gke/nfs-server.yaml")
             kubeCtlHelper.applyFile(nfsServerFile)
 
