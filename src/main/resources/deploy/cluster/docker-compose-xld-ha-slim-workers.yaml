@@ -12,7 +12,7 @@ services:
       - XL_CLUSTER_MODE=default
       - XL_DB_PASSWORD=admin
       - XL_DB_USERNAME=postgres
-      - XL_DB_URL=jdbc:postgresql://postgresql:5432/xld-db
+      - XL_DB_URL=jdbc:postgresql://{{JDBC_URL}}
       - XLD_IN_PROCESS=false
       - XLD_TASK_QUEUE_DRIVER_CLASS_NAME=com.rabbitmq.jms.admin.RMQConnectionFactory
       - XLD_TASK_QUEUE_PASSWORD=admin

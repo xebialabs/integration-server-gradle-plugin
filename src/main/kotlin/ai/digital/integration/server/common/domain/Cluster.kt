@@ -8,6 +8,7 @@ import org.gradle.kotlin.dsl.property
 open class Cluster(objects: ObjectFactory) {
     var debugSuspend: Boolean = objects.property<Boolean>().value(false).get()
     var enable: Boolean = objects.property<Boolean>().value(false).get()
+    var enableDatabaseLoadBalancer: Boolean = objects.property<Boolean>().value(false).get()
     var enableDebug: Boolean = objects.property<Boolean>().value(false).get()
     var profile: String = objects.property<String>().value(ClusterProfileName.DOCKER_COMPOSE.profileName).get()
     var publicPort: Int = objects.property<Int>().value(8080).get()

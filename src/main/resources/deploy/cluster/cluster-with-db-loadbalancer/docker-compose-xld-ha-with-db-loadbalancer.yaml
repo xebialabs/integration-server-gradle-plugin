@@ -1,0 +1,165 @@
+version: "3.4"
+
+services:
+  zoo1:
+    image: zookeeper:3.4
+    hostname: zoo1
+    container_name: zoo1
+    ports:
+      - 2191:2181
+    networks:
+      - {{DEPLOY_NETWORK_NAME}}
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+
+  zoo2:
+    image: zookeeper:3.4
+    hostname: zoo2
+    container_name: zoo2
+    ports:
+      - 2192:2181
+    networks:
+      - {{DEPLOY_NETWORK_NAME}}
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=0.0.0.0:2888:3888 server.3=zoo3:2888:3888
+    depends_on:
+      - zoo1
+
+  zoo3:
+    image: zookeeper:3.4
+    hostname: zoo3
+    container_name: zoo3
+    ports:
+      - 2193:2181
+    networks:
+      - {{DEPLOY_NETWORK_NAME}}
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=0.0.0.0:2888:3888
+    depends_on:
+      - zoo2
+
+  patroni1:
+    build:
+      context: patroni
+      dockerfile: Dockerfile
+    container_name: patroni1
+    ports:
+      - 8091:8091
+    networks:
+      - {{DEPLOY_NETWORK_NAME}}
+    hostname: patroni1
+    environment:
+      PATRONI_API_CONNECT_PORT: 8091
+      REPLICATION_NAME: replicator
+      REPLICATION_PASS: replicator
+      SU_NAME: postgres
+      SU_PASS: admin
+      POSTGRES_APP_ROLE_PASS: postgresconnect
+    depends_on:
+      - zoo3
+
+  patroni2:
+    build:
+      context: patroni
+      dockerfile: Dockerfile
+    container_name: patroni2
+    ports:
+      - 8092:8091
+    networks:
+      - {{DEPLOY_NETWORK_NAME}}
+    hostname: patroni2
+    environment:
+      PATRONI_API_CONNECT_PORT: 8091
+      REPLICATION_NAME: replicator
+      REPLICATION_PASS: replicator
+      SU_NAME: postgres
+      SU_PASS: admin
+      POSTGRES_APP_ROLE_PASS: postgresconnect
+    depends_on:
+      - patroni1
+
+  haproxydb:
+    build:
+      context: haproxy
+      dockerfile: Dockerfile
+    container_name: haproxydb
+    networks:
+      - {{DEPLOY_NETWORK_NAME}}
+    hostname: haproxydb
+    ports:
+      - 5000:5000
+      - 7000:7000
+    depends_on:
+      - patroni2
+
+  rabbitmq:
+    image: "rabbitmq:3.9.8-management-alpine"
+    container_name: rabbitmq
+    hostname: "rabbit"
+    ports:
+      - "5672:5672"
+      - "4369:4369"
+      - "25672:25672"
+      - "15672:15672"
+    networks:
+      - {{DEPLOY_NETWORK_NAME}}
+    labels:
+      NAME: "rabbitmq"
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_LOOPBACK_USERS: none
+    volumes:
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/rabbitmq:/etc/rabbitmq
+
+  xl-deploy-master:
+    image: {{DEPLOY_MASTER_IMAGE}}
+    depends_on:
+      - rabbitmq
+      - haproxydb
+    networks:
+      - {{DEPLOY_NETWORK_NAME}}
+    environment:
+      - ACCEPT_EULA=Y
+      - ADMIN_PASSWORD=admin
+      - FORCE_UPGRADE=true
+      - XL_CLUSTER_MODE=default
+      - XL_DB_PASSWORD=admin
+      - XL_DB_USERNAME=postgres
+      - XL_DB_URL=jdbc:postgresql://haproxydb:5000/postgres
+      - XLD_IN_PROCESS=false
+      - XLD_TASK_QUEUE_DRIVER_CLASS_NAME=com.rabbitmq.jms.admin.RMQConnectionFactory
+      - XLD_TASK_QUEUE_PASSWORD=admin
+      - XLD_TASK_QUEUE_USERNAME=rabbitmq
+      - XLD_TASK_QUEUE_URL=amqp://rabbitmq:5672
+      - USE_IP_AS_HOSTNAME=true
+    volumes:
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/centralConfiguration:/opt/xebialabs/xl-deploy-server/centralConfiguration
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/conf:/opt/xebialabs/xl-deploy-server/conf
+      - {{INTEGRATION_SERVER_ROOT_VOLUME}}/xl-deploy-server/plugins:/opt/xebialabs/xl-deploy-server/plugins
+
+  xl-deploy-lb:
+    image: xebialabsunsupported/haproxy
+    container_name: xl-deploy-lb
+    depends_on:
+      - xl-deploy-master
+    ports:
+      - "{{PUBLIC_PORT}}:5000"
+      - "1936:1936"
+    networks:
+      - {{DEPLOY_NETWORK_NAME}}
+    environment:
+      BACKENDS: "xl-deploy-master:4516"
+      HTTPCHK: "GET /deployit/ha/health"
+      DNS_ENABLED: "true"
+      COOKIES_ENABLED: "true"
+      COOKIES_PARAMS: "SESSION_XLD prefix"
+      LOG_LEVEL: "info"
+      TIMEOUT_CONNECT: 60000
+
+networks:
+    {{DEPLOY_NETWORK_NAME}}:
+      external: true
