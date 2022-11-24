@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy
 
-import ai.digital.integration.server.deploy.tasks.centralConfiguration.*
+import ai.digital.integration.server.common.cache.ShutdownCacheTask
+import ai.digital.integration.server.common.cache.StartCacheTask
 import ai.digital.integration.server.common.gitlab.GitlabStartTask
 import ai.digital.integration.server.common.gitlab.GitlabStopTask
 import ai.digital.integration.server.common.mq.ShutdownMqTask
@@ -15,6 +16,7 @@ import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureS
 import ai.digital.integration.server.deploy.tasks.ShutdownDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.StartDeployIntegrationServerTask
 import ai.digital.integration.server.deploy.tasks.anonymizer.ExportDatabaseTask
+import ai.digital.integration.server.deploy.tasks.centralConfiguration.*
 import ai.digital.integration.server.deploy.tasks.cli.CliCleanDefaultExtTask
 import ai.digital.integration.server.deploy.tasks.cli.CliOverlaysTask
 import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
@@ -84,6 +86,10 @@ open class DeployTaskRegistry {
 
     companion object {
         fun register(project: Project, itcfg: Configuration) {
+
+            //Cache
+            project.tasks.create(StartCacheTask.NAME, StartCacheTask::class.java)
+            project.tasks.create(ShutdownCacheTask.NAME, ShutdownCacheTask::class.java)
 
             //CLI
             project.tasks.create(CliCleanDefaultExtTask.NAME, CliCleanDefaultExtTask::class.java)

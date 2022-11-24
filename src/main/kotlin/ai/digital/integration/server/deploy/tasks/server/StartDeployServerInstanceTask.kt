@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.tasks.server
 
+import ai.digital.integration.server.common.cache.StartCacheTask
 import ai.digital.integration.server.deploy.tasks.centralConfiguration.StartCentralConfigurationServerTask
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.domain.Server
@@ -48,6 +49,7 @@ open class StartDeployServerInstanceTask : DefaultTask() {
             PrepareServerTask.NAME,
             SetServerLogbackLevelsTask.NAME,
             StartMqTask.NAME,
+            StartCacheTask.NAME,
             ServerYamlPatchTask.NAME
         )
 
