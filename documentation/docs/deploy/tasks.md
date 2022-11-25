@@ -65,3 +65,5 @@ by specifying `-x *taskName*`.
 |centralConfigurationServerOverlays|Applies the overlays on the central configuration server|
 |startCentralConfigurationServer|Starts the central configuration server|
 |shutdownCentralConfigurationServer|Shuts down the central configuration server|
+|startCache|Starts the standalone cache server|
+|shutdownCache|Shuts down the standalone cache server|

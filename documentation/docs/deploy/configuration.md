@@ -741,6 +741,15 @@ In this sample you can see the default values used in the plugin.
 Currently, this is used only internally in Digital.ai to point to a package with imported data. <br/>
 Before server starts, database is going to be populated by the imported data, to save the time during test run.
 
+## Cache Server
+
+We can use a standalone cache server to be used with Deploy master/worker. Only Infinispan Cache Server is supported for now.
+In order to use the cache server, set the `useCache` project property as true. 
+In addition to the `useCache` property, the cache server will be started only 
+if there are more than one Deploy Servers or Deploy Worker. 
+The Infinispan Cache Server by default will be started on `11222`  port. 
+You can change this by passing a specific port through the `cachePort` project property. 
+
 ## Tests section
 
 You can create Jython based tests and communicate with Deploy through CLI.
