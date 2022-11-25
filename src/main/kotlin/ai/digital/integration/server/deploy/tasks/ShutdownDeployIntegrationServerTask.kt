@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.tasks
 
+import ai.digital.integration.server.common.cache.ShutdownCacheTask
 import ai.digital.integration.server.deploy.tasks.centralConfiguration.ShutdownCentralConfigurationServerTask
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
@@ -53,6 +54,7 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
                 if (CentralConfigurationServerUtil.hasCentralConfigurationServer(project)) {
                     that.dependsOn(ShutdownCentralConfigurationServerTask.NAME)
                 }
+                that.finalizedBy(ShutdownCacheTask.NAME)
             }
         }
     }
