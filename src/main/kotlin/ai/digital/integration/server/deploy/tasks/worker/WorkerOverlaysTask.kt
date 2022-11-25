@@ -1,6 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.worker
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
+import ai.digital.integration.server.common.util.CacheUtil
 import ai.digital.integration.server.common.util.OverlaysUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.gradle.api.DefaultTask
@@ -45,6 +46,9 @@ open class WorkerOverlaysTask : DefaultTask() {
                 if (worker.slimDistribution) {
                     OverlaysUtil.addDatabaseDependency(project, worker)
                     OverlaysUtil.addMqDependency(project, worker)
+                    if (CacheUtil.isCacheEnabled(project)) {
+                        OverlaysUtil.addCacheDependency(project, worker)
+                    }
                 }
 
                 if (worker.overlays.isNotEmpty() && !WorkerUtil.isExternalRuntimeWorker(project, worker)) {

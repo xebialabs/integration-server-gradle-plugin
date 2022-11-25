@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
+import ai.digital.integration.server.common.util.CacheUtil
 import ai.digital.integration.server.common.util.OverlaysUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
@@ -30,6 +31,9 @@ open class ServerCopyOverlaysTask : DefaultTask() {
 
                 OverlaysUtil.addDatabaseDependency(project, server)
                 OverlaysUtil.addMqDependency(project, server)
+                if (CacheUtil.isCacheEnabled(project)) {
+                    OverlaysUtil.addCacheDependency(project, server)
+                }
 
                 server.overlays.forEach { overlay ->
                     OverlaysUtil.defineOverlay(project,

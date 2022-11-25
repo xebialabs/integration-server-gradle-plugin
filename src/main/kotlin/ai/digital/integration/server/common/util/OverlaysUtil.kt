@@ -86,6 +86,14 @@ class OverlaysUtil {
 
             overlayDependency(project, version, container, libOverlay, mqDependency)
         }
+
+        fun addCacheDependency(project: Project, container: Container) {
+            val cacheDependency = CacheUtil.getCacheDependency()
+            val libOverlay = container.overlays.getOrDefault(HOTFIX_LIB_KEY, mutableListOf())
+            val version = CacheUtil.getCacheDependencyVersion(CacheUtil.getCacheProviderName())
+
+            overlayDependency(project, version, container, libOverlay, cacheDependency)
+        }
     }
 
 }

@@ -2,8 +2,6 @@ package ai.digital.integration.server.common.cache
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.util.CacheUtil
-import ai.digital.integration.server.deploy.internals.DeployServerUtil
-import ai.digital.integration.server.deploy.internals.WorkerUtil
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -18,8 +16,7 @@ abstract class StartCacheTask: DockerComposeUp() {
     init {
         this.group = PluginConstant.PLUGIN_GROUP
         this.onlyIf {
-            CacheUtil.isCacheEnabled(project) &&
-                    (DeployServerUtil.getServers(project).size > 1 || WorkerUtil.hasWorkers(project))
+            CacheUtil.isCacheEnabled(project)
         }
     }
 
