@@ -21,7 +21,7 @@ abstract class StartCacheTask: DockerComposeUp() {
     }
 
     override fun getDescription(): String {
-        return "Starts Infinispan Server using `docker-compose` and ${CacheUtil.getComposeFileRelativePath()} file."
+        return "Starts Cache Server using `docker-compose` and ${CacheUtil.getComposeFileRelativePath()} file."
     }
 
     @InputFiles
