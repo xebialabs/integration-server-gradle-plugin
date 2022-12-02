@@ -750,6 +750,32 @@ if there are more than one Deploy Servers or Deploy Worker.
 The Infinispan Cache Server by default will be started on `11222`  port. 
 You can change this by passing a specific port through the `cachePort` project property. 
 
+```groovy
+deployIntegrationServer {
+    servers {
+      controlPlane {
+        ...
+        overlays = [
+            conf                  : [
+                files("src/test/resources/infinispan-hotrod.properties")
+            ],
+            centralConfiguration: [
+                files("src/test/resources/deploy-caches.yaml")
+            ]
+        ]
+      }
+    }
+    workers {
+      worker01 {
+        ...
+    }
+  }
+}
+```
+
+* Adding infinispan-hotrod.properties  to conf dir makes it available in class path (can be done in otherways too)
+* Modify deploy-caches.yaml as per need to enable/disable specific caches and specify the configuration file name for infinispan
+
 ## Tests section
 
 You can create Jython based tests and communicate with Deploy through CLI.
