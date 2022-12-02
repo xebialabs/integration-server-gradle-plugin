@@ -1,5 +1,6 @@
 package ai.digital.integration.server.deploy.tasks.worker
 
+import ai.digital.integration.server.common.cache.StartCacheTask
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.mq.StartMqTask
 import ai.digital.integration.server.common.util.*
@@ -31,6 +32,7 @@ open class StartWorkersTask : DefaultTask() {
 
         this.dependsOn(SetWorkersLogbackLevelsTask.NAME)
         this.dependsOn(StartMqTask.NAME)
+        this.dependsOn(StartCacheTask.NAME)
         this.dependsOn(WorkerOverlaysTask.NAME)
         this.dependsOn(ServerYamlPatchTask.NAME)
 

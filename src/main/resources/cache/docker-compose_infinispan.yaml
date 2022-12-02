@@ -1,0 +1,10 @@
+version: "3.4"
+
+services:
+  infinispan:
+    image: infinispan/server
+    environment:
+      - USER="admin"
+      - PASS="test"
+    ports:
+      - CACHE_PORT
