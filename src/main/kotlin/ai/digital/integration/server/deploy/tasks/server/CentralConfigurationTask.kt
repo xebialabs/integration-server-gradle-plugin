@@ -77,6 +77,29 @@ open class CentralConfigurationTask : DefaultTask() {
             serverYaml
         )
 
+        project.logger.lifecycle("Creating custom deploy-cluster.yaml")
+
+        val clusterYaml = File("${serverDir}/centralConfiguration/deploy-cluster.yaml")
+        val clusterYamlMap: MutableMap<String, Any> = mutableMapOf()
+        var mode: String = "full"
+        if(DeployServerUtil.isClusterHotStandby(project))
+            mode =  "hot-standby"
+        clusterYamlMap.putAll(
+                mutableMapOf(
+                        "deploy.cluster.mode" to mode,
+                        "deploy.cluster.name" to "deploy-$mode-cluster",
+                        "deploy.cluster.membership.jdbc.url" to DbUtil.getDbPropValue(project, "db-url"),
+                        "deploy.cluster.membership.jdbc.username" to DbUtil.getDbPropValue(project, "db-username"),
+                        "deploy.cluster.membership.jdbc.password" to DbUtil.getDbPropValue(project, "db-password")
+                )
+        )
+
+        YamlFileUtil.overlayFileWithJackson(clusterYaml, clusterYamlMap)
+        val configuredTemplate = clusterYaml.readText(Charsets.UTF_8).
+        replace("{{DB_PORT}}", DbUtil.getPort(project).toString())
+        clusterYaml.writeText(configuredTemplate)
+
+
         project.logger.lifecycle("Creating custom deploy-task.yaml")
         YamlFileUtil.overlayFileWithJackson(
             File("${serverDir}/centralConfiguration/deploy-task.yaml"),
