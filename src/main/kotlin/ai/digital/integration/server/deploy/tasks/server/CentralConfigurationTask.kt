@@ -89,6 +89,7 @@ open class CentralConfigurationTask : DefaultTask() {
                         "deploy.cluster.mode" to mode,
                         "deploy.cluster.name" to "deploy-$mode-cluster",
                         "deploy.cluster.membership.jdbc.url" to DbUtil.getDbPropValue(project, "db-url"),
+                        "deploy.cluster.membership.jdbc.driver" to DbUtil.getDbPropValue(project, "db-driver-classname"),
                         "deploy.cluster.membership.jdbc.username" to DbUtil.getDbPropValue(project, "db-username"),
                         "deploy.cluster.membership.jdbc.password" to DbUtil.getDbPropValue(project, "db-password")
                 )
