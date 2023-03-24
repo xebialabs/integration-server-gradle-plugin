@@ -81,19 +81,28 @@ open class CentralConfigurationTask : DefaultTask() {
 
         val clusterYaml = File("${serverDir}/centralConfiguration/deploy-cluster.yaml")
         val clusterYamlMap: MutableMap<String, Any> = mutableMapOf()
-        var mode: String = "full"
-        if(DeployServerUtil.isClusterHotStandby(project))
-            mode =  "hot-standby"
+        var mode = "default"
+        if (DeployServerUtil.isClusterFull(project)) {
+            mode = "full"
+        } else if (DeployServerUtil.isClusterHotStandby(project)) {
+            mode = "hot-standby"
+        }
         clusterYamlMap.putAll(
                 mutableMapOf(
                         "deploy.cluster.mode" to mode,
-                        "deploy.cluster.name" to "deploy-$mode-cluster",
-                        "deploy.cluster.membership.jdbc.url" to DbUtil.getDbPropValue(project, "db-url"),
-                        "deploy.cluster.membership.jdbc.driver" to DbUtil.getDbPropValue(project, "db-driver-classname"),
-                        "deploy.cluster.membership.jdbc.username" to DbUtil.getDbPropValue(project, "db-username"),
-                        "deploy.cluster.membership.jdbc.password" to DbUtil.getDbPropValue(project, "db-password")
+                        "deploy.cluster.name" to "deploy-$mode-mode"
                 )
         )
+        if (mode == "full" || mode == "hot-standby") {
+            clusterYamlMap.putAll(
+                    mutableMapOf(
+                            "deploy.cluster.membership.jdbc.url" to DbUtil.getDbPropValue(project, "db-url"),
+                            "deploy.cluster.membership.jdbc.driver" to DbUtil.getDbPropValue(project, "db-driver-classname"),
+                            "deploy.cluster.membership.jdbc.username" to DbUtil.getDbPropValue(project, "db-username"),
+                            "deploy.cluster.membership.jdbc.password" to DbUtil.getDbPropValue(project, "db-password")
+                    )
+            )
+        }
 
         YamlFileUtil.overlayFileWithJackson(clusterYaml, clusterYamlMap)
         val configuredTemplate = clusterYaml.readText(Charsets.UTF_8).
