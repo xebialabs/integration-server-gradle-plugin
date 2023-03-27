@@ -110,7 +110,7 @@ class DeployServerUtil {
             if (project.hasProperty("clusterMode")) {
                 mode = project.property("clusterMode").toString()
                 if (mode != "full" && mode != "hot-standby" && mode != "default")
-                    GradleException("full, hot-standby, default are only valid for cluster mode property")
+                    throw GradleException("full, hot-standby, default are only valid for cluster mode property")
             }
             return mode
         }
