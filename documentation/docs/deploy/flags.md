@@ -24,6 +24,7 @@ Parameters/Flags can be defined in 2 ways:
 
 |Flag name|Options|Description|
 | :---: | :---: | :---: |
+|clusterMode|`default`<br/> `full`<br/> `hot-standby`<br/>|Specify the cluster mode in which the server needs to start. Cluster tests will be executed based on clusterMode. If not set cluster mode is `default`|
 |database|`derby`<br/> `derby-inmemory`<br/> `derby-network`<br/> `mssql`<br/> `mysql`<br/> `mysql-8`<br/> `oracle-19c-se`<br/> `postgres-10`<br/> `postgres-12`|Type of database. [More details](#database-flag)|
 |debug|Boolean|Enables or disables starting processes in debug mode. It overrides any debug setting in configuration. If not set debugging is enabled.|
 |databasePort|Any available port|The port on which database is going to be started.|
