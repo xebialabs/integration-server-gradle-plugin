@@ -104,12 +104,8 @@ class DeployServerUtil {
             return getCluster(project).enable
         }
 
-        fun isClusterHotStandby(project: Project): Boolean {
-            return PropertyUtil.resolveBooleanValue(project, "hotStandbyMode", false)
-        }
-
-        fun isClusterFull(project: Project): Boolean {
-            return PropertyUtil.resolveBooleanValue(project, "fullMode", false)
+        fun clusterMode(project: Project): String {
+            return PropertyUtil.resolveValue(project, "clusterMode", "default").toString()
         }
 
         private fun getServerVersion(project: Project, server: Server): String? {
