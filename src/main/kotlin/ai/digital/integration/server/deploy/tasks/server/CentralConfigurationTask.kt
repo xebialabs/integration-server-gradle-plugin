@@ -81,7 +81,7 @@ open class CentralConfigurationTask : DefaultTask() {
 
         val clusterYaml = File("${serverDir}/centralConfiguration/deploy-cluster.yaml")
         val clusterYamlMap: MutableMap<String, Any> = mutableMapOf()
-        var mode: String = "full"
+        var mode: String = "default"
         if(DeployServerUtil.isClusterHotStandby(project))
             mode =  "hot-standby"
         clusterYamlMap.putAll(
