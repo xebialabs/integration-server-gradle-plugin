@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.common.domain.Cluster
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -105,7 +106,13 @@ class DeployServerUtil {
         }
 
         fun clusterMode(project: Project): String {
-            return PropertyUtil.resolveValue(project, "clusterMode", "default").toString()
+            var mode =  "default"
+            if (project.hasProperty("clusterMode")) {
+                mode = project.property("clusterMode").toString()
+                if (mode != "full" && mode != "hot-standby" && mode != "default")
+                    GradleException("full, hot-standby, default are only valid for cluster mode property")
+            }
+            return mode
         }
 
         private fun getServerVersion(project: Project, server: Server): String? {
