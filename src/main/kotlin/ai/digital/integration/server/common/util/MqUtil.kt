@@ -36,6 +36,9 @@ class MqUtil {
 
         fun getResolvedDockerFile(project: Project): Path {
             val resultComposeFilePath = DockerComposeUtil.getResolvedDockerPath(project, getMqRelativePath(project))
+            if (mqName(project) == RABBITMQ) {
+                DockerComposeUtil.getResolvedDockerPath(project, "mq/rabbitmq/enabled_plugins")
+            }
 
             val mqTemplate = resultComposeFilePath.toFile()
             val port = if (mqName(project) == RABBITMQ) 5672 else 61616
