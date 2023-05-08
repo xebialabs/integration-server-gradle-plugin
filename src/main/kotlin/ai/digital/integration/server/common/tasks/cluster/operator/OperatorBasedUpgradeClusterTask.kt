@@ -168,7 +168,7 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                 .replace("{{KEYCLOAK_URL}}", keycloakUrl.getOrElse("null"))
                 .replace("{{DEPLOY_VERSION_FOR_UPGRADER}}", deployUpgraderVersion.get())
                 .replace("{{USE_OPERATOR_ZIP}}", (operatorZip != null).toString())
-                .replace("{{OPERATOR_ZIP_${productName.displayName.toUpperCase()}}}", operatorZip?.toAbsolutePath()?.toString() ?: "null")
+                .replace("{{OPERATOR_ZIP_${productName.displayName.uppercase()}}}", operatorZip?.toAbsolutePath()?.toString() ?: "null")
 
         val answersFileTemplate = when (k8sSetup) {
             K8sSetup.GoogleGKE.toString() -> {

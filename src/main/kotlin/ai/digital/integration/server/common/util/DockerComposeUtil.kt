@@ -28,7 +28,7 @@ class DockerComposeUtil {
                 server: Server,
                 dockerComposeFile: File
         ) {
-            val name = productName.toString().toLowerCase()
+            val name = productName.toString().lowercase()
             try {
                 val args = arrayListOf("-f",
                         dockerComposeFile.path,

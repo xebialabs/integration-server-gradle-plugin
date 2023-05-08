@@ -8,6 +8,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 import java.io.File
+import java.util.*
 
 class OverlaysUtil {
     companion object {
@@ -27,9 +28,13 @@ class OverlaysUtil {
             customPrefix: String? = null
         ) {
             val configurationName = if (customPrefix != null) {
-                "${customPrefix}${prefix}${overlay.key.capitalize().replace("/", "")}"
+                "${customPrefix}${prefix}${overlay.key.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                }.replace("/", "")}"
             } else {
-                "${prefix}${overlay.key.capitalize().replace("/", "")}"
+                "${prefix}${overlay.key.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                }.replace("/", "")}"
             }
             val config = project.buildscript.configurations.create(configurationName)
             overlay.value.forEach { dependencyNotation ->
@@ -37,7 +42,9 @@ class OverlaysUtil {
             }
 
             val copyTask =
-                project.tasks.register("copy${configurationName.capitalize()}", Copy::class.java) {
+                project.tasks.register("copy${configurationName.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                }}", Copy::class.java) {
                     config.files.forEach { file ->
                         from(if (shouldUnzip(file)) project.zipTree(file) else file)
                     }

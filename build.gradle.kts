@@ -9,14 +9,14 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version "1.4.20"
+    kotlin("jvm") version "1.8.10"
     `kotlin-dsl-base`
 
-    id("com.github.node-gradle.node") version "3.1.0"
+    id("com.github.node-gradle.node") version "4.0.0"
     id("idea")
-    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("maven-publish")
-    id("nebula.release") version "15.3.1"
+    id("nebula.release") version "17.2.1"
     id("signing")
 }
 
@@ -250,7 +250,8 @@ tasks {
         dependsOn(named("updateDocs"))
     }
 
-    named<Upload>("uploadArchives") {
+    register("uploadArchives") {
+        group = "upload"
         dependsOn(named("publish"))
     }
 

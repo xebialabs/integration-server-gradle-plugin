@@ -17,7 +17,7 @@ open class ExportDatabaseTask : DefaultTask() {
         project.logger.lifecycle("Starting to export the database ")
 
         project.javaexec {
-            main = "com.xebialabs.database.anonymizer.AnonymizerBootstrapper"
+            mainClass.set("com.xebialabs.database.anonymizer.AnonymizerBootstrapper")
             environment["CLASSPATH"] = classpath
             server.runtimeDirectory?.let { dir ->
                 workingDir = File(dir)

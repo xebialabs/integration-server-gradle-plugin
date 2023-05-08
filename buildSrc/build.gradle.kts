@@ -3,7 +3,6 @@ plugins {
 }
 
 kotlinDslPluginOptions {
-    experimentalWarning.set(false)
 }
 
 repositories {
