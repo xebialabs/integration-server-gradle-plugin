@@ -25,7 +25,7 @@ apply(plugin = "ai.digital.gradle-commit")
 group = "com.xebialabs.gradle.plugins"
 project.defaultTasks = listOf("build")
 
-val releasedVersion = "22.2.0-${LocalDateTime.now().format(DateTimeFormatter.ofPattern("Mdd.Hmm"))}"
+val releasedVersion = "23.3.0-${LocalDateTime.now().format(DateTimeFormatter.ofPattern("Mdd.Hmm"))}"
 project.extra.set("releasedVersion", releasedVersion)
 
 repositories {
