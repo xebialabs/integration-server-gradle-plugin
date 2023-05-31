@@ -87,7 +87,7 @@ class OperatorUtil(
 
     fun waitForBoot(server: Server) {
         fun saveLogs(lastUpdate: LocalDateTime): LocalDateTime {
-            val name = ProductName.DEPLOY.toString().toLowerCase()
+            val name = ProductName.DEPLOY.toString().lowercase()
             DeployServerUtil.saveServerLogsToFile(project, server, "${name}-${server.version}", lastUpdate)
             return LocalDateTime.now()
         }

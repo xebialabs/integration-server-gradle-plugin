@@ -14,6 +14,7 @@ import ai.digital.integration.server.deploy.internals.WorkerUtil.Companion.getWo
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.closureOf
+import java.util.*
 
 open class GenerateSecureAkkaKeysTask : DefaultTask() {
 
@@ -55,7 +56,8 @@ open class GenerateSecureAkkaKeysTask : DefaultTask() {
     }
 
     private fun generateKey(name: String, keyPassword: String, keyStorePassword: String, akkaSecured: AkkaSecured): MutableList<TaskProvider<*>> {
-        val genKeyStore = project.tasks.register("akkaSecure${name.capitalize()}${KeytoolGenKeyTask.NAME.capitalize()}", KeytoolGenKeyTask::class.java) {
+        val genKeyStore = project.tasks.register("akkaSecure${name.replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${KeytoolGenKeyTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolGenKeyTask::class.java) {
             keyname = name
             type = AkkaSecured.KEYSTORE_TYPE
             typeExtension = AkkaSecured.KEYSTORE_TYPE_EXTENSION
@@ -64,7 +66,7 @@ open class GenerateSecureAkkaKeysTask : DefaultTask() {
             storepass = keyStorePassword
         }
 
-        val genCert = project.tasks.register("akkaSecure${name.capitalize()}${KeytoolExportKeyToCertTask.NAME.capitalize()}", KeytoolExportKeyToCertTask::class.java) {
+        val genCert = project.tasks.register("akkaSecure${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${KeytoolExportKeyToCertTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolExportKeyToCertTask::class.java) {
             keyname = name
             type = AkkaSecured.KEYSTORE_TYPE
             typeExtension = AkkaSecured.KEYSTORE_TYPE_EXTENSION
@@ -74,7 +76,7 @@ open class GenerateSecureAkkaKeysTask : DefaultTask() {
         }
         project.tasks.getByName(genCert.name).dependsOn(genKeyStore)
 
-        val genTrustStore = project.tasks.register("akkaSecure${name.capitalize()}${KeytoolImportKeyToTruststoreTask.NAME.capitalize()}", KeytoolImportKeyToTruststoreTask::class.java) {
+        val genTrustStore = project.tasks.register("akkaSecure${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${KeytoolImportKeyToTruststoreTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolImportKeyToTruststoreTask::class.java) {
             keyname = name
             type = AkkaSecured.KEYSTORE_TYPE
             typeExtension = AkkaSecured.KEYSTORE_TYPE_EXTENSION

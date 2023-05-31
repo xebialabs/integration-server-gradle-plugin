@@ -4,7 +4,7 @@ import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.internal.NamedDomainObjectContainerConfigureDelegate
-import org.gradle.util.ConfigureUtil
+import org.gradle.util.internal.ConfigureUtil
 
 @Suppress("UnstableApiUsage")
 internal class DefaultProfileContainer(delegate: NamedDomainObjectContainer<Profile>) :

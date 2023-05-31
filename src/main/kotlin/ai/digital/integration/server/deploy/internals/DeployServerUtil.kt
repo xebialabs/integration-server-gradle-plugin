@@ -330,7 +330,7 @@ class DeployServerUtil {
                     isIgnoreExitValue = true
                 }
                 val hostAndPort = it.toString(Charsets.UTF_8)
-                if (hostAndPort.toLowerCase().contains("no container found")) {
+                if (hostAndPort.lowercase().contains("no container found")) {
                     null
                 } else {
                     hostAndPort.split(':')[1].trim().toInt()

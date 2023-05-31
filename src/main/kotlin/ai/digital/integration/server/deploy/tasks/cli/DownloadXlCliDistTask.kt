@@ -7,7 +7,7 @@ import ai.digital.integration.server.common.util.XlCliUtil
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.Companion.XL_CLI_DIST
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
-import de.undercouch.gradle.tasks.download.Download
+import org.jetbrains.kotlin.de.undercouch.gradle.tasks.download.Download
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
 

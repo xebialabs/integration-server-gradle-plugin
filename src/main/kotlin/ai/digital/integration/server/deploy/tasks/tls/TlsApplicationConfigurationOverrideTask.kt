@@ -13,6 +13,7 @@ import ai.digital.integration.server.deploy.tasks.server.ServerCopyOverlaysTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.closureOf
+import java.util.*
 
 open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
 
@@ -26,7 +27,7 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
         this.configure(closureOf<TlsApplicationConfigurationOverrideTask> {
             getTls(project, getServerWorkingDir(project))?.let { tls ->
 
-                val genKeyStore = project.tasks.register("tls${KeytoolGenKeyTask.NAME.capitalize()}", KeytoolGenKeyTask::class.java) {
+                val genKeyStore = project.tasks.register("tls${KeytoolGenKeyTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolGenKeyTask::class.java) {
                     keyname = Tls.KEY_NAME
                     type = Tls.KEYSTORE_TYPE
                     typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
@@ -35,7 +36,7 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
                     storepass = tls.keyStorePassword
                 }
 
-                val genCert = project.tasks.register("tls${KeytoolExportKeyToCertTask.NAME.capitalize()}", KeytoolExportKeyToCertTask::class.java) {
+                val genCert = project.tasks.register("tls${KeytoolExportKeyToCertTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolExportKeyToCertTask::class.java) {
                     keyname = Tls.KEY_NAME
                     type = Tls.KEYSTORE_TYPE
                     typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
@@ -45,7 +46,7 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
                 }
                 project.tasks.getByName(genCert.name).dependsOn(genKeyStore)
 
-                val genTrustStore = project.tasks.register("tls${KeytoolImportKeyToTruststoreTask.NAME.capitalize()}", KeytoolImportKeyToTruststoreTask::class.java) {
+                val genTrustStore = project.tasks.register("tls${KeytoolImportKeyToTruststoreTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolImportKeyToTruststoreTask::class.java) {
                     keyname = Tls.KEY_NAME
                     type = Tls.KEYSTORE_TYPE
                     typeExtension = Tls.KEYSTORE_TYPE_EXTENSION

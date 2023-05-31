@@ -182,7 +182,7 @@ abstract class Helper(val project: Project, val productName: ProductName) {
     }
 
     fun getName(): String {
-        return productName.toString().toLowerCase()
+        return productName.toString().lowercase()
     }
 
     fun getPrefixName(): String {

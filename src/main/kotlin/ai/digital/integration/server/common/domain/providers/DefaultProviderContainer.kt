@@ -6,7 +6,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.property
-import org.gradle.util.ConfigureUtil
+import org.gradle.util.internal.ConfigureUtil
 
 @Suppress("UnstableApiUsage")
 internal class DefaultProviderContainer(delegate: NamedDomainObjectContainer<Provider>, project: Project) :
