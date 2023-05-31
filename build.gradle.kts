@@ -270,7 +270,7 @@ tasks {
 }
 
 node {
-    version.set("14.17.5")
-    yarnVersion.set("1.22.11")
+    version.set("16.17.0")
+    yarnVersion.set("1.22.19")
     download.set(true)
 }
