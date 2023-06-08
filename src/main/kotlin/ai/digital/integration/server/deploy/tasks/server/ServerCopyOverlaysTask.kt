@@ -6,6 +6,7 @@ import ai.digital.integration.server.common.util.CacheUtil
 import ai.digital.integration.server.common.util.OverlaysUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import org.gradle.api.DefaultTask
 
 open class ServerCopyOverlaysTask : DefaultTask() {
@@ -43,7 +44,7 @@ open class ServerCopyOverlaysTask : DefaultTask() {
                         overlay,
                         if (DeployServerUtil.isDistDownloadRequired(project,
                                 server)
-                        ) arrayListOf("${DownloadAndExtractServerDistTask.NAME}${server.name}")
+                        ) arrayListOf("${DownloadAndExtractServerDistTask.NAME}${server.name}", DownloadAndExtractCliDistTask.NAME)
                         else arrayListOf(),
                         server.name)
                 }

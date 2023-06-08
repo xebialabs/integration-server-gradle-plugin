@@ -4,6 +4,8 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.common.util.GitlabUtil
 import ai.digital.integration.server.common.util.WaitForBootUtil
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
+import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractServerDistTask
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -17,6 +19,7 @@ abstract class GitlabStartTask : DockerComposeUp() {
 
     init {
         this.group = PLUGIN_GROUP
+        this.mustRunAfter(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractCliDistTask.NAME)
     }
 
     override fun getDescription(): String {
