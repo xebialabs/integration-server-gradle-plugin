@@ -2,6 +2,8 @@ package ai.digital.integration.server.common.mq
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.util.MqUtil
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
+import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractServerDistTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -15,6 +17,7 @@ open class ShutdownMqTask : DefaultTask() {
 
     init {
         this.group = PluginConstant.PLUGIN_GROUP
+        this.mustRunAfter(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractCliDistTask.NAME)
     }
 
     @InputFiles

@@ -3,6 +3,8 @@ package ai.digital.integration.server.common.mq
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.MqUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
+import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractServerDistTask
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -19,6 +21,7 @@ abstract class StartMqTask : DockerComposeUp() {
         this.onlyIf {
             WorkerUtil.hasWorkers(project)
         }
+        this.mustRunAfter(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractCliDistTask.NAME)
     }
 
     override fun getDescription(): String {
