@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.FileUtil
 import ai.digital.integration.server.common.util.IntegrationServerUtil
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
@@ -21,7 +22,7 @@ abstract class DatabaseStartTask : DockerComposeUp() {
 
     init {
         this.group = PLUGIN_GROUP
-        this.mustRunAfter(ApplicationConfigurationOverrideTask.NAME)
+        this.mustRunAfter(ApplicationConfigurationOverrideTask.NAME, DownloadAndExtractCliDistTask.NAME)
     }
 
     override fun getDescription(): String {
