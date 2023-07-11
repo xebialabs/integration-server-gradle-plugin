@@ -2,6 +2,7 @@ package ai.digital.integration.server.common.cache
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.util.CacheUtil
+import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -18,6 +19,7 @@ abstract class StartCacheTask: DockerComposeUp() {
         this.onlyIf {
             CacheUtil.isCacheEnabled(project)
         }
+        this.mustRunAfter(DownloadAndExtractCliDistTask.NAME)
     }
 
     override fun getDescription(): String {
