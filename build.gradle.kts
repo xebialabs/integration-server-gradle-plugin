@@ -81,7 +81,7 @@ dependencies {
     implementation("org.postgresql:postgresql:${properties["driverVersions.postgres"]}")
 
 
-    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("io.mockk:mockk:1.13.5")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.0")
 }
@@ -267,7 +267,6 @@ tasks {
         jvmArgs(listOf("--add-opens=java.base/java.lang=ALL-UNNAMED",
             "--add-opens=java.base/java.util=ALL-UNNAMED"))
     }
-
 
     withType<ValidatePlugins>().configureEach {
         failOnWarning.set(false)
