@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres:12-bullseye
     ports:
-       - "33962:5432"
+       - "{{DB_PORT}}:5432"
     environment:
        - POSTGRES_USER=postgres
        - POSTGRES_PASSWORD=demo

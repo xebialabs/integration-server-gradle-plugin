@@ -5,9 +5,8 @@ services:
     image: rabbitmq:3.9-management
     ports:
       - 4369:4369
-      - 4368:4368
+      - RABBITMQ_PORT2
       - 15672:15672
       - 25672:25672
     volumes:
       - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
-    privileged: true
