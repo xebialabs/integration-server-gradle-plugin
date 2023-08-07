@@ -2,9 +2,9 @@ version: "3.4"
 
 services:
   postgres:
-    image: postgres:12
+    image: postgres:12-bullseye
     ports:
-       - "{{DB_PORT}}:5432"
+       - "33962:5432"
     environment:
        - POSTGRES_USER=postgres
        - POSTGRES_PASSWORD=demo
