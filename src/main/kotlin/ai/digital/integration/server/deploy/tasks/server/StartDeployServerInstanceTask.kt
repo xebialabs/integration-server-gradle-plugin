@@ -61,9 +61,6 @@ open class StartDeployServerInstanceTask : DefaultTask() {
             if (DeployServerUtil.isAkkaSecured(project)) {
                 dependencies.add(GenerateSecureAkkaKeysTask.NAME)
             }
-            if (DeployServerUtil.isAkkaSecured(project)) {
-                dependencies.add(GenerateSecureAkkaKeysTask.NAME)
-            }
             if (InfrastructureUtil.hasInfrastructures(project)) {
                 dependencies.add(InfrastructureStartTask.NAME)
             }
@@ -86,6 +83,7 @@ open class StartDeployServerInstanceTask : DefaultTask() {
             finalizedBy(RunDevOpsAsCodeTask.NAME)
             finalizedBy(RunDatasetGenerationTask.NAME)
             finalizedBy(RunCliTask.NAME)
+
         })
     }
 
