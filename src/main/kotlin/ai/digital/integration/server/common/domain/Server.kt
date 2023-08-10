@@ -23,6 +23,7 @@ open class Server(name: String) : Container(name) {
     var previousInstallation: Boolean = false
     var tls: Boolean = false
     var yamlPatches: Map<String, Map<String, Any>> = mutableMapOf()
+    var noLicense: Boolean = false
 
     fun devOpsAsCodes(closure: Closure<NamedDomainObjectContainer<DevOpsAsCode>>) {
         devOpsAsCodes?.configure(closure)
