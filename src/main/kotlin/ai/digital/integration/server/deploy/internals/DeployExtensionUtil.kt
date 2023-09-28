@@ -55,8 +55,8 @@ class DeployExtensionUtil {
                 project.property("mqDriverVersions") as MutableMap<String, String>
             else
                 mutableMapOf(
-                    "activemq" to "5.16.2",
-                    "rabbitmq" to "2.2.0"
+                    "activemq" to "5.18.0",
+                    "rabbitmq" to "3.1.0"
                 )
         }
     }
