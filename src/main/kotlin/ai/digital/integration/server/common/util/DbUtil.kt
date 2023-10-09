@@ -115,7 +115,7 @@ class DbUtil {
         )
 
         private val mysqlParams: DbParameters = DbParameters(
-            "mysql:mysql-connector-java",
+            "com.mysql:mysql-connector-j",
             "com.mysql.jdbc.Driver",
             "org.dbunit.ext.mysql.MySqlDataTypeFactory",
             "org.dbunit.ext.mysql.MySqlMetadataHandler",

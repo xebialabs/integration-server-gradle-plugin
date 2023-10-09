@@ -67,7 +67,7 @@ dependencies {
     implementation("com.palantir.gradle.docker:gradle-docker:${properties["dockerPluginVersion"]}")
     implementation("de.vandermeer:asciitable:${properties["asciitableVersion"]}")
     implementation("org.jsoup:jsoup:${properties["jsoupVersion"]}")
-    implementation("mysql:mysql-connector-java:${properties["driverVersions.mysql"]}")
+    implementation("com.mysql:mysql-connector-j:${properties["driverVersions.mysql"]}")
     implementation("net.jodah:failsafe:${properties["failsafeVersion"]}")
     implementation("org.codehaus.groovy.modules.http-builder:http-builder:${properties["httpBuilderVersion"]}") {
         exclude("org.codehaus.groovy", "groovy")

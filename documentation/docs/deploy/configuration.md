@@ -505,22 +505,22 @@ deployIntegrationServer {
       databasePort = 10000
       driverVersions = [
              'mssql'        : '8.4.1.jre8',
-             'mysql'        : '8.0.22',
-             'mysql-8'      : '8.0.22',
+             'mysql'        : '8.1.0',
+             'mysql-8'      : '8.1.0',
              'oracle-19c-se': '21.1.0.0',
-             'postgres-10'  : '42.2.9',
-             'postgres-12'  : '42.2.23',
+             'postgres-10'  : '42.6.0',
+             'postgres-12'  : '42.6.0',
       ]
       logSql = true
    }
 }
 ```
 
-|Name|Type|Default Value|Description|
-| :---: | :---: | :---: | :---: |
-|databasePort|Optional|Random number|The port on which database is going to be started.|
-|driverVersions|Optional|['mssql':'8.4.1.jre8','mysql':'8.0.22','mysql-8':'8.0.22','oracle-19c-se':'21.1.0.0','postgres-10':'42.2.9','postgres-12':'42.2.23']||
-|logSql|Optional|false|If true, enables tracing all SQL queries|
+|Name|Type|                                                           Default Value                                                            |Description|
+| :---: | :---: |:----------------------------------------------------------------------------------------------------------------------------------:| :---: |
+|databasePort|Optional|                                                           Random number                                                            |The port on which database is going to be started.|
+|driverVersions|Optional| ['mssql':'8.4.1.jre8','mysql':'8.1.0','mysql-8':'8.1.0','oracle-19c-se':'21.1.0.0','postgres-10':'42.6.0','postgres-12':'42.6.0'] ||
+|logSql|Optional|                                                               false                                                                |If true, enables tracing all SQL queries|
 
 The most important what you have to know regarding the database configuration is, choosing which database to run is happening 
 now on the level of project property `database`. It means that you can specify it in 2 ways:
