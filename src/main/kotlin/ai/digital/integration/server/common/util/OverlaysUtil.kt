@@ -40,6 +40,15 @@ class OverlaysUtil {
             overlay.value.forEach { dependencyNotation ->
                 project.buildscript.dependencies.add(configurationName, dependencyNotation as Any)
             }
+            val excludeTransientDep  = listOf(
+                    "org.slf4j:slf4j-api",
+                    "jakarta.jms:jakarta.jms-api"
+            )
+            for (exclusion in excludeTransientDep) {
+                val (group, module) = exclusion.split(':')
+                project.logger.lifecycle("Excluding overlays transient dependencies in Deploy server - Group: $group, Module: $module")
+                config.exclude(mapOf("group" to group, "module" to module))
+            }
 
             val copyTask =
                 project.tasks.register("copy${configurationName.replaceFirstChar {
