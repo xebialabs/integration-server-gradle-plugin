@@ -7,6 +7,7 @@ import ai.digital.integration.server.common.util.IntegrationServerUtil
 import ai.digital.integration.server.common.util.PostgresDbUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractDbUnitDataDistTask
+import ai.digital.integration.server.deploy.tasks.server.StartDeployServerInstanceTask
 import org.dbunit.dataset.xml.FlatXmlDataSet
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import org.dbunit.operation.DatabaseOperation
@@ -33,8 +34,8 @@ open class ImportDbUnitDataTask : DefaultTask() {
         val username = DbUtil.getDbPropValue(project, "db-username")
         val password = DbUtil.getDbPropValue(project, "db-password")
         val url = DbUtil.getDbPropValue(project, "db-url")
-
-        return Triple(username, password, url)
+        val updatedDbUrl = url.replace("{{DB_PORT}}", DbUtil.getPort(project).toString())
+        return Triple(username, password, updatedDbUrl)
     }
 
     private fun configureDataSet(): FlatXmlDataSet? {
