@@ -29,7 +29,7 @@ open class DeployIntegrationServerExtension(
 
     var tls: Tls? = null
 
-    var akkaSecured: AkkaSecured? = null
+    var pekkoSecured: PekkoSecured? = null
 
     fun satellites(closure: Closure<NamedDomainObjectContainer<Satellite>>) {
         satellites.configure(closure)
