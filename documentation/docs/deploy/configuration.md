@@ -504,7 +504,7 @@ deployIntegrationServer {
    database { 
       databasePort = 10000
       driverVersions = [
-             'mssql'        : '8.4.1.jre8',
+             'mssql'        : '11.2.3.jre17',
              'mysql'        : '8.1.0',
              'mysql-8'      : '8.1.0',
              'oracle-19c-se': '21.1.0.0',
@@ -519,7 +519,7 @@ deployIntegrationServer {
 |Name|Type|                                                           Default Value                                                            |Description|
 | :---: | :---: |:----------------------------------------------------------------------------------------------------------------------------------:| :---: |
 |databasePort|Optional|                                                           Random number                                                            |The port on which database is going to be started.|
-|driverVersions|Optional| ['mssql':'8.4.1.jre8','mysql':'8.1.0','mysql-8':'8.1.0','oracle-19c-se':'21.1.0.0','postgres-10':'42.6.0','postgres-12':'42.6.0'] ||
+|driverVersions|Optional| ['mssql':'11.2.3.jre17','mysql':'8.1.0','mysql-8':'8.1.0','oracle-19c-se':'21.1.0.0','postgres-10':'42.6.0','postgres-12':'42.6.0'] ||
 |logSql|Optional|                                                               false                                                                |If true, enables tracing all SQL queries|
 
 The most important what you have to know regarding the database configuration is, choosing which database to run is happening 
