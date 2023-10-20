@@ -57,7 +57,7 @@ class DbUtilTest {
 
     private fun detectDbDependenciesMySql(dbName: String) {
         val dbParameters = DbUtil.detectDbDependencies(dbName)
-        assertEquals("mysql:mysql-connector-java", dbParameters.driverDependency)
+        assertEquals("com.mysql:mysql-connector-j", dbParameters.driverDependency)
         assertEquals("com.mysql.jdbc.Driver", dbParameters.driverClass)
         assertEquals("org.dbunit.ext.mysql.MySqlDataTypeFactory", dbParameters.dataFactory)
         assertEquals("org.dbunit.ext.mysql.MySqlMetadataHandler", dbParameters.metaFactory)
