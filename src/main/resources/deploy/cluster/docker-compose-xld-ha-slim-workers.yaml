@@ -13,6 +13,9 @@ services:
       - XL_DB_PASSWORD=admin
       - XL_DB_USERNAME=postgres
       - XL_DB_URL=jdbc:postgresql://postgresql:5432/xld-db
+      - XL_REPORT_DB_URL=jdbc:postgresql://postgresql:5432/xld-db
+      - XL_REPORT_DB_USERNAME=postgres
+      - XL_REPORT_DB_PASSWORD=admin
       - XLD_IN_PROCESS=false
       - XLD_TASK_QUEUE_DRIVER_CLASS_NAME=com.rabbitmq.jms.admin.RMQConnectionFactory
       - XLD_TASK_QUEUE_PASSWORD=admin
