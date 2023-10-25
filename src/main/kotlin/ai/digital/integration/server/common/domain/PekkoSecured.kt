@@ -3,15 +3,15 @@ package ai.digital.integration.server.common.domain
 import ai.digital.integration.server.common.util.TlsUtil
 import java.io.File
 
-class AkkaSecured(serverWorkingDir: String) {
+class PekkoSecured(serverWorkingDir: String) {
 
     companion object {
         const val KEYSTORE_TYPE = "jks"
         const val KEYSTORE_TYPE_EXTENSION = "jks"
-        const val MASTER_KEY_NAME = "akka_ssl_master_"
-        const val WORKER_KEY_NAME = "akka_ssl_worker_"
-        const val SATELLITE_KEY_NAME = "akka_ssl_satellite_"
-        const val TRUSTSTORE_NAME = "akka_ssl_truststore_"
+        const val MASTER_KEY_NAME = "pekko_ssl_master_"
+        const val WORKER_KEY_NAME = "pekko_ssl_worker_"
+        const val SATELLITE_KEY_NAME = "pekko_ssl_satellite_"
+        const val TRUSTSTORE_NAME = "pekko_ssl_truststore_"
     }
 
     val trustStoreName: String = TRUSTSTORE_NAME

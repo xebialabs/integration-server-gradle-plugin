@@ -2,7 +2,7 @@ package ai.digital.integration.server.deploy.tasks.server
 
 import ai.digital.integration.server.common.cluster.util.OperatorUtil
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.common.domain.AkkaSecured
+import ai.digital.integration.server.common.domain.PekkoSecured
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
@@ -51,11 +51,11 @@ open class CentralConfigurationTask : DefaultTask() {
 
         val serverYaml: MutableMap<String, Any> = mutableMapOf()
 
-        if (DeployServerUtil.isAkkaSecured(project)) {
-            val secured = TlsUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
+        if (DeployServerUtil.isPekkoSecured(project)) {
+            val secured = TlsUtil.getPekkoSecured(project, DeployServerUtil.getServerWorkingDir(project))
 
             secured?.let { sec ->
-                val key = sec.keys[AkkaSecured.MASTER_KEY_NAME + DeployServerUtil.getServer(project).name]
+                val key = sec.keys[PekkoSecured.MASTER_KEY_NAME + DeployServerUtil.getServer(project).name]
                 if (key != null) {
                     serverYaml.putAll(
                         mutableMapOf(
@@ -65,7 +65,7 @@ open class CentralConfigurationTask : DefaultTask() {
                             "deploy.server.ssl.trust-store" to sec.trustStoreFile().absolutePath,
                             "deploy.server.ssl.trust-store-password" to sec.truststorePassword
                         ))
-                    if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
+                    if (PekkoSecured.KEYSTORE_TYPE != "pkcs12") {
                         serverYaml["deploy.server.ssl.key-password"] = key.keyPassword
                     }
                 }
@@ -138,7 +138,7 @@ open class CentralConfigurationTask : DefaultTask() {
                     "deploy.task.queue.external.jms-password" to mqDetail["jms-password"].toString(),
                     "deploy.task.queue.external.jms-url" to mqDetail["jms-url"].toString(),
                     "deploy.task.queue.external.jms-username" to mqDetail["jms-username"].toString(),
-                    "akka.io.dns.resolver" to "inet-address"
+                    "pekko.io.dns.resolver" to "inet-address"
                 ) else
                 mutableMapOf(
                     "deploy.task.in-process-worker" to "true"

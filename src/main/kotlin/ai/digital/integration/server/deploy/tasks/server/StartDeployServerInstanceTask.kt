@@ -19,7 +19,7 @@ import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDevOpsAsCodeTask
 import ai.digital.integration.server.deploy.tasks.satellite.StartSatelliteTask
-import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
+import ai.digital.integration.server.deploy.tasks.tls.GenerateSecurePekkoKeysTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.tasks.worker.StartWorkersTask
 import org.gradle.api.DefaultTask
@@ -58,11 +58,11 @@ open class StartDeployServerInstanceTask : DefaultTask() {
             if (DeployServerUtil.isTls(project)) {
                 dependencies.add(TlsApplicationConfigurationOverrideTask.NAME)
             }
-            if (DeployServerUtil.isAkkaSecured(project)) {
-                dependencies.add(GenerateSecureAkkaKeysTask.NAME)
+            if (DeployServerUtil.isPekkoSecured(project)) {
+                dependencies.add(GenerateSecurePekkoKeysTask.NAME)
             }
-            if (DeployServerUtil.isAkkaSecured(project)) {
-                dependencies.add(GenerateSecureAkkaKeysTask.NAME)
+            if (DeployServerUtil.isPekkoSecured(project)) {
+                dependencies.add(GenerateSecurePekkoKeysTask.NAME)
             }
             if (InfrastructureUtil.hasInfrastructures(project)) {
                 dependencies.add(InfrastructureStartTask.NAME)

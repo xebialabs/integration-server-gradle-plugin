@@ -1,7 +1,7 @@
 package ai.digital.integration.server.deploy.tasks.satellite
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
-import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
+import ai.digital.integration.server.deploy.tasks.tls.GenerateSecurePekkoKeysTask
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.internals.SatelliteInitializeUtil
 import ai.digital.integration.server.deploy.internals.SatelliteUtil
@@ -14,8 +14,8 @@ open class PrepareSatellitesTask : DefaultTask() {
         this.group = PLUGIN_GROUP
 
         this.dependsOn(SatelliteOverlaysTask.NAME)
-        if (DeployServerUtil.isAkkaSecured(project)) {
-            this.dependsOn(GenerateSecureAkkaKeysTask.NAME)
+        if (DeployServerUtil.isPekkoSecured(project)) {
+            this.dependsOn(GenerateSecurePekkoKeysTask.NAME)
         }
     }
 
