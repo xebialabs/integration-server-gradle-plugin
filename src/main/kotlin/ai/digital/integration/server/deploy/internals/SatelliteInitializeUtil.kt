@@ -1,6 +1,6 @@
 package ai.digital.integration.server.deploy.internals
 
-import ai.digital.integration.server.common.domain.AkkaSecured
+import ai.digital.integration.server.common.domain.PekkoSecured
 import ai.digital.integration.server.common.util.TlsUtil
 import ai.digital.integration.server.deploy.domain.Satellite
 import com.typesafe.config.ConfigFactory
@@ -19,20 +19,20 @@ class SatelliteInitializeUtil {
             var newConfiguration = ConfigFactory.parseString(satelliteConf.readText(Charsets.UTF_8))
                 .withValue(
                     "deploy.server.bind-hostname",
-                    ConfigValueFactory.fromAnyRef(satellite.serverAkkaBindHostName)
+                    ConfigValueFactory.fromAnyRef(satellite.serverPekkoBindHostName)
                 )
-                .withValue("deploy.server.hostname", ConfigValueFactory.fromAnyRef(satellite.serverAkkaHostname))
-                .withValue("deploy.server.port", ConfigValueFactory.fromAnyRef(satellite.serverAkkaPort))
+                .withValue("deploy.server.hostname", ConfigValueFactory.fromAnyRef(satellite.serverPekkoHostname))
+                .withValue("deploy.server.port", ConfigValueFactory.fromAnyRef(satellite.serverPekkoPort))
                 .withValue("deploy.satellite.metrics.port", ConfigValueFactory.fromAnyRef(satellite.metricsPort))
                 .withValue(
                     "deploy.satellite.streaming.port",
-                    ConfigValueFactory.fromAnyRef(satellite.akkaStreamingPort)
+                    ConfigValueFactory.fromAnyRef(satellite.pekkoStreamingPort)
                 )
 
-            if (DeployServerUtil.isAkkaSecured(project)) {
-                val secured = TlsUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))
+            if (DeployServerUtil.isPekkoSecured(project)) {
+                val secured = TlsUtil.getPekkoSecured(project, DeployServerUtil.getServerWorkingDir(project))
                 secured?.let {
-                    val key = secured.keys[AkkaSecured.SATELLITE_KEY_NAME + satellite.name]
+                    val key = secured.keys[PekkoSecured.SATELLITE_KEY_NAME + satellite.name]
 
                     newConfiguration = newConfiguration
                         .withValue("deploy.server.ssl.enabled", ConfigValueFactory.fromAnyRef("yes"))
@@ -46,7 +46,7 @@ class SatelliteInitializeUtil {
                             ConfigValueFactory.fromAnyRef(secured.truststorePassword))
 
 
-                    if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
+                    if (PekkoSecured.KEYSTORE_TYPE != "pkcs12") {
                         newConfiguration = newConfiguration
                             .withValue("deploy.server.ssl.key-password",
                                 ConfigValueFactory.fromAnyRef(key?.keyPassword))

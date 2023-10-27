@@ -76,7 +76,7 @@ import ai.digital.integration.server.deploy.tasks.server.operator.PrepareOperato
 import ai.digital.integration.server.deploy.tasks.server.operator.StartDeployServerForOperatorInstanceTask
 import ai.digital.integration.server.deploy.tasks.server.operator.StopDeployServerForOperatorInstanceTask
 import ai.digital.integration.server.deploy.tasks.tests.IntegrationTestsTask
-import ai.digital.integration.server.deploy.tasks.tls.GenerateSecureAkkaKeysTask
+import ai.digital.integration.server.deploy.tasks.tls.GenerateSecurePekkoKeysTask
 import ai.digital.integration.server.deploy.tasks.tls.TlsApplicationConfigurationOverrideTask
 import ai.digital.integration.server.deploy.tasks.worker.*
 import org.gradle.api.Project
@@ -240,7 +240,7 @@ open class DeployTaskRegistry {
                 DownloadAndExtractDbUnitDataDistTask::class.java)
             project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask::class.java)
             project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask::class.java)
-            project.tasks.create(GenerateSecureAkkaKeysTask.NAME, GenerateSecureAkkaKeysTask::class.java)
+            project.tasks.create(GenerateSecurePekkoKeysTask.NAME, GenerateSecurePekkoKeysTask::class.java)
             project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask::class.java)
             project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask::class.java)
             project.tasks.create(PrepareServerTask.NAME, PrepareServerTask::class.java)

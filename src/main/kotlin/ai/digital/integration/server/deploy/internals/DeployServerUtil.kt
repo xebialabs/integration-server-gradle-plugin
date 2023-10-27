@@ -20,8 +20,8 @@ class DeployServerUtil {
             return getServer(project).tls
         }
 
-        fun isAkkaSecured(project: Project): Boolean {
-            return getServer(project).akkaSecured
+        fun isPekkoSecured(project: Project): Boolean {
+            return getServer(project).pekkoSecured
         }
 
         private fun isNoLicense(project: Project): Boolean {

@@ -8,7 +8,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import java.io.File
 
 open class Server(name: String) : Container(name) {
-    var akkaSecured: Boolean = false
+    var pekkoSecured: Boolean = false
     var contextRoot: String = "/"
     var copyBuildArtifacts = mutableMapOf<String, String>()
     var copyFolders = mutableMapOf<String, List<File>>()

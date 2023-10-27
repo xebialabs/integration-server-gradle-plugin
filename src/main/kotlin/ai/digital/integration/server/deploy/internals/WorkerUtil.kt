@@ -1,7 +1,7 @@
 package ai.digital.integration.server.deploy.internals
 
 import ai.digital.integration.server.common.constant.ProductName
-import ai.digital.integration.server.common.domain.AkkaSecured
+import ai.digital.integration.server.common.domain.PekkoSecured
 import ai.digital.integration.server.common.util.IntegrationServerUtil
 import ai.digital.integration.server.common.util.PropertyUtil
 import ai.digital.integration.server.common.util.TlsUtil
@@ -90,9 +90,9 @@ class WorkerUtil {
                 params.add(0, "worker")
             }
 
-            if (DeployServerUtil.isAkkaSecured(project)) {
-                TlsUtil.getAkkaSecured(project, DeployServerUtil.getServerWorkingDir(project))?.let { secured ->
-                    secured.keys[AkkaSecured.WORKER_KEY_NAME + worker.name]?.let { key ->
+            if (DeployServerUtil.isPekkoSecured(project)) {
+                TlsUtil.getPekkoSecured(project, DeployServerUtil.getServerWorkingDir(project))?.let { secured ->
+                    secured.keys[PekkoSecured.WORKER_KEY_NAME + worker.name]?.let { key ->
                         params.addAll(listOf(
                             "-keyStore",
                             key.keyStoreFile().absolutePath,
@@ -103,7 +103,7 @@ class WorkerUtil {
                             "-trustStorePassword",
                             secured.truststorePassword
                         ))
-                        if (AkkaSecured.KEYSTORE_TYPE != "pkcs12") {
+                        if (PekkoSecured.KEYSTORE_TYPE != "pkcs12") {
                             params.addAll(listOf(
                                 "-keyPassword",
                                 key.keyPassword

@@ -368,18 +368,18 @@ integrationServer {
 }
 ```
 
-|Name|Type|Default Value|Description|
-| :---: | :---: | :---: | :---: |
-|akkaStreamingPort|Optional|8480|Streaming Akka port between Satellite and Server|
-|metricsPort|Optional|8080|Port for gathered (JMX) metrics on Satellite|
-|serverAkkaPort|Optional|8380|Akka port between Satellite and Server|
-|serverAkkaHostname|Optional|127.0.0.1|Akka host name of the Server|
-|serverAkkaBindHostName|Optional|0.0.0.0|Akka bind host name of the Server|
-|debugPort|Optional|None|Remote Debug Port for a satellite.|
-|debugSuspend|Optional|None|Suspend the start of the process before the remoting tool is attached.|
-|overlays|Optional|[:]|Identical to Server overlays, only in a satellite. [Read about this section below](#overlays)|
-|stdoutFileName|Optional|None|The filename that stores standard output and error for server runtime. If not present output is discarded. |
-|version|Optional|None|It can be specified in several ways. Or as a gradle property `xlSatelliteVersion`, via parameter or in `gradle.properties` file or explicitly via this field.|
+|          Name           |Type|Default Value|                                                                          Description                                                                          |
+|:-----------------------:| :---: | :---: |:-------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|   pekkoStreamingPort    |Optional|8480|                                                       Streaming Pekko port between Satellite and Server                                                       |
+|       metricsPort       |Optional|8080|                                                         Port for gathered (JMX) metrics on Satellite                                                          |
+|     serverPekkoPort     |Optional|8380|                                                            Pekko port between Satellite and Server                                                            |
+|   serverPekkoHostname   |Optional|127.0.0.1|                                                                 Pekko host name of the Server                                                                 |
+| serverPekkoBindHostName |Optional|0.0.0.0|                                                              Pekko bind host name of the Server                                                               |
+|        debugPort        |Optional|None|                                                              Remote Debug Port for a satellite.                                                               |
+|      debugSuspend       |Optional|None|                                            Suspend the start of the process before the remoting tool is attached.                                             |
+|        overlays         |Optional|[:]|                                 Identical to Server overlays, only in a satellite. [Read about this section below](#overlays)                                 |
+|     stdoutFileName      |Optional|None|                          The filename that stores standard output and error for server runtime. If not present output is discarded.                           |
+|         version         |Optional|None| It can be specified in several ways. Or as a gradle property `xlSatelliteVersion`, via parameter or in `gradle.properties` file or explicitly via this field. |
 
 :::caution
 

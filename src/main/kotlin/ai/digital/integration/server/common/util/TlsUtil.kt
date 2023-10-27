@@ -1,6 +1,6 @@
 package ai.digital.integration.server.common.util
 
-import ai.digital.integration.server.common.domain.AkkaSecured
+import ai.digital.integration.server.common.domain.PekkoSecured
 import ai.digital.integration.server.common.domain.Tls
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import org.apache.commons.lang3.StringUtils
@@ -24,19 +24,19 @@ class TlsUtil {
             return ext.tls
         }
 
-        fun setAkkaSecured(project: Project, akkaSecured: AkkaSecured?): AkkaSecured? {
+        fun setPekkoSecured(project: Project, pekkoSecured: PekkoSecured?): PekkoSecured? {
             val ext = DeployExtensionUtil.getExtension(project)
-            ext.akkaSecured = akkaSecured
-            return akkaSecured
+            ext.pekkoSecured = pekkoSecured
+            return pekkoSecured
         }
 
-        fun getAkkaSecured(project: Project, workDir: String): AkkaSecured? {
+        fun getPekkoSecured(project: Project, workDir: String): PekkoSecured? {
             val ext = DeployExtensionUtil.getExtension(project)
-            if (ext.akkaSecured == null) {
-                val akkaSecured = AkkaSecured(workDir)
-                setAkkaSecured(project, akkaSecured)
+            if (ext.pekkoSecured == null) {
+                val pekkoSecured = PekkoSecured(workDir)
+                setPekkoSecured(project, pekkoSecured)
             }
-            return ext.akkaSecured
+            return ext.pekkoSecured
         }
 
         fun generatePassword(name: String): String {

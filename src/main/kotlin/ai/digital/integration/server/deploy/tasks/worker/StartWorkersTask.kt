@@ -133,7 +133,7 @@ open class StartWorkersTask : DefaultTask() {
     private fun waitForBoot(worker: Worker, process: Process) {
         val workerLog =
             project.file("${WorkerUtil.getWorkerWorkingDir(project, worker)}/log/${logFileName(worker.name)}.log")
-        val containsLine = "Registered successfully with Actor[akka://task-sys@127.0.0.1"
+        val containsLine = "Registered successfully with Actor[pekko://task-sys@127.0.0.1"
         val server = DeployServerUtil.getServer(project)
         WaitForBootUtil.byLog(project,
             "worker ${worker.name}",
