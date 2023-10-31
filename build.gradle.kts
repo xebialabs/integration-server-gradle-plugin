@@ -67,7 +67,7 @@ dependencies {
     implementation("com.palantir.gradle.docker:gradle-docker:${properties["dockerPluginVersion"]}")
     implementation("de.vandermeer:asciitable:${properties["asciitableVersion"]}")
     implementation("org.jsoup:jsoup:${properties["jsoupVersion"]}")
-    implementation("mysql:mysql-connector-java:${properties["driverVersions.mysql"]}")
+    implementation("com.mysql:mysql-connector-j:${properties["driverVersions.mysql"]}")
     implementation("net.jodah:failsafe:${properties["failsafeVersion"]}")
     implementation("org.codehaus.groovy.modules.http-builder:http-builder:${properties["httpBuilderVersion"]}") {
         exclude("org.codehaus.groovy", "groovy")
@@ -81,14 +81,14 @@ dependencies {
     implementation("org.postgresql:postgresql:${properties["driverVersions.postgres"]}")
 
 
-    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("io.mockk:mockk:1.13.5")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.0")
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
     withSourcesJar()
     withJavadocJar()
 }
@@ -256,11 +256,16 @@ tasks {
     }
 
     compileKotlin {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
+        kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     compileTestKotlin {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
+        kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
+    }
+
+    withType<Test>().configureEach {
+        jvmArgs(listOf("--add-opens=java.base/java.lang=ALL-UNNAMED",
+            "--add-opens=java.base/java.util=ALL-UNNAMED"))
     }
 
     withType<ValidatePlugins>().configureEach {
@@ -268,7 +273,6 @@ tasks {
         enableStricterValidation.set(false)
     }
 }
-
 node {
     version.set("16.17.0")
     yarnVersion.set("1.22.19")

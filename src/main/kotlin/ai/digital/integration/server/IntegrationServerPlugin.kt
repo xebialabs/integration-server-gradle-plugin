@@ -31,7 +31,11 @@ class IntegrationServerPlugin : Plugin<Project> {
         val derbyExtension = project.extensions.getByName("derby") as DerbyExtension
         derbyExtension.dataDir.convention(workDir)
         derbyExtension.port.convention(getPort(project))
-        derbyExtension.externalProcess.convention(true)
+        val externalProcess =
+                if (project.hasProperty("derbyExternalProcess"))
+                    project.property("derbyExternalProcess").toString().toBoolean()
+                else true
+        derbyExtension.externalProcess.convention(externalProcess)
 
         val startDerbyTask = project.tasks.getByName("derbyStart")
         val stopDerbyTask = project.tasks.getByName("derbyStop")

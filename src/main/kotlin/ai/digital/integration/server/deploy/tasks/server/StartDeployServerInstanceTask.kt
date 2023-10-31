@@ -61,9 +61,6 @@ open class StartDeployServerInstanceTask : DefaultTask() {
             if (DeployServerUtil.isPekkoSecured(project)) {
                 dependencies.add(GenerateSecurePekkoKeysTask.NAME)
             }
-            if (DeployServerUtil.isPekkoSecured(project)) {
-                dependencies.add(GenerateSecurePekkoKeysTask.NAME)
-            }
             if (InfrastructureUtil.hasInfrastructures(project)) {
                 dependencies.add(InfrastructureStartTask.NAME)
             }
@@ -86,6 +83,7 @@ open class StartDeployServerInstanceTask : DefaultTask() {
             finalizedBy(RunDevOpsAsCodeTask.NAME)
             finalizedBy(RunDatasetGenerationTask.NAME)
             finalizedBy(RunCliTask.NAME)
+
         })
     }
 

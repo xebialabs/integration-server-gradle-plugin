@@ -59,6 +59,31 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
                 dependsOn(genKeyStore, genCert, genTrustStore)
             }
             mustRunAfter(ServerCopyOverlaysTask.NAME)
+            project.tasks.forEach { task ->
+                if (task.name.startsWith("pekkoSecurePekko_ssl_master")) {
+                    project.tasks.matching { it.name.startsWith("pekkoSecurePekko_ssl_satellite") }.forEach { otherTask ->
+                        task.mustRunAfter(otherTask)
+                    }
+                }
+                if (task.name.startsWith("pekkoSecurePekko_ssl_master")) {
+                    project.tasks.matching { it.name.startsWith("pekkoSecurePekko_ssl_worker") }.forEach { otherTask ->
+                        task.mustRunAfter(otherTask)
+                    }
+                }
+                if (task.name.startsWith("pekkoSecurePekko_ssl_worker")) {
+                    project.tasks.matching { it.name.startsWith("pekkoSecurePekko_ssl_satellite") }.forEach { otherTask ->
+                        task.mustRunAfter(otherTask)
+                    }
+                }
+                if (task.name.startsWith("tls")) {
+                    project.tasks.matching { it.name.startsWith("pekkoSecurePekko_ssl_master") }.forEach { otherTask ->
+                        task.mustRunAfter(otherTask)
+                    }
+                    project.tasks.matching { it.name.startsWith("pekkoSecurePekko_ssl_worker") }.forEach { otherTask ->
+                        task.mustRunAfter(otherTask)
+                    }
+                }
+            }
         })
     }
 

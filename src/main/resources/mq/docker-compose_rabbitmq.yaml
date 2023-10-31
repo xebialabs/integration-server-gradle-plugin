@@ -10,3 +10,4 @@ services:
       - 25672:25672
     volumes:
       - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
+    privileged: true

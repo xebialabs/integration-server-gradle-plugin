@@ -24,6 +24,10 @@ class DeployServerUtil {
             return getServer(project).pekkoSecured
         }
 
+        private fun isNoLicense(project: Project): Boolean {
+            return getServer(project).noLicense
+        }
+
         fun getServer(project: Project): Server {
             return enrichServer(project,
                 DeployExtensionUtil.getExtension(project).servers.first { server ->
@@ -191,9 +195,12 @@ class DeployServerUtil {
                 }
                 return LocalDateTime.now()
             }
-
-            val url =
+            val url = if (isNoLicense(project)){
+                EntryPointUrlUtil(project, ProductName.DEPLOY).composeUrl("/productregistration", auxiliaryServer)
+            } else {
                 EntryPointUrlUtil(project, ProductName.DEPLOY).composeUrl("/deployit/metadata/type", auxiliaryServer)
+            }
+
             val lastLogUpdate = WaitForBootUtil.byPort(project,
                 "Deploy",
                 url,
