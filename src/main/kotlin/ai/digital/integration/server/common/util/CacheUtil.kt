@@ -14,7 +14,7 @@ class CacheUtil {
 
         private val cacheDependenciesVersions: Map<String, String> =
                 mutableMapOf(
-                        DEFAULT_CACHE_PROVIDER to "14.0.21.Final"
+                        DEFAULT_CACHE_PROVIDER to "14.0.24.Final"
                 )
         private val infinispanCacheParameters: CacheParameters = CacheParameters(
                 "org.infinispan:infinispan-jcache-remote"
