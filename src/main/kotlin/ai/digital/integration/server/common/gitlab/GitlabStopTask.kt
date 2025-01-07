@@ -28,7 +28,7 @@ open class GitlabStopTask : DefaultTask() {
 
         project.exec {
             executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile().toString(), "-p", "gitlabServer", "down")
+            args = listOf("-f", getDockerComposeFile().toString(), "-p", "gitlab_server", "down")
         }
     }
 
