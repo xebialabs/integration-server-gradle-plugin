@@ -6,8 +6,12 @@ import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
 
-abstract class InfrastructureStopTask : DefaultTask() {
+abstract class InfrastructureStopTask @Inject constructor(
+    private val execOperations: ExecOperations
+) : DefaultTask() {
     companion object {
         const val NAME = "infrastructureStop"
     }
@@ -46,9 +50,9 @@ abstract class InfrastructureStopTask : DefaultTask() {
         }
         dockerComposeArgs.add("down")
 
-        project.exec {
-            executable = "docker-compose"
-            args = dockerComposeArgs
+        execOperations.exec {
+            executable("docker-compose")
+            args(dockerComposeArgs)
         }
     }
 }

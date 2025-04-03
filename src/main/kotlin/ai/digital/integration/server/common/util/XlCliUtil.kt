@@ -19,7 +19,8 @@ class XlCliUtil {
 
         fun distUrl(cliVersion: String) = "https://dist.xebialabs.com/public/xl-cli/$cliVersion/${osFolder}/xl"
 
-        fun localDir(project: Project) = project.buildDir.resolve("xl-cli")
+        fun localDir(project: Project) = project.layout.buildDirectory.get().asFile.resolve("xl-cli")
+
 
         val XL_OP_MAPPING = mapOf(
                 Pair(OperatorHelmProviderName.AWS_EKS, "AwsEKS"),

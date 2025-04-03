@@ -16,7 +16,7 @@ class KubeScanningUtil {
         private const val DEFAULT_RETRY_TRIES: Int = 3
 
         private fun getKubeScanningDir(project: Project): String {
-            return "${project.buildDir.toPath().toAbsolutePath()}/kube-scanning"
+            return "${project.layout.buildDirectory.get().asFile.toPath().toAbsolutePath()}/kube-scanning"
         }
 
         fun getKubeBenchDir(project: Project): String {

@@ -60,7 +60,7 @@ open class ProvideDeployKubernetesOperatorTask : DefaultTask() {
     }
 
     private fun cloneRepository(branch: String) {
-        GitUtil.checkout("xl-deploy-kubernetes-operator", project.buildDir.toPath(), branch)
+        GitUtil.checkout("xl-deploy-kubernetes-operator", project.layout.buildDirectory.get().asFile.toPath(), branch)
     }
 
     private fun copyCurrentRepository(operatorHelper: OperatorHelper) {

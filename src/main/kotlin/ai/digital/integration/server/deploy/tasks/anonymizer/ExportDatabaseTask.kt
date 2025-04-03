@@ -5,9 +5,13 @@ import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
 import java.io.File
+import javax.inject.Inject
 
-open class ExportDatabaseTask : DefaultTask() {
+open class ExportDatabaseTask @Inject constructor(
+    private val execOperations: ExecOperations
+): DefaultTask() {
 
     private fun startFromClasspath(server: Server) {
         val classpath = project.configurations.getByName(DeployConfigurationsUtil.DEPLOY_SERVER)
@@ -16,7 +20,7 @@ open class ExportDatabaseTask : DefaultTask() {
 
         project.logger.lifecycle("Starting to export the database ")
 
-        project.javaexec {
+        execOperations.javaexec {
             mainClass.set("com.xebialabs.database.anonymizer.AnonymizerBootstrapper")
             environment["CLASSPATH"] = classpath
             server.runtimeDirectory?.let { dir ->

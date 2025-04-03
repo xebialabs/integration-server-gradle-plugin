@@ -10,13 +10,14 @@ import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.RetryPolicy
 import org.gradle.api.Project
+import org.gradle.process.ExecOperations
 import org.gradle.process.internal.ExecException
 import java.io.File
 import java.nio.file.Path
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper {
+open class DeployDockerClusterHelper(val project: Project, private val execOperations: ExecOperations) : DockerClusterHelper {
 
     companion object {
         private const val clusterMetadataPath = "deploy/cluster/cluster-metadata.properties"
@@ -192,7 +193,7 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
 
     private fun createNetwork() {
         if (!networkExists()) {
-            project.exec {
+            execOperations.exec {
                 executable = "docker"
                 args = listOf("network", "create", ClusterConstants.NETWORK_NAME)
             }

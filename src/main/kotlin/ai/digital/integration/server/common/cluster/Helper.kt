@@ -129,7 +129,10 @@ abstract class Helper(val project: Project, val productName: ProductName) {
     }
 
     fun getProviderWorkDir(): String {
-        val path = project.buildDir.toPath().resolve("${getProvider().name.get()}-work").toAbsolutePath().toString()
+        val path = project.layout.buildDirectory.get().asFile.toPath()
+            .resolve("${getProvider().name.get()}-work")
+            .toAbsolutePath()
+            .toString()
         File(path).mkdirs()
         return path
     }

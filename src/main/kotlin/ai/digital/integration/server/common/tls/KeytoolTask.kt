@@ -5,11 +5,15 @@ import ai.digital.integration.server.deploy.tasks.server.CentralConfigurationTas
 import ai.digital.integration.server.deploy.tasks.server.ServerCopyOverlaysTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
+import org.gradle.process.ExecOperations
 import org.gradle.process.ExecResult
 import java.io.File
 import java.util.*
+import javax.inject.Inject
 
-abstract class KeytoolTask: DefaultTask() {
+abstract class KeytoolTask @Inject constructor(
+    private val execOperations: ExecOperations
+): DefaultTask() {
     init {
         this.group = PluginConstant.PLUGIN_GROUP
         this.mustRunAfter(ServerCopyOverlaysTask.NAME)
@@ -64,9 +68,9 @@ abstract class KeytoolTask: DefaultTask() {
             null
         } else {
             project.logger.lifecycle("Executing keytool with args: " + strings.joinToString(" "))
-            project.exec {
-                executable =  "keytool"
-                args = strings
+            execOperations.exec {
+                executable("keytool")
+                args(strings)
                 workingDir = workDir
                 isIgnoreExitValue = true
             }

@@ -28,6 +28,6 @@ open class ProvideDeployKubernetesHelmChartTask : DefaultTask() {
     }
 
     private fun cloneRepository(branch: String) {
-        GitUtil.checkout("xl-deploy-kubernetes-helm-chart", project.buildDir.toPath(), branch)
+        GitUtil.checkout("xl-deploy-kubernetes-helm-chart", project.layout.buildDirectory.get().asFile.toPath(), branch)
     }
 }

@@ -59,7 +59,7 @@ open class ProvideReleaseKubernetesOperatorTask : DefaultTask() {
     }
 
     private fun cloneRepository(branch: String) {
-        GitUtil.checkout("xl-release-kubernetes-operator", project.buildDir.toPath(), branch)
+        GitUtil.checkout("xl-release-kubernetes-operator", project.layout.buildDirectory.get().asFile.toPath(), branch)
     }
 
     private fun copyCurrentRepository(operatorHelper: OperatorHelper) {

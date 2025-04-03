@@ -4,12 +4,13 @@ import ai.digital.integration.server.common.constant.ProductName
 import ai.digital.integration.server.deploy.internals.cluster.DeployDockerClusterHelper
 import ai.digital.integration.server.release.internals.cluster.ReleaseDockerClusterHelper
 import org.gradle.api.Project
+import org.gradle.process.ExecOperations
 
 class DockerClusterHelperCreator {
     companion object {
-        fun create(project: Project, productName: ProductName): DockerClusterHelper {
+        fun create(project: Project, productName: ProductName, execOperations: ExecOperations): DockerClusterHelper {
             return when (productName) {
-                ProductName.DEPLOY -> DeployDockerClusterHelper(project)
+                ProductName.DEPLOY -> DeployDockerClusterHelper(project, execOperations)
                 ProductName.RELEASE -> ReleaseDockerClusterHelper(project)
             }
         }

@@ -12,7 +12,7 @@ class CopyBuildArtifactsUtil {
                 val whatPattern = entry.value
 
                 FileUtil.findFiles(
-                    project.buildDir.absolutePath,
+                    project.layout.buildDirectory.get().asFile.absolutePath,
                     whatPattern, "/[^/]*integration-server/[^/]*"
                 ).forEach { file: File ->
                     FileUtils.copyFile(file, File("${workingDir}/${where}/${file.name}"))

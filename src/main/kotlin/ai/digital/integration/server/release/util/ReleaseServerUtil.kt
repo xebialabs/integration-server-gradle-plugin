@@ -6,11 +6,15 @@ import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.release.ReleaseIntegrationServerExtension
 import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import org.gradle.api.Project
+import org.gradle.process.ExecOperations
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
+import javax.inject.Inject
 
-class ReleaseServerUtil {
+class ReleaseServerUtil @Inject constructor(
+    private val execOperations: ExecOperations
+) {
     companion object {
 
         private fun getHttpHost(): String {
@@ -152,8 +156,8 @@ class ReleaseServerUtil {
             return "release-${server.version}"
         }
 
-        fun runDockerBasedInstance(project: Project) {
-            project.exec {
+        fun runDockerBasedInstance(project: Project, execOperations: ExecOperations) {
+            execOperations.exec {
                 executable = "docker-compose"
                 args = listOf("-f", getResolvedDockerFile(project).toFile().toString(), "up", "-d")
             }

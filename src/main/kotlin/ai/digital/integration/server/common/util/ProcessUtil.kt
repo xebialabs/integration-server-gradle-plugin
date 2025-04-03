@@ -3,14 +3,18 @@ package ai.digital.integration.server.common.util
 import org.apache.commons.io.output.NullOutputStream
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
+import org.gradle.process.ExecOperations
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class ProcessUtil {
+class ProcessUtil @Inject constructor(
+    private val execOperations: ExecOperations
+){
     companion object {
         private fun createRunCommand(baseCommand: String, runLocalShell: Boolean): MutableList<String> {
             return if (runLocalShell) {
@@ -30,12 +34,12 @@ class ProcessUtil {
             }
         }
 
-        fun execute(project: Project, exec: String, arguments: List<String>, logOutput: Boolean = true): String {
+        fun execute(project: Project, exec: String, arguments: List<String>, logOutput: Boolean = true, execOperations: ExecOperations): String {
             project.logger.lifecycle("About to execute `$exec ${arguments.joinToString(" ")}`")
             if (logOutput) {
                 val stdout = ByteArrayOutputStream()
                 try {
-                    project.exec {
+                    execOperations.exec {
                         args = arguments
                         executable = exec
                         standardOutput = stdout
@@ -49,7 +53,7 @@ class ProcessUtil {
             } else {
                 val stdout = NullOutputStream()
                 try {
-                    project.exec {
+                    execOperations.exec {
                         args = arguments
                         executable = exec
                         standardOutput = stdout
@@ -108,8 +112,8 @@ class ProcessUtil {
             return process
         }
 
-        fun chMod(project: Project, mode: String, fileName: String) {
-            project.exec {
+        fun chMod(project: Project, mode: String, fileName: String, execOperations: ExecOperations) {
+            execOperations.exec {
                 executable = "chmod"
                 args = listOf("-R", mode, fileName)
             }

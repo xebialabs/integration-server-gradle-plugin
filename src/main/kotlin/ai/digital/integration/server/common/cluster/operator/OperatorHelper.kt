@@ -86,7 +86,10 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
     }
 
     fun getOperatorHomeDir(): String =
-        project.buildDir.toPath().resolve(OPERATOR_FOLDER_NAME).toAbsolutePath().toString()
+        project.layout.buildDirectory.get().asFile.toPath()
+            .resolve(OPERATOR_FOLDER_NAME)
+            .toAbsolutePath()
+            .toString()
 
     fun updateOperatorApplications() {
         project.logger.lifecycle("Updating operator's applications")

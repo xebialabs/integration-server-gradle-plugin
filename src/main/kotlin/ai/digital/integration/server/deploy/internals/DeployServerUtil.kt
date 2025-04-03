@@ -6,14 +6,16 @@ import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.LocalDateTime
+import javax.inject.Inject
 
-class DeployServerUtil {
+class DeployServerUtil(private val execOperations: ExecOperations) {
     companion object {
 
         fun isTls(project: Project): Boolean {
@@ -312,24 +314,24 @@ class DeployServerUtil {
             return "deploy/server-docker-compose.yaml"
         }
 
-        fun runDockerBasedInstance(project: Project, server: Server) {
-            project.exec {
+        fun runDockerBasedInstance(project: Project, server: Server, execOperations: ExecOperations) {
+            execOperations.exec {
                 executable = "docker-compose"
                 args = listOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
             }
         }
 
-        fun stopDockerContainer(project: Project, server: Server) {
+        fun stopDockerContainer(project: Project, server: Server, execOperations: ExecOperations) {
             project.logger.lifecycle("Trying to stop ${server.version} container")
-            project.exec {
+            execOperations.exec {
                 executable = "docker-compose"
                 args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().path, "stop")
             }
         }
 
-        fun getDockerContainerPort(project: Project, server: Server, privatePort: Int): Int? {
+        fun getDockerContainerPort(project: Project, server: Server, privatePort: Int, execOperations: ExecOperations): Int? {
             return ByteArrayOutputStream().use {
-                project.exec {
+                execOperations.exec {
                     executable = "docker-compose"
                     args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "port", "deploy-${server.version}", privatePort.toString())
                     standardOutput = it
