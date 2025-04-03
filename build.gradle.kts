@@ -1,4 +1,5 @@
 import com.github.gradle.node.yarn.task.YarnTask
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -16,7 +17,7 @@ plugins {
     id("idea")
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("maven-publish")
-    id("nebula.release") version "17.2.1"
+    id("nebula.release") version "20.2.0"
     id("signing")
 }
 
@@ -50,8 +51,8 @@ repositories {
 
 idea {
     module {
-        setDownloadJavadoc(true)
-        setDownloadSources(true)
+        isDownloadJavadoc = true
+        isDownloadSources = true
     }
 }
 
@@ -87,8 +88,8 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
     withSourcesJar()
     withJavadocJar()
 }
@@ -207,8 +208,8 @@ if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
 tasks {
     register("dumpVersion") {
         doLast {
-            file(buildDir).mkdirs()
-            file("$buildDir/version.dump").writeText("version=${releasedVersion}")
+            layout.buildDirectory.asFile.get().mkdirs()
+            layout.buildDirectory.file("version.dump").get().asFile.writeText("version=${releasedVersion}")
         }
     }
 
@@ -256,11 +257,15 @@ tasks {
     }
 
     compileKotlin {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
+        compilerOptions{
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
     }
 
     compileTestKotlin {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
+        compilerOptions{
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
     }
 
     withType<Test>().configureEach {
