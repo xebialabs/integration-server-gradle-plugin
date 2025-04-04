@@ -1,15 +1,19 @@
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.extra
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
 
-open class NebulaRelease : DefaultTask() {
+open class NebulaRelease @Inject constructor(
+    private val execOperations: ExecOperations
+) : DefaultTask() {
 
     @TaskAction
     fun doRelease() {
         val version = project.extra.get("releasedVersion")
         project.logger.lifecycle("Releasing version is: $version")
 
-        project.exec {
+        execOperations.exec {
             executable("./gradlew")
             args(
                 "build", "uploadArchives", "-Prelease.version=$version", "final",

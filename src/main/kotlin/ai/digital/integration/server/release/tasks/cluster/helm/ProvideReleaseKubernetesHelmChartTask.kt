@@ -22,6 +22,6 @@ open class ProvideReleaseKubernetesHelmChartTask : DefaultTask() {
     }
 
     private fun cloneRepository(branch: String) {
-        GitUtil.checkout("xl-release-kubernetes-helm-chart", project.buildDir.toPath(), branch)
+        GitUtil.checkout("xl-release-kubernetes-helm-chart", project.layout.buildDirectory.get().asFile.toPath(), branch)
     }
 }

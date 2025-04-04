@@ -57,8 +57,10 @@ abstract class HelmHelper(project: Project, productName: ProductName) : Helper(p
         }
     }
 
-    fun getHelmHomeDir(): String =
-            project.buildDir.toPath().resolve(HELM_FOLDER_NAME).toAbsolutePath().toString()
+    fun getHelmHomeDir(): String = project.layout.buildDirectory.get().asFile.toPath()
+        .resolve(HELM_FOLDER_NAME)
+        .toAbsolutePath()
+        .toString()
 
     fun copyValuesYamlFile() {
         when (IngressType.valueOf(getProfile().ingressType.get())) {

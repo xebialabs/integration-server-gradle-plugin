@@ -9,7 +9,10 @@ class IntegrationServerUtil {
 
     companion object {
         fun getDist(project: Project): String {
-            return project.buildDir.toPath().resolve(DIST_DESTINATION_NAME).toAbsolutePath().toString()
+            return project.layout.buildDirectory.get().asFile.toPath()
+                .resolve(DIST_DESTINATION_NAME)
+                .toAbsolutePath()
+                .toString()
         }
 
         fun getRelativePathInIntegrationServerDist(project: Project, relativePath: String): Path {
