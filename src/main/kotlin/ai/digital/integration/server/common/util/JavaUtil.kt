@@ -14,12 +14,10 @@ class JavaUtil {
             val jvmArgs = config.getOrDefault("jvmArgs", listOf<String>()) as List<String>
             val programArgs = config.getOrDefault("programArgs", listOf<String>()) as List<String>
             val mainClass = config["mainClass"] as String
-            val classpath = config["classpath"] as String
             val configEnvironment = config.getOrDefault("environment", mapOf<String, String>()) as Map<String, String>
 
             val environment = mutableMapOf<String, String>()
             environment.putAll(configEnvironment)
-            environment["CLASSPATH"] = classpath
 
             val params = mutableListOf<String>()
             params.addAll(jvmArgs)

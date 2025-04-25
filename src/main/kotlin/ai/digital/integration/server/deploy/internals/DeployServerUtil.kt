@@ -218,6 +218,13 @@ class DeployServerUtil {
             File(logDir, "$containerName.log").writeText(logContent, StandardCharsets.UTF_8)
         }
 
+        fun writeArgsToFile(args: List<String>, prefix: String): File {
+            val tempFile = File.createTempFile(prefix, ".args")
+            tempFile.writeText(args.joinToString(separator = System.lineSeparator()))
+            tempFile.deleteOnExit()
+            return tempFile
+        }
+
         fun startServerFromClasspath(project: Project): Process {
             project.logger.lifecycle("startServerFromClasspath.")
             val server = getServer(project)
@@ -227,16 +234,22 @@ class DeployServerUtil {
                 .asPath
             project.logger.lifecycle("Launching Deploy Server from classpath ${classpath}.")
 
+
+            // Prepare JVM args list including the classpath argument
             val jvmArgs = mutableListOf<String>()
+            jvmArgs.add("-classpath")
+            jvmArgs.add(classpath)
             jvmArgs.addAll(server.jvmArgs)
             server.debugPort?.let {
                 jvmArgs.addAll(JavaUtil.debugJvmArg(project, it, server.debugSuspend))
             }
 
+            val jvmArgsFile = writeArgsToFile(jvmArgs, "jvmArgs")
+
+
             val config = mutableMapOf(
-                "classpath" to classpath,
                 "discardIO" to (server.stdoutFileName == null),
-                "jvmArgs" to jvmArgs,
+                "jvmArgs" to listOf("@${jvmArgsFile.absolutePath}"),
                 "mainClass" to "com.xebialabs.deployit.DeployitBootstrapper",
                 "programArgs" to listOf("-force-upgrades"),
                 "workDir" to File(getServerWorkingDir(project))
