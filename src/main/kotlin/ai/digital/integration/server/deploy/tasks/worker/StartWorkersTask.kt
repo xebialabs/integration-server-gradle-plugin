@@ -97,6 +97,10 @@ open class StartWorkersTask : DefaultTask() {
         val jvmArgs = worker.jvmArgs.toList().toMutableList()
         jvmArgs.add("-DLOGFILE=${logFileName(worker.name)}")
 
+        // Add these lines to explicitly include classpath in JVM args
+        jvmArgs.add("-classpath")
+        jvmArgs.add(classpath)
+
         worker.debugPort?.let { dPort ->
             jvmArgs.addAll(JavaUtil.debugJvmArg(project, dPort, worker.debugSuspend))
         }
