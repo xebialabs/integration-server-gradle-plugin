@@ -67,6 +67,11 @@ abstract class DatabaseStartTask : DockerComposeUp() {
 
     @TaskAction
     override fun run() {
+        project.logger.lifecycle("Cleaning up previous database containers and networks.")
+        project.exec {
+            executable = "docker-compose"
+            args = arrayListOf("-f", getDockerComposeFile().path, "down", "--remove-orphans")
+        }
         super.run()
         val dbName = DbUtil.databaseName(project)
         if(dbName.startsWith("oracle")) {

@@ -33,6 +33,15 @@ abstract class StartCacheTask: DockerComposeUp() {
 
     @TaskAction
     override fun run() {
+        project.logger.lifecycle("Cleaning up previous Cache containers and networks.")
+        project.exec {
+            executable = "docker-compose"
+            args = arrayListOf("-f",
+                getDockerComposeFile().path,
+                "--project-directory",
+                CacheUtil.getBaseDirectory(project),
+                "down")
+        }
         project.logger.lifecycle("Starting Cache Server.")
 
         project.exec {
