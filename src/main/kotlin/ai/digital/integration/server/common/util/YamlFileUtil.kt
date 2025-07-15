@@ -204,11 +204,10 @@ class YamlFileUtil {
         fun overlayFile(sourceFile: File, pairs: MutableMap<String, Any>, destinationFile: File = sourceFile, minimizeQuotes: Boolean = true) {
             if (!sourceFile.exists()) {
                 sourceFile.createNewFile()
+                mingleValues(pairs, destinationFile, minimizeQuotes)
+            } else {
+                mingleValues(sourceFile.toURI().toURL(), pairs, destinationFile, minimizeQuotes)
             }
-            if (sourceFile != destinationFile) {
-                sourceFile.copyTo(destinationFile, overwrite = true)
-            }
-            mingleValuesWithYq(pairs, destinationFile)
         }
 
         @Suppress("UNCHECKED_CAST")
