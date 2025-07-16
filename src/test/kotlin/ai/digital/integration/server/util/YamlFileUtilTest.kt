@@ -5,9 +5,6 @@ import ai.digital.integration.server.common.util.YamlFileUtil
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.File
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
-import java.util.*
 
 class YamlFileUtilTest {
 
@@ -28,7 +25,7 @@ class YamlFileUtilTest {
         destinationFile.deleteOnExit()
 
         YamlFileUtil.overlayFile(initialFile,
-            mutableMapOf("\"deploy.server\".downloads.export-root" to "/tmp"), destinationFile)
+            mutableMapOf("deploy.server.downloads.export-root" to "/tmp"), destinationFile)
 
         assertEquals("/tmp", YamlFileUtil.readFileKey(destinationFile, "deploy.server.downloads.export-root"))
         assertEquals(false, YamlFileUtil.readFileKey(destinationFile, "deploy.server.ssl.enabled"))
@@ -100,9 +97,9 @@ class YamlFileUtilTest {
             {}::class.java.classLoader.getResourceAsStream("yaml/applications-expected-update.yaml")
 
         expectedResultSteam?.let {
-            val s: Scanner = Scanner(it).useDelimiter("\\A")
-            val expectedResult = if (s.hasNext()) s.next() else ""
-            assertEquals(expectedResult, destinationFile.readText())
+            val expectedTree = YamlFileUtil.readTree(it)
+            val actualTree = YamlFileUtil.readTree(destinationFile.inputStream())
+            assertEquals(expectedTree, actualTree)
         }
     }
 
@@ -118,9 +115,9 @@ class YamlFileUtilTest {
             {}::class.java.classLoader.getResourceAsStream("yaml/app-with-file-expected-update.yaml")
 
         expectedResultSteam?.let {
-            val s: Scanner = Scanner(it).useDelimiter("\\A")
-            val expectedResult = if (s.hasNext()) s.next() else ""
-            assertEquals(expectedResult, destinationFile.readText())
+            val expectedTree = YamlFileUtil.readTree(it)
+            val actualTree = YamlFileUtil.readTree(destinationFile.inputStream())
+            assertEquals(expectedTree, actualTree)
         }
     }
 
