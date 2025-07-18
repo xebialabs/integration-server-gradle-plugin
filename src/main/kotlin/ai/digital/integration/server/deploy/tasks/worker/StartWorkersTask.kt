@@ -114,10 +114,11 @@ open class StartWorkersTask : DefaultTask() {
             ))
         }
 
+        val jvmArgsFile = DeployServerUtil.Companion.writeArgsToFile(jvmArgs, "jvmArgs")
+
         val config = mutableMapOf(
-            "classpath" to classpath,
             "discardIO" to !worker.stdoutFileName.isNullOrBlank(),
-            "jvmArgs" to jvmArgs,
+            "jvmArgs" to listOf("@${jvmArgsFile.absolutePath}"),
             "mainClass" to "com.xebialabs.deployit.TaskExecutionEngineBootstrapper",
             "programArgs" to programArgs,
             "redirectTo" to (
