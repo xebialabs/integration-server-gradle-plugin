@@ -36,8 +36,16 @@ abstract class StartMqTask : DockerComposeUp() {
 
     @TaskAction
     override fun run() {
+        project.logger.lifecycle("Cleaning up previous Mq containers and networks.")
+        project.exec {
+            executable = "docker-compose"
+            args = arrayListOf("-f",
+                getDockerComposeFile().path,
+                "--project-directory",
+                MqUtil.getMqDirectory(project),
+                "down")
+        }
         project.logger.lifecycle("Starting ${MqUtil.mqName(project)} MQ.")
-
         project.exec {
             executable = "docker-compose"
             args = arrayListOf("-f",

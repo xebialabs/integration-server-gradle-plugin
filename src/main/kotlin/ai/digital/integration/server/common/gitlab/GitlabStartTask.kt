@@ -33,6 +33,12 @@ abstract class GitlabStartTask : DockerComposeUp() {
 
     @TaskAction
     override fun run() {
+        project.logger.lifecycle("Cleaning up gitlab instance using `docker-compose`, Before starting new instance")
+
+        project.exec {
+            executable = "docker-compose"
+            args = listOf("-f", getDockerComposeFile().toString(), "-p", "gitlab_server", "down")
+        }
         project.logger.lifecycle("Starting GitLab server.")
 
         project.exec {
