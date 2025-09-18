@@ -220,7 +220,17 @@ class DeployServerUtil {
 
         fun writeArgsToFile(args: List<String>, prefix: String): File {
             val tempFile = File.createTempFile(prefix, ".args")
-            tempFile.writeText(args.joinToString(separator = System.lineSeparator()))
+            tempFile.bufferedWriter().use { writer ->
+                args.forEach { arg ->
+                    // Quote arguments containing spaces if not already quoted
+                    if (arg.contains(" ") && !arg.startsWith("\"") && !arg.endsWith("\"")) {
+                        writer.write("\"$arg\"")
+                    } else {
+                        writer.write(arg)
+                    }
+                    writer.newLine()
+                }
+            }
             tempFile.deleteOnExit()
             return tempFile
         }
