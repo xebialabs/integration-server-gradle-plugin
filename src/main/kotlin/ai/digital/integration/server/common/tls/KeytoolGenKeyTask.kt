@@ -7,9 +7,12 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.process.ExecOperations
 import java.io.File
+import javax.inject.Inject
 
 @CacheableTask
-open class KeytoolGenKeyTask(execOperations: ExecOperations) : KeytoolTask(execOperations) {
+
+open class KeytoolGenKeyTask @Inject constructor(
+    execOperations: ExecOperations) : KeytoolTask(execOperations) {
 
     companion object {
         const val NAME = "keytoolGenKey"
