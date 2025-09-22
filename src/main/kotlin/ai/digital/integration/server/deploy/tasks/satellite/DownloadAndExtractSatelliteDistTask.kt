@@ -6,7 +6,7 @@ import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.C
 import ai.digital.integration.server.deploy.internals.SatelliteUtil
 import org.gradle.api.tasks.Copy
 
-open class DownloadAndExtractSatelliteDistTask : Copy() {
+abstract class DownloadAndExtractSatelliteDistTask : Copy() {
 
     init {
         this.group = PLUGIN_GROUP

@@ -10,8 +10,10 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version "1.8.10"
+    kotlin("jvm") version "2.2.0"
     `kotlin-dsl-base`
+
+    id("jvm-toolchains")
 
     id("com.github.node-gradle.node") version "4.0.0"
     id("idea")
@@ -94,6 +96,9 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
     withSourcesJar()
     withJavadocJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 tasks.named<Test>("test") {

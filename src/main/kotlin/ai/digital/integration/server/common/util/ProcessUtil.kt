@@ -3,6 +3,7 @@ package ai.digital.integration.server.common.util
 import org.apache.commons.io.output.NullOutputStream
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
+import org.gradle.process.ExecOperations
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -12,6 +13,11 @@ import java.util.concurrent.TimeUnit
 
 class ProcessUtil {
     companion object {
+
+        private fun getExecOperations(project: Project): ExecOperations {
+            return project.extensions.getByName("execOperations") as ExecOperations
+        }
+
         private fun createRunCommand(baseCommand: String, runLocalShell: Boolean): MutableList<String> {
             return if (runLocalShell) {
                 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -35,7 +41,7 @@ class ProcessUtil {
             if (logOutput) {
                 val stdout = ByteArrayOutputStream()
                 try {
-                    project.exec {
+                    getExecOperations(project).exec {
                         args = arguments
                         executable = exec
                         standardOutput = stdout
@@ -49,7 +55,7 @@ class ProcessUtil {
             } else {
                 val stdout = NullOutputStream()
                 try {
-                    project.exec {
+                    getExecOperations(project).exec {
                         args = arguments
                         executable = exec
                         standardOutput = stdout
@@ -109,7 +115,7 @@ class ProcessUtil {
         }
 
         fun chMod(project: Project, mode: String, fileName: String) {
-            project.exec {
+            getExecOperations(project).exec {
                 executable = "chmod"
                 args = listOf("-R", mode, fileName)
             }

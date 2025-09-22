@@ -6,7 +6,7 @@ import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.common.util.IntegrationServerUtil
 import org.gradle.api.tasks.Copy
 
-open class DownloadAndExtractDbUnitDataDistTask : Copy() {
+abstract class DownloadAndExtractDbUnitDataDistTask : Copy() {
     companion object {
         const val NAME = "downloadAndExtractDbUnitData"
     }

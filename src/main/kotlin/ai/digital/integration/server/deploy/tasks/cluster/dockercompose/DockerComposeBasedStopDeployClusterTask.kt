@@ -4,8 +4,11 @@ import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.deploy.internals.cluster.DeployDockerClusterHelper
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
 
-open class DockerComposeBasedStopDeployClusterTask: DefaultTask() {
+open class DockerComposeBasedStopDeployClusterTask @Inject constructor(
+    private val execOperations: ExecOperations) :  DefaultTask() {
 
     companion object {
         const val NAME = "dockerComposedBasedStopDeployCluster"
@@ -17,6 +20,6 @@ open class DockerComposeBasedStopDeployClusterTask: DefaultTask() {
 
     @TaskAction
     fun launch() {
-        DeployDockerClusterHelper(project).shutdownCluster()
+        DeployDockerClusterHelper(execOperations, project).shutdownCluster()
     }
 }

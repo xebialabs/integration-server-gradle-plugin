@@ -6,7 +6,7 @@ import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.C
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.tasks.Copy
 
-open class DownloadAndExtractServerDistTask : Copy() {
+abstract class DownloadAndExtractServerDistTask : Copy() {
 
     companion object {
         @JvmStatic

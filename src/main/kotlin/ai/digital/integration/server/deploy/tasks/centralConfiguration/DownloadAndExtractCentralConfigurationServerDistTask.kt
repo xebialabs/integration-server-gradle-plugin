@@ -6,7 +6,7 @@ import ai.digital.integration.server.deploy.internals.CentralConfigurationServer
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil
 import org.gradle.api.tasks.Copy
 
-open class DownloadAndExtractCentralConfigurationServerDistTask : Copy() {
+abstract class DownloadAndExtractCentralConfigurationServerDistTask : Copy() {
 
     init {
         this.group = PLUGIN_GROUP

@@ -9,9 +9,12 @@ import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractServe
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
 import java.io.File
+import javax.inject.Inject
 
-abstract class GitlabStartTask : DockerComposeUp() {
+abstract class GitlabStartTask @Inject constructor(
+    private val execOperations: ExecOperations): DockerComposeUp() {
 
     companion object {
         const val NAME = "gitlabStart"
@@ -35,13 +38,13 @@ abstract class GitlabStartTask : DockerComposeUp() {
     override fun run() {
         project.logger.lifecycle("Cleaning up gitlab instance using `docker-compose`, Before starting new instance")
 
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = listOf("-f", getDockerComposeFile().toString(), "-p", "gitlab_server", "down")
         }
         project.logger.lifecycle("Starting GitLab server.")
 
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = arrayListOf("-f", dockerComposeFile.path, "-p", "gitlab_server", "up", "-d")
         }

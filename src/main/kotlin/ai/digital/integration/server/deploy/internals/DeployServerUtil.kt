@@ -6,6 +6,7 @@ import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -15,6 +16,10 @@ import java.time.LocalDateTime
 
 class DeployServerUtil {
     companion object {
+
+        private fun getExecOperations(project: Project): ExecOperations {
+            return project.extensions.getByName("execOperations") as ExecOperations
+        }
 
         fun isTls(project: Project): Boolean {
             return getServer(project).tls
@@ -336,7 +341,7 @@ class DeployServerUtil {
         }
 
         fun runDockerBasedInstance(project: Project, server: Server) {
-            project.exec {
+            getExecOperations(project).exec {
                 executable = "docker-compose"
                 args = listOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
             }
@@ -344,7 +349,7 @@ class DeployServerUtil {
 
         fun stopDockerContainer(project: Project, server: Server) {
             project.logger.lifecycle("Trying to stop ${server.version} container")
-            project.exec {
+            getExecOperations(project).exec {
                 executable = "docker-compose"
                 args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().path, "stop")
             }
@@ -352,7 +357,7 @@ class DeployServerUtil {
 
         fun getDockerContainerPort(project: Project, server: Server, privatePort: Int): Int? {
             return ByteArrayOutputStream().use {
-                project.exec {
+                getExecOperations(project).exec {
                     executable = "docker-compose"
                     args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "port", "deploy-${server.version}", privatePort.toString())
                     standardOutput = it

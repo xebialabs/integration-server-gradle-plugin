@@ -10,12 +10,15 @@ import ai.digital.integration.server.deploy.tasks.server.ApplicationConfiguratio
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
 import java.io.File
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import javax.inject.Inject
 
-abstract class DatabaseStartTask : DockerComposeUp() {
+abstract class DatabaseStartTask @Inject constructor(
+    private val execOperations: ExecOperations) : DockerComposeUp() {
 
     companion object {
         const val NAME = "databaseStart"
@@ -68,7 +71,7 @@ abstract class DatabaseStartTask : DockerComposeUp() {
     @TaskAction
     override fun run() {
         project.logger.lifecycle("Cleaning up previous database containers and networks.")
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = arrayListOf("-f", getDockerComposeFile().path, "down", "--remove-orphans")
         }

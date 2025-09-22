@@ -5,10 +5,11 @@ import ai.digital.integration.server.deploy.internals.EntryPointUrlUtil
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
+import org.gradle.process.ExecOperations
 import java.io.File
 
 @CacheableTask
-open class KeytoolGenKeyTask : KeytoolTask() {
+open class KeytoolGenKeyTask(execOperations: ExecOperations) : KeytoolTask(execOperations) {
 
     companion object {
         const val NAME = "keytoolGenKey"
