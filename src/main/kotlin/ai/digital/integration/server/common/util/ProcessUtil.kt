@@ -3,7 +3,6 @@ package ai.digital.integration.server.common.util
 import org.apache.commons.io.output.NullOutputStream
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
-import org.gradle.process.ExecOperations
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -13,10 +12,6 @@ import java.util.concurrent.TimeUnit
 
 class ProcessUtil {
     companion object {
-
-        private fun getExecOperations(project: Project): ExecOperations {
-            return project.extensions.getByName("execOperations") as ExecOperations
-        }
 
         private fun createRunCommand(baseCommand: String, runLocalShell: Boolean): MutableList<String> {
             return if (runLocalShell) {
@@ -38,31 +33,38 @@ class ProcessUtil {
 
         fun execute(project: Project, exec: String, arguments: List<String>, logOutput: Boolean = true): String {
             project.logger.lifecycle("About to execute `$exec ${arguments.joinToString(" ")}`")
+
+            // Use ProcessBuilder instead of deprecated execOperations
+            val command = mutableListOf(exec).apply { addAll(arguments) }
+            val processBuilder = ProcessBuilder(command)
+
             if (logOutput) {
-                val stdout = ByteArrayOutputStream()
                 try {
-                    getExecOperations(project).exec {
-                        args = arguments
-                        executable = exec
-                        standardOutput = stdout
+                    val process = processBuilder.start()
+                    val output = process.inputStream.bufferedReader().use { it.readText() }
+                    val exitCode = process.waitFor()
+
+                    if (exitCode != 0) {
+                        val error = process.errorStream.bufferedReader().use { it.readText() }
+                        project.logger.error("Command failed with exit code $exitCode: $error")
+                    } else {
+                        project.logger.lifecycle(output)
                     }
-                    val output = stdout.toString(StandardCharsets.UTF_8)
-                    project.logger.lifecycle(output)
                     return output
-                } finally {
-                    stdout.close()
+                } catch (e: Exception) {
+                    project.logger.error("Failed to execute command: $exec ${arguments.joinToString(" ")}", e)
+                    throw e
                 }
             } else {
-                val stdout = NullOutputStream()
                 try {
-                    getExecOperations(project).exec {
-                        args = arguments
-                        executable = exec
-                        standardOutput = stdout
-                        errorOutput = stdout
-                    }
-                } finally {
-                    stdout.close()
+                    val process = processBuilder
+                        .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                        .redirectError(ProcessBuilder.Redirect.DISCARD)
+                        .start()
+                    process.waitFor()
+                } catch (e: Exception) {
+                    project.logger.error("Failed to execute command: $exec ${arguments.joinToString(" ")}", e)
+                    throw e
                 }
             }
             return ""
@@ -115,9 +117,18 @@ class ProcessUtil {
         }
 
         fun chMod(project: Project, mode: String, fileName: String) {
-            getExecOperations(project).exec {
-                executable = "chmod"
-                args = listOf("-R", mode, fileName)
+            // Use ProcessBuilder instead of deprecated execOperations
+            val command = listOf("chmod", "-R", mode, fileName)
+            val processBuilder = ProcessBuilder(command)
+
+            try {
+                val process = processBuilder.start()
+                val exitCode = process.waitFor()
+                if (exitCode != 0) {
+                    project.logger.warn("chmod command failed with exit code: $exitCode")
+                }
+            } catch (e: Exception) {
+                project.logger.error("Failed to execute chmod command", e)
             }
         }
 

@@ -12,16 +12,12 @@ import net.jodah.failsafe.RetryPolicy
 import org.gradle.api.Project
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskExecutionException
-import org.gradle.process.ExecOperations
 import java.io.File
 import java.nio.file.Path
 import java.time.temporal.ChronoUnit
 import java.util.*
-import javax.inject.Inject
 
-open class DeployDockerClusterHelper @Inject constructor(
-    private val execOperations: ExecOperations,
-    val project: Project) : DockerClusterHelper {
+open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper {
 
     companion object {
         private const val clusterMetadataPath = "deploy/cluster/cluster-metadata.properties"
@@ -197,8 +193,22 @@ open class DeployDockerClusterHelper @Inject constructor(
 
     private fun createNetwork() {
         if (!networkExists()) {
-            execOperations.exec {
-                commandLine("docker", "network", "create", ClusterConstants.NETWORK_NAME)
+            // Use ProcessBuilder instead of deprecated execOperations
+            val command = listOf("docker", "network", "create", ClusterConstants.NETWORK_NAME)
+            val processBuilder = ProcessBuilder(command)
+
+            try {
+                val process = processBuilder.start()
+                val exitCode = process.waitFor()
+                if (exitCode != 0) {
+                    val error = process.errorStream.bufferedReader().use { it.readText() }
+                    project.logger.error("Docker network create failed with exit code $exitCode: $error")
+                    throw RuntimeException("Docker network create failed: $error")
+                }
+                project.logger.lifecycle("Created Docker network: ${ClusterConstants.NETWORK_NAME}")
+            } catch (e: Exception) {
+                project.logger.error("Failed to create Docker network", e)
+                throw e
             }
         }
     }

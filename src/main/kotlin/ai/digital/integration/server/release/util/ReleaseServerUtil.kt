@@ -6,17 +6,12 @@ import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.release.ReleaseIntegrationServerExtension
 import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import org.gradle.api.Project
-import org.gradle.process.ExecOperations
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 
 class ReleaseServerUtil {
     companion object {
-
-        private fun getExecOperations(project: Project): ExecOperations {
-            return project.extensions.getByName("execOperations") as ExecOperations
-        }
 
         private fun getHttpHost(): String {
             return "localhost"
@@ -158,9 +153,21 @@ class ReleaseServerUtil {
         }
 
         fun runDockerBasedInstance(project: Project) {
-            getExecOperations(project).exec {
-                executable = "docker-compose"
-                args = listOf("-f", getResolvedDockerFile(project).toFile().toString(), "up", "-d")
+            // Use ProcessBuilder instead of deprecated execOperations
+            val command = listOf("docker-compose", "-f", getResolvedDockerFile(project).toFile().toString(), "up", "-d")
+            val processBuilder = ProcessBuilder(command)
+
+            try {
+                val process = processBuilder.start()
+                val exitCode = process.waitFor()
+                if (exitCode != 0) {
+                    val error = process.errorStream.bufferedReader().use { it.readText() }
+                    project.logger.error("Docker compose up failed with exit code $exitCode: $error")
+                    throw RuntimeException("Docker compose up failed: $error")
+                }
+            } catch (e: Exception) {
+                project.logger.error("Failed to start docker container", e)
+                throw e
             }
         }
 
