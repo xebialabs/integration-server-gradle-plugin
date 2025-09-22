@@ -83,12 +83,26 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${properties["coroutinesVersion"]}")
     implementation("org.postgresql:postgresql:${properties["driverVersions.postgres"]}")
 
+    // Updated test dependencies for Gradle 9 compatibility with logging fixes
+    testImplementation("io.mockk:mockk:${properties["mockkVersion"]}") {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+    }
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${properties["junitVersion"]}")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:${properties["junitVersion"]}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${properties["junitVersion"]}")
+    testImplementation("net.bytebuddy:byte-buddy:${properties["byteBuddyVersion"]}")
+    testImplementation("net.bytebuddy:byte-buddy-agent:${properties["byteBuddyVersion"]}")
 
-    testImplementation("io.mockk:mockk:1.13.5")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.0")
-    testImplementation("net.bytebuddy:byte-buddy:1.14.6")
-    testImplementation("net.bytebuddy:byte-buddy-agent:1.14.6")
+    // Additional test dependencies for Gradle 9
+    testImplementation("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:${properties["kotlin"]}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${properties["coroutinesVersion"]}")
+
+    // Gradle TestKit for proper ProjectBuilder support
+    testImplementation(gradleTestKit())
+
+    // Fix logging conflicts for Gradle 9 tests
+    testRuntimeOnly("org.slf4j:slf4j-simple:1.7.36")
 }
 
 java {
@@ -103,6 +117,41 @@ java {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+
+    // Gradle 9 compatible test configuration
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = false
+    }
+
+    // Fix for ProjectBuilder logging conflicts in Gradle 9
+    systemProperty("org.gradle.internal.logging.slf4j.DefaultContextAwareTaskLogger.level", "WARN")
+    systemProperty("org.slf4j.simpleLogger.defaultLogLevel", "warn")
+    systemProperty("org.gradle.logging.level", "warn")
+
+    // Enhanced test execution settings for Gradle 9
+    systemProperty("junit.jupiter.execution.parallel.enabled", "false") // Disable for ProjectBuilder tests
+    systemProperty("junit.jupiter.execution.parallel.mode.default", "same_thread")
+
+    // Memory and performance settings
+    maxHeapSize = "1g"
+
+    // Fail fast on first failure for faster feedback
+    failFast = false
+
+    // Ensure tests run with proper module access for Java 21 and fix ProjectBuilder issues
+    jvmArgs(
+        "--add-opens=java.base/java.lang=ALL-UNNAMED",
+        "--add-opens=java.base/java.util=ALL-UNNAMED",
+        "--add-opens=java.base/java.io=ALL-UNNAMED",
+        "--add-opens=java.base/java.nio=ALL-UNNAMED",
+        "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
+        "--add-opens=java.base/java.net=ALL-UNNAMED"
+    )
+
+    // Isolate test classloader for better ProjectBuilder support
+    forkEvery = 1
 }
 
 if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
