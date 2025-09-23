@@ -22,7 +22,7 @@ abstract class DownloadAndExtractServerDistTask : Copy() {
                 if (DeployServerUtil.isDistDownloadRequired(project, server)) {
                     project.logger.lifecycle("Downloading and extracting the server ${server.name}")
                     val distName = "$SERVER_DIST$server.name"
-                    project.buildscript.configurations.create(distName)
+                    project.configurations.create(distName)
 
                     project.buildscript.dependencies.add(
                         distName,

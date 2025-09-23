@@ -36,7 +36,7 @@ class OverlaysUtil {
                     if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
                 }.replace("/", "")}"
             }
-            val config = project.buildscript.configurations.create(configurationName)
+            val config = project.configurations.create(configurationName)
             overlay.value.forEach { dependencyNotation ->
                 project.buildscript.dependencies.add(configurationName, dependencyNotation as Any)
             }
