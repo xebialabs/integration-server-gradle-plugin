@@ -12,7 +12,6 @@ import net.jodah.failsafe.RetryPolicy
 import org.gradle.api.Project
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskExecutionException
-import org.gradle.process.internal.ExecException
 import java.io.File
 import java.nio.file.Path
 import java.time.temporal.ChronoUnit
@@ -280,20 +279,24 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
     }
 
     private fun getMasterIp(order: Int): String {
-        return try {
-            DockerUtil.inspect(
-                project,
-                "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
-                "cluster_xl-deploy-master_${order}"
-            )
-        } catch (e: GradleException) {
-            // fallback in naming
-            DockerUtil.inspect(
-                project,
-                "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
-                "cluster-xl-deploy-master-${order}"
-            )
+        val instanceIds = listOf(
+            "cluster-xl-deploy-master-${order}",
+            "cluster_xl-deploy-master_${order}"
+        )
+        for (instanceId in instanceIds) {
+            try {
+                return DockerUtil.inspect(
+                    project,
+                    "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
+                    instanceId
+                )
+            } catch (e: TaskExecutionException) {
+                project.logger.warn("Could not inspect IP for $instanceId")
+            } catch (e: RuntimeException) {
+                project.logger.warn("Could not inspect IP for $instanceId")
+            }
         }
+        throw GradleException("Failed to inspect Master IP address for order $order. Please check that the server is running.")
     }
 
     fun shutdownCluster() {
