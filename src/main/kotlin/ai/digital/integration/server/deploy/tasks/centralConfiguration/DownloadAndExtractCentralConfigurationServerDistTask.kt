@@ -17,14 +17,14 @@ abstract class DownloadAndExtractCentralConfigurationServerDistTask : Copy() {
 
         val version = CentralConfigurationServerUtil.getCentralConfigurationServer(project).version
         project.logger.lifecycle("Downloading and extracting the central config server ${version}.")
-        project.buildscript.dependencies.add(
+        project.dependencies.add(
                 DeployConfigurationsUtil.CENTRAL_CONFIG_DIST,
                 "ai.digital.config:central-configuration-server:${version}@zip"
         )
 
         val taskName = "${NAME}Exec"
         this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
-            from(project.zipTree(project.buildscript.configurations.getByName(DeployConfigurationsUtil.CENTRAL_CONFIG_DIST).singleFile))
+            from(project.zipTree(project.configurations.getByName(DeployConfigurationsUtil.CENTRAL_CONFIG_DIST).singleFile))
             into(IntegrationServerUtil.getDist(project))
         })
     }

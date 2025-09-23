@@ -38,7 +38,7 @@ class OverlaysUtil {
             }
             val config = project.configurations.create(configurationName)
             overlay.value.forEach { dependencyNotation ->
-                project.buildscript.dependencies.add(configurationName, dependencyNotation as Any)
+                project.dependencies.add(configurationName, dependencyNotation as Any)
             }
             val excludeTransientDep  = listOf(
                     "org.slf4j:slf4j-api",

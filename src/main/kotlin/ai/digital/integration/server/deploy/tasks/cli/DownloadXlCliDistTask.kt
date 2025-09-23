@@ -44,11 +44,11 @@ open class DownloadXlCliDistTask : DefaultTask() {
                 val version = profile.xlCliVersion.get()
                 project.logger.lifecycle("Downloading XL cli ${version}.")
                 if (profile.cliNightly.get()) {
-                    project.buildscript.dependencies.add(
+                    project.dependencies.add(
                         XL_CLI_DIST,
                         "com.xebialabs.xlclient:xl-client:${version}:${XlCliUtil.osFolder}@bin"
                     )
-                    val fromFile = project.buildscript.configurations.getByName(XL_CLI_DIST).singleFile
+                    val fromFile = project.configurations.getByName(XL_CLI_DIST).singleFile
                     this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
                         from(fromFile)
                         into(XlCliUtil.localDir(project))

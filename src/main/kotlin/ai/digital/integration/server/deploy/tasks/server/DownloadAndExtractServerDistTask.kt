@@ -24,14 +24,14 @@ abstract class DownloadAndExtractServerDistTask : Copy() {
                     val distName = "$SERVER_DIST$server.name"
                     project.configurations.create(distName)
 
-                    project.buildscript.dependencies.add(
+                    project.dependencies.add(
                         distName,
                         "com.xebialabs.deployit:xl-deploy-base:${server.version}:server@zip"
                     )
 
                     val taskName = "$NAME${server.name}"
                     this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
-                        from(project.zipTree(project.buildscript.configurations.getByName(distName).singleFile))
+                        from(project.zipTree(project.configurations.getByName(distName).singleFile))
                         into(IntegrationServerUtil.getDist(project))
                     })
                 }

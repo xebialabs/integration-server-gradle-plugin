@@ -15,11 +15,11 @@ abstract class DownloadAndExtractDbUnitDataDistTask : Copy() {
         this.group = PLUGIN_GROUP
         val version = DeployExtensionUtil.getExtension(project).xldIsDataVersion
         if (version != null) {
-            project.buildscript.dependencies.add(
+            project.dependencies.add(
                 SERVER_DATA_DIST,
                 "com.xebialabs.deployit.plugins:xld-is-data:${version}:repository@zip"
             )
-            this.from(project.zipTree(project.buildscript.configurations.getByName(SERVER_DATA_DIST).singleFile))
+            this.from(project.zipTree(project.configurations.getByName(SERVER_DATA_DIST).singleFile))
             this.into(IntegrationServerUtil.getDist(project))
         }
     }
