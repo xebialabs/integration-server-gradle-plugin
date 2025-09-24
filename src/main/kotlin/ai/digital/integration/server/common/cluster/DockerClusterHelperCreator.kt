@@ -7,7 +7,6 @@ import org.gradle.api.Project
 
 class DockerClusterHelperCreator {
     companion object {
-
         fun create(project: Project, productName: ProductName): DockerClusterHelper {
             return when (productName) {
                 ProductName.DEPLOY -> DeployDockerClusterHelper(project)
