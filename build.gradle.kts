@@ -91,7 +91,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${properties["junitVersion"]}")
     testImplementation("net.bytebuddy:byte-buddy:${properties["byteBuddyVersion"]}")
     testImplementation("net.bytebuddy:byte-buddy-agent:${properties["byteBuddyVersion"]}")
-/
+
     // Additional test dependencies for Gradle 9
     testImplementation("org.junit.platform:junit-platform-launcher")
 
