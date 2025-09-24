@@ -88,15 +88,12 @@ dependencies {
         exclude(group = "org.slf4j", module = "slf4j-api")
     }
     testImplementation("org.junit.jupiter:junit-jupiter-api:${properties["junitVersion"]}")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:${properties["junitVersion"]}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${properties["junitVersion"]}")
     testImplementation("net.bytebuddy:byte-buddy:${properties["byteBuddyVersion"]}")
     testImplementation("net.bytebuddy:byte-buddy-agent:${properties["byteBuddyVersion"]}")
-
+/
     // Additional test dependencies for Gradle 9
     testImplementation("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:${properties["kotlin"]}")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${properties["coroutinesVersion"]}")
 
     // Gradle TestKit for proper ProjectBuilder support
     testImplementation(gradleTestKit())
