@@ -336,63 +336,38 @@ class DeployServerUtil {
         }
 
         fun runDockerBasedInstance(project: Project, server: Server) {
-            // Use ProcessBuilder instead of deprecated execOperations
-            val command = listOf("docker-compose", "-f", getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
-            val processBuilder = ProcessBuilder(command)
-
-            try {
-                val process = processBuilder.start()
-                val exitCode = process.waitFor()
-                if (exitCode != 0) {
-                    val error = process.errorStream.bufferedReader().use { it.readText() }
-                    project.logger.error("Docker compose up failed with exit code $exitCode: $error")
-                    throw RuntimeException("Docker compose up failed: $error")
-                }
-            } catch (e: Exception) {
-                project.logger.error("Failed to start docker container", e)
-                throw e
+            val execOperations = project.objects.newInstance(org.gradle.process.ExecOperations::class.java)
+            execOperations.exec {
+                executable = "docker-compose"
+                args = listOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
             }
         }
 
         fun stopDockerContainer(project: Project, server: Server) {
             project.logger.lifecycle("Trying to stop ${server.version} container")
-            // Use ProcessBuilder instead of deprecated execOperations
-            val command = listOf("docker-compose", "-f", getResolvedDockerFile(project, server).toFile().path, "stop")
-            val processBuilder = ProcessBuilder(command)
-
-            try {
-                val process = processBuilder.start()
-                val exitCode = process.waitFor()
-                if (exitCode != 0) {
-                    val error = process.errorStream.bufferedReader().use { it.readText() }
-                    project.logger.error("Docker compose stop failed with exit code $exitCode: $error")
-                }
-            } catch (e: Exception) {
-                project.logger.error("Failed to stop docker container", e)
-                throw e
+            val execOperations = project.objects.newInstance(org.gradle.process.ExecOperations::class.java)
+            execOperations.exec {
+                executable = "docker-compose"
+                args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().path, "stop")
             }
         }
 
         fun getDockerContainerPort(project: Project, server: Server, privatePort: Int): Int? {
-            // Use ProcessBuilder instead of deprecated execOperations
-            val command = listOf("docker-compose", "-f", getResolvedDockerFile(project, server).toFile().toString(), "port", "deploy-${server.version}", privatePort.toString())
-            val processBuilder = ProcessBuilder(command)
-
-            try {
-                val process = processBuilder.start()
-                val output = process.inputStream.bufferedReader().use { it.readText() }
-                val error = process.errorStream.bufferedReader().use { it.readText() }
-                val exitCode = process.waitFor()
-
-                val hostAndPort = if (exitCode != 0) error else output
-                return if (hostAndPort.lowercase().contains("no container found")) {
+            return ByteArrayOutputStream().use {
+                val execOperations = project.objects.newInstance(org.gradle.process.ExecOperations::class.java)
+                execOperations.exec {
+                    executable = "docker-compose"
+                    args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "port", "deploy-${server.version}", privatePort.toString())
+                    standardOutput = it
+                    errorOutput = it
+                    isIgnoreExitValue = true
+                }
+                val hostAndPort = it.toString(Charsets.UTF_8)
+                if (hostAndPort.lowercase().contains("no container found")) {
                     null
                 } else {
                     hostAndPort.split(':')[1].trim().toInt()
                 }
-            } catch (e: Exception) {
-                project.logger.error("Failed to get docker container port", e)
-                return null
             }
         }
     }
