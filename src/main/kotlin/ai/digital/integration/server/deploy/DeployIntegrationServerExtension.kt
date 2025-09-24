@@ -67,7 +67,7 @@ open class DeployIntegrationServerExtension(
 
     fun kubeScanner(action: Action<in KubeScanner>) = action.execute(kubeScanner.get())
 
-    val centralConfigurationServer = project.objects.property<CentralConfigurationServer>().value(CentralConfigurationServer(project.objects))
+    val centralConfigurationServer = project.objects.property<CentralConfigurationServer>().value(CentralConfigurationServer())
 
     fun centralConfigurationServer(action: Action<in CentralConfigurationServer>) = action.execute(centralConfigurationServer.get())
 }

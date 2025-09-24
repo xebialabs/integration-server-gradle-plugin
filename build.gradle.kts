@@ -10,7 +10,7 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm") version "2.0.21"
     `kotlin-dsl-base`
 
     id("jvm-toolchains")

@@ -6,7 +6,7 @@ import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
-open class OperatorProfile @Inject constructor(@Input var name: String, project: Project) : OperatorHelmProfile(name, project) {
+open class OperatorProfile @Inject constructor(@Input var name: String, project: Project) : OperatorHelmProfile(project) {
 
     @Input
     val xlCliVersion = project.objects.property<String>()

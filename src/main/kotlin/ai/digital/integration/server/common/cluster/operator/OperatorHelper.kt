@@ -170,6 +170,7 @@ abstract class OperatorHelper(project: Project, productName: ProductName) : Help
             .getOrElse("${getServerVersion()}$namespaceAsSuffix")
     }
 
+    @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
     fun turnOnLogging() {
         loggingJob = GlobalScope.launch {
             repeat(1000) {
