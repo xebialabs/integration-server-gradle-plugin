@@ -75,11 +75,18 @@ class WaitForBootUtil {
             var triesLeft = pingTotalTries
             var success = false
             var lastTry = LocalDateTime.now().minusDays(1)
+            val client = java.net.http.HttpClient.newBuilder()
+                .connectTimeout(java.time.Duration.ofSeconds(10))
+                .build()
             while (triesLeft > 0 && !success) {
                 try {
-                    val http = buildRequest(url)
-                    http.get(mutableMapOf<String, Any>())
-                    success = true
+                    val request = buildRequest(url).GET().build()
+                    val response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString())
+                    if (response.statusCode() in 200..399) {
+                        success = true
+                    } else {
+                        lastTry = callback(lastTry)
+                    }
                 } catch (ignored: Exception) {
                     lastTry = callback(lastTry)
                 }
