@@ -19,7 +19,7 @@ plugins {
     id("idea")
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("maven-publish")
-    id("nebula.release") version "20.2.0"
+    id("nebula.release") version "21.0.0"
     id("signing")
 }
 
