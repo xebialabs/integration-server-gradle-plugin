@@ -192,7 +192,9 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
     }
 
     private fun createNetwork() {
+        print("------------7777777777777-------------------")
         if (!networkExists()) {
+            print("------------8888888888888888-------------------")
             val execOperations = project.objects.newInstance(org.gradle.process.ExecOperations::class.java)
             execOperations.exec {
                 executable = "docker"

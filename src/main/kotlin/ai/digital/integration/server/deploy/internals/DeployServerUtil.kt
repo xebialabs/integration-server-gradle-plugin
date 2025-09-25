@@ -336,6 +336,7 @@ class DeployServerUtil {
         }
 
         fun runDockerBasedInstance(project: Project, server: Server) {
+            print("--------------------111111111---------------------")
             val execOperations = project.objects.newInstance(org.gradle.process.ExecOperations::class.java)
             execOperations.exec {
                 executable = "docker-compose"
@@ -344,6 +345,7 @@ class DeployServerUtil {
         }
 
         fun stopDockerContainer(project: Project, server: Server) {
+            print("--------------------22222222222---------------------")
             project.logger.lifecycle("Trying to stop ${server.version} container")
             val execOperations = project.objects.newInstance(org.gradle.process.ExecOperations::class.java)
             execOperations.exec {
@@ -353,7 +355,9 @@ class DeployServerUtil {
         }
 
         fun getDockerContainerPort(project: Project, server: Server, privatePort: Int): Int? {
+            print("--------------------3333333333333---------------------")
             return ByteArrayOutputStream().use {
+                print("--------------------44444444444---------------------")
                 val execOperations = project.objects.newInstance(org.gradle.process.ExecOperations::class.java)
                 execOperations.exec {
                     executable = "docker-compose"

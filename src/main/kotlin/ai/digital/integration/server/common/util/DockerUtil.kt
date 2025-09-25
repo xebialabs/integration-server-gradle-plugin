@@ -1,13 +1,18 @@
 package ai.digital.integration.server.common.util
 
 import org.gradle.api.Project
+import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 class DockerUtil {
     companion object {
+
+        @Inject
+        lateinit var execOperations: ExecOperations
 
         fun execute(project: Project, args: List<String>, logOutput: Boolean = true, throwErrorOnFailure: Boolean = true): String {
             return ProcessUtil.executeCommand(project, "docker ${args.joinToString(" ")}",
@@ -15,26 +20,18 @@ class DockerUtil {
         }
 
         fun inspect(project: Project, format: String, instanceId: String): String {
-            // Use ProcessBuilder instead of deprecated execOperations
-            val command = listOf("docker", "inspect", "-f", format, instanceId)
-            val processBuilder = ProcessBuilder(command)
-
-            try {
-                val process = processBuilder.start()
-                val output = process.inputStream.bufferedReader().use { it.readText() }
-                val exitCode = process.waitFor()
-
-                if (exitCode != 0) {
-                    val error = process.errorStream.bufferedReader().use { it.readText() }
-                    project.logger.error("Docker inspect failed with exit code $exitCode: $error")
-                    throw RuntimeException("Docker inspect failed: $error")
-                }
-
-                return output.trim()
-            } catch (e: Exception) {
-                project.logger.error("Failed to execute docker inspect", e)
-                throw e
+            val stdout = ByteArrayOutputStream()
+            execOperations.exec {
+                executable = "docker"
+                args = listOf(
+                    "inspect",
+                    "-f",
+                    format,
+                    instanceId
+                )
+                standardOutput = stdout
             }
+            return stdout.toString(StandardCharsets.UTF_8).trim()
         }
 
         private fun findContainerIdByName(project: Project, containerName: String): String {
@@ -47,14 +44,6 @@ class DockerUtil {
             val containerId = findContainerIdByName(project, containerName)
             val args = arrayListOf("logs", containerId, "--since", lastUpdate.format(formatter))
             return execute(project, args, false)
-        }
-
-        fun getContainerImageByName(project: Project, containerName: String): String {
-            return inspect(project, "{{.Config.Image}}", containerName)
-        }
-
-        fun getCurrentTimeForDockerImageTag(): String {
-            return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"))
         }
     }
 }
