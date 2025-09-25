@@ -153,10 +153,21 @@ class ReleaseServerUtil {
         }
 
         fun runDockerBasedInstance(project: Project) {
-            val execOperations = project.objects.newInstance(org.gradle.process.ExecOperations::class.java)
-            execOperations.exec {
-                executable = "docker-compose"
-                args = listOf("-f", getResolvedDockerFile(project).toFile().toString(), "up", "-d")
+            // Use ProcessBuilder instead of execOperations
+            val command = listOf("docker-compose", "-f", getResolvedDockerFile(project).toFile().toString(), "up", "-d")
+            val processBuilder = ProcessBuilder(command)
+
+            try {
+                val process = processBuilder.start()
+                val exitCode = process.waitFor()
+                if (exitCode != 0) {
+                    val error = process.errorStream.bufferedReader().use { it.readText() }
+                    project.logger.error("Docker compose up failed with exit code $exitCode: $error")
+                    throw RuntimeException("Docker compose up failed: $error")
+                }
+            } catch (e: Exception) {
+                project.logger.error("Failed to start docker container", e)
+                throw e
             }
         }
 

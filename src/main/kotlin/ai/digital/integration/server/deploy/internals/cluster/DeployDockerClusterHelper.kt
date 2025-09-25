@@ -192,13 +192,24 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
     }
 
     private fun createNetwork() {
-        print("------------7777777777777-------------------")
         if (!networkExists()) {
-            print("------------8888888888888888-------------------")
-            val execOperations = project.objects.newInstance(org.gradle.process.ExecOperations::class.java)
-            execOperations.exec {
-                executable = "docker"
-                args = listOf("network", "create", ClusterConstants.NETWORK_NAME)
+            // Use ProcessBuilder instead of deprecated execOperations
+            print("INSIDE THE NETWORK EXISTS-----------------")
+            val command = listOf("docker", "network", "create", ClusterConstants.NETWORK_NAME)
+            val processBuilder = ProcessBuilder(command)
+
+            try {
+                val process = processBuilder.start()
+                val exitCode = process.waitFor()
+                if (exitCode != 0) {
+                    val error = process.errorStream.bufferedReader().use { it.readText() }
+                    project.logger.error("Docker network create failed with exit code $exitCode: $error")
+                    throw RuntimeException("Docker network create failed: $error")
+                }
+                project.logger.lifecycle("Created Docker network: ${ClusterConstants.NETWORK_NAME}")
+            } catch (e: Exception) {
+                project.logger.error("Failed to create Docker network", e)
+                throw e
             }
         }
     }
