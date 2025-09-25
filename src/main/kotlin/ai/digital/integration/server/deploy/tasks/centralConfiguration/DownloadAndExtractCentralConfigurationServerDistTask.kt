@@ -4,9 +4,10 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.IntegrationServerUtil
 import ai.digital.integration.server.deploy.internals.CentralConfigurationServerUtil
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
 
-abstract class DownloadAndExtractCentralConfigurationServerDistTask : Copy() {
+open class DownloadAndExtractCentralConfigurationServerDistTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP

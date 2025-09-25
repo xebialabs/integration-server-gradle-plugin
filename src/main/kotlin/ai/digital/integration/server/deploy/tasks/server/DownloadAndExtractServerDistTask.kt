@@ -4,9 +4,10 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.IntegrationServerUtil
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.Companion.SERVER_DIST
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
 
-abstract class DownloadAndExtractServerDistTask : Copy() {
+open class DownloadAndExtractServerDistTask : DefaultTask() {
 
     companion object {
         @JvmStatic

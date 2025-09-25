@@ -4,9 +4,10 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.Companion.SERVER_DATA_DIST
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.common.util.IntegrationServerUtil
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
 
-abstract class DownloadAndExtractDbUnitDataDistTask : Copy() {
+open class DownloadAndExtractDbUnitDataDistTask : DefaultTask() {
     companion object {
         const val NAME = "downloadAndExtractDbUnitData"
     }
@@ -19,8 +20,12 @@ abstract class DownloadAndExtractDbUnitDataDistTask : Copy() {
                 SERVER_DATA_DIST,
                 "com.xebialabs.deployit.plugins:xld-is-data:${version}:repository@zip"
             )
-            this.from(project.zipTree(project.configurations.getByName(SERVER_DATA_DIST).singleFile))
-            this.into(IntegrationServerUtil.getDist(project))
+            val taskName = "${NAME}Exec"
+            this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
+                from(project.zipTree(project.configurations.getByName(SERVER_DATA_DIST).singleFile))
+                into(IntegrationServerUtil.getDist(project))
+            })
+
         }
     }
 }
