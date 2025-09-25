@@ -11,9 +11,6 @@ import javax.inject.Inject
 class DockerUtil {
     companion object {
 
-        @Inject
-        lateinit var execOperations: ExecOperations
-
         fun execute(project: Project, args: List<String>, logOutput: Boolean = true, throwErrorOnFailure: Boolean = true): String {
             return ProcessUtil.executeCommand(project, "docker ${args.joinToString(" ")}",
                     logOutput = logOutput, throwErrorOnFailure = throwErrorOnFailure)
@@ -21,6 +18,7 @@ class DockerUtil {
 
         fun inspect(project: Project, format: String, instanceId: String): String {
             val stdout = ByteArrayOutputStream()
+            val execOperations = project.objects.newInstance(org.gradle.process.ExecOperations::class.java)
             execOperations.exec {
                 executable = "docker"
                 args = listOf(
