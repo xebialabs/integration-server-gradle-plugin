@@ -114,41 +114,6 @@ java {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
-
-    // Gradle 9 compatible test configuration
-    testLogging {
-        events("passed", "skipped", "failed")
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-        showStandardStreams = false
-    }
-
-    // Fix for ProjectBuilder logging conflicts in Gradle 9
-    systemProperty("org.gradle.internal.logging.slf4j.DefaultContextAwareTaskLogger.level", "WARN")
-    systemProperty("org.slf4j.simpleLogger.defaultLogLevel", "warn")
-    systemProperty("org.gradle.logging.level", "warn")
-
-    // Enhanced test execution settings for Gradle 9
-    systemProperty("junit.jupiter.execution.parallel.enabled", "false") // Disable for ProjectBuilder tests
-    systemProperty("junit.jupiter.execution.parallel.mode.default", "same_thread")
-
-    // Memory and performance settings
-    maxHeapSize = "1g"
-
-    // Fail fast on first failure for faster feedback
-    failFast = false
-
-    // Ensure tests run with proper module access for Java 21 and fix ProjectBuilder issues
-    jvmArgs(
-        "--add-opens=java.base/java.lang=ALL-UNNAMED",
-        "--add-opens=java.base/java.util=ALL-UNNAMED",
-        "--add-opens=java.base/java.io=ALL-UNNAMED",
-        "--add-opens=java.base/java.nio=ALL-UNNAMED",
-        "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
-        "--add-opens=java.base/java.net=ALL-UNNAMED"
-    )
-
-    // Isolate test classloader for better ProjectBuilder support
-    forkEvery = 1
 }
 
 if (project.hasProperty("sonatypeUsername") && project.hasProperty("public")) {
