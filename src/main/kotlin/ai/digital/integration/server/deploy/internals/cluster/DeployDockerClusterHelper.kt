@@ -193,8 +193,7 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
 
     private fun createNetwork() {
         if (!networkExists()) {
-            // Use ProcessBuilder instead of deprecated execOperations
-            print("INSIDE THE NETWORK EXISTS-----------------")
+            // Using ProcessBuilder instead of execOperations
             val command = listOf("docker", "network", "create", ClusterConstants.NETWORK_NAME)
             val processBuilder = ProcessBuilder(command)
 
