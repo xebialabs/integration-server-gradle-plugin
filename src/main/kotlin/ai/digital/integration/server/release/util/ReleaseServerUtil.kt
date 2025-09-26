@@ -153,7 +153,7 @@ class ReleaseServerUtil {
         }
 
         fun runDockerBasedInstance(project: Project) {
-            project.exec {
+            project.providers.exec {
                 executable = "docker-compose"
                 args = listOf("-f", getResolvedDockerFile(project).toFile().toString(), "up", "-d")
             }
