@@ -193,22 +193,9 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
 
     private fun createNetwork() {
         if (!networkExists()) {
-            // Using ProcessBuilder instead of execOperations
-            val command = listOf("docker", "network", "create", ClusterConstants.NETWORK_NAME)
-            val processBuilder = ProcessBuilder(command)
-
-            try {
-                val process = processBuilder.start()
-                val exitCode = process.waitFor()
-                if (exitCode != 0) {
-                    val error = process.errorStream.bufferedReader().use { it.readText() }
-                    project.logger.error("Docker network create failed with exit code $exitCode: $error")
-                    throw RuntimeException("Docker network create failed: $error")
-                }
-                project.logger.lifecycle("Created Docker network: ${ClusterConstants.NETWORK_NAME}")
-            } catch (e: Exception) {
-                project.logger.error("Failed to create Docker network", e)
-                throw e
+            project.providers.exec {
+                executable = "docker"
+                args = listOf("network", "create", ClusterConstants.NETWORK_NAME)
             }
         }
     }
@@ -279,24 +266,16 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
     }
 
     private fun getMasterIp(order: Int): String {
-        val instanceIds = listOf(
-            "cluster-xl-deploy-master-${order}",
-            "cluster_xl-deploy-master_${order}"
-        )
-        for (instanceId in instanceIds) {
-            try {
-                return DockerUtil.inspect(
-                    project,
-                    "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
-                    instanceId
-                )
-            } catch (e: TaskExecutionException) {
-                project.logger.warn("Could not inspect IP for $instanceId")
-            } catch (e: RuntimeException) {
-                project.logger.warn("Could not inspect IP for $instanceId")
-            }
+        try {
+            return DockerUtil.inspect(project,
+                "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
+                "cluster_xl-deploy-master_${order}")
+        } catch (e: RuntimeException) {
+            // fallback in naming
+            return DockerUtil.inspect(project,
+                "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
+                "cluster-xl-deploy-master-${order}")
         }
-        throw GradleException("Failed to inspect Master IP address for order $order. Please check that the server is running.")
     }
 
     fun shutdownCluster() {

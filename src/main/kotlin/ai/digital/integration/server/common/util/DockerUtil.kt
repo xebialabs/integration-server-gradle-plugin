@@ -17,26 +17,18 @@ class DockerUtil {
         }
 
         fun inspect(project: Project, format: String, instanceId: String): String {
-            // Using ProcessBuilder instead of execOperations
-            val command = listOf("docker", "inspect", "-f", format, instanceId)
-            val processBuilder = ProcessBuilder(command)
-
-            try {
-                val process = processBuilder.start()
-                val output = process.inputStream.bufferedReader().use { it.readText() }
-                val exitCode = process.waitFor()
-
-                if (exitCode != 0) {
-                    val error = process.errorStream.bufferedReader().use { it.readText() }
-                    project.logger.error("Docker inspect failed with exit code $exitCode: $error")
-                    throw RuntimeException("Docker inspect failed: $error")
-                }
-
-                return output.trim()
-            } catch (e: Exception) {
-                project.logger.error("Failed to execute docker inspect", e)
-                throw e
+            val stdout = ByteArrayOutputStream()
+            project.providers.exec {
+                executable = "docker"
+                args = listOf(
+                    "inspect",
+                    "-f",
+                    format,
+                    instanceId
+                )
+                standardOutput = stdout
             }
+            return stdout.toString(StandardCharsets.UTF_8).trim()
         }
 
         private fun findContainerIdByName(project: Project, containerName: String): String {

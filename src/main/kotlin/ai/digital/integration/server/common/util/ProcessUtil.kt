@@ -3,6 +3,7 @@ package ai.digital.integration.server.common.util
 import org.apache.commons.io.output.NullOutputStream
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
+import org.gradle.api.tasks.Exec
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -12,7 +13,6 @@ import java.util.concurrent.TimeUnit
 
 class ProcessUtil {
     companion object {
-
         private fun createRunCommand(baseCommand: String, runLocalShell: Boolean): MutableList<String> {
             return if (runLocalShell) {
                 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -33,38 +33,31 @@ class ProcessUtil {
 
         fun execute(project: Project, exec: String, arguments: List<String>, logOutput: Boolean = true): String {
             project.logger.lifecycle("About to execute `$exec ${arguments.joinToString(" ")}`")
-
-            // Use ProcessBuilder instead of deprecated execOperations
-            val command = mutableListOf(exec).apply { addAll(arguments) }
-            val processBuilder = ProcessBuilder(command)
-
             if (logOutput) {
+                val stdout = ByteArrayOutputStream()
                 try {
-                    val process = processBuilder.start()
-                    val output = process.inputStream.bufferedReader().use { it.readText() }
-                    val exitCode = process.waitFor()
-
-                    if (exitCode != 0) {
-                        val error = process.errorStream.bufferedReader().use { it.readText() }
-                        project.logger.error("Command failed with exit code $exitCode: $error")
-                    } else {
-                        project.logger.lifecycle(output)
+                    project.providers.exec {
+                        args = arguments
+                        executable = exec
+                        standardOutput = stdout
                     }
+                    val output = stdout.toString(StandardCharsets.UTF_8)
+                    project.logger.lifecycle(output)
                     return output
-                } catch (e: Exception) {
-                    project.logger.error("Failed to execute command: $exec ${arguments.joinToString(" ")}", e)
-                    throw e
+                } finally {
+                    stdout.close()
                 }
             } else {
+                val stdout = ByteArrayOutputStream()
                 try {
-                    val process = processBuilder
-                        .redirectOutput(ProcessBuilder.Redirect.DISCARD)
-                        .redirectError(ProcessBuilder.Redirect.DISCARD)
-                        .start()
-                    process.waitFor()
-                } catch (e: Exception) {
-                    project.logger.error("Failed to execute command: $exec ${arguments.joinToString(" ")}", e)
-                    throw e
+                    project.providers.exec {
+                        args = arguments
+                        executable = exec
+                        standardOutput = stdout
+                        errorOutput = stdout
+                    }
+                } finally {
+                    stdout.close()
                 }
             }
             return ""
@@ -117,18 +110,9 @@ class ProcessUtil {
         }
 
         fun chMod(project: Project, mode: String, fileName: String) {
-            // Use ProcessBuilder instead of deprecated execOperations
-            val command = listOf("chmod", "-R", mode, fileName)
-            val processBuilder = ProcessBuilder(command)
-
-            try {
-                val process = processBuilder.start()
-                val exitCode = process.waitFor()
-                if (exitCode != 0) {
-                    project.logger.warn("chmod command failed with exit code: $exitCode")
-                }
-            } catch (e: Exception) {
-                project.logger.error("Failed to execute chmod command", e)
+            project.providers.exec {
+                executable = "chmod"
+                args = listOf("-R", mode, fileName)
             }
         }
 
