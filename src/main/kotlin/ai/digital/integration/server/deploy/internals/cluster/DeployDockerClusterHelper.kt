@@ -12,6 +12,8 @@ import net.jodah.failsafe.RetryPolicy
 import org.gradle.api.Project
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskExecutionException
+import org.gradle.kotlin.dsl.support.serviceOf
+import org.gradle.process.ExecOperations
 import java.io.File
 import java.nio.file.Path
 import java.time.temporal.ChronoUnit
@@ -192,8 +194,10 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
     }
 
     private fun createNetwork() {
+        print("Doesnt EXISTS")
         if (!networkExists()) {
-            project.providers.exec {
+            val execOps = project.serviceOf<ExecOperations>()
+            execOps.exec {
                 executable = "docker"
                 args = listOf("network", "create", ClusterConstants.NETWORK_NAME)
             }

@@ -6,6 +6,8 @@ import ai.digital.integration.server.common.util.*
 import ai.digital.integration.server.release.ReleaseIntegrationServerExtension
 import ai.digital.integration.server.release.internals.ReleaseExtensionUtil
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.support.serviceOf
+import org.gradle.process.ExecOperations
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -153,7 +155,8 @@ class ReleaseServerUtil {
         }
 
         fun runDockerBasedInstance(project: Project) {
-            project.providers.exec {
+            val execOps = project.serviceOf<ExecOperations>()
+            execOps.exec {
                 executable = "docker-compose"
                 args = listOf("-f", getResolvedDockerFile(project).toFile().toString(), "up", "-d")
             }

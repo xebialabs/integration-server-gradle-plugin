@@ -1,6 +1,7 @@
 package ai.digital.integration.server.common.util
 
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.support.serviceOf
 import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
@@ -18,7 +19,8 @@ class DockerUtil {
 
         fun inspect(project: Project, format: String, instanceId: String): String {
             val stdout = ByteArrayOutputStream()
-            project.providers.exec {
+            val execOps = project.serviceOf<ExecOperations>()
+            execOps.exec {
                 executable = "docker"
                 args = listOf(
                     "inspect",

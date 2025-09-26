@@ -1,15 +1,15 @@
 package ai.digital.integration.server.common.util
 
-import org.apache.commons.io.output.NullOutputStream
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
-import org.gradle.api.tasks.Exec
+import org.gradle.process.ExecOperations
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
+import org.gradle.kotlin.dsl.support.serviceOf
 
 class ProcessUtil {
     companion object {
@@ -31,36 +31,40 @@ class ProcessUtil {
             }
         }
 
-        fun execute(project: Project, exec: String, arguments: List<String>, logOutput: Boolean = true): String {
+        fun execute(
+            project: Project,
+            exec: String,
+            arguments: List<String>,
+            logOutput: Boolean = true
+        ): String {
             project.logger.lifecycle("About to execute `$exec ${arguments.joinToString(" ")}`")
+
+            val stdout = ByteArrayOutputStream()
+            val stderr = ByteArrayOutputStream()
+
+            val execOps = project.serviceOf<ExecOperations>()
+
+            execOps.exec {
+                executable = exec
+                args = arguments
+                standardOutput = stdout
+                errorOutput = if (logOutput) stderr else stdout
+                isIgnoreExitValue = false
+            }.assertNormalExitValue()
+
+            val output = stdout.toString(StandardCharsets.UTF_8)
+            val error = stderr.toString(StandardCharsets.UTF_8)
+
             if (logOutput) {
-                val stdout = ByteArrayOutputStream()
-                try {
-                    project.providers.exec {
-                        args = arguments
-                        executable = exec
-                        standardOutput = stdout
-                    }
-                    val output = stdout.toString(StandardCharsets.UTF_8)
+                if (output.isNotBlank()) {
                     project.logger.lifecycle(output)
-                    return output
-                } finally {
-                    stdout.close()
                 }
-            } else {
-                val stdout = ByteArrayOutputStream()
-                try {
-                    project.providers.exec {
-                        args = arguments
-                        executable = exec
-                        standardOutput = stdout
-                        errorOutput = stdout
-                    }
-                } finally {
-                    stdout.close()
+                if (error.isNotBlank()) {
+                    project.logger.error(error)
                 }
             }
-            return ""
+
+            return output
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -110,7 +114,8 @@ class ProcessUtil {
         }
 
         fun chMod(project: Project, mode: String, fileName: String) {
-            project.providers.exec {
+            val execOps = project.serviceOf<ExecOperations>()
+            execOps.exec {
                 executable = "chmod"
                 args = listOf("-R", mode, fileName)
             }
