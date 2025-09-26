@@ -4,8 +4,12 @@ import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.release.util.ReleaseServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
 
-open class StartReleaseServerInstanceTask : DefaultTask() {
+open class StartReleaseServerInstanceTask @Inject constructor(
+    private val execOperations: ExecOperations
+) : DefaultTask() {
     companion object {
         const val NAME = "startReleaseServerInstance"
     }
@@ -19,7 +23,7 @@ open class StartReleaseServerInstanceTask : DefaultTask() {
     }
 
     private fun start(): Process? {
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = listOf("-f", ReleaseServerUtil.getResolvedDockerFile(project).toFile().toString(), "up", "-d")
         }

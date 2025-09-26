@@ -10,8 +10,12 @@ import ai.digital.integration.server.release.util.ReleaseServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
 
-open class StartReleaseToGetLicenceTask : DefaultTask() {
+open class StartReleaseToGetLicenceTask @Inject constructor(
+    private val execOperations: ExecOperations
+) : DefaultTask() {
     companion object {
         const val NAME = "startReleaseToGetLicence"
     }
@@ -31,7 +35,7 @@ open class StartReleaseToGetLicenceTask : DefaultTask() {
     }
 
     private fun start(): Process? {
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = listOf("-f", getDockerComposeFile().toString(), "up", "-d")
         }

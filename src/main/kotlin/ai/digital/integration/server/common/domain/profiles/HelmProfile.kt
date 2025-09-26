@@ -5,4 +5,4 @@ import org.gradle.api.tasks.Input
 import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
-open class HelmProfile @Inject constructor(@Input var name: String, project: Project) : OperatorHelmProfile(name, project)
+open class HelmProfile @Inject constructor(@Input var name: String, project: Project) : OperatorHelmProfile(project)

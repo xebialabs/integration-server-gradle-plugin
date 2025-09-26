@@ -6,20 +6,20 @@ import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.C
 import ai.digital.integration.server.deploy.internals.SatelliteUtil
 import org.gradle.api.tasks.Copy
 
-open class DownloadAndExtractSatelliteDistTask : Copy() {
+abstract class DownloadAndExtractSatelliteDistTask : Copy() {
 
     init {
         this.group = PLUGIN_GROUP
 
         SatelliteUtil.getSatellites(project).forEach { satellite ->
-            project.buildscript.dependencies.add(
+            project.dependencies.add(
                 SATELLITE_DIST,
                 "com.xebialabs.xl-platform.satellite:xl-satellite-server:${satellite.version}@zip"
             )
 
             val taskName = "downloadAndExtractSatellite${satellite.name}"
             val task = project.tasks.register(taskName, Copy::class.java) {
-                from(project.zipTree(project.buildscript.configurations.getByName(SATELLITE_DIST).singleFile))
+                from(project.zipTree(project.configurations.getByName(SATELLITE_DIST).singleFile))
                 into(IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, satellite.name))
             }
             this.dependsOn(task)

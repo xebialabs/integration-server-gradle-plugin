@@ -21,14 +21,14 @@ open class ProvideReleaseKubernetesOperatorTask : DefaultTask() {
             if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
                 val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.RELEASE)
                 if (operatorHelper.getProvider().operatorPackageVersion.isPresent) {
-                    project.buildscript.dependencies.add(
+                    project.dependencies.add(
                         DeployConfigurationsUtil.OPERATOR_DIST,
                         "ai.digital.release.operator:${operatorHelper.getProviderHomePath()}:${operatorHelper.getProvider().operatorPackageVersion.get()}@zip"
                     )
 
                     val taskName = "downloadAndExtractOperator${operatorHelper.getProviderHomePath()}"
                     val task = project.tasks.register(taskName, Copy::class.java) {
-                        from(project.zipTree(project.buildscript.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
+                        from(project.zipTree(project.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
                         into(operatorHelper.getProviderHomeDir())
                     }
                     dependsOn(task)

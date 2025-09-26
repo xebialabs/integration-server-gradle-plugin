@@ -6,9 +6,12 @@ import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistT
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
 import java.io.File
+import javax.inject.Inject
 
-abstract class StartCacheTask: DockerComposeUp() {
+abstract class StartCacheTask @Inject constructor(
+    private val execOperations: ExecOperations): DockerComposeUp() {
 
     companion object {
         const val NAME = "startCache"
@@ -34,17 +37,17 @@ abstract class StartCacheTask: DockerComposeUp() {
     @TaskAction
     override fun run() {
         project.logger.lifecycle("Cleaning up previous Cache containers and networks.")
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = arrayListOf("-f",
-                getDockerComposeFile().path,
+                dockerComposeFile.path,
                 "--project-directory",
                 CacheUtil.getBaseDirectory(project),
                 "down")
         }
         project.logger.lifecycle("Starting Cache Server.")
 
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = arrayListOf("-f",
                     dockerComposeFile.path,

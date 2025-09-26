@@ -9,9 +9,12 @@ import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractServe
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
 import java.io.File
+import javax.inject.Inject
 
-abstract class StartMqTask : DockerComposeUp() {
+abstract class StartMqTask @Inject constructor(
+    private val execOperations: ExecOperations) : DockerComposeUp() {
 
     companion object {
         const val NAME = "startMq"
@@ -37,7 +40,7 @@ abstract class StartMqTask : DockerComposeUp() {
     @TaskAction
     override fun run() {
         project.logger.lifecycle("Cleaning up previous Mq containers and networks.")
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = arrayListOf("-f",
                 getDockerComposeFile().path,
@@ -46,7 +49,7 @@ abstract class StartMqTask : DockerComposeUp() {
                 "down")
         }
         project.logger.lifecycle("Starting ${MqUtil.mqName(project)} MQ.")
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = arrayListOf("-f",
                 dockerComposeFile.path,
