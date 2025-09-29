@@ -75,7 +75,10 @@ abstract class DatabaseStartTask @Inject constructor(
             executable = "docker-compose"
             args = listOf("-f", getDockerComposeFile().path, "down", "--remove-orphans")
         }
-        super.run()
+        execOperations.exec {
+            executable = "docker-compose"
+            args = listOf("-f", getDockerComposeFile().path, "up", "-d")
+        }
         val dbName = DbUtil.databaseName(project)
         if (dbName.startsWith("oracle")) {
             project.logger.lifecycle("Waiting for 1 minute to start oracle db")
