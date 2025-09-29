@@ -234,6 +234,8 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
     private fun launchCluster(operatorHelper: OperatorHelper) {
         if (operatorHelper is AwsOpenshiftOperatorHelper) {
             operatorHelper.launchCluster()
+        } else if (operatorHelper is AwsOpenshiftHelmHelper) {
+            operatorHelper.launchCluster()
         }
     }
 

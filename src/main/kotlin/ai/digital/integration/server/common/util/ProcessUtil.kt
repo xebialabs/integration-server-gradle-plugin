@@ -52,7 +52,7 @@ class ProcessUtil {
                 isIgnoreExitValue = false
             }.assertNormalExitValue()
 
-            val output = stdout.toString(StandardCharsets.UTF_8)
+            var output = stdout.toString(StandardCharsets.UTF_8)
             val error = stderr.toString(StandardCharsets.UTF_8)
 
             if (logOutput) {
@@ -61,6 +61,9 @@ class ProcessUtil {
                 }
                 if (error.isNotBlank()) {
                     project.logger.error(error)
+                }
+                else {
+                    output = ""
                 }
             }
 

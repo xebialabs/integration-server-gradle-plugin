@@ -9,7 +9,7 @@ import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
 
 @Suppress("UnstableApiUsage")
-abstract class OperatorHelmProfile (project: Project) : Profile {
+abstract class OperatorHelmProfile (name: String, project: Project) : Profile {
 
     @Input
     val deploymentTimeoutSeconds = project.objects.property<Int>().value(900)
