@@ -194,7 +194,6 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
     }
 
     private fun createNetwork() {
-        print("Doesnt EXISTS")
         if (!networkExists()) {
             val execOps = project.serviceOf<ExecOperations>()
             execOps.exec {
