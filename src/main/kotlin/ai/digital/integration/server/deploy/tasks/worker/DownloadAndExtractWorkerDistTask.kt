@@ -19,7 +19,7 @@ open class DownloadAndExtractWorkerDistTask : DefaultTask() {
             .filter { worker -> worker.slimDistribution }
             .forEach { worker ->
                 if (WorkerUtil.isDistDownloadRequired(project, worker)) {
-                    project.buildscript.dependencies.add(
+                    project.dependencies.add(
                         WORKER_DIST,
                         "ai.digital.deploy.task-engine:deploy-task-engine-base:${worker.version}@zip"
                     )
@@ -27,7 +27,7 @@ open class DownloadAndExtractWorkerDistTask : DefaultTask() {
                     val taskName = "$NAME${worker.name}"
 
                     this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
-                        from(project.zipTree(project.buildscript.configurations.getByName(WORKER_DIST).singleFile))
+                        from(project.zipTree(project.configurations.getByName(WORKER_DIST).singleFile))
                         into(IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, worker.name))
                     })
                 }

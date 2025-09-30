@@ -6,8 +6,11 @@ import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
 
-abstract class InfrastructureStartTask : DefaultTask() {
+abstract class InfrastructureStartTask @Inject constructor(
+    private val execOperations: ExecOperations) : DefaultTask() {
     companion object {
         const val NAME = "infrastructureStart"
     }
@@ -47,7 +50,7 @@ abstract class InfrastructureStartTask : DefaultTask() {
         dockerComposeArgs.add("up")
         dockerComposeArgs.add("-d")
 
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = dockerComposeArgs
         }

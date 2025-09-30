@@ -3,12 +3,14 @@ package ai.digital.integration.server.common.util
 import org.apache.commons.io.output.NullOutputStream
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
+import org.gradle.process.ExecOperations
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
+import org.gradle.kotlin.dsl.support.serviceOf
 
 class ProcessUtil {
     companion object {
@@ -35,7 +37,8 @@ class ProcessUtil {
             if (logOutput) {
                 val stdout = ByteArrayOutputStream()
                 try {
-                    project.exec {
+                    val execOps = project.serviceOf<ExecOperations>()
+                    execOps.exec {
                         args = arguments
                         executable = exec
                         standardOutput = stdout
@@ -47,9 +50,10 @@ class ProcessUtil {
                     stdout.close()
                 }
             } else {
-                val stdout = NullOutputStream()
+                val stdout = NullOutputStream.INSTANCE
                 try {
-                    project.exec {
+                    val execOps = project.serviceOf<ExecOperations>()
+                    execOps.exec {
                         args = arguments
                         executable = exec
                         standardOutput = stdout
@@ -109,7 +113,8 @@ class ProcessUtil {
         }
 
         fun chMod(project: Project, mode: String, fileName: String) {
-            project.exec {
+            val execOps = project.serviceOf<ExecOperations>()
+            execOps.exec {
                 executable = "chmod"
                 args = listOf("-R", mode, fileName)
             }

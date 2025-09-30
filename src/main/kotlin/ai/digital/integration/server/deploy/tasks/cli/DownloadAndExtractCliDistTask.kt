@@ -16,14 +16,14 @@ open class DownloadAndExtractCliDistTask : DefaultTask() {
         if (CliUtil.hasCli(project) || TestUtil.hasTests(project)) {
             val version = CliUtil.getCli(project).version
             project.logger.lifecycle("Downloading and extracting the Deploy cli ${version}.")
-            project.buildscript.dependencies.add(
+            project.dependencies.add(
                 SERVER_CLI_DIST,
                 "ai.digital.deploy:deploy-cli:${version}@zip"
             )
 
             val taskName = "${NAME}Exec"
             this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
-                from(project.zipTree(project.buildscript.configurations.getByName(SERVER_CLI_DIST).singleFile))
+                from(project.zipTree(project.configurations.getByName(SERVER_CLI_DIST).singleFile))
                 into(IntegrationServerUtil.getDist(project))
             })
         }

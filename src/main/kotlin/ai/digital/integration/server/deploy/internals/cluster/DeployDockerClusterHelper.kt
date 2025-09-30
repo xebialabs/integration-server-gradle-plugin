@@ -10,7 +10,10 @@ import ai.digital.integration.server.deploy.tasks.cluster.ClusterConstants
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.RetryPolicy
 import org.gradle.api.Project
-import org.gradle.process.internal.ExecException
+import org.gradle.api.GradleException
+import org.gradle.api.tasks.TaskExecutionException
+import org.gradle.kotlin.dsl.support.serviceOf
+import org.gradle.process.ExecOperations
 import java.io.File
 import java.nio.file.Path
 import java.time.temporal.ChronoUnit
@@ -192,7 +195,8 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
 
     private fun createNetwork() {
         if (!networkExists()) {
-            project.exec {
+            val execOps = project.serviceOf<ExecOperations>()
+            execOps.exec {
                 executable = "docker"
                 args = listOf("network", "create", ClusterConstants.NETWORK_NAME)
             }
@@ -269,7 +273,7 @@ open class DeployDockerClusterHelper(val project: Project) : DockerClusterHelper
             return DockerUtil.inspect(project,
                 "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
                 "cluster_xl-deploy-master_${order}")
-        } catch (e: ExecException) {
+        } catch (e: RuntimeException) {
             // fallback in naming
             return DockerUtil.inspect(project,
                 "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",

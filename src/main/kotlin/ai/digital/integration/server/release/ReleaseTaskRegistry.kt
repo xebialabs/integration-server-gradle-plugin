@@ -61,134 +61,134 @@ open class ReleaseTaskRegistry {
 
             //Cluster
 
-            project.tasks.create(StartReleaseClusterTask.NAME, StartReleaseClusterTask::class.java)
-            project.tasks.create(StopReleaseClusterTask.NAME, StopReleaseClusterTask::class.java)
+            project.tasks.register(StartReleaseClusterTask.NAME, StartReleaseClusterTask::class.java)
+            project.tasks.register(StopReleaseClusterTask.NAME, StopReleaseClusterTask::class.java)
 
-            project.tasks.create(StartReleaseIntegrationServerTask.NAME, StartReleaseIntegrationServerTask::class.java)
-            project.tasks.create(StopReleaseIntegrationServerTask.NAME, StopReleaseIntegrationServerTask::class.java)
+            project.tasks.register(StartReleaseIntegrationServerTask.NAME, StartReleaseIntegrationServerTask::class.java)
+            project.tasks.register(StopReleaseIntegrationServerTask.NAME, StopReleaseIntegrationServerTask::class.java)
 
-            project.tasks.create(StartReleaseServerInstanceTask.NAME, StartReleaseServerInstanceTask::class.java)
-            project.tasks.create(DockerBasedStopReleaseTask.NAME, DockerBasedStopReleaseTask::class.java)
+            project.tasks.register(StartReleaseServerInstanceTask.NAME, StartReleaseServerInstanceTask::class.java)
+            project.tasks.register(DockerBasedStopReleaseTask.NAME, DockerBasedStopReleaseTask::class.java)
 
             // Cluster Helm
-            project.tasks.create(HelmBasedAwsEksStartReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsEksStartReleaseClusterTask.NAME,
                     HelmBasedAwsEksStartReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedAwsEksInstallReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsEksInstallReleaseClusterTask.NAME,
                     HelmBasedAwsEksInstallReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedAwsEksStopReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsEksStopReleaseClusterTask.NAME,
                     HelmBasedAwsEksStopReleaseClusterTask::class.java)
 
-            project.tasks.create(HelmBasedAwsOpenShiftStartReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsOpenShiftStartReleaseClusterTask.NAME,
                     HelmBasedAwsOpenShiftStartReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedAwsOpenShiftInstallReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsOpenShiftInstallReleaseClusterTask.NAME,
                     HelmBasedAwsOpenShiftInstallReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedAwsOpenShiftStopReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsOpenShiftStopReleaseClusterTask.NAME,
                     HelmBasedAwsOpenShiftStopReleaseClusterTask::class.java)
 
-            project.tasks.create(HelmBasedAzureAksStartReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedAzureAksStartReleaseClusterTask.NAME,
                     HelmBasedAzureAksStartReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedAzureAksInstallReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedAzureAksInstallReleaseClusterTask.NAME,
                     HelmBasedAzureAksInstallReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedAzureAksStopReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedAzureAksStopReleaseClusterTask.NAME,
                     HelmBasedAzureAksStopReleaseClusterTask::class.java)
 
-            project.tasks.create(HelmBasedGcpGkeStartReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedGcpGkeStartReleaseClusterTask.NAME,
                     HelmBasedGcpGkeStartReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedGcpGkeInstallReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedGcpGkeInstallReleaseClusterTask.NAME,
                     HelmBasedGcpGkeInstallReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedGcpGkeStopReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedGcpGkeStopReleaseClusterTask.NAME,
                     HelmBasedGcpGkeStopReleaseClusterTask::class.java)
 
-            project.tasks.create(HelmBasedOnPremStartReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedOnPremStartReleaseClusterTask.NAME,
                     HelmBasedOnPremStartReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedOnPremInstallReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedOnPremInstallReleaseClusterTask.NAME,
                     HelmBasedOnPremInstallReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedOnPremStopReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedOnPremStopReleaseClusterTask.NAME,
                     HelmBasedOnPremStopReleaseClusterTask::class.java)
 
-            project.tasks.create(HelmBasedStartReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedStartReleaseClusterTask.NAME,
                     HelmBasedStartReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedInstallReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedInstallReleaseClusterTask.NAME,
                     HelmBasedInstallReleaseClusterTask::class.java)
-            project.tasks.create(HelmBasedStopReleaseClusterTask.NAME,
+            project.tasks.register(HelmBasedStopReleaseClusterTask.NAME,
                     HelmBasedStopReleaseClusterTask::class.java)
 
-            project.tasks.create(ProvideReleaseKubernetesHelmChartTask.NAME,
+            project.tasks.register(ProvideReleaseKubernetesHelmChartTask.NAME,
                     ProvideReleaseKubernetesHelmChartTask::class.java)
 
 
             // Cluster Operator
-            project.tasks.create(OperatorBasedAwsEksStartReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsEksStartReleaseClusterTask.NAME,
                 OperatorBasedAwsEksStartReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedAwsEksInstallReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsEksInstallReleaseClusterTask.NAME,
                 OperatorBasedAwsEksInstallReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedAwsEksStopReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsEksStopReleaseClusterTask.NAME,
                 OperatorBasedAwsEksStopReleaseClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedAwsOpenShiftStartReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsOpenShiftStartReleaseClusterTask.NAME,
                 OperatorBasedAwsOpenShiftStartReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedAwsOpenShiftInstallReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsOpenShiftInstallReleaseClusterTask.NAME,
                 OperatorBasedAwsOpenShiftInstallReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedAwsOpenShiftStopReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsOpenShiftStopReleaseClusterTask.NAME,
                 OperatorBasedAwsOpenShiftStopReleaseClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedAzureAksStartReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedAzureAksStartReleaseClusterTask.NAME,
                 OperatorBasedAzureAksStartReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedAzureAksInstallReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedAzureAksInstallReleaseClusterTask.NAME,
                 OperatorBasedAzureAksInstallReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedAzureAksStopReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedAzureAksStopReleaseClusterTask.NAME,
                 OperatorBasedAzureAksStopReleaseClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedGcpGkeStartReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedGcpGkeStartReleaseClusterTask.NAME,
                 OperatorBasedGcpGkeStartReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedGcpGkeInstallReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedGcpGkeInstallReleaseClusterTask.NAME,
                 OperatorBasedGcpGkeInstallReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedGcpGkeStopReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedGcpGkeStopReleaseClusterTask.NAME,
                 OperatorBasedGcpGkeStopReleaseClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedOnPremStartReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedOnPremStartReleaseClusterTask.NAME,
                 OperatorBasedOnPremStartReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedOnPremInstallReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedOnPremInstallReleaseClusterTask.NAME,
                 OperatorBasedOnPremInstallReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedOnPremStopReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedOnPremStopReleaseClusterTask.NAME,
                 OperatorBasedOnPremStopReleaseClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedVmWareOpenShiftStartReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedVmWareOpenShiftStartReleaseClusterTask.NAME,
                 OperatorBasedVmWareOpenShiftStartReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedVmWareOpenShiftInstallReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedVmWareOpenShiftInstallReleaseClusterTask.NAME,
                 OperatorBasedVmWareOpenShiftInstallReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedVmWareOpenShiftStopReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedVmWareOpenShiftStopReleaseClusterTask.NAME,
                 OperatorBasedVmWareOpenShiftStopReleaseClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedStartReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedStartReleaseClusterTask.NAME,
                 OperatorBasedStartReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedInstallReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedInstallReleaseClusterTask.NAME,
                 OperatorBasedInstallReleaseClusterTask::class.java)
-            project.tasks.create(OperatorBasedStopReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedStopReleaseClusterTask.NAME,
                 OperatorBasedStopReleaseClusterTask::class.java)
 
-            project.tasks.create(ProvideReleaseKubernetesOperatorTask.NAME,
+            project.tasks.register(ProvideReleaseKubernetesOperatorTask.NAME,
                 ProvideReleaseKubernetesOperatorTask::class.java)
 
-            project.tasks.create(OperatorBasedUpgradeReleaseClusterTask.NAME,
+            project.tasks.register(OperatorBasedUpgradeReleaseClusterTask.NAME,
                     OperatorBasedUpgradeReleaseClusterTask::class.java)
 
-            project.tasks.create(StartReleaseToGetLicenceTask.NAME, StartReleaseToGetLicenceTask::class.java)
+            project.tasks.register(StartReleaseToGetLicenceTask.NAME, StartReleaseToGetLicenceTask::class.java)
 
             // Operator Deploy Server Tasks
 
-            project.tasks.create(StartDeployServerForOperatorInstanceTask.NAME,
+            project.tasks.register(StartDeployServerForOperatorInstanceTask.NAME,
                 StartDeployServerForOperatorInstanceTask::class.java)
-            project.tasks.create(StopDeployServerForOperatorInstanceTask.NAME,
+            project.tasks.register(StopDeployServerForOperatorInstanceTask.NAME,
                 StopDeployServerForOperatorInstanceTask::class.java)
 
-            project.tasks.create(ApplicationConfigurationOverrideTask.NAME,
+            project.tasks.register(ApplicationConfigurationOverrideTask.NAME,
                 ApplicationConfigurationOverrideTask::class.java)
-            project.tasks.create(CleanupBeforeStartupTask.NAME, CleanupBeforeStartupTask::class.java)
-            project.tasks.create(OperatorCentralConfigurationTask.NAME, OperatorCentralConfigurationTask::class.java)
-            project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask::class.java)
-            project.tasks.create(PrepareOperatorServerTask.NAME, PrepareOperatorServerTask::class.java)
-            project.tasks.create(ServerCopyOverlaysTask.NAME, ServerCopyOverlaysTask::class.java)
+            project.tasks.register(CleanupBeforeStartupTask.NAME, CleanupBeforeStartupTask::class.java)
+            project.tasks.register(OperatorCentralConfigurationTask.NAME, OperatorCentralConfigurationTask::class.java)
+            project.tasks.register(PrepareDatabaseTask.NAME, PrepareDatabaseTask::class.java)
+            project.tasks.register(PrepareOperatorServerTask.NAME, PrepareOperatorServerTask::class.java)
+            project.tasks.register(ServerCopyOverlaysTask.NAME, ServerCopyOverlaysTask::class.java)
         }
     }
 }

@@ -11,12 +11,12 @@ class TaskRegistry {
 
     companion object {
         fun register(project: Project) {
-            project.tasks.create(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask::class.java)
-            project.tasks.create(StartIntegrationServerTask.NAME, StartIntegrationServerTask::class.java)
-            project.tasks.create(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask::class.java)
-            project.tasks.create(StopDeployServerForOperatorUpgradeTask.NAME,
+            project.tasks.register(DownloadAndExtractCliDistTask.NAME, DownloadAndExtractCliDistTask::class.java)
+            project.tasks.register(StartIntegrationServerTask.NAME, StartIntegrationServerTask::class.java)
+            project.tasks.register(ShutdownIntegrationServerTask.NAME, ShutdownIntegrationServerTask::class.java)
+            project.tasks.register(StopDeployServerForOperatorUpgradeTask.NAME,
                     StopDeployServerForOperatorUpgradeTask::class.java)
-            project.tasks.create(DownloadXlCliDistTask.NAME, DownloadXlCliDistTask::class.java)
+            project.tasks.register(DownloadXlCliDistTask.NAME, DownloadXlCliDistTask::class.java)
         }
     }
 }

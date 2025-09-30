@@ -70,7 +70,7 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
             if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent || ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
                 val operatorHelper = OperatorHelper.getOperatorHelper(project, productName)
                 if (useOperatorZip.get() && operatorHelper.getProvider().operatorPackageVersion.isPresent) {
-                    project.buildscript.dependencies.add(
+                    project.dependencies.add(
                         DeployConfigurationsUtil.OPERATOR_DIST,
                         "ai.digital.${operatorHelper.productName.displayName}.operator:${operatorHelper.getProviderHomePath()}:${operatorHelper.getProvider().operatorPackageVersion.get()}@zip"
                     )
@@ -78,7 +78,7 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                     val taskName = "downloadOperator${operatorHelper.getProviderHomePath()}"
                     val providerHomePath = operatorHelper.getProviderHomePath()
                     val task = project.tasks.register(taskName, Copy::class.java) {
-                        from(project.zipTree(project.buildscript.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
+                        from(project.zipTree(project.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
                         into(getUpgradeDir(operatorHelper).toFile().resolve(providerHomePath))
                     }
                     dependencies.add(task)

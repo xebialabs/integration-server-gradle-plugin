@@ -88,221 +88,222 @@ open class DeployTaskRegistry {
         fun register(project: Project, itcfg: Configuration) {
 
             //Cache
-            project.tasks.create(StartCacheTask.NAME, StartCacheTask::class.java)
-            project.tasks.create(ShutdownCacheTask.NAME, ShutdownCacheTask::class.java)
+            project.tasks.register(StartCacheTask.NAME, StartCacheTask::class.java)
+            project.tasks.register(ShutdownCacheTask.NAME, ShutdownCacheTask::class.java)
 
             //CLI
-            project.tasks.create(CliCleanDefaultExtTask.NAME, CliCleanDefaultExtTask::class.java)
-            project.tasks.create(CopyCliBuildArtifactsTask.NAME, CopyCliBuildArtifactsTask::class.java)
-            project.tasks.create(CliOverlaysTask.NAME, CliOverlaysTask::class.java)
-            project.tasks.create(RunCliTask.NAME, RunCliTask::class.java)
+            project.tasks.register(CliCleanDefaultExtTask.NAME, CliCleanDefaultExtTask::class.java)
+            project.tasks.register(CopyCliBuildArtifactsTask.NAME, CopyCliBuildArtifactsTask::class.java)
+            project.tasks.register(CliOverlaysTask.NAME, CliOverlaysTask::class.java)
+            project.tasks.register(RunCliTask.NAME, RunCliTask::class.java)
 
             //Cluster
 
-            project.tasks.create(StartDeployClusterTask.NAME, StartDeployClusterTask::class.java)
-            project.tasks.create(StopDeployClusterTask.NAME, StopDeployClusterTask::class.java)
+            project.tasks.register(StartDeployClusterTask.NAME, StartDeployClusterTask::class.java)
+            project.tasks.register(StopDeployClusterTask.NAME, StopDeployClusterTask::class.java)
 
             // Cluster Operator
-            project.tasks.create(OperatorBasedAwsEksStartDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsEksStartDeployClusterTask.NAME,
                 OperatorBasedAwsEksStartDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedAwsEksInstallDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsEksInstallDeployClusterTask.NAME,
                 OperatorBasedAwsEksInstallDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedAwsEksStopDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsEksStopDeployClusterTask.NAME,
                 OperatorBasedAwsEksStopDeployClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedAwsOpenShiftStartDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsOpenShiftStartDeployClusterTask.NAME,
                 OperatorBasedAwsOpenShiftStartDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedAwsOpenShiftInstallDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsOpenShiftInstallDeployClusterTask.NAME,
                 OperatorBasedAwsOpenShiftInstallDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME,
                 OperatorBasedAwsOpenShiftStopDeployClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedAzureAksStartDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedAzureAksStartDeployClusterTask.NAME,
                 OperatorBasedAzureAksStartDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedAzureAksInstallDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedAzureAksInstallDeployClusterTask.NAME,
                 OperatorBasedAzureAksInstallDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedAzureAksStopDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedAzureAksStopDeployClusterTask.NAME,
                 OperatorBasedAzureAksStopDeployClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedGcpGkeStartDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedGcpGkeStartDeployClusterTask.NAME,
                 OperatorBasedGcpGkeStartDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedGcpGkeInstallDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedGcpGkeInstallDeployClusterTask.NAME,
                 OperatorBasedGcpGkeInstallDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedGcpGkeStopDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedGcpGkeStopDeployClusterTask.NAME,
                 OperatorBasedGcpGkeStopDeployClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedOnPremStartDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedOnPremStartDeployClusterTask.NAME,
                 OperatorBasedOnPremStartDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedOnPremInstallDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedOnPremInstallDeployClusterTask.NAME,
                 OperatorBasedOnPremInstallDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedOnPremStopDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedOnPremStopDeployClusterTask.NAME,
                 OperatorBasedOnPremStopDeployClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedVmWareOpenShiftStartDeployClusterTask.NAME,
                 OperatorBasedVmWareOpenShiftStartDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedVmWareOpenShiftInstallDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedVmWareOpenShiftInstallDeployClusterTask.NAME,
                 OperatorBasedVmWareOpenShiftInstallDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME,
                 OperatorBasedVmWareOpenShiftStopDeployClusterTask::class.java)
 
-            project.tasks.create(OperatorBasedStartDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedStartDeployClusterTask.NAME,
                 OperatorBasedStartDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedInstallDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedInstallDeployClusterTask.NAME,
                 OperatorBasedInstallDeployClusterTask::class.java)
-            project.tasks.create(OperatorBasedStopDeployClusterTask.NAME,
+            project.tasks.register(OperatorBasedStopDeployClusterTask.NAME,
                 OperatorBasedStopDeployClusterTask::class.java)
 
-            project.tasks.create(ProvideDeployKubernetesOperatorTask.NAME,
+            project.tasks.register(ProvideDeployKubernetesOperatorTask.NAME,
                 ProvideDeployKubernetesOperatorTask::class.java)
-            project.tasks.create(OperatorCentralConfigurationTask.NAME, OperatorCentralConfigurationTask::class.java)
-            project.tasks.create(StartDeployServerForOperatorInstanceTask.NAME,
+            project.tasks.register(OperatorCentralConfigurationTask.NAME, OperatorCentralConfigurationTask::class.java)
+            project.tasks.register(StartDeployServerForOperatorInstanceTask.NAME,
                 StartDeployServerForOperatorInstanceTask::class.java)
-            project.tasks.create(StopDeployServerForOperatorInstanceTask.NAME,
+            project.tasks.register(StopDeployServerForOperatorInstanceTask.NAME,
                 StopDeployServerForOperatorInstanceTask::class.java)
-            project.tasks.create(PrepareOperatorServerTask.NAME,
+            project.tasks.register(PrepareOperatorServerTask.NAME,
                 PrepareOperatorServerTask::class.java)
-            project.tasks.create(OperatorBasedUpgradeDeployClusterTask.NAME, OperatorBasedUpgradeDeployClusterTask::class.java)
+            project.tasks.register(OperatorBasedUpgradeDeployClusterTask.NAME, OperatorBasedUpgradeDeployClusterTask::class.java)
 
             // Cluster Helm
 
-            project.tasks.create(HelmBasedStartDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedStartDeployClusterTask.NAME,
                     HelmBasedStartDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedInstallDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedInstallDeployClusterTask.NAME,
                     HelmBasedInstallDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedStopDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedStopDeployClusterTask.NAME,
                     HelmBasedStopDeployClusterTask::class.java)
 
-            project.tasks.create(ProvideDeployKubernetesHelmChartTask.NAME,
+            project.tasks.register(ProvideDeployKubernetesHelmChartTask.NAME,
                     ProvideDeployKubernetesHelmChartTask::class.java)
 
-            project.tasks.create(HelmBasedAzureAksStartDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedAzureAksStartDeployClusterTask.NAME,
                     HelmBasedAzureAksStartDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedAzureAksInstallDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedAzureAksInstallDeployClusterTask.NAME,
                     HelmBasedAzureAksInstallDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedAzureAksStopDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedAzureAksStopDeployClusterTask.NAME,
                     HelmBasedAzureAksStopDeployClusterTask::class.java)
 
-            project.tasks.create(HelmBasedAwsEksStartDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsEksStartDeployClusterTask.NAME,
                     HelmBasedAwsEksStartDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedAwsEksInstallDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsEksInstallDeployClusterTask.NAME,
                     HelmBasedAwsEksInstallDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedAwsEksStopDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsEksStopDeployClusterTask.NAME,
                     HelmBasedAwsEksStopDeployClusterTask::class.java)
 
-            project.tasks.create(HelmBasedGcpGkeStartDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedGcpGkeStartDeployClusterTask.NAME,
                     HelmBasedGcpGkeStartDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedGcpGkeInstallDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedGcpGkeInstallDeployClusterTask.NAME,
                     HelmBasedGcpGkeInstallDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedGcpGkeStopDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedGcpGkeStopDeployClusterTask.NAME,
                     HelmBasedGcpGkeStopDeployClusterTask::class.java)
 
-            project.tasks.create(HelmBasedAwsOpenShiftStartDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsOpenShiftStartDeployClusterTask.NAME,
                     HelmBasedAwsOpenShiftStartDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedAwsOpenShiftInstallDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsOpenShiftInstallDeployClusterTask.NAME,
                     HelmBasedAwsOpenShiftInstallDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedAwsOpenShiftStopDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedAwsOpenShiftStopDeployClusterTask.NAME,
                     HelmBasedAwsOpenShiftStopDeployClusterTask::class.java)
 
-            project.tasks.create(HelmBasedOnPremStartDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedOnPremStartDeployClusterTask.NAME,
                     HelmBasedOnPremStartDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedOnPremInstallDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedOnPremInstallDeployClusterTask.NAME,
                     HelmBasedOnPremInstallDeployClusterTask::class.java)
-            project.tasks.create(HelmBasedOnPremStopDeployClusterTask.NAME,
+            project.tasks.register(HelmBasedOnPremStopDeployClusterTask.NAME,
                     HelmBasedOnPremStopDeployClusterTask::class.java)
 
 
             // Cluster Terraform
-            project.tasks.create(TerraformBasedAwsEksStartDeployClusterTask.NAME,
+            project.tasks.register(TerraformBasedAwsEksStartDeployClusterTask.NAME,
                 TerraformBasedAwsEksStartDeployClusterTask::class.java)
-            project.tasks.create(TerraformBasedAwsEksStopDeployClusterTask.NAME,
+            project.tasks.register(TerraformBasedAwsEksStopDeployClusterTask.NAME,
                 TerraformBasedAwsEksStopDeployClusterTask::class.java)
 
             // Cluster Docker Compose
-            project.tasks.create(DockerComposeBasedStartDeployClusterTask.NAME,
+            project.tasks.register(DockerComposeBasedStartDeployClusterTask.NAME,
                 DockerComposeBasedStartDeployClusterTask::class.java)
-            project.tasks.create(DockerComposeBasedStopDeployClusterTask.NAME,
+            project.tasks.register(DockerComposeBasedStopDeployClusterTask.NAME,
                 DockerComposeBasedStopDeployClusterTask::class.java)
 
             //Database
-            project.tasks.create(DatabaseStartTask.NAME, DatabaseStartTask::class.java)
-            project.tasks.create(DatabaseStopTask.NAME, DatabaseStopTask::class.java)
+            project.tasks.register(DatabaseStartTask.NAME, DatabaseStartTask::class.java)
+            project.tasks.register(DatabaseStopTask.NAME, DatabaseStopTask::class.java)
 
             //Deploy Server
-            project.tasks.create(ApplicationConfigurationOverrideTask.NAME,
+            project.tasks.register(ApplicationConfigurationOverrideTask.NAME,
                 ApplicationConfigurationOverrideTask::class.java)
-            project.tasks.create(CentralConfigurationTask.NAME, CentralConfigurationTask::class.java)
-            project.tasks.create(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask::class.java)
-            project.tasks.create(CopyServerBuildArtifactsTask.NAME, CopyServerBuildArtifactsTask::class.java)
-            project.tasks.create(CopyServerFoldersTask.NAME, CopyServerFoldersTask::class.java)
-            project.tasks.create(ServerCopyOverlaysTask.NAME, ServerCopyOverlaysTask::class.java)
-            project.tasks.create(DockerBasedStopDeployTask.NAME, DockerBasedStopDeployTask::class.java)
-            project.tasks.create(DownloadAndExtractDbUnitDataDistTask.NAME,
+            project.tasks.register(CentralConfigurationTask.NAME, CentralConfigurationTask::class.java)
+            project.tasks.register(CheckUILibVersionsTask.NAME, CheckUILibVersionsTask::class.java)
+            project.tasks.register(CopyServerBuildArtifactsTask.NAME, CopyServerBuildArtifactsTask::class.java)
+            project.tasks.register(CopyServerFoldersTask.NAME, CopyServerFoldersTask::class.java)
+            project.tasks.register(ServerCopyOverlaysTask.NAME, ServerCopyOverlaysTask::class.java)
+            project.tasks.register(DockerBasedStopDeployTask.NAME, DockerBasedStopDeployTask::class.java)
+            project.tasks.register(DownloadAndExtractDbUnitDataDistTask.NAME,
                 DownloadAndExtractDbUnitDataDistTask::class.java)
-            project.tasks.create(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask::class.java)
-            project.tasks.create(ExportDatabaseTask.NAME, ExportDatabaseTask::class.java)
-            project.tasks.create(GenerateSecurePekkoKeysTask.NAME, GenerateSecurePekkoKeysTask::class.java)
-            project.tasks.create(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask::class.java)
-            project.tasks.create(PrepareDatabaseTask.NAME, PrepareDatabaseTask::class.java)
-            project.tasks.create(PrepareServerTask.NAME, PrepareServerTask::class.java)
-            project.tasks.create(RunDatasetGenerationTask.NAME, RunDatasetGenerationTask::class.java)
-            project.tasks.create(RunDevOpsAsCodeTask.NAME, RunDevOpsAsCodeTask::class.java)
-            project.tasks.create(SetServerLogbackLevelsTask.NAME, SetServerLogbackLevelsTask::class.java)
-            project.tasks.create(ServerYamlPatchTask.NAME, ServerYamlPatchTask::class.java)
-            project.tasks.create(StartDeployServerInstanceTask.NAME, StartDeployServerInstanceTask::class.java)
-            project.tasks.create(TlsApplicationConfigurationOverrideTask.NAME,
+            project.tasks.register(DownloadAndExtractServerDistTask.NAME, DownloadAndExtractServerDistTask::class.java)
+            project.tasks.register(ExportDatabaseTask.NAME, ExportDatabaseTask::class.java)
+            project.tasks.register(GenerateSecurePekkoKeysTask.NAME, GenerateSecurePekkoKeysTask::class.java)
+            project.tasks.register(ImportDbUnitDataTask.NAME, ImportDbUnitDataTask::class.java)
+            project.tasks.register(PrepareDatabaseTask.NAME, PrepareDatabaseTask::class.java)
+            project.tasks.register(PrepareServerTask.NAME, PrepareServerTask::class.java)
+            project.tasks.register(RunDatasetGenerationTask.NAME, RunDatasetGenerationTask::class.java)
+            project.tasks.register(RunDevOpsAsCodeTask.NAME, RunDevOpsAsCodeTask::class.java)
+            project.tasks.register(SetServerLogbackLevelsTask.NAME, SetServerLogbackLevelsTask::class.java)
+            project.tasks.register(ServerYamlPatchTask.NAME, ServerYamlPatchTask::class.java)
+            project.tasks.register(StartDeployServerInstanceTask.NAME, StartDeployServerInstanceTask::class.java)
+            project.tasks.register(TlsApplicationConfigurationOverrideTask.NAME,
                 TlsApplicationConfigurationOverrideTask::class.java)
 
             //Infrastructure
-            project.tasks.create(GitlabStartTask.NAME, GitlabStartTask::class.java)
-            project.tasks.create(GitlabStopTask.NAME, GitlabStopTask::class.java)
-            project.tasks.create(InfrastructureStopTask.NAME, InfrastructureStopTask::class.java)
-            project.tasks.create(InfrastructureStartTask.NAME, InfrastructureStartTask::class.java)
+            project.tasks.register(GitlabStartTask.NAME, GitlabStartTask::class.java)
+            project.tasks.register(GitlabStopTask.NAME, GitlabStopTask::class.java)
+            project.tasks.register(InfrastructureStopTask.NAME, InfrastructureStopTask::class.java)
+            project.tasks.register(InfrastructureStartTask.NAME, InfrastructureStartTask::class.java)
 
             //Integration Server
-            project.tasks.create(ShutdownDeployIntegrationServerTask.NAME,
+            project.tasks.register(ShutdownDeployIntegrationServerTask.NAME,
                 ShutdownDeployIntegrationServerTask::class.java)
-            project.tasks.create(StartDeployIntegrationServerTask.NAME, StartDeployIntegrationServerTask::class.java)
-                .dependsOn(itcfg)
+            project.tasks.register(StartDeployIntegrationServerTask.NAME, StartDeployIntegrationServerTask::class.java).configure {
+                dependsOn(itcfg)
+            }
 
             //Maintenance
-            project.tasks.create(CleanupBeforeStartupTask.NAME, CleanupBeforeStartupTask::class.java)
+            project.tasks.register(CleanupBeforeStartupTask.NAME, CleanupBeforeStartupTask::class.java)
 
             //MQ
-            project.tasks.create(ShutdownMqTask.NAME, ShutdownMqTask::class.java)
-            project.tasks.create(StartMqTask.NAME, StartMqTask::class.java)
+            project.tasks.register(ShutdownMqTask.NAME, ShutdownMqTask::class.java)
+            project.tasks.register(StartMqTask.NAME, StartMqTask::class.java)
 
             //Plugin Manager
-            project.tasks.create(StartPluginManagerTask.NAME, StartPluginManagerTask::class.java)
+            project.tasks.register(StartPluginManagerTask.NAME, StartPluginManagerTask::class.java)
 
             //Satellite
-            project.tasks.create(DownloadAndExtractSatelliteDistTask.NAME,
+            project.tasks.register(DownloadAndExtractSatelliteDistTask.NAME,
                 DownloadAndExtractSatelliteDistTask::class.java)
-            project.tasks.create(PrepareSatellitesTask.NAME, PrepareSatellitesTask::class.java)
-            project.tasks.create(SatelliteOverlaysTask.NAME, SatelliteOverlaysTask::class.java)
-            project.tasks.create(SatelliteSyncPluginsTask.NAME, SatelliteSyncPluginsTask::class.java)
-            project.tasks.create(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask::class.java)
-            project.tasks.create(StartSatelliteTask.NAME, StartSatelliteTask::class.java)
+            project.tasks.register(PrepareSatellitesTask.NAME, PrepareSatellitesTask::class.java)
+            project.tasks.register(SatelliteOverlaysTask.NAME, SatelliteOverlaysTask::class.java)
+            project.tasks.register(SatelliteSyncPluginsTask.NAME, SatelliteSyncPluginsTask::class.java)
+            project.tasks.register(ShutdownSatelliteTask.NAME, ShutdownSatelliteTask::class.java)
+            project.tasks.register(StartSatelliteTask.NAME, StartSatelliteTask::class.java)
 
             //Workers
-            project.tasks.create(CopyIntegrationServerTask.NAME, CopyIntegrationServerTask::class.java)
-            project.tasks.create(SyncServerPluginsWithWorkerTask.NAME, SyncServerPluginsWithWorkerTask::class.java)
-            project.tasks.create(DownloadAndExtractWorkerDistTask.NAME, DownloadAndExtractWorkerDistTask::class.java)
-            project.tasks.create(SetWorkersLogbackLevelsTask.NAME, SetWorkersLogbackLevelsTask::class.java)
-            project.tasks.create(ShutdownWorkersTask.NAME, ShutdownWorkersTask::class.java)
-            project.tasks.create(StartWorkersTask.NAME, StartWorkersTask::class.java)
-            project.tasks.create(WorkerOverlaysTask.NAME, WorkerOverlaysTask::class.java)
-            project.tasks.create(PrepareWorkersTask.NAME, PrepareWorkersTask::class.java)
+            project.tasks.register(CopyIntegrationServerTask.NAME, CopyIntegrationServerTask::class.java)
+            project.tasks.register(SyncServerPluginsWithWorkerTask.NAME, SyncServerPluginsWithWorkerTask::class.java)
+            project.tasks.register(DownloadAndExtractWorkerDistTask.NAME, DownloadAndExtractWorkerDistTask::class.java)
+            project.tasks.register(SetWorkersLogbackLevelsTask.NAME, SetWorkersLogbackLevelsTask::class.java)
+            project.tasks.register(ShutdownWorkersTask.NAME, ShutdownWorkersTask::class.java)
+            project.tasks.register(StartWorkersTask.NAME, StartWorkersTask::class.java)
+            project.tasks.register(WorkerOverlaysTask.NAME, WorkerOverlaysTask::class.java)
+            project.tasks.register(PrepareWorkersTask.NAME, PrepareWorkersTask::class.java)
 
             //Central configuration service
-            project.tasks.create(DownloadAndExtractCentralConfigurationServerDistTask.NAME, DownloadAndExtractCentralConfigurationServerDistTask::class.java)
-            project.tasks.create(PrepareCentralConfigurationServerTask.NAME, PrepareCentralConfigurationServerTask::class.java)
-            project.tasks.create(CentralConfigurationServerOverlaysTask.NAME, CentralConfigurationServerOverlaysTask::class.java)
-            project.tasks.create(CentralConfigurationServerYamlPatchTask.NAME, CentralConfigurationServerYamlPatchTask::class.java)
-            project.tasks.create(StartCentralConfigurationServerTask.NAME, StartCentralConfigurationServerTask::class.java)
-            project.tasks.create(ShutdownCentralConfigurationServerTask.NAME, ShutdownCentralConfigurationServerTask::class.java)
+            project.tasks.register(DownloadAndExtractCentralConfigurationServerDistTask.NAME, DownloadAndExtractCentralConfigurationServerDistTask::class.java)
+            project.tasks.register(PrepareCentralConfigurationServerTask.NAME, PrepareCentralConfigurationServerTask::class.java)
+            project.tasks.register(CentralConfigurationServerOverlaysTask.NAME, CentralConfigurationServerOverlaysTask::class.java)
+            project.tasks.register(CentralConfigurationServerYamlPatchTask.NAME, CentralConfigurationServerYamlPatchTask::class.java)
+            project.tasks.register(StartCentralConfigurationServerTask.NAME, StartCentralConfigurationServerTask::class.java)
+            project.tasks.register(ShutdownCentralConfigurationServerTask.NAME, ShutdownCentralConfigurationServerTask::class.java)
 
             //Tests
-            project.tasks.create(IntegrationTestsTask.NAME, IntegrationTestsTask::class.java)
+            project.tasks.register(IntegrationTestsTask.NAME, IntegrationTestsTask::class.java)
         }
     }
 }

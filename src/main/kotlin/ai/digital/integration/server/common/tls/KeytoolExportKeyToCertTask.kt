@@ -1,10 +1,13 @@
 package ai.digital.integration.server.common.tls
 
 import org.gradle.api.tasks.*
+import org.gradle.process.ExecOperations
 import java.io.File
+import javax.inject.Inject
 
 @CacheableTask
-open class KeytoolExportKeyToCertTask : KeytoolTask() {
+open class KeytoolExportKeyToCertTask @Inject constructor(
+    execOperations: ExecOperations) : KeytoolTask(execOperations) {
 
     companion object {
         const val NAME = "keytoolExportKeyToCert"

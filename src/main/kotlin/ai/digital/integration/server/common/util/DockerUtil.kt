@@ -1,13 +1,17 @@
 package ai.digital.integration.server.common.util
 
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.support.serviceOf
+import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 class DockerUtil {
     companion object {
+
         fun execute(project: Project, args: List<String>, logOutput: Boolean = true, throwErrorOnFailure: Boolean = true): String {
             return ProcessUtil.executeCommand(project, "docker ${args.joinToString(" ")}",
                     logOutput = logOutput, throwErrorOnFailure = throwErrorOnFailure)
@@ -15,7 +19,8 @@ class DockerUtil {
 
         fun inspect(project: Project, format: String, instanceId: String): String {
             val stdout = ByteArrayOutputStream()
-            project.exec {
+            val execOps = project.serviceOf<ExecOperations>()
+            execOps.exec {
                 executable = "docker"
                 args = listOf(
                     "inspect",
@@ -25,7 +30,6 @@ class DockerUtil {
                 )
                 standardOutput = stdout
             }
-
             return stdout.toString(StandardCharsets.UTF_8).trim()
         }
 

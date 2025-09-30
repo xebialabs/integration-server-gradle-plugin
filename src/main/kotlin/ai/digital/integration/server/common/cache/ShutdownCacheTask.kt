@@ -5,9 +5,12 @@ import ai.digital.integration.server.common.util.CacheUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
 import java.io.File
+import javax.inject.Inject
 
-open class ShutdownCacheTask: DefaultTask() {
+open class ShutdownCacheTask @Inject constructor(
+    private val execOperations: ExecOperations) : DefaultTask()  {
 
     companion object {
         const val NAME = "shutdownCache"
@@ -29,7 +32,7 @@ open class ShutdownCacheTask: DefaultTask() {
     fun stop() {
         project.logger.lifecycle("Shutting down Cache Server.")
 
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = arrayListOf("-f",
                     getDockerComposeFile().path,
