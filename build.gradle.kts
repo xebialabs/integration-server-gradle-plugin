@@ -83,6 +83,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${properties["coroutinesVersion"]}")
     implementation("org.postgresql:postgresql:${properties["driverVersions.postgres"]}")
 
+    implementation("de.undercouch:gradle-download-task:5.6.0")
+
     // Updated test dependencies for Gradle 9 compatibility with logging fixes
     testImplementation("io.mockk:mockk:${properties["mockkVersion"]}") {
         exclude(group = "org.slf4j", module = "slf4j-api")
