@@ -1,5 +1,6 @@
 package ai.digital.integration.server.common.util
 
+import org.apache.commons.io.output.NullOutputStream
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 import org.gradle.process.ExecOperations
@@ -31,43 +32,38 @@ class ProcessUtil {
             }
         }
 
-        fun execute(
-            project: Project,
-            exec: String,
-            arguments: List<String>,
-            logOutput: Boolean = true
-        ): String {
+        fun execute(project: Project, exec: String, arguments: List<String>, logOutput: Boolean = true): String {
             project.logger.lifecycle("About to execute `$exec ${arguments.joinToString(" ")}`")
-
-            val stdout = ByteArrayOutputStream()
-            val stderr = ByteArrayOutputStream()
-
-            val execOps = project.serviceOf<ExecOperations>()
-
-            execOps.exec {
-                executable = exec
-                args = arguments
-                standardOutput = stdout
-                errorOutput = if (logOutput) stderr else stdout
-                isIgnoreExitValue = false
-            }.assertNormalExitValue()
-
-            var output = stdout.toString(StandardCharsets.UTF_8)
-            val error = stderr.toString(StandardCharsets.UTF_8)
-
             if (logOutput) {
-                if (output.isNotBlank()) {
+                val stdout = ByteArrayOutputStream()
+                try {
+                    val execOps = project.serviceOf<ExecOperations>()
+                    execOps.exec {
+                        args = arguments
+                        executable = exec
+                        standardOutput = stdout
+                    }
+                    val output = stdout.toString(StandardCharsets.UTF_8)
                     project.logger.lifecycle(output)
+                    return output
+                } finally {
+                    stdout.close()
                 }
-                if (error.isNotBlank()) {
-                    project.logger.error(error)
-                }
-                else {
-                    output = ""
+            } else {
+                val stdout = NullOutputStream.INSTANCE
+                try {
+                    val execOps = project.serviceOf<ExecOperations>()
+                    execOps.exec {
+                        args = arguments
+                        executable = exec
+                        standardOutput = stdout
+                        errorOutput = stdout
+                    }
+                } finally {
+                    stdout.close()
                 }
             }
-
-            return output
+            return ""
         }
 
         @Suppress("UNCHECKED_CAST")

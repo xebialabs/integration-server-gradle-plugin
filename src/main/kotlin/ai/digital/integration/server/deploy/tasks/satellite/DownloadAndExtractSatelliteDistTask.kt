@@ -4,9 +4,10 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.IntegrationServerUtil
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil.Companion.SATELLITE_DIST
 import ai.digital.integration.server.deploy.internals.SatelliteUtil
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Copy
 
-abstract class DownloadAndExtractSatelliteDistTask : Copy() {
+open class DownloadAndExtractSatelliteDistTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP
@@ -18,11 +19,10 @@ abstract class DownloadAndExtractSatelliteDistTask : Copy() {
             )
 
             val taskName = "downloadAndExtractSatellite${satellite.name}"
-            val task = project.tasks.register(taskName, Copy::class.java) {
+            this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
                 from(project.zipTree(project.configurations.getByName(SATELLITE_DIST).singleFile))
                 into(IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, satellite.name))
-            }
-            this.dependsOn(task)
+            })
         }
     }
 
