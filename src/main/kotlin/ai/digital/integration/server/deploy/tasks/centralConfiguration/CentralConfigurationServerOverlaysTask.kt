@@ -22,7 +22,7 @@ open class CentralConfigurationServerOverlaysTask : DefaultTask() {
         this.mustRunAfter(DownloadAndExtractCentralConfigurationServerDistTask.NAME)
         val currentTask = this
 
-        project.afterEvaluate {
+        val configureOverlays = {
             val server = CentralConfigurationServerUtil.getCentralConfigurationServer(project)
             project.logger.lifecycle("Copying overlays on central configuration server ${server.name}")
             server.overlays.forEach { overlay ->
@@ -32,6 +32,14 @@ open class CentralConfigurationServerOverlaysTask : DefaultTask() {
                         PREFIX,
                         overlay,
                         arrayListOf("${DownloadAndExtractCentralConfigurationServerDistTask.NAME}Exec"))
+            }
+        }
+
+        if (project.state.executed) {
+            configureOverlays()
+        } else {
+            project.afterEvaluate {
+                configureOverlays()
             }
         }
     }

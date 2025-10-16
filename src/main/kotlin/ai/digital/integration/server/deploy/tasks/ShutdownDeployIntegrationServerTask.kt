@@ -30,7 +30,7 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
         this.group = PLUGIN_GROUP
 
         val that = this
-        project.afterEvaluate {
+        val configureDependencies = {
             if (DeployServerUtil.isClusterEnabled(project)) {
                 that.dependsOn(StopDeployClusterTask.NAME)
             } else {
@@ -55,6 +55,14 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
                     that.dependsOn(ShutdownCentralConfigurationServerTask.NAME)
                 }
                 that.finalizedBy(ShutdownCacheTask.NAME)
+            }
+        }
+
+        if (project.state.executed) {
+            configureDependencies()
+        } else {
+            project.afterEvaluate {
+                configureDependencies()
             }
         }
     }

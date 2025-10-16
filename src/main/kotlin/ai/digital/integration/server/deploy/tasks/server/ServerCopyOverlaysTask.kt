@@ -26,14 +26,15 @@ open class ServerCopyOverlaysTask : DefaultTask() {
         }
         val currentTask = this
 
-        project.afterEvaluate {
+        val configureOverlays = {
             DeployServerUtil.getServers(project).forEach { server ->
                 project.logger.lifecycle("Copying overlays on Deploy server ${server.name}")
 
-                OverlaysUtil.addDatabaseDependency(project, server)
-                OverlaysUtil.addMqDependency(project, server)
+                // Add overlays without modifying configuration during task construction
+                OverlaysUtil.addDatabaseOverlayOnly(project, server)
+                OverlaysUtil.addMqOverlayOnly(project, server)
                 if (CacheUtil.isCacheEnabled(project)) {
-                    OverlaysUtil.addCacheDependency(project, server)
+                    OverlaysUtil.addCacheOverlayOnly(project, server)
                 }
 
                 server.overlays.forEach { overlay ->
@@ -47,6 +48,19 @@ open class ServerCopyOverlaysTask : DefaultTask() {
                         ) arrayListOf("${DownloadAndExtractServerDistTask.NAME}${server.name}", DownloadAndExtractCliDistTask.NAME)
                         else arrayListOf(),
                         server.name)
+                }
+            }
+        }
+
+        if (project.state.executed) {
+            configureOverlays()
+        } else {
+            project.afterEvaluate {
+                configureOverlays()
+                // Add configuration dependencies at the end of configuration phase
+                DeployServerUtil.getServers(project).forEach { server ->
+                    project.logger.lifecycle("Adding configuration dependencies for Deploy server ${server.name}")
+                    OverlaysUtil.addAllConfigurationDependencies(project, server)
                 }
             }
         }
