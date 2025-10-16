@@ -17,7 +17,7 @@ open class SatelliteOverlaysTask : DefaultTask() {
         this.mustRunAfter(DownloadAndExtractSatelliteDistTask.NAME)
         val currentTask = this
 
-        project.afterEvaluate {
+        val configureOverlays = {
             SatelliteUtil.getSatellites(project).forEach { satellite ->
                 satellite.overlays.forEach { overlay ->
                     OverlaysUtil.defineOverlay(project, currentTask,
@@ -27,6 +27,14 @@ open class SatelliteOverlaysTask : DefaultTask() {
                         listOf("downloadAndExtractSatellite${satellite.name}")
                     )
                 }
+            }
+        }
+
+        if (project.state.executed) {
+            configureOverlays()
+        } else {
+            project.afterEvaluate {
+                configureOverlays()
             }
         }
     }

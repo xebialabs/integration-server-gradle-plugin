@@ -40,7 +40,7 @@ open class WorkerOverlaysTask : DefaultTask() {
         }
         val currentTask = this
 
-        project.afterEvaluate {
+        val configureOverlays = {
             WorkerUtil.getWorkers(project).forEach { worker ->
 
                 if (worker.slimDistribution) {
@@ -68,6 +68,14 @@ open class WorkerOverlaysTask : DefaultTask() {
                         )
                     }
                 }
+            }
+        }
+
+        if (project.state.executed) {
+            configureOverlays()
+        } else {
+            project.afterEvaluate {
+                configureOverlays()
             }
         }
     }

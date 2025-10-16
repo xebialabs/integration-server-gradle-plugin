@@ -19,7 +19,7 @@ open class CliOverlaysTask : DefaultTask() {
         this.mustRunAfter(CopyCliBuildArtifactsTask.NAME)
         val currentTask = this
 
-        project.afterEvaluate {
+        val configureOverlays = {
             CliUtil.getCli(project).overlays.forEach { overlay ->
                 OverlaysUtil.defineOverlay(project,
                     currentTask,
@@ -28,6 +28,14 @@ open class CliOverlaysTask : DefaultTask() {
                     overlay,
                     listOf(DownloadAndExtractCliDistTask.NAME)
                 )
+            }
+        }
+
+        if (project.state.executed) {
+            configureOverlays()
+        } else {
+            project.afterEvaluate {
+                configureOverlays()
             }
         }
     }

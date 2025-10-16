@@ -15,8 +15,16 @@ open class PrepareDatabaseTask : DefaultTask() {
         this.group = PLUGIN_GROUP
 
         val dbName = DbUtil.databaseName(project)
-        project.afterEvaluate {
+        val configureDbDependency = {
             injectDbDependency(project, dbName)
+        }
+
+        if (project.state.executed) {
+            configureDbDependency()
+        } else {
+            project.afterEvaluate {
+                configureDbDependency()
+            }
         }
     }
 

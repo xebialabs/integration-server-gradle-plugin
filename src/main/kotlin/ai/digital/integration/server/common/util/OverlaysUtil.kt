@@ -54,9 +54,12 @@ class OverlaysUtil {
                 project.tasks.register("copy${configurationName.replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
                 }}", Copy::class.java) {
-                    config.files.forEach { file ->
-                        from(if (shouldUnzip(file)) project.zipTree(file) else file)
-                    }
+                    // Defer accessing config.files until task execution to avoid consuming configuration early
+                    from(project.provider {
+                        config.files.map { file ->
+                            if (shouldUnzip(file)) project.zipTree(file) else file
+                        }
+                    })
                     into("${workingDir}/${overlay.key}")
                 }
             if (dependedTasks.isNotEmpty()) {
@@ -84,6 +87,31 @@ class OverlaysUtil {
             }
         }
 
+        private fun addOverlayDependencyOnly(
+            version: String?,
+            container: Container,
+            libOverlays: MutableList<Any>,
+            dependency: DriverDependencyAware
+        ) {
+            if (version != null && version.isNotEmpty()) {
+                libOverlays.add("${dependency.driverDependency}:${version}")
+                container.overlays[HOTFIX_LIB_KEY] = libOverlays
+            }
+        }
+
+        private fun addConfigurationDependency(
+            project: Project,
+            version: String?,
+            dependency: DriverDependencyAware
+        ) {
+            if (version != null && version.isNotEmpty()) {
+                val configuration = project.configurations.getByName(DeployConfigurationsUtil.DEPLOY_SERVER)
+                configuration.dependencies.add(
+                    project.dependencies.create("${dependency.driverDependency}:${version}")
+                )
+            }
+        }
+
         fun addDatabaseDependency(project: Project, container: Container) {
             val dbname = DbUtil.databaseName(project)
             val dbDependencies = DbUtil.detectDbDependencies(dbname)
@@ -91,6 +119,24 @@ class OverlaysUtil {
             val version = DbUtil.getDatabase(project).driverVersions[dbname]
 
             overlayDependency(project, version, container, libOverlay, dbDependencies)
+        }
+
+        fun addDatabaseOverlayOnly(project: Project, container: Container) {
+            val dbname = DbUtil.databaseName(project)
+            val dbDependencies = DbUtil.detectDbDependencies(dbname)
+            val libOverlay = container.overlays.getOrDefault(HOTFIX_LIB_KEY, mutableListOf())
+            val version = DbUtil.getDatabase(project).driverVersions[dbname]
+
+            addOverlayDependencyOnly(version, container, libOverlay, dbDependencies)
+        }
+
+        fun addDatabaseConfigurationDependency(project: Project, container: Container) {
+            if (container.runtimeDirectory != null) {
+                val dbname = DbUtil.databaseName(project)
+                val dbDependencies = DbUtil.detectDbDependencies(dbname)
+                val version = DbUtil.getDatabase(project).driverVersions[dbname]
+                addConfigurationDependency(project, version, dbDependencies)
+            }
         }
 
         fun addMqDependency(project: Project, container: Container) {
@@ -103,12 +149,56 @@ class OverlaysUtil {
             overlayDependency(project, version, container, libOverlay, mqDependency)
         }
 
+        fun addMqOverlayOnly(project: Project, container: Container) {
+            val mqName = MqUtil.mqName(project)
+            val mqDependency = MqUtil.detectMqDependency(mqName)
+            val ext = DeployExtensionUtil.getExtension(project)
+            val libOverlay = container.overlays.getOrDefault(HOTFIX_LIB_KEY, mutableListOf())
+            val version = ext.mqDriverVersions[mqName]
+
+            addOverlayDependencyOnly(version, container, libOverlay, mqDependency)
+        }
+
+        fun addMqConfigurationDependency(project: Project, container: Container) {
+            if (container.runtimeDirectory != null) {
+                val mqName = MqUtil.mqName(project)
+                val mqDependency = MqUtil.detectMqDependency(mqName)
+                val ext = DeployExtensionUtil.getExtension(project)
+                val version = ext.mqDriverVersions[mqName]
+                addConfigurationDependency(project, version, mqDependency)
+            }
+        }
+
         fun addCacheDependency(project: Project, container: Container) {
             val cacheDependency = CacheUtil.getCacheDependency()
             val libOverlay = container.overlays.getOrDefault(HOTFIX_LIB_KEY, mutableListOf())
             val version = CacheUtil.getCacheDependencyVersion(CacheUtil.getCacheProviderName())
 
             overlayDependency(project, version, container, libOverlay, cacheDependency)
+        }
+
+        fun addCacheOverlayOnly(project: Project, container: Container) {
+            val cacheDependency = CacheUtil.getCacheDependency()
+            val libOverlay = container.overlays.getOrDefault(HOTFIX_LIB_KEY, mutableListOf())
+            val version = CacheUtil.getCacheDependencyVersion(CacheUtil.getCacheProviderName())
+
+            addOverlayDependencyOnly(version, container, libOverlay, cacheDependency)
+        }
+
+        fun addCacheConfigurationDependency(project: Project, container: Container) {
+            if (container.runtimeDirectory != null) {
+                val cacheDependency = CacheUtil.getCacheDependency()
+                val version = CacheUtil.getCacheDependencyVersion(CacheUtil.getCacheProviderName())
+                addConfigurationDependency(project, version, cacheDependency)
+            }
+        }
+
+        fun addAllConfigurationDependencies(project: Project, container: Container) {
+            addDatabaseConfigurationDependency(project, container)
+            addMqConfigurationDependency(project, container)
+            if (CacheUtil.isCacheEnabled(project)) {
+                addCacheConfigurationDependency(project, container)
+            }
         }
     }
 
