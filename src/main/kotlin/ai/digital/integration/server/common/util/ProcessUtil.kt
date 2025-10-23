@@ -152,7 +152,13 @@ class ProcessUtil {
                 }
             }
 
-            val execCommand = arrayOf("sh", "-c", command)
+            // Use appropriate shell for the OS
+            val execCommand = if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                arrayOf("cmd", "/c", command)
+            } else {
+                arrayOf("sh", "-c", command)
+            }
+            
             val process: Process =
                 if (workDir != null)
                     Runtime.getRuntime().exec(execCommand, null, workDir)
