@@ -63,7 +63,7 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
         group = PluginConstant.PLUGIN_GROUP
 
         val upgradeTask = this
-        project.afterEvaluate {
+        // Configure dependencies directly - no afterEvaluate needed in Gradle 9
 
             val dependencies = mutableListOf<Any>(DownloadXlCliDistTask.NAME)
 
@@ -87,7 +87,6 @@ abstract class OperatorBasedUpgradeClusterTask(@Input val productName: ProductNa
                 project.logger.warn("Active provider name is not set - OperatorBasedUpgradeClusterTask")
             }
             upgradeTask.dependsOn(dependencies)
-        }
     }
 
     @TaskAction

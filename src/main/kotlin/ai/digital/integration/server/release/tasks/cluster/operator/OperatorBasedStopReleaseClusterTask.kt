@@ -25,35 +25,34 @@ open class OperatorBasedStopReleaseClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        project.afterEvaluate {
-            if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
-                dependsOn(
-                    DownloadAndExtractCliDistTask.NAME,
-                    when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
-                        OperatorHelmProviderName.AWS_EKS.providerName ->
-                            OperatorBasedAwsEksStopReleaseClusterTask.NAME
-                        OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                            OperatorBasedAwsOpenShiftStopReleaseClusterTask.NAME
-                        OperatorHelmProviderName.AZURE_AKS.providerName ->
-                            OperatorBasedAzureAksStopReleaseClusterTask.NAME
-                        OperatorHelmProviderName.GCP_GKE.providerName ->
-                            OperatorBasedGcpGkeStopReleaseClusterTask.NAME
-                        OperatorHelmProviderName.ON_PREMISE.providerName ->
-                            OperatorBasedOnPremStopReleaseClusterTask.NAME
-                        OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
-                            OperatorBasedVmWareOpenShiftStopReleaseClusterTask.NAME
-                        else -> {
-                            throw IllegalArgumentException(
-                                "Provided operator provider name `$providerName` is not supported. Choose one of ${
-                                    OperatorHelmProviderName.values().joinToString()
-                                }"
-                            )
-                        }
+        // Configure dependencies directly - no afterEvaluate needed in Gradle 9
+        if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
+            dependsOn(
+                DownloadAndExtractCliDistTask.NAME,
+                when (val providerName = ReleaseClusterUtil.getOperatorProvider(project)) {
+                    OperatorHelmProviderName.AWS_EKS.providerName ->
+                        OperatorBasedAwsEksStopReleaseClusterTask.NAME
+                    OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
+                        OperatorBasedAwsOpenShiftStopReleaseClusterTask.NAME
+                    OperatorHelmProviderName.AZURE_AKS.providerName ->
+                        OperatorBasedAzureAksStopReleaseClusterTask.NAME
+                    OperatorHelmProviderName.GCP_GKE.providerName ->
+                        OperatorBasedGcpGkeStopReleaseClusterTask.NAME
+                    OperatorHelmProviderName.ON_PREMISE.providerName ->
+                        OperatorBasedOnPremStopReleaseClusterTask.NAME
+                    OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
+                        OperatorBasedVmWareOpenShiftStopReleaseClusterTask.NAME
+                    else -> {
+                        throw IllegalArgumentException(
+                            "Provided operator provider name `$providerName` is not supported. Choose one of ${
+                                OperatorHelmProviderName.values().joinToString()
+                            }"
+                        )
                     }
-                )
-            } else {
-                project.logger.warn("Active provider name is not set - OperatorBasedStopReleaseClusterTask")
-            }
+                }
+            )
+        } else {
+            project.logger.warn("Active provider name is not set - OperatorBasedStopReleaseClusterTask")
         }
         this.finalizedBy(
                 StopDeployServerForOperatorInstanceTask.NAME,

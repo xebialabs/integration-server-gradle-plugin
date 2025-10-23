@@ -23,35 +23,34 @@ open class HelmBasedInstallDeployClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        project.afterEvaluate {
-            if (DeployExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
-                dependsOn(
-                    DownloadAndExtractCliDistTask.NAME,
-                    when (val providerName = DeployClusterUtil.getHelmProvider(project)) {
-                        OperatorHelmProviderName.AWS_EKS.providerName ->
-                            HelmBasedAwsEksInstallDeployClusterTask.NAME
-                        OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                            HelmBasedAwsOpenShiftInstallDeployClusterTask.NAME
-                        OperatorHelmProviderName.AZURE_AKS.providerName ->
-                            HelmBasedAzureAksInstallDeployClusterTask.NAME
-                        OperatorHelmProviderName.GCP_GKE.providerName ->
-                            HelmBasedGcpGkeInstallDeployClusterTask.NAME
-                        OperatorHelmProviderName.ON_PREMISE.providerName ->
-                            HelmBasedOnPremInstallDeployClusterTask.NAME
-                        /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
-                    OperatorBasedVmWareOpenShiftInstallDeployClusterTask.NAME*/
-                        else -> {
-                            throw IllegalArgumentException(
-                                "Provided helm provider name `$providerName` is not supported. Choose one of ${
-                                    OperatorHelmProviderName.values().joinToString()
-                                }"
-                            )
-                        }
+        // Configure dependencies directly - no afterEvaluate needed in Gradle 9
+        if (DeployExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
+            dependsOn(
+                DownloadAndExtractCliDistTask.NAME,
+                when (val providerName = DeployClusterUtil.getHelmProvider(project)) {
+                    OperatorHelmProviderName.AWS_EKS.providerName ->
+                        HelmBasedAwsEksInstallDeployClusterTask.NAME
+                    OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
+                        HelmBasedAwsOpenShiftInstallDeployClusterTask.NAME
+                    OperatorHelmProviderName.AZURE_AKS.providerName ->
+                        HelmBasedAzureAksInstallDeployClusterTask.NAME
+                    OperatorHelmProviderName.GCP_GKE.providerName ->
+                        HelmBasedGcpGkeInstallDeployClusterTask.NAME
+                    OperatorHelmProviderName.ON_PREMISE.providerName ->
+                        HelmBasedOnPremInstallDeployClusterTask.NAME
+                    /*OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
+                OperatorBasedVmWareOpenShiftInstallDeployClusterTask.NAME*/
+                    else -> {
+                        throw IllegalArgumentException(
+                            "Provided helm provider name `$providerName` is not supported. Choose one of ${
+                                OperatorHelmProviderName.values().joinToString()
+                            }"
+                        )
                     }
-                )
-            } else {
-                project.logger.warn("Active provider name is not set - HelmBasedInstallDeployClusterTask")
-            }
+                }
+            )
+        } else {
+            project.logger.warn("Active provider name is not set - HelmBasedInstallDeployClusterTask")
         }
     }
 

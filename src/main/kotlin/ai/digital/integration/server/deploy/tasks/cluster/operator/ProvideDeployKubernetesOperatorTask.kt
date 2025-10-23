@@ -18,25 +18,24 @@ open class ProvideDeployKubernetesOperatorTask : DefaultTask() {
     }
 
     init {
-        project.afterEvaluate {
-            if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
-                val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.DEPLOY)
-                if (operatorHelper.getProvider().operatorPackageVersion.isPresent) {
-                    project.dependencies.add(
-                        DeployConfigurationsUtil.OPERATOR_DIST,
-                        "ai.digital.deploy.operator:${operatorHelper.getProviderHomePath()}:${operatorHelper.getProvider().operatorPackageVersion.get()}@zip"
-                    )
+        // Configure dependencies directly - no afterEvaluate needed in Gradle 9
+        if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
+            val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.DEPLOY)
+            if (operatorHelper.getProvider().operatorPackageVersion.isPresent) {
+                project.dependencies.add(
+                    DeployConfigurationsUtil.OPERATOR_DIST,
+                    "ai.digital.deploy.operator:${operatorHelper.getProviderHomePath()}:${operatorHelper.getProvider().operatorPackageVersion.get()}@zip"
+                )
 
-                    val taskName = "downloadAndExtractOperator${operatorHelper.getProviderHomePath()}"
-                    val task = project.tasks.register(taskName, Copy::class.java) {
-                        from(project.zipTree(project.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
-                        into(operatorHelper.getProviderHomeDir())
-                    }
-                    dependsOn(task)
+                val taskName = "downloadAndExtractOperator${operatorHelper.getProviderHomePath()}"
+                val task = project.tasks.register(taskName, Copy::class.java) {
+                    from(project.zipTree(project.configurations.getByName(DeployConfigurationsUtil.OPERATOR_DIST).singleFile))
+                    into(operatorHelper.getProviderHomeDir())
                 }
-            } else {
-                project.logger.warn("Active provider name is not set - ProvideDeployKubernetesOperatorTask")
+                dependsOn(task)
             }
+        } else {
+            project.logger.warn("Active provider name is not set - ProvideDeployKubernetesOperatorTask")
         }
     }
 

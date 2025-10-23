@@ -22,7 +22,7 @@ open class HelmBasedStartReleaseClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        project.afterEvaluate {
+        // Configure dependencies directly - no afterEvaluate needed in Gradle 9
             if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
                 dependsOn(
                     when (val providerName = ReleaseClusterUtil.getHelmProvider(project)) {
@@ -50,7 +50,6 @@ open class HelmBasedStartReleaseClusterTask : DefaultTask() {
             } else {
                 project.logger.warn("Active provider name is not set - OperatorBasedStartReleaseClusterTask")
             }
-        }
     }
 
     @TaskAction

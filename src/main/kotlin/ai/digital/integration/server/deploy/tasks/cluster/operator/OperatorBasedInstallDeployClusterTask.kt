@@ -23,35 +23,34 @@ open class OperatorBasedInstallDeployClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        project.afterEvaluate {
-            if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
-                dependsOn(
-                    DownloadAndExtractCliDistTask.NAME,
-                    when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
-                        OperatorHelmProviderName.AWS_EKS.providerName ->
-                            OperatorBasedAwsEksInstallDeployClusterTask.NAME
-                        OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                            OperatorBasedAwsOpenShiftInstallDeployClusterTask.NAME
-                        OperatorHelmProviderName.AZURE_AKS.providerName ->
-                            OperatorBasedAzureAksInstallDeployClusterTask.NAME
-                        OperatorHelmProviderName.GCP_GKE.providerName ->
-                            OperatorBasedGcpGkeInstallDeployClusterTask.NAME
-                        OperatorHelmProviderName.ON_PREMISE.providerName ->
-                            OperatorBasedOnPremInstallDeployClusterTask.NAME
-                        OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
-                            OperatorBasedVmWareOpenShiftInstallDeployClusterTask.NAME
-                        else -> {
-                            throw IllegalArgumentException(
-                                "Provided operator provider name `$providerName` is not supported. Choose one of ${
-                                    OperatorHelmProviderName.values().joinToString()
-                                }"
-                            )
-                        }
+        // Configure dependencies directly - no afterEvaluate needed in Gradle 9
+        if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
+            dependsOn(
+                DownloadAndExtractCliDistTask.NAME,
+                when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
+                    OperatorHelmProviderName.AWS_EKS.providerName ->
+                        OperatorBasedAwsEksInstallDeployClusterTask.NAME
+                    OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
+                        OperatorBasedAwsOpenShiftInstallDeployClusterTask.NAME
+                    OperatorHelmProviderName.AZURE_AKS.providerName ->
+                        OperatorBasedAzureAksInstallDeployClusterTask.NAME
+                    OperatorHelmProviderName.GCP_GKE.providerName ->
+                        OperatorBasedGcpGkeInstallDeployClusterTask.NAME
+                    OperatorHelmProviderName.ON_PREMISE.providerName ->
+                        OperatorBasedOnPremInstallDeployClusterTask.NAME
+                    OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
+                        OperatorBasedVmWareOpenShiftInstallDeployClusterTask.NAME
+                    else -> {
+                        throw IllegalArgumentException(
+                            "Provided operator provider name `$providerName` is not supported. Choose one of ${
+                                OperatorHelmProviderName.values().joinToString()
+                            }"
+                        )
                     }
-                )
-            } else {
-                project.logger.warn("Active provider name is not set - OperatorBasedInstallDeployClusterTask")
-            }
+                }
+            )
+        } else {
+            project.logger.warn("Active provider name is not set - OperatorBasedInstallDeployClusterTask")
         }
     }
 

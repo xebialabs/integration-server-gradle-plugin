@@ -30,32 +30,31 @@ open class ShutdownDeployIntegrationServerTask : DefaultTask() {
         this.group = PLUGIN_GROUP
 
         val that = this
-        project.afterEvaluate {
-            if (DeployServerUtil.isClusterEnabled(project)) {
-                that.dependsOn(StopDeployClusterTask.NAME)
-            } else {
-                if (DeployServerUtil.isDockerBased(project)) {
-                    that.dependsOn(DockerBasedStopDeployTask.NAME)
-                }
-                if (WorkerUtil.hasWorkers(project)) {
-                    that.dependsOn(ShutdownWorkersTask.NAME)
-                }
-                if (SatelliteUtil.hasSatellites(project)) {
-                    that.dependsOn(ShutdownSatelliteTask.NAME)
-                }
-                if (DbUtil.isDerby(project)) {
-                    that.finalizedBy("derbyStop")
-                } else {
-                    that.finalizedBy(DatabaseStopTask.NAME)
-                }
-                if (InfrastructureUtil.hasInfrastructures(project)){
-                    that.finalizedBy(InfrastructureStopTask.NAME)
-                }
-                if (CentralConfigurationServerUtil.hasCentralConfigurationServer(project)) {
-                    that.dependsOn(ShutdownCentralConfigurationServerTask.NAME)
-                }
-                that.finalizedBy(ShutdownCacheTask.NAME)
+        // Configure task dependencies directly - no afterEvaluate needed in Gradle 9
+        if (DeployServerUtil.isClusterEnabled(project)) {
+            that.dependsOn(StopDeployClusterTask.NAME)
+        } else {
+            if (DeployServerUtil.isDockerBased(project)) {
+                that.dependsOn(DockerBasedStopDeployTask.NAME)
             }
+            if (WorkerUtil.hasWorkers(project)) {
+                that.dependsOn(ShutdownWorkersTask.NAME)
+            }
+            if (SatelliteUtil.hasSatellites(project)) {
+                that.dependsOn(ShutdownSatelliteTask.NAME)
+            }
+            if (DbUtil.isDerby(project)) {
+                that.finalizedBy("derbyStop")
+            } else {
+                that.finalizedBy(DatabaseStopTask.NAME)
+            }
+            if (InfrastructureUtil.hasInfrastructures(project)){
+                that.finalizedBy(InfrastructureStopTask.NAME)
+            }
+            if (CentralConfigurationServerUtil.hasCentralConfigurationServer(project)) {
+                that.dependsOn(ShutdownCentralConfigurationServerTask.NAME)
+            }
+            that.finalizedBy(ShutdownCacheTask.NAME)
         }
     }
 

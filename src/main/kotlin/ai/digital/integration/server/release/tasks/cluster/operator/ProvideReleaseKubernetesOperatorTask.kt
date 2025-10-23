@@ -17,7 +17,7 @@ open class ProvideReleaseKubernetesOperatorTask : DefaultTask() {
     }
 
     init {
-        project.afterEvaluate {
+        // Configure dependencies directly - no afterEvaluate needed in Gradle 9
             if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
                 val operatorHelper = OperatorHelper.getOperatorHelper(project, ProductName.RELEASE)
                 if (operatorHelper.getProvider().operatorPackageVersion.isPresent) {
@@ -36,7 +36,6 @@ open class ProvideReleaseKubernetesOperatorTask : DefaultTask() {
             } else {
                 project.logger.warn("Active provider name is not set - ProvideReleaseKubernetesOperatorTask")
             }
-        }
     }
 
     @TaskAction
