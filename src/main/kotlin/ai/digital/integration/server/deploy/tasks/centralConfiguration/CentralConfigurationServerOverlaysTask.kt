@@ -22,17 +22,16 @@ open class CentralConfigurationServerOverlaysTask : DefaultTask() {
         this.mustRunAfter(DownloadAndExtractCentralConfigurationServerDistTask.NAME)
         val currentTask = this
 
-        project.afterEvaluate {
-            val server = CentralConfigurationServerUtil.getCentralConfigurationServer(project)
-            project.logger.lifecycle("Copying overlays on central configuration server ${server.name}")
-            server.overlays.forEach { overlay ->
-                OverlaysUtil.defineOverlay(project,
-                        currentTask,
-                        CentralConfigurationServerUtil.getServerPath(project, server).toString(),
-                        PREFIX,
-                        overlay,
-                        arrayListOf("${DownloadAndExtractCentralConfigurationServerDistTask.NAME}Exec"))
-            }
+        // Configure overlays directly - no afterEvaluate needed in Gradle 9
+        val server = CentralConfigurationServerUtil.getCentralConfigurationServer(project)
+        project.logger.lifecycle("Copying overlays on central configuration server ${server.name}")
+        server.overlays.forEach { overlay ->
+            OverlaysUtil.defineOverlay(project,
+                    currentTask,
+                    CentralConfigurationServerUtil.getServerPath(project, server).toString(),
+                    PREFIX,
+                    overlay,
+                    arrayListOf("${DownloadAndExtractCentralConfigurationServerDistTask.NAME}Exec"))
         }
     }
 }

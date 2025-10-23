@@ -15,9 +15,8 @@ open class PrepareDatabaseTask : DefaultTask() {
         this.group = PLUGIN_GROUP
 
         val dbName = DbUtil.databaseName(project)
-        project.afterEvaluate {
-            injectDbDependency(project, dbName)
-        }
+        // Inject dependency at configuration time - no afterEvaluate needed in Gradle 9
+        injectDbDependency(project, dbName)
     }
 
     private fun injectDbDependency(project: Project, dbName: String) {

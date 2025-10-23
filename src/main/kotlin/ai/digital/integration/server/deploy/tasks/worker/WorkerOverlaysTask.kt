@@ -40,33 +40,32 @@ open class WorkerOverlaysTask : DefaultTask() {
         }
         val currentTask = this
 
-        project.afterEvaluate {
-            WorkerUtil.getWorkers(project).forEach { worker ->
+        // Configure overlays directly - no afterEvaluate needed in Gradle 9
+        WorkerUtil.getWorkers(project).forEach { worker ->
 
-                if (worker.slimDistribution) {
-                    OverlaysUtil.addDatabaseDependency(project, worker)
-                    OverlaysUtil.addMqDependency(project, worker)
-                    if (CacheUtil.isCacheEnabled(project)) {
-                        OverlaysUtil.addCacheDependency(project, worker)
-                    }
+            if (worker.slimDistribution) {
+                OverlaysUtil.addDatabaseDependency(project, worker)
+                OverlaysUtil.addMqDependency(project, worker)
+                if (CacheUtil.isCacheEnabled(project)) {
+                    OverlaysUtil.addCacheDependency(project, worker)
                 }
+            }
 
-                if (worker.overlays.isNotEmpty() && !WorkerUtil.isExternalRuntimeWorker(project, worker)) {
-                    logger.warn("Overlays on the worker ${worker.name} are ignored because worker's runtime directory is same to the master.")
-                } else {
-                    worker.overlays.forEach { overlay ->
-                        OverlaysUtil.defineOverlay(project,
-                            currentTask,
-                            WorkerUtil.getWorkerWorkingDir(project, worker),
-                            PREFIX,
-                            overlay,
-                            arrayListOf(
-                                "${DownloadAndExtractWorkerDistTask.NAME}${worker.name}",
-                                SyncServerPluginsWithWorkerTask.NAME,
-                                SetWorkersLogbackLevelsTask.NAME
-                            )
+            if (worker.overlays.isNotEmpty() && !WorkerUtil.isExternalRuntimeWorker(project, worker)) {
+                logger.warn("Overlays on the worker ${worker.name} are ignored because worker's runtime directory is same to the master.")
+            } else {
+                worker.overlays.forEach { overlay ->
+                    OverlaysUtil.defineOverlay(project,
+                        currentTask,
+                        WorkerUtil.getWorkerWorkingDir(project, worker),
+                        PREFIX,
+                        overlay,
+                        arrayListOf(
+                            "${DownloadAndExtractWorkerDistTask.NAME}${worker.name}",
+                            SyncServerPluginsWithWorkerTask.NAME,
+                            SetWorkersLogbackLevelsTask.NAME
                         )
-                    }
+                    )
                 }
             }
         }

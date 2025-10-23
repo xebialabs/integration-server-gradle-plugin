@@ -113,6 +113,11 @@ class ProcessUtil {
         }
 
         fun chMod(project: Project, mode: String, fileName: String) {
+            // Skip chmod on Windows - it's a Unix/Linux command
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                project.logger.debug("Skipping chmod on Windows for: $fileName")
+                return
+            }
             val execOps = project.serviceOf<ExecOperations>()
             execOps.exec {
                 executable = "chmod"
