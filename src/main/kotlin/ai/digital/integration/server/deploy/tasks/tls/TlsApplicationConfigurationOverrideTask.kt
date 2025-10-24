@@ -24,67 +24,41 @@ open class TlsApplicationConfigurationOverrideTask : DefaultTask() {
     init {
         this.group = PluginConstant.PLUGIN_GROUP
 
-        this.configure(closureOf<TlsApplicationConfigurationOverrideTask> {
-            getTls(project, getServerWorkingDir(project))?.let { tls ->
+        // Configure task dependencies directly - no configure closure needed in Gradle 9
+        getTls(project, getServerWorkingDir(project))?.let { tls ->
 
-                val genKeyStore = project.tasks.register("tls${KeytoolGenKeyTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolGenKeyTask::class.java) {
-                    keyname = Tls.KEY_NAME
-                    type = Tls.KEYSTORE_TYPE
-                    typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
-                    workDir = tls.confWorkDir()
-                    keypass = tls.keyPassword
-                    storepass = tls.keyStorePassword
-                }
-
-                val genCert = project.tasks.register("tls${KeytoolExportKeyToCertTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolExportKeyToCertTask::class.java) {
-                    keyname = Tls.KEY_NAME
-                    type = Tls.KEYSTORE_TYPE
-                    typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
-                    workDir = tls.confWorkDir()
-                    keypass = tls.keyPassword
-                    storepass = tls.keyStorePassword
-                }
-                project.tasks.getByName(genCert.name).dependsOn(genKeyStore)
-
-                val genTrustStore = project.tasks.register("tls${KeytoolImportKeyToTruststoreTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolImportKeyToTruststoreTask::class.java) {
-                    keyname = Tls.KEY_NAME
-                    type = Tls.KEYSTORE_TYPE
-                    typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
-                    truststore = tls.trustStoreName
-                    workDir = tls.confWorkDir()
-                    keypass = tls.keyPassword
-                    storepass = tls.truststorePassword
-                }
-                project.tasks.getByName(genTrustStore.name).dependsOn(genCert)
-                dependsOn(genKeyStore, genCert, genTrustStore)
+            val genKeyStore = project.tasks.register("tls${KeytoolGenKeyTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolGenKeyTask::class.java) {
+                keyname = Tls.KEY_NAME
+                type = Tls.KEYSTORE_TYPE
+                typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
+                workDir = tls.confWorkDir()
+                keypass = tls.keyPassword
+                storepass = tls.keyStorePassword
             }
-            mustRunAfter(ServerCopyOverlaysTask.NAME)
-            project.tasks.forEach { task ->
-                if (task.name.startsWith("pekkoSecurePekko_ssl_master")) {
-                    project.tasks.matching { it.name.startsWith("pekkoSecurePekko_ssl_satellite") }.forEach { otherTask ->
-                        task.mustRunAfter(otherTask)
-                    }
-                }
-                if (task.name.startsWith("pekkoSecurePekko_ssl_master")) {
-                    project.tasks.matching { it.name.startsWith("pekkoSecurePekko_ssl_worker") }.forEach { otherTask ->
-                        task.mustRunAfter(otherTask)
-                    }
-                }
-                if (task.name.startsWith("pekkoSecurePekko_ssl_worker")) {
-                    project.tasks.matching { it.name.startsWith("pekkoSecurePekko_ssl_satellite") }.forEach { otherTask ->
-                        task.mustRunAfter(otherTask)
-                    }
-                }
-                if (task.name.startsWith("tls")) {
-                    project.tasks.matching { it.name.startsWith("pekkoSecurePekko_ssl_master") }.forEach { otherTask ->
-                        task.mustRunAfter(otherTask)
-                    }
-                    project.tasks.matching { it.name.startsWith("pekkoSecurePekko_ssl_worker") }.forEach { otherTask ->
-                        task.mustRunAfter(otherTask)
-                    }
-                }
+
+            val genCert = project.tasks.register("tls${KeytoolExportKeyToCertTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolExportKeyToCertTask::class.java) {
+                keyname = Tls.KEY_NAME
+                type = Tls.KEYSTORE_TYPE
+                typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
+                workDir = tls.confWorkDir()
+                keypass = tls.keyPassword
+                storepass = tls.keyStorePassword
             }
-        })
+            project.tasks.getByName(genCert.name).dependsOn(genKeyStore)
+
+            val genTrustStore = project.tasks.register("tls${KeytoolImportKeyToTruststoreTask.NAME.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}", KeytoolImportKeyToTruststoreTask::class.java) {
+                keyname = Tls.KEY_NAME
+                type = Tls.KEYSTORE_TYPE
+                typeExtension = Tls.KEYSTORE_TYPE_EXTENSION
+                truststore = tls.trustStoreName
+                workDir = tls.confWorkDir()
+                keypass = tls.keyPassword
+                storepass = tls.truststorePassword
+            }
+            project.tasks.getByName(genTrustStore.name).dependsOn(genCert)
+            dependsOn(genKeyStore, genCert, genTrustStore)
+        }
+        mustRunAfter(ServerCopyOverlaysTask.NAME)
     }
 
     @TaskAction
