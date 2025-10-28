@@ -60,6 +60,8 @@ class OverlaysUtil {
                     into("${workingDir}/${overlay.key}")
                     // Preserve existing files in the destination directory
                     duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
+                    // Always run this task - don't rely on up-to-date checks for overlays
+                    outputs.upToDateWhen { false }
                 }
             if (dependedTasks.isNotEmpty()) {
                 project.tasks.getByName(copyTask.name).dependsOn(dependedTasks)

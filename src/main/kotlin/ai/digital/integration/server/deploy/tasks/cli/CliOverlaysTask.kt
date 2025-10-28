@@ -26,7 +26,7 @@ open class CliOverlaysTask : DefaultTask() {
                 CliUtil.getWorkingDir(project),
                 PREFIX,
                 overlay,
-                listOf(DownloadAndExtractCliDistTask.NAME)
+                listOf(DownloadAndExtractCliDistTask.NAME, "${DownloadAndExtractCliDistTask.NAME}Exec")
             )
         }
     }
