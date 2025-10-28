@@ -74,10 +74,14 @@ class OverlaysUtil {
         ) {
             if (version != null && version.isNotEmpty()) {
                 if (container.runtimeDirectory != null) {
-                    val configuration = project.configurations.getByName(DeployConfigurationsUtil.DEPLOY_SERVER)
-                    configuration.dependencies.add(
-                        project.dependencies.create("${dependency.driverDependency}:${version}")
-                    )
+                    try {
+                        val configuration = project.configurations.getByName(DeployConfigurationsUtil.DEPLOY_SERVER)
+                        configuration.dependencies.add(
+                            project.dependencies.create("${dependency.driverDependency}:${version}")
+                        )
+                    } catch (e: Exception) {
+                        project.logger.warn("Could not add dependency ${dependency.driverDependency}:${version} to configuration ${DeployConfigurationsUtil.DEPLOY_SERVER}: ${e.message}")
+                    }
                 }
                 libOverlays.add("${dependency.driverDependency}:${version}")
                 container.overlays[HOTFIX_LIB_KEY] = libOverlays
