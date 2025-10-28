@@ -58,6 +58,8 @@ class OverlaysUtil {
                         from(if (shouldUnzip(file)) project.zipTree(file) else file)
                     }
                     into("${workingDir}/${overlay.key}")
+                    // Preserve existing files in the destination directory
+                    duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
                 }
             if (dependedTasks.isNotEmpty()) {
                 project.tasks.getByName(copyTask.name).dependsOn(dependedTasks)
