@@ -32,7 +32,8 @@ class WaitForBootUtil {
             if (!success) {
                 project.logger.lifecycle("Retrying after $pingRetrySleepTime second(s). ($triesLeft)")
                 if (process != null) {
-                    if (process.waitFor(pingRetrySleepTime.toLong(), TimeUnit.SECONDS)) {
+                    // Check if process is alive before waiting
+                    if (!process.isAlive) {
                         val exitCode = process.exitValue()
                         project.logger.error("Process terminated early with exit code: $exitCode")
                         if (process.errorStream != null) {
@@ -47,6 +48,8 @@ class WaitForBootUtil {
                         }
                         return -1
                     }
+                    // Process is alive, wait for the retry sleep time
+                    TimeUnit.SECONDS.sleep(pingRetrySleepTime.toLong())
                 } else {
                     TimeUnit.SECONDS.sleep(pingRetrySleepTime.toLong())
                 }

@@ -76,20 +76,55 @@ class DeployShutdownUtil {
                         }
                     }
                     osName.contains("linux") || osName.contains("mac") -> {
-                        // Use lsof to find and kill the process
-                        val findProcess = ProcessBuilder("sh", "-c", "lsof -ti:$port")
-                        findProcess.redirectErrorStream(true)
-                        val findResult = findProcess.start()
-                        val pid = findResult.inputStream.bufferedReader().readText().trim()
-                        findResult.waitFor()
+                        // Try multiple approaches to find and kill the process on Linux/Mac
+                        var pids = mutableListOf<String>()
                         
-                        if (pid.isNotEmpty()) {
-                            project.logger.lifecycle("Found process $pid on port $port, attempting to kill")
-                            val killProcess = ProcessBuilder("kill", "-9", pid)
-                            killProcess.redirectErrorStream(true)
-                            val killResult = killProcess.start()
-                            killResult.waitFor(10, TimeUnit.SECONDS)
-                            project.logger.lifecycle("Forcefully killed process $pid")
+                        // Try lsof first
+                        try {
+                            val lsofProcess = ProcessBuilder("sh", "-c", "lsof -ti:$port 2>/dev/null || true")
+                            lsofProcess.redirectErrorStream(false)
+                            val lsofResult = lsofProcess.start()
+                            val lsofOutput = lsofResult.inputStream.bufferedReader().readText().trim()
+                            lsofResult.waitFor(5, TimeUnit.SECONDS)
+                            
+                            if (lsofOutput.isNotEmpty()) {
+                                pids.addAll(lsofOutput.split("\n").filter { it.isNotBlank() })
+                            }
+                        } catch (e: Exception) {
+                            project.logger.debug("lsof command failed: ${e.message}")
+                        }
+                        
+                        // If lsof didn't work, try fuser
+                        if (pids.isEmpty()) {
+                            try {
+                                val fuserProcess = ProcessBuilder("sh", "-c", "fuser $port/tcp 2>/dev/null || true")
+                                fuserProcess.redirectErrorStream(false)
+                                val fuserResult = fuserProcess.start()
+                                val fuserOutput = fuserResult.inputStream.bufferedReader().readText().trim()
+                                fuserResult.waitFor(5, TimeUnit.SECONDS)
+                                
+                                if (fuserOutput.isNotEmpty()) {
+                                    pids.addAll(fuserOutput.split("\\s+".toRegex()).filter { it.isNotBlank() })
+                                }
+                            } catch (e: Exception) {
+                                project.logger.debug("fuser command failed: ${e.message}")
+                            }
+                        }
+                        
+                        // If we found PIDs, kill them
+                        if (pids.isNotEmpty()) {
+                            pids.forEach { pid ->
+                                try {
+                                    project.logger.lifecycle("Found process $pid on port $port, attempting to kill")
+                                    val killProcess = ProcessBuilder("kill", "-9", pid)
+                                    killProcess.redirectErrorStream(true)
+                                    val killResult = killProcess.start()
+                                    killResult.waitFor(5, TimeUnit.SECONDS)
+                                    project.logger.lifecycle("Forcefully killed process $pid")
+                                } catch (e: Exception) {
+                                    project.logger.warn("Failed to kill process $pid: ${e.message}")
+                                }
+                            }
                         } else {
                             project.logger.lifecycle("No process found listening on port $port")
                         }
