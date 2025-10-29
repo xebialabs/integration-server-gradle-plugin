@@ -13,7 +13,7 @@ class DeployShutdownUtil {
     companion object {
         private fun waitForShutdown(project: Project) {
             val server = DeployServerUtil.getServer(project)
-            val triesLeft = server.pingTotalTries
+            var triesLeft = server.pingTotalTries
 
             var success = false
             while (triesLeft > 0 && !success) {
@@ -39,13 +39,14 @@ class DeployShutdownUtil {
                     success = true
                     break
                 }
+                triesLeft--
             }
             if (!success) {
                 throw GradleException("Server failed to stop")
             }
         }
 
-        private fun killProcessByPort(project: Project, port: Int) {
+        fun killProcessByPort(project: Project, port: Int) {
             try {
                 project.logger.lifecycle("Attempting to kill process on port $port")
                 val osName = System.getProperty("os.name").lowercase()

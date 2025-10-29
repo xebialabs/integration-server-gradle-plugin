@@ -14,6 +14,7 @@ import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.deploy.internals.*
+import ai.digital.integration.server.deploy.domain.Worker
 import ai.digital.integration.server.deploy.tasks.cli.CopyCliBuildArtifactsTask
 import ai.digital.integration.server.deploy.tasks.cli.RunCliTask
 import ai.digital.integration.server.deploy.tasks.provision.RunDatasetGenerationTask
@@ -150,7 +151,36 @@ open class StartDeployServerInstanceTask : DefaultTask() {
     }
 
     private fun maybeTearDown() {
+        val server = DeployServerUtil.getServer(project)
+        
+        // First try graceful shutdown
         DeployShutdownUtil.shutdownServer(project)
+        
+        // Then forcefully cleanup all known ports that might be in use
+        project.logger.lifecycle("Forcefully cleaning up any processes on server ports")
+        DeployShutdownUtil.killProcessByPort(project, server.httpPort)
+        
+        // Also cleanup debug port if configured
+        server.debugPort?.let { debugPort ->
+            DeployShutdownUtil.killProcessByPort(project, debugPort)
+        }
+        
+        // Cleanup any worker ports
+        if (WorkerUtil.hasWorkers(project)) {
+            WorkerUtil.getWorkers(project).forEach { worker ->
+                try {
+                    val workerPort = worker.port.toIntOrNull()
+                    if (workerPort != null) {
+                        DeployShutdownUtil.killProcessByPort(project, workerPort)
+                    }
+                    worker.debugPort?.let { debugPort ->
+                        DeployShutdownUtil.killProcessByPort(project, debugPort)
+                    }
+                } catch (e: Exception) {
+                    project.logger.warn("Failed to cleanup worker port: ${e.message}")
+                }
+            }
+        }
     }
 
     private fun allowToWriteMountedHostFolders() {

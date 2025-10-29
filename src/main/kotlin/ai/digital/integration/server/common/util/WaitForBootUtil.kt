@@ -33,6 +33,18 @@ class WaitForBootUtil {
                 project.logger.lifecycle("Retrying after $pingRetrySleepTime second(s). ($triesLeft)")
                 if (process != null) {
                     if (process.waitFor(pingRetrySleepTime.toLong(), TimeUnit.SECONDS)) {
+                        val exitCode = process.exitValue()
+                        project.logger.error("Process terminated early with exit code: $exitCode")
+                        if (process.errorStream != null) {
+                            try {
+                                val errorOutput = process.errorStream.bufferedReader().readText()
+                                if (errorOutput.isNotBlank()) {
+                                    project.logger.error("Process error output: $errorOutput")
+                                }
+                            } catch (e: Exception) {
+                                // Ignore
+                            }
+                        }
                         return -1
                     }
                 } else {
@@ -75,6 +87,7 @@ class WaitForBootUtil {
             var triesLeft = pingTotalTries
             var success = false
             var lastTry = LocalDateTime.now().minusDays(1)
+            var lastException: Exception? = null
             val client = java.net.http.HttpClient.newBuilder()
                 .connectTimeout(java.time.Duration.ofSeconds(10))
                 .build()
@@ -85,15 +98,27 @@ class WaitForBootUtil {
                     if (response.statusCode() in 200..399) {
                         success = true
                     } else {
+                        project.logger.debug("Received response code: ${response.statusCode()}")
                         lastTry = callback(lastTry)
                     }
-                } catch (ignored: Exception) {
+                } catch (e: Exception) {
+                    lastException = e
+                    project.logger.debug("Connection attempt failed: ${e.message}")
                     lastTry = callback(lastTry)
                 }
                 triesLeft = waitForNext(project, process, triesLeft, success, pingRetrySleepTime)
+                if (triesLeft < 0) {
+                    // Process died
+                    throw GradleException("$name process terminated early. Check logs for details.")
+                }
             }
             if (!success) {
-                throw GradleException("$name failed to start.")
+                val errorMsg = if (lastException != null) {
+                    "$name failed to start. Last error: ${lastException.message}"
+                } else {
+                    "$name failed to start after $pingTotalTries attempts."
+                }
+                throw GradleException(errorMsg)
             }
             return lastTry
         }
@@ -112,18 +137,46 @@ class WaitForBootUtil {
             var success = false
             while (triesLeft > 0 && !success) {
                 try {
-                    logFile.forEachLine { line ->
-                        if (line.contains(containsLine)) {
-                            project.logger.lifecycle("$name successfully started.")
-                            success = true
+                    if (logFile.exists()) {
+                        logFile.forEachLine { line ->
+                            if (line.contains(containsLine)) {
+                                project.logger.lifecycle("$name successfully started.")
+                                success = true
+                            }
                         }
+                    } else {
+                        project.logger.debug("Log file does not exist yet: ${logFile.absolutePath}")
                     }
-                } catch (ignored: Exception) {
+                } catch (e: Exception) {
+                    project.logger.debug("Error reading log file: ${e.message}")
                 }
                 triesLeft = waitForNext(project, process, triesLeft, success, pingRetrySleepTime)
+                if (triesLeft < 0) {
+                    // Process died - try to show last log lines
+                    if (logFile.exists()) {
+                        try {
+                            val lastLines = logFile.readLines().takeLast(20).joinToString("\n")
+                            project.logger.error("$name process terminated. Last log lines:\n$lastLines")
+                        } catch (e: Exception) {
+                            project.logger.error("$name process terminated. Could not read log file.")
+                        }
+                    }
+                    throw GradleException("$name process terminated early. Check logs at: ${logFile.absolutePath}")
+                }
             }
             if (!success) {
-                throw GradleException("$name failed to start.")
+                var errorMsg = "$name failed to start."
+                if (logFile.exists()) {
+                    try {
+                        val lastLines = logFile.readLines().takeLast(20).joinToString("\n")
+                        errorMsg += "\nLast log lines:\n$lastLines"
+                    } catch (e: Exception) {
+                        errorMsg += "\nCould not read log file at: ${logFile.absolutePath}"
+                    }
+                } else {
+                    errorMsg += "\nLog file not found: ${logFile.absolutePath}"
+                }
+                throw GradleException(errorMsg)
             }
         }
     }
