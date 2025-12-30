@@ -20,7 +20,8 @@ open class DownloadAndExtractDbUnitDataDistTask : DefaultTask() {
                 SERVER_DATA_DIST,
                 "com.xebialabs.deployit.plugins:xld-is-data:${version}:repository@zip"
             )
-            this.dependsOn(project.tasks.register(NAME, Copy::class.java) {
+            val taskName = "${NAME}Exec"
+            this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
                 from(project.zipTree(project.configurations.getByName(SERVER_DATA_DIST).singleFile))
                 into(IntegrationServerUtil.getDist(project))
             })
