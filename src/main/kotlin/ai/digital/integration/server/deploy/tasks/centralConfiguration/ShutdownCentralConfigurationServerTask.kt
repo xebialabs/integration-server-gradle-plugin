@@ -25,8 +25,7 @@ open class ShutdownCentralConfigurationServerTask : DefaultTask() {
             CentralConfigurationServerUtil.hasCentralConfigurationServer(project)
         }
 
-        project.afterEvaluate {
-        }
+        // Configuration available directly - no afterEvaluate needed in Gradle 9
     }
 
     @TaskAction

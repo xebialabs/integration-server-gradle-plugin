@@ -8,9 +8,12 @@ import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractServe
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
 import java.io.File
+import javax.inject.Inject
 
-open class GitlabStopTask : DefaultTask() {
+open class GitlabStopTask @Inject constructor(
+    private val execOperations: ExecOperations): DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP
@@ -26,7 +29,7 @@ open class GitlabStopTask : DefaultTask() {
     fun run() {
         project.logger.lifecycle("Stopping GitLab server.")
 
-        project.exec {
+        execOperations.exec {
             executable = "docker-compose"
             args = listOf("-f", getDockerComposeFile().toString(), "-p", "gitlab_server", "down")
         }

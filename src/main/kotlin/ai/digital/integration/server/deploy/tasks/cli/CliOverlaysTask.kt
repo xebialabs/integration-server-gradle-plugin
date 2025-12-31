@@ -19,16 +19,15 @@ open class CliOverlaysTask : DefaultTask() {
         this.mustRunAfter(CopyCliBuildArtifactsTask.NAME)
         val currentTask = this
 
-        project.afterEvaluate {
-            CliUtil.getCli(project).overlays.forEach { overlay ->
-                OverlaysUtil.defineOverlay(project,
-                    currentTask,
-                    CliUtil.getWorkingDir(project),
-                    PREFIX,
-                    overlay,
-                    listOf(DownloadAndExtractCliDistTask.NAME)
-                )
-            }
+        // Configure overlays directly - no afterEvaluate needed in Gradle 9
+        CliUtil.getCli(project).overlays.forEach { overlay ->
+            OverlaysUtil.defineOverlay(project,
+                currentTask,
+                CliUtil.getWorkingDir(project),
+                PREFIX,
+                overlay,
+                listOf(DownloadAndExtractCliDistTask.NAME, "${DownloadAndExtractCliDistTask.NAME}Exec")
+            )
         }
     }
 }

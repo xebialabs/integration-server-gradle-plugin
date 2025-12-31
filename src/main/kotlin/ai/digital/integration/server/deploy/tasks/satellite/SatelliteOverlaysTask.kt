@@ -17,16 +17,15 @@ open class SatelliteOverlaysTask : DefaultTask() {
         this.mustRunAfter(DownloadAndExtractSatelliteDistTask.NAME)
         val currentTask = this
 
-        project.afterEvaluate {
-            SatelliteUtil.getSatellites(project).forEach { satellite ->
-                satellite.overlays.forEach { overlay ->
-                    OverlaysUtil.defineOverlay(project, currentTask,
-                        SatelliteUtil.getSatelliteWorkingDir(project, satellite),
-                        PREFIX,
-                        overlay,
-                        listOf("downloadAndExtractSatellite${satellite.name}")
-                    )
-                }
+        // Configure overlays directly - no afterEvaluate needed in Gradle 9
+        SatelliteUtil.getSatellites(project).forEach { satellite ->
+            satellite.overlays.forEach { overlay ->
+                OverlaysUtil.defineOverlay(project, currentTask,
+                    SatelliteUtil.getSatelliteWorkingDir(project, satellite),
+                    PREFIX,
+                    overlay,
+                    listOf("downloadAndExtractSatellite${satellite.name}")
+                )
             }
         }
     }

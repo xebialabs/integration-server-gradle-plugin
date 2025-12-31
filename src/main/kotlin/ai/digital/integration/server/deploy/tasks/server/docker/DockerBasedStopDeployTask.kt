@@ -9,9 +9,12 @@ import ai.digital.integration.server.deploy.tasks.server.PrepareServerTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
 import java.io.File
+import javax.inject.Inject
 
-open class DockerBasedStopDeployTask : DefaultTask() {
+open class DockerBasedStopDeployTask @Inject constructor(
+    private val execOperations: ExecOperations) : DefaultTask() {
 
     companion object {
         const val NAME = "dockerBasedStopDeploy"
@@ -36,7 +39,7 @@ open class DockerBasedStopDeployTask : DefaultTask() {
                     DeployServerUtil.getDockerImageVersion(server)
                 }")
                 DockerComposeUtil.allowToCleanMountedFiles(project, ProductName.DEPLOY, server, getDockerComposeFile(server))
-                project.exec {
+                execOperations.exec {
                     executable = "docker-compose"
                     args = arrayListOf("-f", getDockerComposeFile(server).path, "down", "-v")
                 }

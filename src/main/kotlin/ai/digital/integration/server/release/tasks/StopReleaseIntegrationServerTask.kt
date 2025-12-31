@@ -18,19 +18,18 @@ open class StopReleaseIntegrationServerTask : DefaultTask() {
         this.group = PLUGIN_GROUP
 
         val that = this
-        project.afterEvaluate {
-            if (ReleaseServerUtil.isClusterEnabled(project)) {
-                that.dependsOn(StopReleaseClusterTask.NAME)
-            } else {
-                if (ReleaseServerUtil.isDockerBased(project)) {
-                    that.dependsOn(DockerBasedStopReleaseTask.NAME)
-                }
+        // Configure task dependencies directly - no afterEvaluate needed in Gradle 9
+        if (ReleaseServerUtil.isClusterEnabled(project)) {
+            that.dependsOn(StopReleaseClusterTask.NAME)
+        } else {
+            if (ReleaseServerUtil.isDockerBased(project)) {
+                that.dependsOn(DockerBasedStopReleaseTask.NAME)
+            }
 
-                if (DbUtil.isDerby(project)) {
-                    that.finalizedBy("derbyStop")
-                } else {
-                    that.finalizedBy(DatabaseStopTask.NAME)
-                }
+            if (DbUtil.isDerby(project)) {
+                that.finalizedBy("derbyStop")
+            } else {
+                that.finalizedBy(DatabaseStopTask.NAME)
             }
         }
     }

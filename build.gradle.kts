@@ -10,14 +10,16 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version "1.8.10"
+    kotlin("jvm") version "2.0.21"
     `kotlin-dsl-base`
+
+    id("jvm-toolchains")
 
     id("com.github.node-gradle.node") version "4.0.0"
     id("idea")
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("maven-publish")
-    id("nebula.release") version "20.2.0"
+    id("nebula.release") version "21.0.0"
     id("signing")
 }
 
@@ -81,12 +83,25 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${properties["coroutinesVersion"]}")
     implementation("org.postgresql:postgresql:${properties["driverVersions.postgres"]}")
 
+    implementation("de.undercouch:gradle-download-task:5.6.0")
 
-    testImplementation("io.mockk:mockk:1.13.5")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.0")
-    testImplementation("net.bytebuddy:byte-buddy:1.14.6")
-    testImplementation("net.bytebuddy:byte-buddy-agent:1.14.6")
+    // Updated test dependencies for Gradle 9 compatibility with logging fixes
+    testImplementation("io.mockk:mockk:${properties["mockkVersion"]}") {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+    }
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${properties["junitVersion"]}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${properties["junitVersion"]}")
+    testImplementation("net.bytebuddy:byte-buddy:${properties["byteBuddyVersion"]}")
+    testImplementation("net.bytebuddy:byte-buddy-agent:${properties["byteBuddyVersion"]}")
+
+    // Additional test dependencies for Gradle 9
+    testImplementation("org.junit.platform:junit-platform-launcher")
+
+    // Gradle TestKit for proper ProjectBuilder support
+    testImplementation(gradleTestKit())
+
+    // Fix logging conflicts for Gradle 9 tests
+    testRuntimeOnly("org.slf4j:slf4j-simple:1.7.36")
 }
 
 java {
@@ -94,6 +109,9 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
     withSourcesJar()
     withJavadocJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 tasks.named<Test>("test") {

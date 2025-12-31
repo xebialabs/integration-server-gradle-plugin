@@ -13,7 +13,7 @@ class DeployShutdownUtil {
     companion object {
         private fun waitForShutdown(project: Project) {
             val server = DeployServerUtil.getServer(project)
-            val triesLeft = server.pingTotalTries
+            var triesLeft = server.pingTotalTries
 
             var success = false
             while (triesLeft > 0 && !success) {
@@ -39,16 +39,112 @@ class DeployShutdownUtil {
                     success = true
                     break
                 }
+                triesLeft--
             }
             if (!success) {
                 throw GradleException("Server failed to stop")
             }
         }
 
+        fun killProcessByPort(project: Project, port: Int) {
+            try {
+                project.logger.lifecycle("Attempting to kill process on port $port")
+                val osName = System.getProperty("os.name").lowercase()
+                
+                when {
+                    osName.contains("windows") -> {
+                        // Find PID using netstat
+                        val findProcess = ProcessBuilder("cmd", "/c", "netstat -ano | findstr :$port")
+                        findProcess.redirectErrorStream(true)
+                        val findResult = findProcess.start()
+                        val output = findResult.inputStream.bufferedReader().readText()
+                        findResult.waitFor()
+                        
+                        // Extract PID from netstat output (last column)
+                        val pidPattern = Regex("""LISTENING\s+(\d+)""")
+                        val match = pidPattern.find(output)
+                        if (match != null) {
+                            val pid = match.groupValues[1]
+                            project.logger.lifecycle("Found process $pid on port $port, attempting to kill")
+                            val killProcess = ProcessBuilder("taskkill", "/F", "/PID", pid)
+                            killProcess.redirectErrorStream(true)
+                            val killResult = killProcess.start()
+                            killResult.waitFor(10, TimeUnit.SECONDS)
+                            project.logger.lifecycle("Forcefully killed process $pid")
+                        } else {
+                            project.logger.lifecycle("No process found listening on port $port")
+                        }
+                    }
+                    osName.contains("linux") || osName.contains("mac") -> {
+                        // Try multiple approaches to find and kill the process on Linux/Mac
+                        var pids = mutableListOf<String>()
+                        
+                        // Try lsof first
+                        try {
+                            val lsofProcess = ProcessBuilder("sh", "-c", "lsof -ti:$port 2>/dev/null || true")
+                            lsofProcess.redirectErrorStream(false)
+                            val lsofResult = lsofProcess.start()
+                            val lsofOutput = lsofResult.inputStream.bufferedReader().readText().trim()
+                            lsofResult.waitFor(5, TimeUnit.SECONDS)
+                            
+                            if (lsofOutput.isNotEmpty()) {
+                                pids.addAll(lsofOutput.split("\n").filter { it.isNotBlank() })
+                            }
+                        } catch (e: Exception) {
+                            project.logger.debug("lsof command failed: ${e.message}")
+                        }
+                        
+                        // If lsof didn't work, try fuser
+                        if (pids.isEmpty()) {
+                            try {
+                                val fuserProcess = ProcessBuilder("sh", "-c", "fuser $port/tcp 2>/dev/null || true")
+                                fuserProcess.redirectErrorStream(false)
+                                val fuserResult = fuserProcess.start()
+                                val fuserOutput = fuserResult.inputStream.bufferedReader().readText().trim()
+                                fuserResult.waitFor(5, TimeUnit.SECONDS)
+                                
+                                if (fuserOutput.isNotEmpty()) {
+                                    pids.addAll(fuserOutput.split("\\s+".toRegex()).filter { it.isNotBlank() })
+                                }
+                            } catch (e: Exception) {
+                                project.logger.debug("fuser command failed: ${e.message}")
+                            }
+                        }
+                        
+                        // If we found PIDs, kill them
+                        if (pids.isNotEmpty()) {
+                            pids.forEach { pid ->
+                                try {
+                                    project.logger.lifecycle("Found process $pid on port $port, attempting to kill")
+                                    val killProcess = ProcessBuilder("kill", "-9", pid)
+                                    killProcess.redirectErrorStream(true)
+                                    val killResult = killProcess.start()
+                                    killResult.waitFor(5, TimeUnit.SECONDS)
+                                    project.logger.lifecycle("Forcefully killed process $pid")
+                                } catch (e: Exception) {
+                                    project.logger.warn("Failed to kill process $pid: ${e.message}")
+                                }
+                            }
+                        } else {
+                            project.logger.lifecycle("No process found listening on port $port")
+                        }
+                    }
+                }
+                
+                // Give the OS time to release the port
+                TimeUnit.SECONDS.sleep(2)
+                
+            } catch (e: Exception) {
+                project.logger.warn("Failed to kill process on port $port: ${e.message}")
+            }
+        }
+
         fun shutdownServer(project: Project) {
             val server = DeployServerUtil.getServer(project)
+            val port = server.httpPort
+            var gracefulShutdownSucceeded = false
+            
             try {
-                val port = server.httpPort
                 project.logger.lifecycle("Trying to shutdown integration server on port $port")
 
                 val client = HttpClient.newHttpClient()
@@ -60,9 +156,15 @@ class DeployShutdownUtil {
 
                 waitForShutdown(project)
                 project.logger.lifecycle("Integration server at port $port is now shutdown")
+                gracefulShutdownSucceeded = true
 
             } catch (ignored: Exception) {
-                project.logger.lifecycle("Integration server on port ${server.httpPort} is not running")
+                project.logger.lifecycle("Integration server on port $port is not responding to graceful shutdown")
+            }
+            
+            // If graceful shutdown failed, try to kill the process by port
+            if (!gracefulShutdownSucceeded) {
+                killProcessByPort(project, port)
             }
         }
     }

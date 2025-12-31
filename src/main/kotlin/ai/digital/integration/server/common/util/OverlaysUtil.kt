@@ -36,9 +36,9 @@ class OverlaysUtil {
                     if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
                 }.replace("/", "")}"
             }
-            val config = project.buildscript.configurations.create(configurationName)
+            val config = project.configurations.create(configurationName)
             overlay.value.forEach { dependencyNotation ->
-                project.buildscript.dependencies.add(configurationName, dependencyNotation as Any)
+                project.dependencies.add(configurationName, dependencyNotation as Any)
             }
             val excludeTransientDep  = listOf(
                     "org.slf4j:slf4j-api",
@@ -58,6 +58,10 @@ class OverlaysUtil {
                         from(if (shouldUnzip(file)) project.zipTree(file) else file)
                     }
                     into("${workingDir}/${overlay.key}")
+                    // Preserve existing files in the destination directory
+                    duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
+                    // Always run this task - don't rely on up-to-date checks for overlays
+                    outputs.upToDateWhen { false }
                 }
             if (dependedTasks.isNotEmpty()) {
                 project.tasks.getByName(copyTask.name).dependsOn(dependedTasks)
@@ -74,10 +78,14 @@ class OverlaysUtil {
         ) {
             if (version != null && version.isNotEmpty()) {
                 if (container.runtimeDirectory != null) {
-                    val configuration = project.configurations.getByName(DeployConfigurationsUtil.DEPLOY_SERVER)
-                    configuration.dependencies.add(
-                        project.dependencies.create("${dependency.driverDependency}:${version}")
-                    )
+                    try {
+                        val configuration = project.configurations.getByName(DeployConfigurationsUtil.DEPLOY_SERVER)
+                        configuration.dependencies.add(
+                            project.dependencies.create("${dependency.driverDependency}:${version}")
+                        )
+                    } catch (e: Exception) {
+                        project.logger.warn("Could not add dependency ${dependency.driverDependency}:${version} to configuration ${DeployConfigurationsUtil.DEPLOY_SERVER}: ${e.message}")
+                    }
                 }
                 libOverlays.add("${dependency.driverDependency}:${version}")
                 container.overlays[HOTFIX_LIB_KEY] = libOverlays

@@ -8,6 +8,7 @@ import ai.digital.integration.server.common.domain.profiles.OperatorProfile
 import ai.digital.integration.server.common.domain.profiles.Profile
 import ai.digital.integration.server.common.domain.providers.OnPremiseProvider
 import ai.digital.integration.server.common.util.ProcessUtil
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 
@@ -132,6 +133,12 @@ open class OnPremHelper(project: Project, productName: ProductName, val profile:
     }
 
     fun updateEtcHosts(name: String, fqdn: String = getFqdn()) {
+        // Skip on Windows - this is for Unix/Linux/Mac environments
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            project.logger.lifecycle("Skipping updateEtcHosts on Windows")
+            return
+        }
+        
         val infoScriptPath = getTemplate("operator/on-perm/info_etc_hosts.sh")
         val scriptPath = getTemplate("operator/on-perm/update_etc_hosts.sh")
 

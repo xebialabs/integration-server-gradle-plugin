@@ -24,39 +24,38 @@ open class OperatorBasedStopDeployClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        project.afterEvaluate {
-            if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
-                dependsOn(
-                    when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
-                        OperatorHelmProviderName.AWS_EKS.providerName ->
-                            OperatorBasedAwsEksStopDeployClusterTask.NAME
-                        OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
-                            OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME
-                        OperatorHelmProviderName.AZURE_AKS.providerName ->
-                            OperatorBasedAzureAksStopDeployClusterTask.NAME
-                        OperatorHelmProviderName.GCP_GKE.providerName ->
-                            OperatorBasedGcpGkeStopDeployClusterTask.NAME
-                        OperatorHelmProviderName.ON_PREMISE.providerName ->
-                            OperatorBasedOnPremStopDeployClusterTask.NAME
-                        OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
-                            OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME
-                        else -> {
-                            throw IllegalArgumentException(
-                                "Provided operator provider name `$providerName` is not supported. Choose one of ${
-                                    OperatorHelmProviderName.values().joinToString()
-                                }"
-                            )
-                        }
+        // Configure dependencies directly - no afterEvaluate needed in Gradle 9
+        if (DeployExtensionUtil.getExtension(project).clusterProfiles.operator().activeProviderName.isPresent) {
+            dependsOn(
+                when (val providerName = DeployClusterUtil.getOperatorProvider(project)) {
+                    OperatorHelmProviderName.AWS_EKS.providerName ->
+                        OperatorBasedAwsEksStopDeployClusterTask.NAME
+                    OperatorHelmProviderName.AWS_OPENSHIFT.providerName ->
+                        OperatorBasedAwsOpenShiftStopDeployClusterTask.NAME
+                    OperatorHelmProviderName.AZURE_AKS.providerName ->
+                        OperatorBasedAzureAksStopDeployClusterTask.NAME
+                    OperatorHelmProviderName.GCP_GKE.providerName ->
+                        OperatorBasedGcpGkeStopDeployClusterTask.NAME
+                    OperatorHelmProviderName.ON_PREMISE.providerName ->
+                        OperatorBasedOnPremStopDeployClusterTask.NAME
+                    OperatorHelmProviderName.VMWARE_OPENSHIFT.providerName ->
+                        OperatorBasedVmWareOpenShiftStopDeployClusterTask.NAME
+                    else -> {
+                        throw IllegalArgumentException(
+                            "Provided operator provider name `$providerName` is not supported. Choose one of ${
+                                OperatorHelmProviderName.values().joinToString()
+                            }"
+                        )
                     }
-                )
-            } else {
-                project.logger.warn("Active provider name is not set - OperatorBasedStopDeployClusterTask")
-            }
-            finalizedBy(
-                StopDeployServerForOperatorInstanceTask.NAME,
-                StopDeployServerForOperatorUpgradeTask.NAME
+                }
             )
+        } else {
+            project.logger.warn("Active provider name is not set - OperatorBasedStopDeployClusterTask")
         }
+        finalizedBy(
+            StopDeployServerForOperatorInstanceTask.NAME,
+            StopDeployServerForOperatorUpgradeTask.NAME
+        )
     }
 
     @TaskAction

@@ -26,28 +26,28 @@ open class ServerCopyOverlaysTask : DefaultTask() {
         }
         val currentTask = this
 
-        project.afterEvaluate {
-            DeployServerUtil.getServers(project).forEach { server ->
-                project.logger.lifecycle("Copying overlays on Deploy server ${server.name}")
+        // Configure overlays directly - no afterEvaluate needed in Gradle 9
+        // Extension is already available at task creation time
+        DeployServerUtil.getServers(project).forEach { server ->
+            project.logger.lifecycle("Copying overlays on Deploy server ${server.name}")
 
-                OverlaysUtil.addDatabaseDependency(project, server)
-                OverlaysUtil.addMqDependency(project, server)
-                if (CacheUtil.isCacheEnabled(project)) {
-                    OverlaysUtil.addCacheDependency(project, server)
-                }
+            OverlaysUtil.addDatabaseDependency(project, server)
+            OverlaysUtil.addMqDependency(project, server)
+            if (CacheUtil.isCacheEnabled(project)) {
+                OverlaysUtil.addCacheDependency(project, server)
+            }
 
-                server.overlays.forEach { overlay ->
-                    OverlaysUtil.defineOverlay(project,
-                        currentTask,
-                        DeployServerUtil.getServerWorkingDir(project, server),
-                        DeployExtensionUtil.DEPLOY_IS_EXTENSION_NAME,
-                        overlay,
-                        if (DeployServerUtil.isDistDownloadRequired(project,
-                                server)
-                        ) arrayListOf("${DownloadAndExtractServerDistTask.NAME}${server.name}", DownloadAndExtractCliDistTask.NAME)
-                        else arrayListOf(),
-                        server.name)
-                }
+            server.overlays.forEach { overlay ->
+                OverlaysUtil.defineOverlay(project,
+                    currentTask,
+                    DeployServerUtil.getServerWorkingDir(project, server),
+                    DeployExtensionUtil.DEPLOY_IS_EXTENSION_NAME,
+                    overlay,
+                    if (DeployServerUtil.isDistDownloadRequired(project,
+                            server)
+                    ) arrayListOf("${DownloadAndExtractServerDistTask.NAME}${server.name}", DownloadAndExtractCliDistTask.NAME)
+                    else arrayListOf(),
+                    server.name)
             }
         }
     }

@@ -6,6 +6,8 @@ import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.*
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.support.serviceOf
+import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -336,7 +338,8 @@ class DeployServerUtil {
         }
 
         fun runDockerBasedInstance(project: Project, server: Server) {
-            project.exec {
+            val execOps = project.serviceOf<ExecOperations>()
+            execOps.exec {
                 executable = "docker-compose"
                 args = listOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "up", "-d")
             }
@@ -344,7 +347,8 @@ class DeployServerUtil {
 
         fun stopDockerContainer(project: Project, server: Server) {
             project.logger.lifecycle("Trying to stop ${server.version} container")
-            project.exec {
+            val execOps = project.serviceOf<ExecOperations>()
+            execOps.exec {
                 executable = "docker-compose"
                 args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().path, "stop")
             }
@@ -352,7 +356,8 @@ class DeployServerUtil {
 
         fun getDockerContainerPort(project: Project, server: Server, privatePort: Int): Int? {
             return ByteArrayOutputStream().use {
-                project.exec {
+                val execOps = project.serviceOf<ExecOperations>()
+                execOps.exec {
                     executable = "docker-compose"
                     args = arrayListOf("-f", getResolvedDockerFile(project, server).toFile().toString(), "port", "deploy-${server.version}", privatePort.toString())
                     standardOutput = it

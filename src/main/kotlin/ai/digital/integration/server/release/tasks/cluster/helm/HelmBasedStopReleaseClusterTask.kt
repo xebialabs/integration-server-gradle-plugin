@@ -24,7 +24,7 @@ open class HelmBasedStopReleaseClusterTask : DefaultTask() {
     init {
         group = PluginConstant.PLUGIN_GROUP
 
-        project.afterEvaluate {
+        // Configure dependencies directly - no afterEvaluate needed in Gradle 9
             if (ReleaseExtensionUtil.getExtension(project).clusterProfiles.helm().activeProviderName.isPresent) {
                 dependsOn(
                     DownloadAndExtractCliDistTask.NAME,
@@ -53,7 +53,6 @@ open class HelmBasedStopReleaseClusterTask : DefaultTask() {
             } else {
                 project.logger.warn("Active helm name is not set - HelmBasedStopReleaseClusterTask")
             }
-        }
     }
 
     @TaskAction

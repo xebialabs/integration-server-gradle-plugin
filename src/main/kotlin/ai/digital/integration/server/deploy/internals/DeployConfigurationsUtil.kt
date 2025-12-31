@@ -15,14 +15,14 @@ class DeployConfigurationsUtil {
         const val XL_CLI_DIST = "xlCliDist"
 
         fun registerConfigurations(project: Project) {
-            project.buildscript.configurations.create(SERVER_DIST)
-            project.buildscript.configurations.create(SERVER_CLI_DIST)
-            project.buildscript.configurations.create(SERVER_DATA_DIST)
-            project.buildscript.configurations.create(SATELLITE_DIST)
-            project.buildscript.configurations.create(CENTRAL_CONFIG_DIST)
-            project.buildscript.configurations.create(WORKER_DIST)
-            project.buildscript.configurations.create(OPERATOR_DIST)
-            project.buildscript.configurations.create(XL_CLI_DIST)
+            project.configurations.create(SERVER_DIST)
+            project.configurations.create(SERVER_CLI_DIST)
+            project.configurations.create(SERVER_DATA_DIST)
+            project.configurations.create(SATELLITE_DIST)
+            project.configurations.create(CENTRAL_CONFIG_DIST)
+            project.configurations.create(WORKER_DIST)
+            project.configurations.create(OPERATOR_DIST)
+            project.configurations.create(XL_CLI_DIST)
         }
     }
 }

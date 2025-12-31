@@ -31,9 +31,16 @@ class XlCliUtil {
 
         private fun copyFromLocal(project: Project, location: File) {
             val cliPath = localDir(project).resolve("xl")
-            ProcessUtil.executeCommand(
-                    "cp -f \"$cliPath\" \"$location\"", logOutput = false)
-            ProcessUtil.executeCommand("chmod +x xl", location, logOutput = false)
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                // Use Windows copy command
+                ProcessUtil.executeCommand(
+                        "copy /Y \"${cliPath.absolutePath}\" \"${location.absolutePath}\"", logOutput = false)
+            } else {
+                // Use Unix cp and chmod
+                ProcessUtil.executeCommand(
+                        "cp -f \"$cliPath\" \"$location\"", logOutput = false)
+                ProcessUtil.executeCommand("chmod +x xl", location, logOutput = false)
+            }
         }
 
         fun xlApply(project: Project, file: File, workDir: File, deployServerForOperatorPort: Int) {
