@@ -17,7 +17,7 @@ plugins {
     id("idea")
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("maven-publish")
-    id("nebula.release") version "20.2.0"
+    id("nebula.release") version "17.2.1"
     id("signing")
 }
 
@@ -90,8 +90,8 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
     withSourcesJar()
     withJavadocJar()
 }
@@ -260,13 +260,13 @@ tasks {
 
     compileKotlin {
         compilerOptions{
-            jvmTarget.set(JvmTarget.JVM_21)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 
     compileTestKotlin {
         compilerOptions{
-            jvmTarget.set(JvmTarget.JVM_21)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 
