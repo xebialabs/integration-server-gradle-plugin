@@ -37,9 +37,7 @@ repositories {
     maven {
         url = uri("https://plugins.gradle.org/m2/")
     }
-    maven {
-        url = uri("https://oss.sonatype.org/service/local/repositories/releases/content")
-    }
+    mavenCentral()
     if (project.hasProperty("nexusBaseUrl")) {
         maven {
             credentials {
