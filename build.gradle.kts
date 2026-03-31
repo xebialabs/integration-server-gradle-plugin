@@ -34,11 +34,9 @@ project.extra.set("releasedVersion", releasedVersion)
 repositories {
     mavenLocal()
     gradlePluginPortal()
+    mavenCentral()
     maven {
         url = uri("https://plugins.gradle.org/m2/")
-    }
-    maven {
-        url = uri("https://oss.sonatype.org/service/local/repositories/releases/content")
     }
     if (project.hasProperty("nexusBaseUrl")) {
         maven {
