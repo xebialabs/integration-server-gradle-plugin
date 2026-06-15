@@ -17,7 +17,7 @@ internal class PropertyUtilTest {
 
         assertEquals(
             "postgres",
-            PropertyUtil.resolveValue(project, "database", "derby-inmemory")
+            PropertyUtil.resolveValue(project, "database", "postgres-12")
         )
         assertEquals("rabbitmq", PropertyUtil.resolveValue(project, "mq", "rabbitmq"))
 

@@ -23,4 +23,4 @@ The richest setup available now you can configure with help of **Integration Ser
 
 ![Richest setup available](../pics/richest-setup-available.jpg)
 
-MQ and Database setup done based on Docker. Only Derby is exception, it runs as a JDK process.  
+MQ and Database setup done based on Docker.

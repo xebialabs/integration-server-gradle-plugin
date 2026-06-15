@@ -7,43 +7,14 @@ import org.junit.jupiter.api.Test
 class DbUtilTest {
 
     @Test
-    fun isDerbyTest() {
-        assertEquals(true, DbUtil.isDerby("derby"))
-        assertEquals(true, DbUtil.isDerby("derby-network"))
-        assertEquals(true, DbUtil.isDerby("derby-inmemory"))
-        assertEquals(false, DbUtil.isDerby("mysql"))
-    }
-
-    @Test
     fun detectDbDependenciesTest() {
-        detectDbDependenciesDerbyNetwork("derby")
-        detectDbDependenciesDerby()
-        detectDbDependenciesDerbyNetwork("derby-network")
         detectDbDependenciesMssql()
         detectDbDependenciesMySql("mysql")
         detectDbDependenciesMySql("mysql-8")
         detectDbDependenciesOracle()
         detectDbDependenciesPostgres("postgres-10")
         detectDbDependenciesPostgres("postgres-12")
-        detectDbDependenciesDerbyNetwork("default")
-    }
-
-    private fun detectDbDependenciesDerbyNetwork(dbName: String) {
-        val dbParameters = DbUtil.detectDbDependencies(dbName)
-        assertEquals("org.apache.derby:derbyclient", dbParameters.driverDependency)
-        assertEquals(null, dbParameters.driverClass)
-        assertEquals(null, dbParameters.dataFactory)
-        assertEquals(null, dbParameters.metaFactory)
-        assertEquals("\"?\"", dbParameters.escapePattern)
-    }
-
-    private fun detectDbDependenciesDerby() {
-        val dbParameters = DbUtil.detectDbDependencies("derby-inmemory")
-        assertEquals("org.apache.derby:derby", dbParameters.driverDependency)
-        assertEquals(null, dbParameters.driverClass)
-        assertEquals(null, dbParameters.dataFactory)
-        assertEquals(null, dbParameters.metaFactory)
-        assertEquals("\"?\"", dbParameters.escapePattern)
+        detectDbDependenciesPostgres("default")
     }
 
     private fun detectDbDependenciesMssql() {

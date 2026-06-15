@@ -25,7 +25,7 @@ Parameters/Flags can be defined in 2 ways:
 |Flag name|Options|Description|
 | :---: | :---: | :---: |
 |clusterMode|`default`<br/> `full`<br/> `hot-standby`<br/>|Specify the cluster mode in which the server needs to start. Cluster tests will be executed based on clusterMode. If not set cluster mode is `default`|
-|database|`derby`<br/> `derby-inmemory`<br/> `derby-network`<br/> `mssql`<br/> `mysql`<br/> `mysql-8`<br/> `oracle-19c-se`<br/> `postgres-10`<br/> `postgres-12`|Type of database. [More details](#database-flag)|
+|database|`h2`<br/> `mssql`<br/> `mysql`<br/> `mysql-8`<br/> `oracle-19c-se`<br/> `postgres-10`<br/> `postgres-12`|Type of database. [More details](#database-flag)|
 |debug|Boolean|Enables or disables starting processes in debug mode. It overrides any debug setting in configuration. If not set debugging is enabled.|
 |databasePort|Any available port|The port on which database is going to be started.|
 |logSql|true/false|Enables printing of SQL queries executed on the server|
@@ -47,15 +47,12 @@ In case when the configuration is defined in `build.gradle` and a parameter prov
 ## Database flag
 
 Each database configuration is fixed, you can't modify it through the configuration of flags. <br/>
-The only thing what you can modify is the port for `derby` database. <br/>
 We have plans to make it possible to choose the port for any database. <br/>
 
 What exactly is configured for the database, you can check in `src/main/resources/database-conf`, or when you run the 
 *Integration Server* in your `<DEPLOY_HOME>/centralConfiguration/deploy-repository.yaml` file.
 
-### Derby
+### PostgreSQL
 
-You can run derby in 2 modes, in-memory or from the file system. You should know that derby in-memory has also limitations 
-regarding the connection limitation. It can be only one, so you can't view the content of the table.
-
-`derby` is an alias for `derby-network`.
+PostgreSQL is the default and recommended database for both development and production use.
+If no database is specified, PostgreSQL 12 (`postgres-12`) is used.

@@ -63,7 +63,6 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:${properties["jacksonVersion"]}")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${properties["jacksonVersion"]}")
     implementation("com.typesafe:config:${properties["typesafeConfigVersion"]}")
-    implementation("com.xebialabs.gradle.plugins:gradle-xl-derby-plugin:${properties["gradleXlDerbyPluginVersion"]}")
     implementation("commons-io:commons-io:${properties["commonsIOVersion"]}")
     implementation("com.palantir.gradle.docker:gradle-docker:${properties["dockerPluginVersion"]}")
     implementation("de.vandermeer:asciitable:${properties["asciitableVersion"]}")
