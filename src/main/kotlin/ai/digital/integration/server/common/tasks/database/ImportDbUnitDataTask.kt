@@ -26,7 +26,7 @@ open class ImportDbUnitDataTask : DefaultTask() {
         this.group = PluginConstant.PLUGIN_GROUP
         this.dependsOn(DownloadAndExtractDbUnitDataDistTask.NAME)
         this.onlyIf {
-            !DbUtil.isDerby(project) && DeployExtensionUtil.getExtension(project).xldIsDataVersion != null
+            DeployExtensionUtil.getExtension(project).xldIsDataVersion != null
         }
     }
 

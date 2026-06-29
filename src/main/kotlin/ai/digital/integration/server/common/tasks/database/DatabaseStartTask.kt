@@ -35,7 +35,6 @@ abstract class DatabaseStartTask @Inject constructor(
 
     @InputFiles
     override fun getDockerComposeFile(): File {
-        DbUtil.assertNotDerby(project, "Docker compose tasks do not support Derby database.")
         val resultComposeFilePath = DbUtil.getResolveDbFilePath(project)
 
         val src = DatabaseStartTask::class.java.protectionDomain.codeSource
@@ -70,6 +69,7 @@ abstract class DatabaseStartTask @Inject constructor(
 
     @TaskAction
     override fun run() {
+        val dbName = DbUtil.databaseName(project)
         project.logger.lifecycle("Cleaning up previous database containers and networks.")
         execOperations.exec {
             executable = "docker-compose"
@@ -79,7 +79,6 @@ abstract class DatabaseStartTask @Inject constructor(
             executable = "docker-compose"
             args = listOf("-f", getDockerComposeFile().path, "up", "-d")
         }
-        val dbName = DbUtil.databaseName(project)
         if (dbName.startsWith("oracle")) {
             project.logger.lifecycle("Waiting for 1 minute to start oracle db")
             TimeUnit.SECONDS.sleep(60)

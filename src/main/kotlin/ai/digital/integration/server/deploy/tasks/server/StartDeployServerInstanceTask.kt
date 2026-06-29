@@ -10,7 +10,6 @@ import ai.digital.integration.server.common.tasks.database.ImportDbUnitDataTask
 import ai.digital.integration.server.common.tasks.database.PrepareDatabaseTask
 import ai.digital.integration.server.common.tasks.infrastructure.InfrastructureStartTask
 import ai.digital.integration.server.deploy.internals.CentralConfigurationServerUtil
-import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.common.util.ProcessUtil
 import ai.digital.integration.server.deploy.internals.*
@@ -44,7 +43,7 @@ open class StartDeployServerInstanceTask : DefaultTask() {
             CopyCliBuildArtifactsTask.NAME,
             CopyServerFoldersTask.NAME,
             CopyServerBuildArtifactsTask.NAME,
-            ServerCopyOverlaysTask.NAME, if (DbUtil.isDerby(project)) "derbyStart" else DatabaseStartTask.NAME,
+            ServerCopyOverlaysTask.NAME, DatabaseStartTask.NAME,
             DownloadAndExtractServerDistTask.NAME,
             PrepareDatabaseTask.NAME,
             PrepareServerTask.NAME,

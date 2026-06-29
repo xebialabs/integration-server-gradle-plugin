@@ -6,7 +6,6 @@ import ai.digital.integration.server.common.util.HTTPUtil.Companion.findFreePort
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import com.fasterxml.jackson.core.TreeNode
 import com.fasterxml.jackson.databind.node.TextNode
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.io.InputStream
 import java.nio.file.Path
@@ -20,40 +19,16 @@ class DbUtil {
         const val MYSQL = "mysql"
         const val MYSQL8 = "mysql-8"
         const val MSSQL = "mssql"
-        const val DERBY = "derby"
-        const val DERBY_NETWORK = "derby-network"
-        const val DERBY_INMEMORY = "derby-inmemory"
 
         private val randomDatabasePort: Int = findFreePort()
 
         fun databaseName(project: Project): String {
-            return PropertyUtil.resolveValue(project, "database", DERBY_INMEMORY).toString()
+            return PropertyUtil.resolveValue(project, "database", POSTGRES12).toString()
         }
 
         private fun dbConfigStream(project: Project): InputStream? {
             val dbname = databaseName(project)
             return {}::class.java.classLoader.getResourceAsStream("database-conf/deploy-repository.yaml.${dbname}")
-        }
-
-        fun isDerby(project: Project): Boolean {
-            val dbname = databaseName(project)
-            return isDerby(dbname)
-        }
-
-        fun isDerby(name: String): Boolean {
-            return name == DERBY_NETWORK || name == DERBY_INMEMORY || name == DERBY
-        }
-
-        fun isDerbyNetwork(project: Project): Boolean {
-            val dbName = databaseName(project)
-            return dbName == DERBY_NETWORK || dbName == DERBY
-        }
-
-        fun assertNotDerby(project: Project, message: String) {
-            val dbname = databaseName(project)
-            if (isDerby(dbname)) {
-                throw GradleException(message)
-            }
         }
 
         fun dbConfig(project: Project): TreeNode? {
@@ -138,35 +113,14 @@ class DbUtil {
             "\"?\""
         )
 
-        private val derbyParams: DbParameters = DbParameters(
-            "org.apache.derby:derby",
-            null,
-            null,
-            null,
-            "\"?\""
-        )
-
-        private val derbyNetworkParams: DbParameters = DbParameters(
-            "org.apache.derby:derbyclient",
-            null,
-            null,
-            null,
-            "\"?\""
-        )
-
-
         fun detectDbDependencies(db: String): DbParameters {
             return when (db) {
-                DERBY -> derbyNetworkParams
-                DERBY_INMEMORY -> derbyParams
-                DERBY_NETWORK -> derbyNetworkParams
                 MSSQL -> mssqlParams
                 MYSQL, MYSQL8 -> mysqlParams
                 ORACLE19 -> oracle19Params
                 POSTGRES, POSTGRES12 -> postgresParams
-                else -> derbyNetworkParams
+                else -> postgresParams
             }
-
         }
 
         fun getResolvedDBDockerComposeFile(resultComposeFilePath: Path, project: Project) {

@@ -279,10 +279,10 @@ now on the level of project property `database`. It means that you can specify i
 * In the root of your project in `gradle.properties` file
 
 ```properties title=gradle.properties
-database=derby-network
+database=postgres-12
 ```
 
-If nothing specified, **derby in memory** is going to be used.
+If nothing specified, **postgres-12** is going to be used.
 
 ## Workers section
 

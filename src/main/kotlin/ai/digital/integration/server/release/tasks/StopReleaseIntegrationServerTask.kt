@@ -2,7 +2,6 @@ package ai.digital.integration.server.release.tasks
 
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.tasks.database.DatabaseStopTask
-import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.release.tasks.cluster.StopReleaseClusterTask
 import ai.digital.integration.server.release.util.ReleaseServerUtil
 import org.gradle.api.DefaultTask
@@ -26,11 +25,7 @@ open class StopReleaseIntegrationServerTask : DefaultTask() {
                 that.dependsOn(DockerBasedStopReleaseTask.NAME)
             }
 
-            if (DbUtil.isDerby(project)) {
-                that.finalizedBy("derbyStop")
-            } else {
-                that.finalizedBy(DatabaseStopTask.NAME)
-            }
+            that.finalizedBy(DatabaseStopTask.NAME)
         }
     }
 
