@@ -6,6 +6,7 @@ import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import ai.digital.integration.server.deploy.tasks.server.PrepareServerTask
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -33,6 +34,10 @@ open class DockerBasedStopDeployTask @Inject constructor(
 
     @TaskAction
     fun run() {
+        // Use 'docker compose' on Windows, 'docker-compose' on other systems
+        val executable = if (Os.isFamily(Os.FAMILY_WINDOWS)) "docker" else "docker-compose"
+        val baseArgs = if (Os.isFamily(Os.FAMILY_WINDOWS)) listOf("compose") else emptyList()
+        
         DeployServerUtil.getServers(project)
             .forEach { server ->
                 project.logger.lifecycle("Stopping Deploy Server from a docker image ${
@@ -40,8 +45,8 @@ open class DockerBasedStopDeployTask @Inject constructor(
                 }")
                 DockerComposeUtil.allowToCleanMountedFiles(project, ProductName.DEPLOY, server, getDockerComposeFile(server))
                 execOperations.exec {
-                    executable = "docker-compose"
-                    args = arrayListOf("-f", getDockerComposeFile(server).path, "down", "-v")
+                    this.executable = executable
+                    args = baseArgs + arrayListOf("-f", getDockerComposeFile(server).path, "down", "-v")
                 }
             }
     }

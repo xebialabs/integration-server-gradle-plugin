@@ -8,6 +8,7 @@ import ai.digital.integration.server.deploy.tasks.centralConfiguration.DownloadA
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
 import com.palantir.gradle.docker.DockerComposeUp
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
@@ -71,13 +72,18 @@ abstract class DatabaseStartTask @Inject constructor(
     override fun run() {
         val dbName = DbUtil.databaseName(project)
         project.logger.lifecycle("Cleaning up previous database containers and networks.")
+        
+        // Use 'docker compose' on Windows, 'docker-compose' on other systems
+        val executable = if (Os.isFamily(Os.FAMILY_WINDOWS)) "docker" else "docker-compose"
+        val baseArgs = if (Os.isFamily(Os.FAMILY_WINDOWS)) listOf("compose") else emptyList()
+        
         execOperations.exec {
-            executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile().path, "down", "--remove-orphans")
+            this.executable = executable
+            args = baseArgs + listOf("-f", getDockerComposeFile().path, "down", "--remove-orphans")
         }
         execOperations.exec {
-            executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile().path, "up", "-d")
+            this.executable = executable
+            args = baseArgs + listOf("-f", getDockerComposeFile().path, "up", "-d")
         }
         if (dbName.startsWith("oracle")) {
             project.logger.lifecycle("Waiting for 1 minute to start oracle db")

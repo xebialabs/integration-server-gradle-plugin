@@ -7,6 +7,7 @@ import ai.digital.integration.server.common.util.WaitForBootUtil
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractServerDistTask
 import com.palantir.gradle.docker.DockerComposeUp
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
@@ -38,15 +39,19 @@ abstract class GitlabStartTask @Inject constructor(
     override fun run() {
         project.logger.lifecycle("Cleaning up gitlab instance using `docker-compose`, Before starting new instance")
 
+        // Use 'docker compose' on Windows, 'docker-compose' on other systems
+        val executable = if (Os.isFamily(Os.FAMILY_WINDOWS)) "docker" else "docker-compose"
+        val baseArgs = if (Os.isFamily(Os.FAMILY_WINDOWS)) listOf("compose") else emptyList()
+
         execOperations.exec {
-            executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile().toString(), "-p", "gitlab_server", "down")
+            this.executable = executable
+            args = baseArgs + listOf("-f", getDockerComposeFile().toString(), "-p", "gitlab_server", "down")
         }
         project.logger.lifecycle("Starting GitLab server.")
 
         execOperations.exec {
-            executable = "docker-compose"
-            args = arrayListOf("-f", dockerComposeFile.path, "-p", "gitlab_server", "up", "-d")
+            this.executable = executable
+            args = baseArgs + arrayListOf("-f", dockerComposeFile.path, "-p", "gitlab_server", "up", "-d")
         }
 
         WaitForBootUtil.byPort(project, "GitLab server", "http://localhost:11180/") // TODO: port has to be configurable

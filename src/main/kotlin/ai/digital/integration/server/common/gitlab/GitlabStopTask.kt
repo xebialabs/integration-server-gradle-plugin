@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.util.DockerComposeUtil
 import ai.digital.integration.server.common.util.GitlabUtil
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractServerDistTask
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -29,9 +30,13 @@ open class GitlabStopTask @Inject constructor(
     fun run() {
         project.logger.lifecycle("Stopping GitLab server.")
 
+        // Use 'docker compose' on Windows, 'docker-compose' on other systems
+        val executable = if (Os.isFamily(Os.FAMILY_WINDOWS)) "docker" else "docker-compose"
+        val baseArgs = if (Os.isFamily(Os.FAMILY_WINDOWS)) listOf("compose") else emptyList()
+
         execOperations.exec {
-            executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile().toString(), "-p", "gitlab_server", "down")
+            this.executable = executable
+            args = baseArgs + listOf("-f", getDockerComposeFile().toString(), "-p", "gitlab_server", "down")
         }
     }
 

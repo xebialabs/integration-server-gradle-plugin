@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.domain.Infrastructure
 import ai.digital.integration.server.common.util.InfrastructureUtil
 import ai.digital.integration.server.deploy.internals.WorkerUtil
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
@@ -50,9 +51,13 @@ abstract class InfrastructureStartTask @Inject constructor(
         dockerComposeArgs.add("up")
         dockerComposeArgs.add("-d")
 
+        // Use 'docker compose' on Windows, 'docker-compose' on other systems
+        val executable = if (Os.isFamily(Os.FAMILY_WINDOWS)) "docker" else "docker-compose"
+        val baseArgs = if (Os.isFamily(Os.FAMILY_WINDOWS)) listOf("compose") else emptyList()
+
         execOperations.exec {
-            executable = "docker-compose"
-            args = dockerComposeArgs
+            this.executable = executable
+            args = baseArgs + dockerComposeArgs
         }
     }
 }
