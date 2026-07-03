@@ -5,6 +5,7 @@ import ai.digital.integration.server.common.util.MqUtil
 import ai.digital.integration.server.deploy.tasks.centralConfiguration.DownloadAndExtractCentralConfigurationServerDistTask
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractServerDistTask
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -33,9 +34,13 @@ open class ShutdownMqTask @Inject constructor(
     fun stop() {
         project.logger.lifecycle("Shutting down ${MqUtil.mqName(project)} MQ.")
 
+        // Use 'docker compose' on Windows, 'docker-compose' on other systems
+        val executable = if (Os.isFamily(Os.FAMILY_WINDOWS)) "docker" else "docker-compose"
+        val baseArgs = if (Os.isFamily(Os.FAMILY_WINDOWS)) listOf("compose") else emptyList()
+
         execOperations.exec {
-            executable = "docker-compose"
-            args = arrayListOf("-f",
+            this.executable = executable
+            args = baseArgs + arrayListOf("-f",
                 getDockerComposeFile().path,
                 "--project-directory",
                 MqUtil.getMqDirectory(project),

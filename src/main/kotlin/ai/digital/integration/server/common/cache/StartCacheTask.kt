@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.util.CacheUtil
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import com.palantir.gradle.docker.DockerComposeUp
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
@@ -37,9 +38,14 @@ abstract class StartCacheTask @Inject constructor(
     @TaskAction
     override fun run() {
         project.logger.lifecycle("Cleaning up previous Cache containers and networks.")
+        
+        // Use 'docker compose' on Windows, 'docker-compose' on other systems
+        val executable = if (Os.isFamily(Os.FAMILY_WINDOWS)) "docker" else "docker-compose"
+        val baseArgs = if (Os.isFamily(Os.FAMILY_WINDOWS)) listOf("compose") else emptyList()
+        
         execOperations.exec {
-            executable = "docker-compose"
-            args = arrayListOf("-f",
+            this.executable = executable
+            args = baseArgs + arrayListOf("-f",
                 dockerComposeFile.path,
                 "--project-directory",
                 CacheUtil.getBaseDirectory(project),
@@ -48,8 +54,8 @@ abstract class StartCacheTask @Inject constructor(
         project.logger.lifecycle("Starting Cache Server.")
 
         execOperations.exec {
-            executable = "docker-compose"
-            args = arrayListOf("-f",
+            this.executable = executable
+            args = baseArgs + arrayListOf("-f",
                     dockerComposeFile.path,
                     "--project-directory",
                     CacheUtil.getBaseDirectory(project),

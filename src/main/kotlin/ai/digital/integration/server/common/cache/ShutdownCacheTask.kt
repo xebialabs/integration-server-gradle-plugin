@@ -2,6 +2,7 @@ package ai.digital.integration.server.common.cache
 
 import ai.digital.integration.server.common.constant.PluginConstant
 import ai.digital.integration.server.common.util.CacheUtil
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
@@ -32,9 +33,13 @@ open class ShutdownCacheTask @Inject constructor(
     fun stop() {
         project.logger.lifecycle("Shutting down Cache Server.")
 
+        // Use 'docker compose' on Windows, 'docker-compose' on other systems
+        val executable = if (Os.isFamily(Os.FAMILY_WINDOWS)) "docker" else "docker-compose"
+        val baseArgs = if (Os.isFamily(Os.FAMILY_WINDOWS)) listOf("compose") else emptyList()
+
         execOperations.exec {
-            executable = "docker-compose"
-            args = arrayListOf("-f",
+            this.executable = executable
+            args = baseArgs + arrayListOf("-f",
                     getDockerComposeFile().path,
                     "--project-directory",
                     CacheUtil.getBaseDirectory(project),

@@ -7,6 +7,7 @@ import ai.digital.integration.server.common.util.WaitForBootUtil
 import ai.digital.integration.server.release.internals.ReleaseServerInitializeUtil
 import ai.digital.integration.server.release.tasks.DockerBasedStopReleaseTask
 import ai.digital.integration.server.release.util.ReleaseServerUtil
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -35,9 +36,13 @@ open class StartReleaseToGetLicenceTask @Inject constructor(
     }
 
     private fun start(): Process? {
+        // Use 'docker compose' on Windows, 'docker-compose' on other systems
+        val executable = if (Os.isFamily(Os.FAMILY_WINDOWS)) "docker" else "docker-compose"
+        val baseArgs = if (Os.isFamily(Os.FAMILY_WINDOWS)) listOf("compose") else emptyList()
+        
         execOperations.exec {
-            executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile().toString(), "up", "-d")
+            this.executable = executable
+            args = baseArgs + listOf("-f", getDockerComposeFile().toString(), "up", "-d")
         }
         return null
     }

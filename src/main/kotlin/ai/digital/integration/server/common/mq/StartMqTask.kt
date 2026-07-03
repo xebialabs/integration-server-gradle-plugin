@@ -7,6 +7,7 @@ import ai.digital.integration.server.deploy.tasks.centralConfiguration.DownloadA
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractServerDistTask
 import com.palantir.gradle.docker.DockerComposeUp
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
@@ -40,9 +41,14 @@ abstract class StartMqTask @Inject constructor(
     @TaskAction
     override fun run() {
         project.logger.lifecycle("Cleaning up previous Mq containers and networks.")
+        
+        // Use 'docker compose' on Windows, 'docker-compose' on other systems
+        val executable = if (Os.isFamily(Os.FAMILY_WINDOWS)) "docker" else "docker-compose"
+        val baseArgs = if (Os.isFamily(Os.FAMILY_WINDOWS)) listOf("compose") else emptyList()
+        
         execOperations.exec {
-            executable = "docker-compose"
-            args = arrayListOf("-f",
+            this.executable = executable
+            args = baseArgs + arrayListOf("-f",
                 getDockerComposeFile().path,
                 "--project-directory",
                 MqUtil.getMqDirectory(project),
@@ -50,8 +56,8 @@ abstract class StartMqTask @Inject constructor(
         }
         project.logger.lifecycle("Starting ${MqUtil.mqName(project)} MQ.")
         execOperations.exec {
-            executable = "docker-compose"
-            args = arrayListOf("-f",
+            this.executable = executable
+            args = baseArgs + arrayListOf("-f",
                 dockerComposeFile.path,
                 "--project-directory",
                 MqUtil.getMqDirectory(project),
