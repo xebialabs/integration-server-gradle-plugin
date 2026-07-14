@@ -30,6 +30,14 @@ open class DatabaseStopTask @Inject constructor(
 
     @TaskAction
     fun run() {
+        val dbName = DbUtil.databaseName(project)
+        
+        // Skip docker-compose for embedded databases like H2
+        if (DbUtil.isEmbeddedDatabase(dbName)) {
+            project.logger.lifecycle("Using embedded database $dbName - skipping docker-compose teardown.")
+            return
+        }
+        
         execOperations.exec {
             executable = "docker-compose"
             args = arrayListOf("-f", getDockerComposeFile().path, "down", "--remove-orphans")

@@ -68,6 +68,7 @@ dependencies {
     implementation("de.vandermeer:asciitable:${properties["asciitableVersion"]}")
     implementation("org.jsoup:jsoup:${properties["jsoupVersion"]}")
     implementation("com.mysql:mysql-connector-j:${properties["driverVersions.mysql"]}")
+    implementation("com.h2database:h2:${properties["driverVersions.h2"]}")
     implementation("net.jodah:failsafe:${properties["failsafeVersion"]}")
     implementation("org.codehaus.groovy.modules.http-builder:http-builder:${properties["httpBuilderVersion"]}") {
         exclude("org.codehaus.groovy", "groovy")

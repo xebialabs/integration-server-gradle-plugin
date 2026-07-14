@@ -19,6 +19,7 @@ class DbUtil {
         const val MYSQL = "mysql"
         const val MYSQL8 = "mysql-8"
         const val MSSQL = "mssql"
+        const val H2 = "h2"
 
         private val randomDatabasePort: Int = findFreePort()
 
@@ -112,15 +113,26 @@ class DbUtil {
             null,
             "\"?\""
         )
-
+        private val h2Params: DbParameters = DbParameters(
+            "com.h2database:h2",
+            "org.h2.Driver",
+            "org.dbunit.ext.h2.H2DataTypeFactory",
+            null,
+            "?"
+        )
         fun detectDbDependencies(db: String): DbParameters {
             return when (db) {
                 MSSQL -> mssqlParams
                 MYSQL, MYSQL8 -> mysqlParams
                 ORACLE19 -> oracle19Params
                 POSTGRES, POSTGRES12 -> postgresParams
+                H2 -> h2Params
                 else -> postgresParams
             }
+        }
+
+        fun isEmbeddedDatabase(db: String): Boolean {
+            return db == H2
         }
 
         fun getResolvedDBDockerComposeFile(resultComposeFilePath: Path, project: Project) {

@@ -70,6 +70,13 @@ abstract class DatabaseStartTask @Inject constructor(
     @TaskAction
     override fun run() {
         val dbName = DbUtil.databaseName(project)
+        
+        // Skip docker-compose for embedded databases like H2
+        if (DbUtil.isEmbeddedDatabase(dbName)) {
+            project.logger.lifecycle("Using embedded database $dbName - skipping docker-compose setup.")
+            return
+        }
+        
         project.logger.lifecycle("Cleaning up previous database containers and networks.")
         execOperations.exec {
             executable = "docker-compose"

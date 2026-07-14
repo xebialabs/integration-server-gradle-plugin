@@ -1,0 +1,9 @@
+xl.repository:
+  artifacts:
+    root: build/artifacts
+  database:
+    db-driver-classname: "org.h2.Driver"
+    db-url: "jdbc:h2:mem:xl-deploy"
+    db-username: "sa"
+    db-password: "123"
+    max-pool-size: 10
