@@ -9,6 +9,7 @@ import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistT
 import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
 import java.io.File
@@ -33,14 +34,19 @@ abstract class DatabaseStartTask @Inject constructor(
         return "Starts database instance using `docker-compose` and ${DbUtil.dockerComposeFileName(project)} file."
     }
 
+    @Optional
     @InputFiles
-    override fun getDockerComposeFile(): File {
+    override fun getDockerComposeFile(): File? {
+        val dbName = DbUtil.databaseName(project)
+        if (DbUtil.isEmbeddedDatabase(dbName)) {
+            return null
+        }
+
         val resultComposeFilePath = DbUtil.getResolveDbFilePath(project)
 
         val src = DatabaseStartTask::class.java.protectionDomain.codeSource
 
         src?.let { codeSource ->
-            val dbName = DbUtil.databaseName(project)
             File(resultComposeFilePath.parent.toFile().path, "$dbName-docker").mkdirs()
 
             val jar = codeSource.location
@@ -80,11 +86,11 @@ abstract class DatabaseStartTask @Inject constructor(
         project.logger.lifecycle("Cleaning up previous database containers and networks.")
         execOperations.exec {
             executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile().path, "down", "--remove-orphans")
+            args = listOf("-f", getDockerComposeFile()!!.path, "down", "--remove-orphans")
         }
         execOperations.exec {
             executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile().path, "up", "-d")
+            args = listOf("-f", getDockerComposeFile()!!.path, "up", "-d")
         }
         if (dbName.startsWith("oracle")) {
             project.logger.lifecycle("Waiting for 1 minute to start oracle db")

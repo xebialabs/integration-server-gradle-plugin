@@ -4,6 +4,7 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.DbUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
 import java.io.File
@@ -20,8 +21,13 @@ open class DatabaseStopTask @Inject constructor(
         this.group = PLUGIN_GROUP
     }
 
+    @Optional
     @InputFiles
-    fun getDockerComposeFile(): File {
+    fun getDockerComposeFile(): File? {
+        val dbName = DbUtil.databaseName(project)
+        if (DbUtil.isEmbeddedDatabase(dbName)) {
+            return null
+        }
         val resultComposeFilePath = DbUtil.getResolveDbFilePath(project)
         DbUtil.getResolvedDBDockerComposeFile(resultComposeFilePath, project)
 
@@ -40,7 +46,7 @@ open class DatabaseStopTask @Inject constructor(
         
         execOperations.exec {
             executable = "docker-compose"
-            args = arrayListOf("-f", getDockerComposeFile().path, "down", "--remove-orphans")
+            args = arrayListOf("-f", getDockerComposeFile()!!.path, "down", "--remove-orphans")
         }
     }
 }
