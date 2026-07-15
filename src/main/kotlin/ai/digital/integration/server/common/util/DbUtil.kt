@@ -24,7 +24,10 @@ class DbUtil {
         private val randomDatabasePort: Int = findFreePort()
 
         fun databaseName(project: Project): String {
-            return PropertyUtil.resolveValue(project, "database", POSTGRES12).toString()
+            // Auto-detect OS: Windows uses H2 (embedded), others use Postgres
+            val osName = System.getProperty("os.name").lowercase()
+            val defaultDatabase = if (osName.contains("windows")) H2 else POSTGRES12
+            return PropertyUtil.resolveValue(project, "database", defaultDatabase).toString()
         }
 
         private fun dbConfigStream(project: Project): InputStream? {

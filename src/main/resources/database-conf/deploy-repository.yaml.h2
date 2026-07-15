@@ -3,7 +3,7 @@ xl.repository:
     root: build/artifacts
   database:
     db-driver-classname: "org.h2.Driver"
-    db-url: "jdbc:h2:mem:xl-deploy"
+    db-url: "jdbc:h2:mem:xl-deploy;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
     db-username: "sa"
     db-password: "123"
     max-pool-size: 10

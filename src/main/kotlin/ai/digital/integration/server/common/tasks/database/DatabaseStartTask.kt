@@ -34,16 +34,29 @@ abstract class DatabaseStartTask @Inject constructor(
         return "Starts database instance using `docker-compose` and ${DbUtil.dockerComposeFileName(project)} file."
     }
 
-    @Optional
     @InputFiles
+    @Optional
+    fun getDockerComposeFileInput(): File? {
+        val dbName = DbUtil.databaseName(project)
+        // Return null for embedded databases (H2) to skip input file validation
+        return if (DbUtil.isEmbeddedDatabase(dbName)) {
+            null
+        } else {
+            getDockerComposeFile()
+        }
+    }
+
     override fun getDockerComposeFile(): File? {
         val dbName = DbUtil.databaseName(project)
+        
+        // For embedded databases like H2, no docker-compose file is needed
         if (DbUtil.isEmbeddedDatabase(dbName)) {
             return null
         }
-
+        
         val resultComposeFilePath = DbUtil.getResolveDbFilePath(project)
 
+        // Extract docker-compose file from plugin JAR for non-embedded databases only
         val src = DatabaseStartTask::class.java.protectionDomain.codeSource
 
         src?.let { codeSource ->
@@ -57,17 +70,19 @@ abstract class DatabaseStartTask @Inject constructor(
                 if (entry != null) {
                     val name = entry.name
 
-                    val folderName = "database-compose/$dbName-docker/"
-                    if (name.startsWith(folderName) && name != folderName) {
-                        val dockerFileName = name.substring(name.indexOf('/') + 1)
+                    // Match docker-compose file for this database
+                    val dockerComposeFileName = "database-compose/docker-compose_${dbName}.yaml"
+                    if (name == dockerComposeFileName) {
                         FileUtil.copyFile(zip,
-                            IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, dockerFileName))
+                            IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, "docker-compose_${dbName}.yaml"))
                     }
                 } else {
                     break
                 }
             }
         }
+        
+        // Resolve placeholders like {{DB_PORT}}
         DbUtil.getResolvedDBDockerComposeFile(resultComposeFilePath, project)
 
         return project.file(resultComposeFilePath)

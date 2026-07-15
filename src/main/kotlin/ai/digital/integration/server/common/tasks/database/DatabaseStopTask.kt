@@ -21,8 +21,6 @@ open class DatabaseStopTask @Inject constructor(
         this.group = PLUGIN_GROUP
     }
 
-    @Optional
-    @InputFiles
     fun getDockerComposeFile(): File? {
         val dbName = DbUtil.databaseName(project)
         if (DbUtil.isEmbeddedDatabase(dbName)) {
