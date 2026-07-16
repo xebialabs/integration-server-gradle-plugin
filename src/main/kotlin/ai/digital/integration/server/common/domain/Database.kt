@@ -16,7 +16,8 @@ open class Database(objects: ObjectFactory) {
                 "mysql-8" to "8.1.0",
                 "oracle-19c-se" to "21.1.0.0",
                 "postgres-10" to "42.6.0",
-                "postgres-12" to "42.6.0"
+                "postgres-12" to "42.6.0",
+                "h2" to "2.2.224"
             )).get()
 
     var logSql: Boolean = objects.property<Boolean>().value(false).get()

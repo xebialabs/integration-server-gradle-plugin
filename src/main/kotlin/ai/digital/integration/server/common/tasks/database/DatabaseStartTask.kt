@@ -9,6 +9,7 @@ import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistT
 import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
 import java.io.File
@@ -34,13 +35,31 @@ abstract class DatabaseStartTask @Inject constructor(
     }
 
     @InputFiles
-    override fun getDockerComposeFile(): File {
+    @Optional
+    fun getDockerComposeFileInput(): File? {
+        val dbName = DbUtil.databaseName(project)
+        // Return null for embedded databases (H2) to skip input file validation
+        return if (DbUtil.isEmbeddedDatabase(dbName)) {
+            null
+        } else {
+            getDockerComposeFile()
+        }
+    }
+
+    override fun getDockerComposeFile(): File? {
+        val dbName = DbUtil.databaseName(project)
+        
+        // For embedded databases like H2, no docker-compose file is needed
+        if (DbUtil.isEmbeddedDatabase(dbName)) {
+            return null
+        }
+        
         val resultComposeFilePath = DbUtil.getResolveDbFilePath(project)
 
+        // Extract docker-compose file from plugin JAR for non-embedded databases only
         val src = DatabaseStartTask::class.java.protectionDomain.codeSource
 
         src?.let { codeSource ->
-            val dbName = DbUtil.databaseName(project)
             File(resultComposeFilePath.parent.toFile().path, "$dbName-docker").mkdirs()
 
             val jar = codeSource.location
@@ -51,17 +70,19 @@ abstract class DatabaseStartTask @Inject constructor(
                 if (entry != null) {
                     val name = entry.name
 
-                    val folderName = "database-compose/$dbName-docker/"
-                    if (name.startsWith(folderName) && name != folderName) {
-                        val dockerFileName = name.substring(name.indexOf('/') + 1)
+                    // Match docker-compose file for this database
+                    val dockerComposeFileName = "database-compose/docker-compose_${dbName}.yaml"
+                    if (name == dockerComposeFileName) {
                         FileUtil.copyFile(zip,
-                            IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, dockerFileName))
+                            IntegrationServerUtil.getRelativePathInIntegrationServerDist(project, "docker-compose_${dbName}.yaml"))
                     }
                 } else {
                     break
                 }
             }
         }
+        
+        // Resolve placeholders like {{DB_PORT}}
         DbUtil.getResolvedDBDockerComposeFile(resultComposeFilePath, project)
 
         return project.file(resultComposeFilePath)
@@ -70,14 +91,21 @@ abstract class DatabaseStartTask @Inject constructor(
     @TaskAction
     override fun run() {
         val dbName = DbUtil.databaseName(project)
+        
+        // Skip docker-compose for embedded databases like H2
+        if (DbUtil.isEmbeddedDatabase(dbName)) {
+            project.logger.lifecycle("Using embedded database $dbName - skipping docker-compose setup.")
+            return
+        }
+        
         project.logger.lifecycle("Cleaning up previous database containers and networks.")
         execOperations.exec {
             executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile().path, "down", "--remove-orphans")
+            args = listOf("-f", getDockerComposeFile()!!.path, "down", "--remove-orphans")
         }
         execOperations.exec {
             executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile().path, "up", "-d")
+            args = listOf("-f", getDockerComposeFile()!!.path, "up", "-d")
         }
         if (dbName.startsWith("oracle")) {
             project.logger.lifecycle("Waiting for 1 minute to start oracle db")

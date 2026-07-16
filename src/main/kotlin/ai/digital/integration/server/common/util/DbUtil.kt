@@ -19,11 +19,15 @@ class DbUtil {
         const val MYSQL = "mysql"
         const val MYSQL8 = "mysql-8"
         const val MSSQL = "mssql"
+        const val H2 = "h2"
 
         private val randomDatabasePort: Int = findFreePort()
 
         fun databaseName(project: Project): String {
-            return PropertyUtil.resolveValue(project, "database", POSTGRES12).toString()
+            // Auto-detect OS: Windows uses H2 (embedded), others use Postgres
+            val osName = System.getProperty("os.name").lowercase()
+            val defaultDatabase = if (osName.contains("windows")) H2 else POSTGRES12
+            return PropertyUtil.resolveValue(project, "database", defaultDatabase).toString()
         }
 
         private fun dbConfigStream(project: Project): InputStream? {
@@ -112,15 +116,26 @@ class DbUtil {
             null,
             "\"?\""
         )
-
+        private val h2Params: DbParameters = DbParameters(
+            "com.h2database:h2",
+            "org.h2.Driver",
+            "org.dbunit.ext.h2.H2DataTypeFactory",
+            null,
+            "?"
+        )
         fun detectDbDependencies(db: String): DbParameters {
             return when (db) {
                 MSSQL -> mssqlParams
                 MYSQL, MYSQL8 -> mysqlParams
                 ORACLE19 -> oracle19Params
                 POSTGRES, POSTGRES12 -> postgresParams
+                H2 -> h2Params
                 else -> postgresParams
             }
+        }
+
+        fun isEmbeddedDatabase(db: String): Boolean {
+            return db == H2
         }
 
         fun getResolvedDBDockerComposeFile(resultComposeFilePath: Path, project: Project) {
