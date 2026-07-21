@@ -11,3 +11,9 @@ services:
       - MYSQL_DATABASE=xld
       - MYSQL_USER=xldrepo
       - MYSQL_PASSWORD=xldrepo
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -padmin --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 20s

@@ -4,15 +4,19 @@ import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.DbUtil
 import ai.digital.integration.server.common.util.FileUtil
 import ai.digital.integration.server.common.util.IntegrationServerUtil
+import ai.digital.integration.server.common.util.PropertyUtil
 import ai.digital.integration.server.deploy.tasks.centralConfiguration.DownloadAndExtractCentralConfigurationServerDistTask
 import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistTask
 import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
 import com.palantir.gradle.docker.DockerComposeUp
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -98,18 +102,95 @@ abstract class DatabaseStartTask @Inject constructor(
             return
         }
         
+        val composeFile = getDockerComposeFile()!!
+
         project.logger.lifecycle("Cleaning up previous database containers and networks.")
         execOperations.exec {
             executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile()!!.path, "down", "--remove-orphans")
+            args = listOf("-f", composeFile.path, "down", "--remove-orphans")
         }
         execOperations.exec {
             executable = "docker-compose"
-            args = listOf("-f", getDockerComposeFile()!!.path, "up", "-d")
+            args = listOf("-f", composeFile.path, "up", "-d")
         }
+
+        // `docker-compose up -d` returns as soon as the container has *started*, NOT when the
+        // database inside it is actually accepting connections. With the old embedded databases
+        // (Derby/H2) there was never such a gap. A containerized database (e.g. Postgres) still
+        // needs time to run initdb after the container starts - and much more so on a cold agent
+        // where the image has to be pulled first. If the XL Deploy server boots before the database
+        // is ready, repository initialization fails and leaves the CLI descriptor registry in an
+        // inconsistent state, surfacing later as "The type registry [...] for type [...] is not
+        // registered". Blocking here until the DB reports healthy makes the startup deterministic
+        // regardless of whether the docker image was warm or had to be pulled.
+        waitForDatabaseReady(composeFile)
+
         if (dbName.startsWith("oracle")) {
             project.logger.lifecycle("Waiting for 1 minute to start oracle db")
             TimeUnit.SECONDS.sleep(60)
         }
+    }
+
+    /**
+     * Polls the docker healthcheck status of the started database container(s) until they are
+     * `healthy` or a timeout elapses. Containers whose compose service declares no healthcheck
+     * report `none` and are treated as ready (preserving prior behaviour for images that do not
+     * define one, e.g. oracle/mssql). The timeout can be tuned with `-PdatabaseReadinessTimeoutSeconds`.
+     */
+    private fun waitForDatabaseReady(composeFile: File) {
+        val timeoutSeconds =
+            PropertyUtil.resolveValue(project, "databaseReadinessTimeoutSeconds", "240").toString().toLong()
+        val pollIntervalSeconds = 5L
+
+        val containerIds = dockerStdout("docker-compose", listOf("-f", composeFile.path, "ps", "-q"))
+            .lines().map { it.trim() }.filter { it.isNotEmpty() }
+        if (containerIds.isEmpty()) {
+            project.logger.warn(
+                "Could not determine database container id(s) from ${composeFile.name}; skipping readiness wait."
+            )
+            return
+        }
+
+        project.logger.lifecycle("Waiting up to ${timeoutSeconds}s for database container(s) to become healthy...")
+        val deadline = System.currentTimeMillis() + timeoutSeconds * 1000
+        while (true) {
+            val statuses = containerIds.associateWith { id ->
+                // Arguments are passed as a list (no shell), so the Go template survives verbatim on
+                // every OS. Containers with no healthcheck report `none` and are treated as ready.
+                dockerStdout(
+                    "docker",
+                    listOf("inspect", "-f", "{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}", id)
+                ).trim()
+            }
+            val notReady = statuses.filterValues { it != "healthy" && it != "none" }
+            if (notReady.isEmpty()) {
+                project.logger.lifecycle("Database container(s) ready: $statuses")
+                return
+            }
+            if (System.currentTimeMillis() >= deadline) {
+                throw GradleException(
+                    "Database container(s) did not become healthy within ${timeoutSeconds}s. " +
+                        "Current status: $statuses. Inspect `docker logs <container>` for details."
+                )
+            }
+            TimeUnit.SECONDS.sleep(pollIntervalSeconds)
+        }
+    }
+
+    /**
+     * Runs a docker/docker-compose command capturing ONLY stdout (stderr - e.g. the compose
+     * `version is obsolete` warning - is left on the console so it cannot pollute the parsed
+     * output). Arguments are passed as a list so no shell is involved and Go `--format` templates
+     * are not mangled by shell quoting.
+     */
+    private fun dockerStdout(executableName: String, arguments: List<String>): String {
+        val stdout = ByteArrayOutputStream()
+        execOperations.exec {
+            executable = executableName
+            args = arguments
+            standardOutput = stdout
+            isIgnoreExitValue = true
+        }
+        return stdout.toString(StandardCharsets.UTF_8)
     }
 }
