@@ -3,8 +3,7 @@ package ai.digital.integration.server.common.tasks.database
 import ai.digital.integration.server.common.constant.PluginConstant.PLUGIN_GROUP
 import ai.digital.integration.server.common.util.DbUtil
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
 import java.io.File
@@ -21,6 +20,7 @@ open class DatabaseStopTask @Inject constructor(
         this.group = PLUGIN_GROUP
     }
 
+    @Internal
     fun getDockerComposeFile(): File? {
         val dbName = DbUtil.databaseName(project)
         if (DbUtil.isEmbeddedDatabase(dbName)) {
