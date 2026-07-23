@@ -27,6 +27,10 @@ open class DeployIntegrationServerExtension(
 
     var xldIsDataVersion: String? = null
 
+    // Maven coordinate (group:name) of the DBUnit dataset artifact. Defaults to the backend's xld-is-data
+    // so existing consumers are unaffected; FE consumers override it (e.g. to xld-ci-explorer-data).
+    var xldIsDataArtifact: String = "com.xebialabs.deployit.plugins:xld-is-data"
+
     var tls: Tls? = null
 
     var pekkoSecured: PekkoSecured? = null

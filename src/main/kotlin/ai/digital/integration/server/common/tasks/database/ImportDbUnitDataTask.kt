@@ -42,8 +42,12 @@ open class ImportDbUnitDataTask : DefaultTask() {
         val provider = FlatXmlDataSetBuilder()
         provider.isColumnSensing = true
         provider.isCaseSensitiveTableNames = true
-        val version = DeployExtensionUtil.getExtension(project).xldIsDataVersion
-        val dataFile = Paths.get("${IntegrationServerUtil.getDist(project)}/xld-is-data-${version}-repository/data.xml")
+        val extension = DeployExtensionUtil.getExtension(project)
+        val version = extension.xldIsDataVersion
+        // artifact name (after group) drives the extracted folder; default xld-is-data keeps the legacy path
+        val artifactName = extension.xldIsDataArtifact.substringAfterLast(":")
+        val dataFile = Paths.get("${IntegrationServerUtil.getDist(project)}/${artifactName}-${version}-repository/data.xml")
+        project.logger.lifecycle("[DbUnit][import] Loading dataset from artifact '${extension.xldIsDataArtifact}:${version}' -> ${dataFile}")
         return provider.build(FileInputStream(dataFile.toFile()))
     }
 
@@ -59,8 +63,11 @@ open class ImportDbUnitDataTask : DefaultTask() {
         val connection = DbConfigurationUtil.configureConnection(driverConnection, dbDependency)
         try {
             val dataSet = configureDataSet()
+            project.logger.lifecycle("[DbUnit][import] Executing CLEAN_INSERT into '${dbname}' (${dbConfig.third})")
             DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet)
+            project.logger.lifecycle("[DbUnit][import] CLEAN_INSERT completed for '${dbname}'")
             if (dbname == DbUtil.POSTGRES) {
+                project.logger.lifecycle("[DbUnit][import] Resetting Postgres sequences")
                 PostgresDbUtil.resetSequences(project, driverConnection)
             }
         } finally {

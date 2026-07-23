@@ -14,18 +14,22 @@ open class DownloadAndExtractDbUnitDataDistTask : DefaultTask() {
 
     init {
         this.group = PLUGIN_GROUP
-        val version = DeployExtensionUtil.getExtension(project).xldIsDataVersion
+        val extension = DeployExtensionUtil.getExtension(project)
+        val version = extension.xldIsDataVersion
         if (version != null) {
-            project.dependencies.add(
-                SERVER_DATA_DIST,
-                "com.xebialabs.deployit.plugins:xld-is-data:${version}:repository@zip"
-            )
+            val coordinate = "${extension.xldIsDataArtifact}:${version}:repository@zip"
+            project.logger.lifecycle("[DbUnit][download] Resolving DBUnit dataset artifact: $coordinate")
+            project.dependencies.add(SERVER_DATA_DIST, coordinate)
+            val destination = IntegrationServerUtil.getDist(project)
             val taskName = "${NAME}Exec"
             this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
-                from(project.zipTree(project.configurations.getByName(SERVER_DATA_DIST).singleFile))
-                into(IntegrationServerUtil.getDist(project))
+                val zipFile = project.configurations.getByName(SERVER_DATA_DIST).singleFile
+                project.logger.lifecycle("[DbUnit][download] Extracting '${zipFile.name}' (from $coordinate) into $destination")
+                from(project.zipTree(zipFile))
+                into(destination)
             })
-
+        } else {
+            project.logger.info("[DbUnit][download] xldIsDataVersion not set; skipping DBUnit dataset download.")
         }
     }
 }

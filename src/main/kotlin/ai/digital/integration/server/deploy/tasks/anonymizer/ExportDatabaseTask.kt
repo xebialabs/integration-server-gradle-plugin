@@ -17,7 +17,7 @@ open class ExportDatabaseTask @Inject constructor(
             .filter { !it.name.endsWith("-sources.jar") }.asPath
         logger.debug("Exporting Database application classpath: \n${classpath}")
 
-        project.logger.lifecycle("Starting to export the database ")
+        project.logger.lifecycle("[DbUnit][export] Starting AnonymizerBootstrapper to export data.xml (workingDir=${server.runtimeDirectory})")
 
         execOperations.javaexec {
             mainClass.set("com.xebialabs.database.anonymizer.AnonymizerBootstrapper")
@@ -26,6 +26,7 @@ open class ExportDatabaseTask @Inject constructor(
                 workingDir = File(dir)
             }
         }
+        project.logger.lifecycle("[DbUnit][export] AnonymizerBootstrapper finished; data.xml written under ${server.runtimeDirectory}")
     }
 
     @TaskAction

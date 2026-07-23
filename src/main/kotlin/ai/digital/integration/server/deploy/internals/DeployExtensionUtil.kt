@@ -39,6 +39,7 @@ class DeployExtensionUtil {
         fun initialize(project: Project) {
             val extension = getExtension(project)
             extension.xldIsDataVersion = getXldIsDataVersion(project)
+            extension.xldIsDataArtifact = getXldIsDataArtifact(project)
             extension.mqDriverVersions = getMqDriverVersions(project)
         }
 
@@ -47,6 +48,13 @@ class DeployExtensionUtil {
                 project.property("xldIsDataVersion").toString()
             else
                 null
+        }
+
+        private fun getXldIsDataArtifact(project: Project): String {
+            return if (project.hasProperty("xldIsDataArtifact"))
+                project.property("xldIsDataArtifact").toString()
+            else
+                "com.xebialabs.deployit.plugins:xld-is-data"
         }
 
         @Suppress("UNCHECKED_CAST")
