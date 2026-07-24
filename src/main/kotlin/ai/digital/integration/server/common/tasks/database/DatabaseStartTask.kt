@@ -10,6 +10,7 @@ import ai.digital.integration.server.deploy.tasks.cli.DownloadAndExtractCliDistT
 import ai.digital.integration.server.deploy.tasks.server.ApplicationConfigurationOverrideTask
 import com.palantir.gradle.docker.DockerComposeUp
 import org.gradle.api.GradleException
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
@@ -35,7 +36,12 @@ abstract class DatabaseStartTask @Inject constructor(
     }
 
     override fun getDescription(): String {
-        return "Starts database instance using `docker-compose` and ${DbUtil.dockerComposeFileName(project)} file."
+        val dbName = DbUtil.databaseName(project)
+        return if (DbUtil.isEmbeddedDatabase(dbName)) {
+            "Starts the '$dbName' database (embedded, no container - this task is skipped)."
+        } else {
+            "Starts the '$dbName' database instance using `docker-compose` and the ${DbUtil.dockerComposeFileName(project)} file."
+        }
     }
 
     @InputFiles
@@ -50,6 +56,8 @@ abstract class DatabaseStartTask @Inject constructor(
         }
     }
 
+    @InputFile
+    @Optional
     override fun getDockerComposeFile(): File? {
         val dbName = DbUtil.databaseName(project)
         
