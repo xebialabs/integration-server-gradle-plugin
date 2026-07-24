@@ -13,7 +13,6 @@ import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import org.dbunit.operation.DatabaseOperation
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
-import java.io.FileInputStream
 import java.nio.file.Paths
 
 open class ImportDbUnitDataTask : DefaultTask() {
@@ -48,7 +47,11 @@ open class ImportDbUnitDataTask : DefaultTask() {
         val artifactName = extension.xldIsDataArtifact.substringAfterLast(":")
         val dataFile = Paths.get("${IntegrationServerUtil.getDist(project)}/${artifactName}-${version}-repository/data.xml")
         project.logger.lifecycle("[DbUnit][import] Loading dataset from artifact '${extension.xldIsDataArtifact}:${version}' -> ${dataFile}")
-        return provider.build(FileInputStream(dataFile.toFile()))
+        // Build from the File (not an InputStream) so DBUnit sets the base URI to data.xml's location — this lets
+        // the flat-XML DOCTYPE ("xl-deploy-repository-dump.dtd") resolve from the same -repository folder (we ship
+        // the .dtd alongside data.xml). With a raw FileInputStream the DTD would be looked up relative to the
+        // process working dir (project root) and fail with FileNotFoundException.
+        return provider.build(dataFile.toFile())
     }
 
     @TaskAction

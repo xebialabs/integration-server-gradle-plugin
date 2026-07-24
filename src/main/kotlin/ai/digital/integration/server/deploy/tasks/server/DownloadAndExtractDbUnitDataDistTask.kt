@@ -20,7 +20,13 @@ open class DownloadAndExtractDbUnitDataDistTask : DefaultTask() {
             val coordinate = "${extension.xldIsDataArtifact}:${version}:repository@zip"
             project.logger.lifecycle("[DbUnit][download] Resolving DBUnit dataset artifact: $coordinate")
             project.dependencies.add(SERVER_DATA_DIST, coordinate)
-            val destination = IntegrationServerUtil.getDist(project)
+            // Extract into the dedicated <artifact>-<version>-repository/ subfolder that ImportDbUnitDataTask
+            // reads data.xml from. The repository zip carries data.xml at its root, so extracting into this
+            // subfolder yields <dist>/<artifact>-<version>-repository/data.xml. Scoping the destination to this
+            // subfolder (instead of the whole build/integration-server) also avoids Gradle's implicit-dependency
+            // validation error with tasks like databaseStart that share the dist dir.
+            val artifactName = extension.xldIsDataArtifact.substringAfterLast(":")
+            val destination = "${IntegrationServerUtil.getDist(project)}/${artifactName}-${version}-repository"
             val taskName = "${NAME}Exec"
             this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
                 val zipFile = project.configurations.getByName(SERVER_DATA_DIST).singleFile
