@@ -8,6 +8,7 @@ import ai.digital.integration.server.common.util.PostgresDbUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractDbUnitDataDistTask
 import ai.digital.integration.server.deploy.tasks.server.StartDeployServerInstanceTask
+import org.dbunit.database.DatabaseConfig
 import org.dbunit.dataset.xml.FlatXmlDataSet
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import org.dbunit.operation.DatabaseOperation
@@ -30,6 +31,12 @@ open class ImportDbUnitDataTask : DefaultTask() {
         }
     }
 
+    // True when the consumer overrides the DBUnit coordinate (e.g. FE's xld-ci-explorer-data). The backend
+    // default (xld-is-data) returns false and keeps the exact legacy import behavior — unaffected by FE fixes.
+    private fun isCustomDataArtifact(): Boolean =
+        DownloadAndExtractDbUnitDataDistTask.isCustomDataArtifact(
+            DeployExtensionUtil.getExtension(project).xldIsDataArtifact)
+
     private fun getConfiguration(): Triple<String, String, String> {
         val username = DbUtil.getDbPropValue(project, "db-username")
         val password = DbUtil.getDbPropValue(project, "db-password")
@@ -42,9 +49,23 @@ open class ImportDbUnitDataTask : DefaultTask() {
         val provider = FlatXmlDataSetBuilder()
         provider.isColumnSensing = true
         provider.isCaseSensitiveTableNames = true
-        val version = DeployExtensionUtil.getExtension(project).xldIsDataVersion
-        val dataFile = Paths.get("${IntegrationServerUtil.getDist(project)}/xld-is-data-${version}-repository/data.xml")
-        return provider.build(FileInputStream(dataFile.toFile()))
+        val extension = DeployExtensionUtil.getExtension(project)
+        val version = extension.xldIsDataVersion
+        // Derive the extracted repository folder from the SAME helper DownloadAndExtractDbUnitDataDistTask
+        // extracts into, so the read path can never drift from the write path.
+        val repoFolder = DownloadAndExtractDbUnitDataDistTask.repositoryFolderName(extension.xldIsDataArtifact, version.toString())
+        val dataFile = Paths.get("${IntegrationServerUtil.getDist(project)}/${repoFolder}/data.xml")
+        project.logger.lifecycle("[DbUnit][import] Loading dataset from artifact '${extension.xldIsDataArtifact}:${version}' -> ${dataFile}")
+        return if (isCustomDataArtifact()) {
+            // FE (custom artifact): build from the File so DBUnit sets the base URI to data.xml's location, letting
+            // the flat-XML DOCTYPE ("xl-deploy-repository-dump.dtd") resolve from the same -repository folder (we
+            // ship the .dtd alongside). A raw FileInputStream would look up the DTD relative to the process working
+            // dir and fail with FileNotFoundException.
+            provider.build(dataFile.toFile())
+        } else {
+            // Legacy backend (xld-is-data) — unchanged stream-based build.
+            provider.build(FileInputStream(dataFile.toFile()))
+        }
     }
 
     @TaskAction
@@ -57,10 +78,19 @@ open class ImportDbUnitDataTask : DefaultTask() {
         val driverConnection =
             DbConfigurationUtil.createDriverConnection(dbDependency.driverClass.orEmpty(), dbConfig.third, properties)
         val connection = DbConfigurationUtil.configureConnection(driverConnection, dbDependency)
+        if (isCustomDataArtifact()) {
+            // FE (custom artifact) datasets contain empty-string column values (e.g.
+            // XLD_ACTIVE_TASKS_METADATA.metadata_value); allow them instead of failing the CLEAN_INSERT with
+            // "value is empty but must contain a value". Backend xld-is-data keeps the default (unset) behavior.
+            connection.config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true)
+        }
         try {
             val dataSet = configureDataSet()
+            project.logger.lifecycle("[DbUnit][import] Executing CLEAN_INSERT into '${dbname}' (${dbConfig.third})")
             DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet)
+            project.logger.lifecycle("[DbUnit][import] CLEAN_INSERT completed for '${dbname}'")
             if (dbname == DbUtil.POSTGRES) {
+                project.logger.lifecycle("[DbUnit][import] Resetting Postgres sequences")
                 PostgresDbUtil.resetSequences(project, driverConnection)
             }
         } finally {

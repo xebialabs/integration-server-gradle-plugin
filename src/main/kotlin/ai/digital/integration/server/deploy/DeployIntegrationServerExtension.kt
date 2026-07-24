@@ -27,6 +27,16 @@ open class DeployIntegrationServerExtension(
 
     var xldIsDataVersion: String? = null
 
+    // Maven coordinate (group:name) of the DBUnit dataset artifact. Defaults to the backend's xld-is-data
+    // so existing consumers are unaffected; FE consumers override it (e.g. to xld-ci-explorer-data).
+    var xldIsDataArtifact: String = "com.xebialabs.deployit.plugins:xld-is-data"
+
+    // Opt-in for the dist-mode DBUnit export (exportDatabase). A producer has no artifact coordinate to key
+    // off, so this is an explicit flag. Default false keeps exportDatabase's dist branch a no-op — the exact
+    // legacy behavior for the backend producer (xld-integration-server-data). FE producers that need the
+    // dist's bin/db-anonymizer launcher to run (e.g. xld-ci-explorer-data on Postgres) set this to true.
+    var dbUnitDistExport: Boolean = false
+
     var tls: Tls? = null
 
     var pekkoSecured: PekkoSecured? = null
