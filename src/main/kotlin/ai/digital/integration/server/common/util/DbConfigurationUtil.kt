@@ -29,9 +29,6 @@ class DbConfigurationUtil {
             val config = connection.config
             config.setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true)
             config.setProperty(DatabaseConfig.FEATURE_QUALIFIED_TABLE_NAMES, true)
-            // The anonymizer export emits empty-string column values (e.g. XLD_ACTIVE_TASKS_METADATA.metadata_value);
-            // allow them on CLEAN_INSERT instead of failing with "value is empty but must contain a value".
-            config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true)
             config.setProperty(DatabaseConfig.PROPERTY_ESCAPE_PATTERN, dbDependency.escapePattern)
 
             val dataTypeFactory = Class.forName(dbDependency.dataFactory).getDeclaredConstructor().newInstance()

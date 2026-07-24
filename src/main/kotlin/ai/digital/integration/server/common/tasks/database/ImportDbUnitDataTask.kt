@@ -8,11 +8,13 @@ import ai.digital.integration.server.common.util.PostgresDbUtil
 import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.tasks.server.DownloadAndExtractDbUnitDataDistTask
 import ai.digital.integration.server.deploy.tasks.server.StartDeployServerInstanceTask
+import org.dbunit.database.DatabaseConfig
 import org.dbunit.dataset.xml.FlatXmlDataSet
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import org.dbunit.operation.DatabaseOperation
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import java.io.FileInputStream
 import java.nio.file.Paths
 
 open class ImportDbUnitDataTask : DefaultTask() {
@@ -27,6 +29,13 @@ open class ImportDbUnitDataTask : DefaultTask() {
         this.onlyIf {
             DeployExtensionUtil.getExtension(project).xldIsDataVersion != null
         }
+    }
+
+    // True when the consumer overrides the DBUnit coordinate (e.g. FE's xld-ci-explorer-data). The backend
+    // default (xld-is-data) returns false and keeps the exact legacy import behavior — unaffected by FE fixes.
+    private fun isCustomDataArtifact(): Boolean {
+        val artifactName = DeployExtensionUtil.getExtension(project).xldIsDataArtifact.substringAfterLast(":")
+        return artifactName != DownloadAndExtractDbUnitDataDistTask.DEFAULT_DATA_ARTIFACT_NAME
     }
 
     private fun getConfiguration(): Triple<String, String, String> {
@@ -47,11 +56,16 @@ open class ImportDbUnitDataTask : DefaultTask() {
         val artifactName = extension.xldIsDataArtifact.substringAfterLast(":")
         val dataFile = Paths.get("${IntegrationServerUtil.getDist(project)}/${artifactName}-${version}-repository/data.xml")
         project.logger.lifecycle("[DbUnit][import] Loading dataset from artifact '${extension.xldIsDataArtifact}:${version}' -> ${dataFile}")
-        // Build from the File (not an InputStream) so DBUnit sets the base URI to data.xml's location — this lets
-        // the flat-XML DOCTYPE ("xl-deploy-repository-dump.dtd") resolve from the same -repository folder (we ship
-        // the .dtd alongside data.xml). With a raw FileInputStream the DTD would be looked up relative to the
-        // process working dir (project root) and fail with FileNotFoundException.
-        return provider.build(dataFile.toFile())
+        return if (isCustomDataArtifact()) {
+            // FE (custom artifact): build from the File so DBUnit sets the base URI to data.xml's location, letting
+            // the flat-XML DOCTYPE ("xl-deploy-repository-dump.dtd") resolve from the same -repository folder (we
+            // ship the .dtd alongside). A raw FileInputStream would look up the DTD relative to the process working
+            // dir and fail with FileNotFoundException.
+            provider.build(dataFile.toFile())
+        } else {
+            // Legacy backend (xld-is-data) — unchanged stream-based build.
+            provider.build(FileInputStream(dataFile.toFile()))
+        }
     }
 
     @TaskAction
@@ -64,6 +78,12 @@ open class ImportDbUnitDataTask : DefaultTask() {
         val driverConnection =
             DbConfigurationUtil.createDriverConnection(dbDependency.driverClass.orEmpty(), dbConfig.third, properties)
         val connection = DbConfigurationUtil.configureConnection(driverConnection, dbDependency)
+        if (isCustomDataArtifact()) {
+            // FE (custom artifact) datasets contain empty-string column values (e.g.
+            // XLD_ACTIVE_TASKS_METADATA.metadata_value); allow them instead of failing the CLEAN_INSERT with
+            // "value is empty but must contain a value". Backend xld-is-data keeps the default (unset) behavior.
+            connection.config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true)
+        }
         try {
             val dataSet = configureDataSet()
             project.logger.lifecycle("[DbUnit][import] Executing CLEAN_INSERT into '${dbname}' (${dbConfig.third})")

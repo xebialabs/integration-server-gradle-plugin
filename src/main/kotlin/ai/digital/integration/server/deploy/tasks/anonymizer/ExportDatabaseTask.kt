@@ -2,6 +2,7 @@ package ai.digital.integration.server.deploy.tasks.anonymizer
 
 import ai.digital.integration.server.common.domain.Server
 import ai.digital.integration.server.deploy.internals.DeployConfigurationsUtil
+import ai.digital.integration.server.deploy.internals.DeployExtensionUtil
 import ai.digital.integration.server.deploy.internals.DeployServerUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -76,8 +77,16 @@ open class ExportDatabaseTask @Inject constructor(
             project.logger.lifecycle("[DbUnit][export] runtimeDirectory=${server.runtimeDirectory} -> classpath-mode export (startFromClasspath)")
             startFromClasspath(server)
         } else {
-            project.logger.lifecycle("[DbUnit][export] runtimeDirectory is null -> dist-mode export (exportFromDist) via the server dist's bin/db-anonymizer launcher")
-            exportFromDist(server)
+            // Dist-mode export is opt-in via dbUnitDistExport. Default (false) keeps the exact legacy no-op so
+            // the backend producer (xld-integration-server-data) is completely unaffected; FE producers that
+            // need the dist's bin/db-anonymizer launcher (e.g. xld-ci-explorer-data on Postgres) enable it.
+            val distExportEnabled = DeployExtensionUtil.getExtension(project).dbUnitDistExport
+            if (distExportEnabled) {
+                project.logger.lifecycle("[DbUnit][export] runtimeDirectory is null & dbUnitDistExport=true -> dist-mode export (exportFromDist) via the server dist's bin/db-anonymizer launcher")
+                exportFromDist(server)
+            } else {
+                project.logger.lifecycle("[DbUnit][export] runtimeDirectory is null & dbUnitDistExport=false -> skipping dist-mode export (legacy no-op; set dbUnitDistExport=true to enable)")
+            }
         }
     }
 
