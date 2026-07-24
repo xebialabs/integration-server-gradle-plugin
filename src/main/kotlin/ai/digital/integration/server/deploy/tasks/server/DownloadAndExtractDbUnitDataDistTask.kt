@@ -14,6 +14,28 @@ open class DownloadAndExtractDbUnitDataDistTask : DefaultTask() {
         // (e.g. FE's xld-ci-explorer-data), the new dist-mode extraction/import path is used; the default keeps
         // the legacy behavior untouched so xld-integration-server-data / xld-deploy backend are unaffected.
         const val DEFAULT_DATA_ARTIFACT_NAME = "xld-is-data"
+
+        /**
+         * Single source of truth for the gating rule shared by download + import: the new dist-mode extraction
+         * / import behavior applies ONLY when a consumer OVERRIDES the DBUnit coordinate to something other than
+         * the backend default (xld-is-data). The default keeps the exact legacy behavior. Accepts a "group:name"
+         * (or bare "name") coordinate and compares the trailing artifact name.
+         */
+        fun isCustomDataArtifact(artifactCoordinate: String): Boolean =
+            artifactCoordinate.substringAfterLast(":") != DEFAULT_DATA_ARTIFACT_NAME
+
+        /** The bare artifact name from a "group:name" (or bare "name") coordinate. */
+        fun dataArtifactName(artifactCoordinate: String): String =
+            artifactCoordinate.substringAfterLast(":")
+
+        /**
+         * Single source of truth for the extracted repository folder name. This task extracts the DBUnit
+         * dataset zip INTO this folder and ImportDbUnitDataTask reads `<folder>/data.xml` FROM it, so both
+         * MUST derive it identically — otherwise the import silently looks in the wrong place and fails with
+         * FileNotFoundException. Keep this the only place the layout is computed.
+         */
+        fun repositoryFolderName(artifactCoordinate: String, version: String): String =
+            "${dataArtifactName(artifactCoordinate)}-${version}-repository"
     }
 
     init {
@@ -24,10 +46,9 @@ open class DownloadAndExtractDbUnitDataDistTask : DefaultTask() {
             val coordinate = "${extension.xldIsDataArtifact}:${version}:repository@zip"
             project.logger.lifecycle("[DbUnit][download] Resolving DBUnit dataset artifact: $coordinate")
             project.dependencies.add(SERVER_DATA_DIST, coordinate)
-            val artifactName = extension.xldIsDataArtifact.substringAfterLast(":")
             // Only FE consumers that OVERRIDE the coordinate (e.g. xld-ci-explorer-data) get the new extraction;
             // the backend default (xld-is-data) keeps the exact legacy behavior so it is entirely unaffected.
-            val isCustomDataArtifact = artifactName != DEFAULT_DATA_ARTIFACT_NAME
+            val isCustomDataArtifact = isCustomDataArtifact(extension.xldIsDataArtifact)
             val taskName = "${NAME}Exec"
             if (isCustomDataArtifact) {
                 // Extract into the dedicated <artifact>-<version>-repository/ subfolder that ImportDbUnitDataTask
@@ -35,7 +56,7 @@ open class DownloadAndExtractDbUnitDataDistTask : DefaultTask() {
                 // subfolder (instead of the whole build/integration-server) also avoids Gradle's implicit-dependency
                 // validation error with tasks like databaseStart that share the dist dir. The prefix-strip keeps it
                 // correct whether the zip has data.xml at the root or nested under the repository folder.
-                val repoFolder = "${artifactName}-${version}-repository"
+                val repoFolder = repositoryFolderName(extension.xldIsDataArtifact, version)
                 val destination = "${IntegrationServerUtil.getDist(project)}/${repoFolder}"
                 this.dependsOn(project.tasks.register(taskName, Copy::class.java) {
                     val zipFile = project.configurations.getByName(SERVER_DATA_DIST).singleFile

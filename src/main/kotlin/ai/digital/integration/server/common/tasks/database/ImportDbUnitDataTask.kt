@@ -33,10 +33,9 @@ open class ImportDbUnitDataTask : DefaultTask() {
 
     // True when the consumer overrides the DBUnit coordinate (e.g. FE's xld-ci-explorer-data). The backend
     // default (xld-is-data) returns false and keeps the exact legacy import behavior — unaffected by FE fixes.
-    private fun isCustomDataArtifact(): Boolean {
-        val artifactName = DeployExtensionUtil.getExtension(project).xldIsDataArtifact.substringAfterLast(":")
-        return artifactName != DownloadAndExtractDbUnitDataDistTask.DEFAULT_DATA_ARTIFACT_NAME
-    }
+    private fun isCustomDataArtifact(): Boolean =
+        DownloadAndExtractDbUnitDataDistTask.isCustomDataArtifact(
+            DeployExtensionUtil.getExtension(project).xldIsDataArtifact)
 
     private fun getConfiguration(): Triple<String, String, String> {
         val username = DbUtil.getDbPropValue(project, "db-username")
@@ -52,9 +51,10 @@ open class ImportDbUnitDataTask : DefaultTask() {
         provider.isCaseSensitiveTableNames = true
         val extension = DeployExtensionUtil.getExtension(project)
         val version = extension.xldIsDataVersion
-        // artifact name (after group) drives the extracted folder; default xld-is-data keeps the legacy path
-        val artifactName = extension.xldIsDataArtifact.substringAfterLast(":")
-        val dataFile = Paths.get("${IntegrationServerUtil.getDist(project)}/${artifactName}-${version}-repository/data.xml")
+        // Derive the extracted repository folder from the SAME helper DownloadAndExtractDbUnitDataDistTask
+        // extracts into, so the read path can never drift from the write path.
+        val repoFolder = DownloadAndExtractDbUnitDataDistTask.repositoryFolderName(extension.xldIsDataArtifact, version.toString())
+        val dataFile = Paths.get("${IntegrationServerUtil.getDist(project)}/${repoFolder}/data.xml")
         project.logger.lifecycle("[DbUnit][import] Loading dataset from artifact '${extension.xldIsDataArtifact}:${version}' -> ${dataFile}")
         return if (isCustomDataArtifact()) {
             // FE (custom artifact): build from the File so DBUnit sets the base URI to data.xml's location, letting
