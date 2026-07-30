@@ -89,7 +89,7 @@ open class ImportDbUnitDataTask : DefaultTask() {
             project.logger.lifecycle("[DbUnit][import] Executing CLEAN_INSERT into '${dbname}' (${dbConfig.third})")
             DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet)
             project.logger.lifecycle("[DbUnit][import] CLEAN_INSERT completed for '${dbname}'")
-            if (dbname == DbUtil.POSTGRES) {
+            if (dbname == DbUtil.POSTGRES || dbname == DbUtil.POSTGRES12) {
                 project.logger.lifecycle("[DbUnit][import] Resetting Postgres sequences")
                 PostgresDbUtil.resetSequences(project, driverConnection)
             }
