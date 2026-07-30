@@ -14,9 +14,22 @@ class PostgresDbUtil {
                 while (rs.next()) {
                     val sequence = rs.getString("relname")
                     val table = sequence.replace("_ID_seq", "")
+                    // Check if the table exists before attempting to reset the sequence.
+                    // DBUnit CLEAN_INSERT may not create tables that were empty at export time,
+                    // so their sequences exist (from schema creation) but the table does not
+                    // appear in the dataset — attempting MAX("ID") would throw.
+                    val checkStmt = connection.createStatement()
+                    checkStmt.closeOnCompletion()
+                    val tableExists = checkStmt.executeQuery(
+                        "SELECT 1 FROM pg_class WHERE relname = '${table}' AND relkind = 'r'")
+                    if (!tableExists.next()) {
+                        project.logger.lifecycle("[resetSequences] Skipping sequence '${sequence}' — table '${table}' not found")
+                        continue
+                    }
                     val updStmt = connection.createStatement()
                     updStmt.closeOnCompletion()
-                    updStmt.executeQuery("SELECT SETVAL('\"${sequence}\"', (SELECT MAX(\"ID\")+1 FROM \"${table}\"));")
+                    updStmt.executeQuery("SELECT SETVAL('\"${sequence}\"', (SELECT COALESCE(MAX(\"ID\"), 0)+1 FROM \"${table}\"));")
+                    project.logger.lifecycle("[resetSequences] Reset '${sequence}' to MAX(ID)+1")
                 }
             } catch (e: SQLException) {
                 project.logger.error("Error occurred while resetting sequences.")
